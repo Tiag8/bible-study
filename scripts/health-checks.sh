@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Health Checks - Life Tracker (America/Sao_Paulo)
+# Health Checks - Verificações de ambiente
 # - Verifica .env e variáveis críticas
 # - Verifica portas em uso
 # - Exibe resumo final
@@ -11,10 +11,11 @@ PASS() { echo -e "${GREEN}✔${NC} $1"; }
 WARN() { echo -e "${YELLOW}⚠${NC} $1"; }
 FAIL() { echo -e "${RED}✘${NC} $1"; }
 
+# IMPORTANTE: Personalizar esta lista com variáveis do seu projeto
 required_env_vars=(
   "VITE_SUPABASE_URL"
   "VITE_SUPABASE_ANON_KEY"
-  "VITE_LOVABLE_AI_GATEWAY_URL"
+  # Adicione outras variáveis críticas aqui
 )
 
 echo "==> Verificando arquivo .env"
