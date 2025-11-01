@@ -1,0 +1,106 @@
+# =============================================================================
+# Generic Multi-Stage Dockerfile for React/Vite Applications
+# =============================================================================
+# CUSTOMIZE: Adjust Node version, build commands, and paths as needed
+# Description: Production-ready multi-stage build for React apps
+# Output: Nginx Alpine serving static files (~50MB final image)
+# =============================================================================
+
+# =============================================================================
+# Stage 1: Build (Node.js Alpine)
+# =============================================================================
+FROM node:18-alpine AS builder
+
+# Metadata
+LABEL maintainer="Your Team"
+LABEL description="React App - Multi-stage build"
+LABEL stage="builder"
+
+# Set working directory
+WORKDIR /app
+
+# Install dependencies first (better Docker cache)
+# Copying package files separately allows Docker to cache this layer
+COPY package*.json ./
+
+# Install all dependencies (including devDependencies needed for build)
+# Use --legacy-peer-deps if you have peer dependency warnings
+RUN npm install --legacy-peer-deps && \
+    npm cache clean --force
+
+# Copy source code
+# This invalidates cache only when source changes
+COPY . .
+
+# Build application for production
+# CUSTOMIZE: Change build command if using different tooling
+ENV NODE_ENV=production
+RUN npm run build
+
+# Verify build output exists
+# CUSTOMIZE: Change dist/ to your build output directory
+RUN if [ ! -d "dist" ]; then echo "ERROR: Build output not found!"; exit 1; fi
+
+# Clean up to reduce stage size (optional - won't affect final image)
+RUN rm -rf node_modules src public
+
+# =============================================================================
+# Stage 2: Production (Nginx Alpine)
+# =============================================================================
+FROM nginx:alpine
+
+# Metadata
+LABEL maintainer="Your Team"
+LABEL description="React App - Production runtime"
+LABEL stage="production"
+
+# Copy built files from builder stage
+# CUSTOMIZE: Change /app/dist if your build output is in different directory
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy custom Nginx configuration (optional)
+# Create nginx.conf in your project root if you need custom config
+# COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# If no custom nginx.conf, Nginx will use default config
+# Default works fine for most SPAs, but you may want to:
+# - Configure gzip compression
+# - Add custom headers
+# - Handle SPA routing (fallback to index.html)
+
+# Remove default Nginx config (optional - only if using custom config)
+# RUN rm -f /etc/nginx/conf.d/default.conf.default
+
+# Configure timezone (CUSTOMIZE: Change to your timezone)
+# This ensures logs have correct timestamps
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime && \
+    echo "America/Sao_Paulo" > /etc/timezone && \
+    apk del tzdata
+
+# Expose port 80 (HTTP)
+# Traefik/reverse proxy will handle HTTPS
+EXPOSE 80
+
+# Health check for Docker/Swarm monitoring
+# CRITICAL: Use 127.0.0.1 instead of localhost in Alpine!
+# See docs/ops/docker-best-practices.md for details
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://127.0.0.1:80/ || exit 1
+
+# Start Nginx in foreground (required for Docker)
+CMD ["nginx", "-g", "daemon off;"]
+
+# =============================================================================
+# Build Instructions
+# =============================================================================
+# Build:
+#   docker build -t myapp:latest -f Dockerfile.react .
+#
+# Test locally:
+#   docker run -d --name myapp-test -p 8080:80 myapp:latest
+#   curl http://localhost:8080
+#   docker stop myapp-test && docker rm myapp-test
+#
+# Expected image size: ~50MB (Nginx Alpine + your built assets)
+# =============================================================================

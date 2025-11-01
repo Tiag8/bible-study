@@ -1,0 +1,253 @@
+# =============================================================================
+# Generic Docker Compose for Swarm Deployment (Template)
+# =============================================================================
+# CUSTOMIZE: Replace ${PLACEHOLDERS} with your actual values
+# Description: Production-ready Swarm stack with Traefik integration
+# Usage: docker stack deploy -c docker-compose.swarm.yml <stack-name>
+# =============================================================================
+
+version: '3.7'
+
+services:
+  # =============================================================================
+  # Main Application Service
+  # =============================================================================
+  app:
+    # CUSTOMIZE: Replace with your actual image name
+    # Options:
+    #   - Local: myapp:latest (built locally and transferred)
+    #   - Registry: registry.example.com/myapp:latest
+    #   - Docker Hub: username/myapp:latest
+    image: ${IMAGE_NAME:-myapp:latest}
+
+    # =============================================================================
+    # Networking
+    # =============================================================================
+    networks:
+      - network_public  # Must match Traefik network
+
+    # =============================================================================
+    # Environment Variables
+    # =============================================================================
+    environment:
+      # CUSTOMIZE: Add your application-specific env vars
+      - NODE_ENV=production
+      - TZ=America/Sao_Paulo  # CUSTOMIZE: Your timezone
+
+      # Example: API keys, database URLs, etc.
+      # - API_KEY=${API_KEY}  # Pass from .env file or secrets
+      # - DATABASE_URL=${DATABASE_URL}
+
+    # =============================================================================
+    # Secrets (optional - for sensitive data)
+    # =============================================================================
+    # Uncomment if using Docker secrets
+    # secrets:
+    #   - db_password
+    #   - api_key
+
+    # =============================================================================
+    # Volumes (optional - for persistent data)
+    # =============================================================================
+    # Uncomment if you need persistent storage
+    # volumes:
+    #   - app-data:/data
+    #   - app-uploads:/app/uploads
+
+    # =============================================================================
+    # Deploy Configuration
+    # =============================================================================
+    deploy:
+      # Replication mode
+      mode: replicated
+      replicas: 1  # CUSTOMIZE: Scale based on traffic
+
+      # Placement constraints (where to run)
+      placement:
+        constraints:
+          - node.role == manager  # CUSTOMIZE: Or "worker" for multi-node
+
+      # Restart policy
+      restart_policy:
+        condition: any  # Always restart on failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+      # Update configuration (zero-downtime deploys)
+      update_config:
+        parallelism: 1        # Update 1 container at a time
+        delay: 10s            # Wait 10s between updates
+        failure_action: rollback
+        monitor: 60s
+        max_failure_ratio: 0.3
+
+      # Rollback configuration
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+        failure_action: pause
+        monitor: 60s
+
+      # Resource limits (optional but recommended)
+      resources:
+        limits:
+          cpus: '1.0'     # Max 1 CPU core
+          memory: 512M    # Max 512MB RAM
+        reservations:
+          cpus: '0.25'    # Reserve 25% of CPU
+          memory: 128M    # Reserve 128MB RAM
+
+      # =============================================================================
+      # Traefik Labels (CRITICAL!)
+      # =============================================================================
+      # IMPORTANT: In Swarm, labels MUST be under deploy.labels, not root labels!
+      # See: docs/ops/docker-swarm-traefik.md for details
+      # =============================================================================
+      labels:
+        # -------------------------------------------------------------------------
+        # Basic Traefik Configuration
+        # -------------------------------------------------------------------------
+        # Enable Traefik for this service
+        - traefik.enable=true
+
+        # Specify network (REQUIRED in Swarm mode)
+        - traefik.docker.network=network_public
+
+        # -------------------------------------------------------------------------
+        # HTTP Router (Port 80) - Redirect to HTTPS
+        # -------------------------------------------------------------------------
+        # CUSTOMIZE: Replace ${DOMAIN} with your actual domain
+        - traefik.http.routers.${ROUTER_NAME:-myapp}-http.rule=Host(`${DOMAIN:-myapp.example.com}`)
+        - traefik.http.routers.${ROUTER_NAME:-myapp}-http.entrypoints=web
+        - traefik.http.routers.${ROUTER_NAME:-myapp}-http.middlewares=redirect-to-https
+
+        # -------------------------------------------------------------------------
+        # HTTPS Router (Port 443)
+        # -------------------------------------------------------------------------
+        # CUSTOMIZE: Replace ${DOMAIN} with your actual domain
+        - traefik.http.routers.${ROUTER_NAME:-myapp}-https.rule=Host(`${DOMAIN:-myapp.example.com}`)
+        - traefik.http.routers.${ROUTER_NAME:-myapp}-https.entrypoints=websecure
+        - traefik.http.routers.${ROUTER_NAME:-myapp}-https.tls.certresolver=letsencryptresolver
+        - traefik.http.routers.${ROUTER_NAME:-myapp}-https.service=${SERVICE_NAME:-myapp-service}
+
+        # Optional: Priority (higher = evaluated first)
+        # Useful if you have multiple routers with overlapping rules
+        # - traefik.http.routers.${ROUTER_NAME:-myapp}-https.priority=1
+
+        # -------------------------------------------------------------------------
+        # Service Configuration (Load Balancer)
+        # -------------------------------------------------------------------------
+        # CUSTOMIZE: Change port if your app runs on different port
+        # This is the INTERNAL port of your container (not exposed to host)
+        - traefik.http.services.${SERVICE_NAME:-myapp-service}.loadbalancer.server.port=80
+
+        # Pass original Host header to backend
+        - traefik.http.services.${SERVICE_NAME:-myapp-service}.loadbalancer.passHostHeader=true
+
+        # Health check (optional - Traefik will check this endpoint)
+        # - traefik.http.services.${SERVICE_NAME:-myapp-service}.loadbalancer.healthcheck.path=/health
+        # - traefik.http.services.${SERVICE_NAME:-myapp-service}.loadbalancer.healthcheck.interval=10s
+
+        # -------------------------------------------------------------------------
+        # Middlewares
+        # -------------------------------------------------------------------------
+        # Middleware: HTTP -> HTTPS redirect
+        - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+        - traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true
+
+        # Optional: Add security headers
+        # - traefik.http.middlewares.security-headers.headers.frameDeny=true
+        # - traefik.http.middlewares.security-headers.headers.contentTypeNosniff=true
+        # - traefik.http.middlewares.security-headers.headers.browserXssFilter=true
+        # - traefik.http.routers.${ROUTER_NAME:-myapp}-https.middlewares=security-headers
+
+        # Optional: Rate limiting
+        # - traefik.http.middlewares.rate-limit.ratelimit.average=100
+        # - traefik.http.middlewares.rate-limit.ratelimit.burst=50
+        # - traefik.http.routers.${ROUTER_NAME:-myapp}-https.middlewares=rate-limit
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  network_public:
+    external: true  # Network must already exist (created by Traefik setup)
+    name: network_public
+
+# =============================================================================
+# Volumes (optional - for persistent data)
+# =============================================================================
+# Uncomment if you defined volumes in the service
+# volumes:
+#   app-data:
+#     driver: local
+#   app-uploads:
+#     driver: local
+
+# =============================================================================
+# Secrets (optional - for sensitive data)
+# =============================================================================
+# Uncomment if you use Docker secrets
+# secrets:
+#   db_password:
+#     external: true
+#   api_key:
+#     external: true
+
+# =============================================================================
+# Configuration Checklist
+# =============================================================================
+# Before deploying, ensure:
+#
+# [ ] Replaced ${IMAGE_NAME} with your Docker image
+# [ ] Replaced ${DOMAIN} with your actual domain
+# [ ] Replaced ${ROUTER_NAME} with unique router name (e.g., myapp-https)
+# [ ] Replaced ${SERVICE_NAME} with unique service name (e.g., myapp-service)
+# [ ] Configured environment variables for your app
+# [ ] Adjusted resource limits based on your needs
+# [ ] Configured replicas based on traffic expectations
+# [ ] DNS points to VPS IP
+# [ ] Traefik is running and configured with Let's Encrypt
+# [ ] Network "network_public" exists
+#
+# =============================================================================
+# Deploy Commands
+# =============================================================================
+# Deploy stack:
+#   docker stack deploy -c docker-compose.swarm.yml <stack-name>
+#
+# Update stack (after code changes):
+#   docker stack deploy -c docker-compose.swarm.yml <stack-name>
+#
+# Remove stack:
+#   docker stack rm <stack-name>
+#
+# View services:
+#   docker service ls
+#
+# View service logs:
+#   docker service logs -f <stack-name>_app
+#
+# Scale service:
+#   docker service scale <stack-name>_app=3
+#
+# =============================================================================
+# Troubleshooting
+# =============================================================================
+# If something goes wrong, check:
+#
+# 1. Service status:
+#    docker service ps <stack-name>_app
+#
+# 2. Logs:
+#    docker service logs --tail 50 <stack-name>_app
+#
+# 3. Traefik dashboard (if enabled):
+#    http://<vps-ip>:8080
+#
+# 4. Inspect service:
+#    docker service inspect <stack-name>_app
+#
+# See: docs/ops/docker-swarm-traefik.md for detailed troubleshooting
+# =============================================================================
