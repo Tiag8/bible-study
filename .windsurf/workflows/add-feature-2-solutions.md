@@ -2,6 +2,15 @@
 description: Workflow Add-Feature (2/9) - Solution Design (3 Soluções)
 ---
 
+## 📚 Pré-requisito: Consultar Documentação Base
+
+Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
+- `docs/PLAN.md` - Visão estratégica atual
+- `docs/TASK.md` - Status das tarefas em andamento
+- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+
+---
+
 # Workflow 2/9: Solution Design (Propor 3 Soluções)
 
 Este é o **segundo workflow** de 9 etapas modulares para adicionar uma nova funcionalidade.
@@ -223,3 +232,13 @@ Acionar workflow: .windsurf/workflows/add-feature-3-risk-analysis.md
 **Workflow criado em**: 2025-10-27
 **Parte**: 2 de 9
 **Próximo**: Risk Analysis (Análise de Riscos)
+
+
+## 📝 Atualização de Documentação
+
+Após completar este workflow:
+- [ ] Atualizar `docs/TASK.md` com status das tarefas completadas
+- [ ] Atualizar `docs/PLAN.md` se houve mudança estratégica
+- [ ] Criar ADR em `docs/adr/` se houve decisão arquitetural
+
+---

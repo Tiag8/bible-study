@@ -2,6 +2,15 @@
 description: Workflow Add-Feature (10/10) - Template Sync (Sincronização com Template Base)
 ---
 
+## 📚 Pré-requisito: Consultar Documentação Base
+
+Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
+- `docs/PLAN.md` - Visão estratégica atual
+- `docs/TASK.md` - Status das tarefas em andamento
+- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+
+---
+
 # Workflow 10/10: Template Sync
 
 Este é o **décimo e último workflow** de 10 etapas modulares para adicionar uma nova funcionalidade.
@@ -400,3 +409,13 @@ git diff main .windsurf/workflows/add-feature-5-implementation.md
 **Workflow criado em**: 2025-10-28
 **Versão**: 1.0
 **Autor**: Tiago + Claude Code + Windsurf AI
+
+
+## 📝 Atualização de Documentação
+
+Após completar este workflow:
+- [ ] Atualizar `docs/TASK.md` com status das tarefas completadas
+- [ ] Atualizar `docs/PLAN.md` se houve mudança estratégica
+- [ ] Criar ADR em `docs/adr/` se houve decisão arquitetural
+
+---

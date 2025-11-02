@@ -2,6 +2,15 @@
 description: Workflow Add-Feature (8/9) - Meta-Learning (Aprender ANTES de Documentar)
 ---
 
+## 📚 Pré-requisito: Consultar Documentação Base
+
+Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
+- `docs/PLAN.md` - Visão estratégica atual
+- `docs/TASK.md` - Status das tarefas em andamento
+- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+
+---
+
 # Workflow 8/9: Meta-Learning (Meta-Aprendizado)
 
 Este é o **oitavo workflow** de 9 etapas modulares para adicionar uma nova funcionalidade.
@@ -311,3 +320,13 @@ Acionar workflow: .windsurf/workflows/add-feature-9-finalization.md
 **Workflow criado em**: 2025-10-27
 **Parte**: 8 de 9
 **Próximo**: Finalization (Docs + Commit + Merge)
+
+
+## 📝 Atualização de Documentação
+
+Após completar este workflow:
+- [ ] Atualizar `docs/TASK.md` com status das tarefas completadas
+- [ ] Atualizar `docs/PLAN.md` se houve mudança estratégica
+- [ ] Criar ADR em `docs/adr/` se houve decisão arquitetural
+
+---

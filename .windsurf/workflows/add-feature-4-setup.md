@@ -2,6 +2,15 @@
 description: Workflow Add-Feature (4/9) - Setup (Preparação do Ambiente)
 ---
 
+## 📚 Pré-requisito: Consultar Documentação Base
+
+Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
+- `docs/PLAN.md` - Visão estratégica atual
+- `docs/TASK.md` - Status das tarefas em andamento
+- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+
+---
+
 # Workflow 4/9: Setup (Preparação do Ambiente)
 
 Este é o **quarto workflow** de 9 etapas modulares para adicionar uma nova funcionalidade.
@@ -77,6 +86,8 @@ supabase branches create feature-backup
 
 **⚠️ IMPORTANTE**: Sempre certifique-se de que sua branch parte da `main` atualizada para garantir que tenha toda documentação e arquivos mais recentes.
 
+**📌 NOTA**: O script de criação de branches (`create-feature-branch.sh`) é inteligente e detecta automaticamente se sua branch atual tem commits não mergeados. Dependendo da situação, ele oferecerá alternativas seguras (ver Fase 9).
+
 ### 8.1 Atualizar Main
 
 ```bash
@@ -134,47 +145,218 @@ git log --oneline -5
 
 // turbo
 
-### Opção A: Via Script (Recomendado)
+### 🚨 REGRA DE OURO: SEMPRE usar o script automatizado
 
 ```bash
 ./scripts/create-feature-branch.sh "add-profit-cards-makeup"
 ```
 
-**O que o script faz**:
-1. Verifica se está na main
-2. Puxa últimas mudanças
-3. Cria branch com nome padronizado (`feat/add-profit-cards-makeup`)
-4. Faz checkout para a nova branch
+**❌ NUNCA use `git checkout -b` manual** - você pode perder código não mergeado!
 
 ---
 
-### Opção B: Manual
+### 🔍 O Script Inteligente: 3 Cenários Possíveis
+
+O script `create-feature-branch.sh` foi completamente reescrito com **detecção automática de código não mergeado**.
+
+#### 📊 Cenário 1: Branch atual SEM commits não mergeados
 
 ```bash
-# Certifique-se de estar na main
-git checkout main
+# Você está em: feat/old-feature (já mergeada na main)
+./scripts/create-feature-branch.sh "add-profit-cards-makeup"
 
-# Criar e ir para nova branch
-git checkout -b feat/add-profit-cards-makeup
+# Output:
+✅ Branch atual sincronizada com main
+✅ Criando branch 'feat/add-profit-cards-makeup' a partir de 'main'
 ```
 
-**Convenção de nomes**:
-- `feat/nome-da-feature` - Nova funcionalidade
-- `fix/nome-do-bug` - Correção de bug
-- `refactor/nome-da-refatoracao` - Refatoração
-- `docs/nome-da-doc` - Atualização de documentação
-- `test/nome-do-teste` - Adicionar testes
+**O que acontece**:
+- Script detecta automaticamente que não há risco de perda
+- Cria branch normalmente a partir da `main`
+- Você está seguro!
 
 ---
 
-**✅ Branch criada:** `feat/add-profit-cards-makeup`
+#### 🚨 Cenário 2: Branch atual COM commits não mergeados (ATENÇÃO!)
 
-**⚠️ IMPORTANTE**: A nova branch foi criada **a partir da main atualizada**, então já tem:
+```bash
+# Você está em: feat/current-work (6 commits não mergeados)
+./scripts/create-feature-branch.sh "add-profit-cards-makeup"
+
+# Output:
+🚨 ATENÇÃO: Branch atual tem 6 commit(s) NÃO MERGEADOS na main!
+
+Escolha uma opção:
+  1) Criar branch a partir de 'feat/current-work' (RECOMENDADO)
+     → Nova branch terá TODO o trabalho atual
+
+  2) Criar branch a partir de 'main'
+     → PERDERÁ os 6 commits da branch atual
+
+  3) Cancelar e fazer merge/push primeiro
+```
+
+**Você TEM 3 opções seguras:**
+
+##### 🎯 Opção 1: Criar a partir da branch atual (RECOMENDADO)
+
+```bash
+# Escolha: 1
+
+# Resultado:
+✅ Branch 'feat/add-profit-cards-makeup' criada a partir de 'feat/current-work'
+📝 Nova branch inclui TODOS os 6 commits não mergeados
+✅ Nenhum código foi perdido!
+```
+
+**Quando usar**:
+- ✅ Nova feature depende do trabalho atual
+- ✅ Quer construir sobre código não mergeado
+- ✅ Vai mergear tudo junto depois
+
+**Vantagens**:
+- Mantém TODO o trabalho
+- Zero risco de perda
+- Workflow natural de desenvolvimento
+
+---
+
+##### ⚠️ Opção 2: Criar a partir da main (PERDA DE CÓDIGO!)
+
+```bash
+# Escolha: 2
+
+# Confirmação obrigatória:
+⚠️ AVISO: Isso criará uma branch SEM os 6 commits não mergeados!
+Tem certeza? (digite 'sim'): sim
+
+# Resultado:
+✅ Branch 'feat/add-profit-cards-makeup' criada a partir de 'main'
+⚠️ Os 6 commits da branch anterior NÃO estão incluídos
+```
+
+**Quando usar**:
+- Nova feature é COMPLETAMENTE independente
+- Trabalho atual está em branch separada (vai mergear depois)
+- Você TEM CERTEZA que não precisa do código atual
+
+**Riscos**:
+- ⚠️ Pode perder 117 arquivos (como aconteceu em 2025-11-01)
+- ⚠️ Perde documentação, scripts, workflows
+- ⚠️ Difícil recuperar depois
+
+---
+
+##### 🛡️ Opção 3: Cancelar e fazer merge primeiro (MAIS SEGURO)
+
+```bash
+# Escolha: 3
+
+# Script sugere:
+💡 Sugestão:
+  1. Commit do trabalho atual
+  2. Push da branch: git push -u origin feat/current-work
+  3. Abrir PR e fazer merge na main
+  4. Atualizar main local: git checkout main && git pull
+  5. Rodar novamente: ./scripts/create-feature-branch.sh "add-profit-cards-makeup"
+
+🚪 Operação cancelada
+```
+
+**Quando usar**:
+- ✅ Trabalho atual está pronto para merge
+- ✅ Quer manter branches limpas e organizadas
+- ✅ Nova feature é independente
+
+**Workflow completo**:
+```bash
+# 1. Commit e push da branch atual
+git add .
+git commit -m "feat: finalizar current work"
+git push -u origin feat/current-work
+
+# 2. Abrir PR no GitHub
+gh pr create --title "Feat: current work" --body "..."
+
+# 3. Fazer merge do PR (via GitHub UI ou CLI)
+
+# 4. Atualizar main local
+git checkout main
+git pull origin main
+
+# 5. AGORA criar nova branch (sem conflitos)
+./scripts/create-feature-branch.sh "add-profit-cards-makeup"
+```
+
+---
+
+### 📝 Histórico de Branches (Auditoria)
+
+O script mantém log automático em `.git/branch-history.log`:
+
+```bash
+# Ver histórico de criação
+cat .git/branch-history.log
+
+# Output exemplo:
+2025-11-01 21:30:45 -03 | feat/add-profit-cards-makeup | criada a partir de: feat/current-work (estava em: feat/current-work)
+2025-11-01 18:15:22 -03 | feat/whatsapp-uazapi | criada a partir de: main (estava em: main)
+```
+
+**Por que isso é útil?**
+- 🔍 Rastreia de onde cada branch foi criada
+- 🐛 Facilita debug quando algo dá errado
+- 📊 Auditoria de decisões de branching
+- 🛡️ Evidência de que seguiu o processo correto
+
+---
+
+### ✅ Convenção de Nomes (automatizada pelo script)
+
+O script adiciona automaticamente o prefixo correto:
+
+```bash
+# Você digita:
+./scripts/create-feature-branch.sh "add-profit-cards-makeup"
+
+# Script cria:
+feat/add-profit-cards-makeup
+```
+
+**Prefixos disponíveis**:
+- `feat/` - Nova funcionalidade (padrão)
+- `fix/` - Correção de bug
+- `refactor/` - Refatoração
+- `docs/` - Atualização de documentação
+- `test/` - Adicionar testes
+
+---
+
+### 📚 Documentação Completa
+
+Para mais detalhes sobre o sistema de branches, consulte:
+```
+docs/WORKFLOW_BRANCHES.md
+```
+
+Inclui:
+- 🚨 Histórico do problema (perda de 117 arquivos)
+- ✅ Solução implementada
+- 📋 Workflows completos de cada cenário
+- 🎓 Lições aprendidas
+- 🔄 Processo de recuperação (caso aconteça novamente)
+
+---
+
+**✅ Branch criada com segurança!**
+
+Dependendo da opção escolhida, sua nova branch tem:
+- ✅ Código base (main ou branch atual)
 - ✅ Toda documentação (`docs/`)
 - ✅ Scripts de automação (`scripts/`)
 - ✅ Configurações (`.env.example`)
-- ✅ Histórico completo de commits
-- ✅ Todas as features já implementadas
+- ✅ Histórico de commits necessário
+- ✅ Nenhum código perdido!
 
 ---
 
@@ -207,3 +389,13 @@ Acionar workflow: .windsurf/workflows/add-feature-5-implementation.md
 **Workflow criado em**: 2025-10-27
 **Parte**: 4 de 9
 **Próximo**: Implementation (Código + TDD + Testes)
+
+
+## 📝 Atualização de Documentação
+
+Após completar este workflow:
+- [ ] Atualizar `docs/TASK.md` com status das tarefas completadas
+- [ ] Atualizar `docs/PLAN.md` se houve mudança estratégica
+- [ ] Criar ADR em `docs/adr/` se houve decisão arquitetural
+
+---

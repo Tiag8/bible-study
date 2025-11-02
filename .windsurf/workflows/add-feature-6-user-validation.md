@@ -2,6 +2,15 @@
 description: Workflow Add-Feature (6/9) - User Validation (Validação Manual - CRÍTICO!)
 ---
 
+## 📚 Pré-requisito: Consultar Documentação Base
+
+Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
+- `docs/PLAN.md` - Visão estratégica atual
+- `docs/TASK.md` - Status das tarefas em andamento
+- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+
+---
+
 # Workflow 6/9: User Validation (Validação Manual)
 
 Este é o **sexto workflow** de 9 etapas modulares para adicionar uma nova funcionalidade.
@@ -259,3 +268,13 @@ Acionar workflow: .windsurf/workflows/add-feature-7-quality.md
 **Workflow criado em**: 2025-10-27
 **Parte**: 6 de 9
 **Próximo**: Quality (Code Review + Security)
+
+
+## 📝 Atualização de Documentação
+
+Após completar este workflow:
+- [ ] Atualizar `docs/TASK.md` com status das tarefas completadas
+- [ ] Atualizar `docs/PLAN.md` se houve mudança estratégica
+- [ ] Criar ADR em `docs/adr/` se houve decisão arquitetural
+
+---

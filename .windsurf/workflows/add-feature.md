@@ -10,6 +10,15 @@ Este workflow guia a implementação de uma nova feature do início ao fim, com 
 
 ---
 
+## 📚 Pré-requisito: Consultar Documentação Base
+
+Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
+- `docs/PLAN.md` - Visão estratégica atual
+- `docs/TASK.md` - Status das tarefas em andamento
+- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+
+---
+
 ## 📋 Sistema Modular (10 Workflows)
 
 Este workflow foi dividido em **10 etapas modulares** que se chamam automaticamente:
@@ -58,9 +67,14 @@ Este workflow foi dividido em **10 etapas modulares** que se chamam automaticame
 **O que faz:**
 - Fase 7: Checkpoint (Backup do banco)
 - Fase 8: Sincronizar com Main (garantir código atualizado)
-- Fase 9: Criar Branch Git (isolar mudanças)
+- Fase 9: Criar Branch Git **via script inteligente** (isolar mudanças)
+  - Detecta automaticamente se há commits não mergeados
+  - Oferece 3 opções de segurança
+  - Mantém histórico em `.git/branch-history.log`
 
-**Saída:** Ambiente preparado com backup e branch criada
+**⚠️ IMPORTANTE**: SEMPRE usar `./scripts/create-feature-branch.sh` (nunca `git checkout -b` manual).
+
+**Saída:** Ambiente preparado com backup, branch criada com proteção contra perda de código
 
 ---
 
@@ -144,6 +158,37 @@ Este workflow foi dividido em **10 etapas modulares** que se chamam automaticame
 
 ---
 
+### **1️⃣1️⃣ VPS Deployment** (Deploy para Produção) ⭐ NOVO!
+📄 `.windsurf/workflows/add-feature-11-vps-deployment.md`
+
+**O que acontece neste workflow:**
+- Fase 24: Pré-Deploy Checklist (merge OK, build OK, security OK)
+- Fase 25: Build e Validação Local (testar imagem antes de deploy)
+- Fase 26: Deploy para VPS (automático via script ou manual SSH)
+- Fase 27: Validação Pós-Deploy (smoke tests, health checks)
+- Fase 28: Monitoramento (10min observando logs/métricas)
+- Fase 29: Rollback (se necessário, script automático em 2-3min)
+- Fase 30: Documentação do Deploy (atualizar deploy-history.md)
+
+**Quando executar:**
+- ✅ Feature modifica frontend/backend/infra
+- ✅ Hotfix crítico
+- ❌ Feature apenas docs/testes/scripts (pular este workflow)
+
+**Entrada:** Feature mergeada na main, build testado
+**Saída:** Aplicação deployada em produção VPS (https://life-tracker.stackia.com.br)
+
+**Por que este workflow é NOVO?** Deployment automatizado e seguro com rollback rápido!
+
+**Scripts disponíveis:**
+- `./scripts/deploy-vps.sh production` - Deploy automático (5-7min)
+- `./scripts/vps-rollback.sh production` - Rollback rápido (2-3min)
+- `./scripts/vps-smoke-tests.sh production` - Validação pós-deploy
+
+**Tempo estimado:** 15-20min (deploy + validação + monitoramento)
+
+---
+
 ## 🚀 Como Usar?
 
 ### **Opção A: Chamar o Primeiro e Deixar Fluir (Recomendado)**
@@ -190,8 +235,14 @@ Se precisar retomar de uma etapa específica:
 8️⃣  Meta-Learning → Aprender ANTES de docs ⭐
           ↓ (automático)
 9️⃣  Finalization → Docs + Commit + Push + Merge
-          ↓ (automático)
-🔟 Template Sync → Sincroniza melhorias para template ⭐
+          ↓ (PERGUNTA: Deploy VPS necessário?) ⭐
+         / \
+        /   \
+     SIM   NÃO
+      ↓     ↓
+1️⃣1️⃣    🔟
+VPS     Template
+Deploy  Sync
 ```
 
 ---
@@ -271,6 +322,15 @@ E deixe o sistema guiar você pelo processo completo! ✨
 
 ---
 
-**Última atualização**: 2025-10-28
-**Versão**: 2.1 (Sistema Modular com 10 Workflows + Template Sync)
+## 📝 Atualização de Documentação
+
+Após completar este workflow:
+- [ ] Atualizar `docs/TASK.md` com status das tarefas completadas
+- [ ] Atualizar `docs/PLAN.md` se houve mudança estratégica
+- [ ] Criar ADR em `docs/adr/` se houve decisão arquitetural
+
+---
+
+**Última atualização**: 2025-11-01
+**Versão**: 2.3 (Adicionado leitura obrigatória de PLAN.md e TASK.md)
 **Autor**: Windsurf AI Workflow + Claude Code + Feedback do Usuário

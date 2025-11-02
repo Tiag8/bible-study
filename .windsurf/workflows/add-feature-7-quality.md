@@ -2,6 +2,15 @@
 description: Workflow Add-Feature (7/9) - Quality (Code Review + Security)
 ---
 
+## 📚 Pré-requisito: Consultar Documentação Base
+
+Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
+- `docs/PLAN.md` - Visão estratégica atual
+- `docs/TASK.md` - Status das tarefas em andamento
+- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+
+---
+
 # Workflow 7/9: Quality (Code Review + Security)
 
 Este é o **sétimo workflow** de 9 etapas modulares para adicionar uma nova funcionalidade.
@@ -325,3 +334,13 @@ Acionar workflow: .windsurf/workflows/add-feature-8-meta-learning.md
 **Workflow criado em**: 2025-10-27
 **Parte**: 7 de 9
 **Próximo**: Meta-Learning (Aprender ANTES de Documentar)
+
+
+## 📝 Atualização de Documentação
+
+Após completar este workflow:
+- [ ] Atualizar `docs/TASK.md` com status das tarefas completadas
+- [ ] Atualizar `docs/PLAN.md` se houve mudança estratégica
+- [ ] Criar ADR em `docs/adr/` se houve decisão arquitetural
+
+---

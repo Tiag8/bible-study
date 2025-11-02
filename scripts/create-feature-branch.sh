@@ -42,11 +42,79 @@ if ! git diff-index --quiet HEAD -- 2>/dev/null; then
     exit 1
 fi
 
-# Atualizar branch main
-echo -e "${YELLOW}📥 Atualizando branch main...${NC}"
+# Detectar branch atual e trabalho não mergeado
 CURRENT_BRANCH=$(git branch --show-current)
-git checkout main 2>/dev/null || git checkout master 2>/dev/null
-git pull origin main 2>/dev/null || git pull origin master 2>/dev/null
+echo -e "${YELLOW}📍 Branch atual: ${CURRENT_BRANCH}${NC}"
+
+# Verificar se há commits não mergeados na branch atual
+if [ "$CURRENT_BRANCH" != "main" ] && [ "$CURRENT_BRANCH" != "master" ]; then
+    # Fetch para ter informações atualizadas
+    git fetch origin main 2>/dev/null || git fetch origin master 2>/dev/null
+
+    COMMITS_AHEAD=$(git rev-list --count main..$CURRENT_BRANCH 2>/dev/null || echo "0")
+
+    if [ "$COMMITS_AHEAD" -gt 0 ]; then
+        echo ""
+        echo -e "${RED}🚨 ATENÇÃO: Branch atual tem $COMMITS_AHEAD commit(s) NÃO MERGEADOS na main!${NC}"
+        echo ""
+        echo "Se criar nova branch a partir da main, você PERDERÁ este trabalho:"
+        git log main..HEAD --oneline --max-count=5
+        echo ""
+        echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${YELLOW}Escolha uma opção:${NC}"
+        echo -e "${GREEN}  1) Criar branch a partir de '${CURRENT_BRANCH}' (RECOMENDADO)${NC}"
+        echo -e "     → Nova branch terá TODO o trabalho atual"
+        echo ""
+        echo -e "  2) Criar branch a partir de 'main'"
+        echo -e "     → ${RED}PERDERÁ os $COMMITS_AHEAD commits da branch atual${NC}"
+        echo ""
+        echo -e "  3) Cancelar e fazer merge/push primeiro"
+        echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+        read -p "Opção (1-3): " -n 1 -r
+        echo
+
+        case $REPLY in
+            1)
+                BASE_BRANCH="$CURRENT_BRANCH"
+                echo -e "${GREEN}✅ Criando a partir de: ${BASE_BRANCH}${NC}"
+                ;;
+            2)
+                BASE_BRANCH="main"
+                echo -e "${RED}⚠️  ATENÇÃO: Criando a partir da main - commits atuais NÃO estarão na nova branch!${NC}"
+                read -p "Tem certeza? (digite 'sim' para confirmar): " CONFIRM
+                if [ "$CONFIRM" != "sim" ]; then
+                    echo -e "${RED}❌ Operação cancelada${NC}"
+                    exit 1
+                fi
+                ;;
+            3)
+                echo -e "${YELLOW}💡 Sugestão:${NC}"
+                echo -e "   1. Faça commit do trabalho atual"
+                echo -e "   2. Push: git push -u origin ${CURRENT_BRANCH}"
+                echo -e "   3. Abra PR e faça merge na main"
+                echo -e "   4. Depois crie a nova branch"
+                exit 0
+                ;;
+            *)
+                echo -e "${RED}❌ Opção inválida${NC}"
+                exit 1
+                ;;
+        esac
+    else
+        BASE_BRANCH="main"
+        echo -e "${GREEN}✅ Branch atual sincronizada com main${NC}"
+    fi
+else
+    BASE_BRANCH="main"
+fi
+
+# Atualizar branch base
+echo -e "${YELLOW}📥 Atualizando branch base: ${BASE_BRANCH}...${NC}"
+if [ "$BASE_BRANCH" = "main" ] || [ "$BASE_BRANCH" = "master" ]; then
+    git checkout main 2>/dev/null || git checkout master 2>/dev/null
+    git pull origin main 2>/dev/null || git pull origin master 2>/dev/null
+fi
 
 # Verificar se main tem estrutura essencial
 echo -e "${YELLOW}🔍 Verificando estrutura da main...${NC}"
@@ -93,7 +161,11 @@ fi
 
 # Criar e fazer checkout da nova branch
 echo -e "${YELLOW}🔨 Criando branch '${BRANCH_NAME}'...${NC}"
-git checkout -b "${BRANCH_NAME}"
+git checkout -b "${BRANCH_NAME}" "${BASE_BRANCH}"
+
+# Registrar criação em histórico
+BRANCH_HISTORY_FILE=".git/branch-history.log"
+echo "$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z') | ${BRANCH_NAME} | criada a partir de: ${BASE_BRANCH} (estava em: ${CURRENT_BRANCH})" >> "$BRANCH_HISTORY_FILE"
 
 echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -101,7 +173,8 @@ echo -e "${GREEN}✅ Branch criada com sucesso!${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 echo -e "🌿 Branch: ${BRANCH_NAME}"
-echo -e "📍 Base: main ($(git rev-parse --short HEAD))"
+echo -e "📍 Base: ${BASE_BRANCH} ($(git rev-parse --short HEAD))"
+[ "$BASE_BRANCH" != "$CURRENT_BRANCH" ] && echo -e "⚠️  Branch anterior: ${CURRENT_BRANCH}"
 echo ""
 
 # Mostrar o que foi herdado da main

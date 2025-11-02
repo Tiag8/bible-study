@@ -2,6 +2,77 @@
 description: Análise profunda e resolução de problemas com pensamento multidimensional
 ---
 
+## 📚 Pré-requisito: Consultar Documentação Base
+
+Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
+- `docs/PLAN.md` - Visão estratégica atual
+- `docs/TASK.md` - Status das tarefas em andamento
+- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+
+---
+
+## 🔒 Pré-requisito: Proteção de Código
+
+**CRÍTICO**: Ultra-think é para análises LONGAS (horas/dias). Proteja seu código antes de começar!
+
+### ✅ Checklist Pré-Voo
+
+Antes de iniciar qualquer análise ultra-think:
+
+- [ ] **Git status limpo?** - Execute `git status` e verifique estado
+- [ ] **Branch correta?** - Confirme que está na branch apropriada
+- [ ] **Sincronizada com main?** - Execute `git pull origin main` se necessário
+- [ ] **Commits não mergeados?** - Se houver trabalho em progresso, faça merge primeiro
+- [ ] **Tempo estimado?** - Se >2h, criar branch dedicada (ver abaixo)
+
+### 🌿 Para Análises Longas (>2 horas)
+
+**SEMPRE criar branch dedicada** para análises extensas:
+
+```bash
+# Usar script automatizado
+./scripts/create-feature-branch.sh analysis-[tema]
+
+# Exemplo
+./scripts/create-feature-branch.sh analysis-whatsapp-architecture
+./scripts/create-feature-branch.sh analysis-supabase-optimization
+```
+
+### 💾 Onde Salvar Outputs
+
+- **Localização**: `docs/analyses/[data]-[tema].md`
+- **Naming**: `YYYY-MM-DD-tema-descritivo.md`
+- **Exemplos**:
+  - `docs/analyses/2025-11-01-whatsapp-integration-tradeoffs.md`
+  - `docs/analyses/2025-11-01-supabase-vs-firebase.md`
+  - `docs/analyses/2025-11-01-microservices-vs-monolith.md`
+
+### 🔄 Commits Intermediários
+
+**Faça commits a cada fase concluída**:
+
+```bash
+# Após Fase 2 (Análise Multidimensional)
+git add docs/analyses/
+git commit -m "docs: ultra-think fase 2 - análise multidimensional [tema]"
+
+# Após Fase 5 (Pensamento Cross-Domain)
+git add docs/analyses/
+git commit -m "docs: ultra-think fase 5 - cross-domain insights [tema]"
+
+# Após Fase 8 (Recomendação Final)
+git add docs/analyses/
+git commit -m "docs: ultra-think fase 8 - recomendação final [tema]"
+```
+
+**Benefícios**:
+- ✅ Zero risco de perda de código
+- ✅ Histórico completo do raciocínio
+- ✅ Fácil de revisar/comparar versões
+- ✅ Possível reverter se necessário
+
+---
+
 # Workflow: Ultra Think - Análise Profunda
 
 Este workflow ativa um modo de raciocínio aprofundado e sistemático para resolver problemas complexos, tomar decisões arquiteturais ou avaliar trade-offs técnicos.
@@ -309,6 +380,136 @@ Vou **atacar cada solução** para encontrar fraquezas:
 
 ---
 
+## 💾 Salvamento de Análises
+
+**CRÍTICO**: SEMPRE salvar análises ultra-think para referência futura!
+
+### 📂 Localização e Naming
+
+```bash
+# Estrutura de diretório
+docs/analyses/
+
+# Padrão de nomenclatura
+YYYY-MM-DD-tema-descritivo.md
+
+# Exemplos reais
+docs/analyses/2025-11-01-whatsapp-integration-architecture.md
+docs/analyses/2025-11-01-supabase-rls-vs-edge-functions.md
+docs/analyses/2025-11-01-coach-ai-implementation-strategy.md
+```
+
+### 📝 Template de Arquivo
+
+```markdown
+# Ultra Think: [Título da Análise]
+
+**Data**: 2025-11-01
+**Autor**: Claude Code (Ultra Think Workflow)
+**Status**: Completo / Em Progresso
+**Decisão**: [Se aplicável]
+
+## Contexto
+[Problema/Questão original]
+
+## Análise Multidimensional
+[Fases 1-6 do ultra-think]
+
+## Opções Consideradas
+[Fase 3 - Soluções geradas]
+
+## Recomendação
+[Fase 8 - Solução escolhida]
+
+## Próximos Passos
+[Ações concretas]
+
+## Meta-Análise
+[Fase 10 - Reflexões]
+```
+
+### 🔄 Comandos de Commit
+
+```bash
+# 1. Criar/atualizar arquivo de análise
+# (usar editor ou copiar output do ultra-think)
+
+# 2. Adicionar ao git
+git add docs/analyses/2025-11-01-[tema].md
+
+# 3. Commit com mensagem descritiva
+git commit -m "docs: ultra-think completo - [tema-curto]
+
+Análise ultra-think sobre [descrição breve do problema].
+
+Opções consideradas:
+- Opção 1: [nome]
+- Opção 2: [nome]
+- Opção 3: [nome]
+
+Recomendação: [opção escolhida]
+
+Próximos passos: [ação principal]"
+
+# 4. Push para remote (se em branch dedicada)
+git push origin feat/[nome-branch]
+```
+
+### ✅ Checklist de Salvamento
+
+- [ ] Arquivo criado em `docs/analyses/` com nome padronizado
+- [ ] Conteúdo inclui todas as fases relevantes (1-10)
+- [ ] Recomendação final está clara e documentada
+- [ ] Próximos passos estão explícitos
+- [ ] Arquivo commitado com mensagem descritiva
+- [ ] Se análise >2h, está em branch dedicada
+- [ ] README.md em `docs/analyses/` atualizado com nova entrada
+
+### 🎯 Benefícios do Salvamento
+
+- ✅ **Zero risco de perda**: Análise preservada permanentemente
+- ✅ **Histórico de decisões**: Entender por que escolhemos X em vez de Y
+- ✅ **Reutilização**: Problemas similares no futuro
+- ✅ **Onboarding**: Novos devs entendem raciocínio
+- ✅ **Auditoria**: Compliance e governança
+- ✅ **Aprendizado**: Revisar decisões passadas
+
+### 📊 Exemplo Real
+
+```bash
+# Cenário: Análise de integração WhatsApp (3 horas)
+# 1. Criar branch
+./scripts/create-feature-branch.sh analysis-whatsapp
+
+# 2. Executar ultra-think (fases 1-10)
+# 3. Salvar em arquivo
+echo "# Ultra Think: WhatsApp Integration..." > docs/analyses/2025-11-01-whatsapp-integration.md
+
+# 4. Commit intermediário (após fase 5)
+git add docs/analyses/
+git commit -m "docs: ultra-think fase 5 - cross-domain WhatsApp"
+
+# 5. Commit final
+git add docs/analyses/
+git commit -m "docs: ultra-think completo - integração WhatsApp
+
+Análise ultra-think sobre estratégia de integração WhatsApp UAZAPI.
+
+Opções consideradas:
+- Opção 1: Edge Functions + Webhooks
+- Opção 2: Node.js Backend
+- Opção 3: Híbrido (Edge + Backend)
+
+Recomendação: Opção 3 (Híbrido)
+
+Próximos passos: Implementar Edge Functions para validação HMAC"
+
+# 6. Push
+git push origin feat/analysis-whatsapp
+```
+
+---
+
 ## 🔄 Fase 9: Perspectivas Alternativas
 
 ### Visão Contrária
@@ -496,8 +697,132 @@ Output: Estratégias incrementais (strangler pattern, branch by abstraction,
 - Planejamento estratégico
 - Inovação e criatividade
 
+
+## 📝 Atualização de Documentação
+
+Após completar este workflow:
+- [ ] Atualizar `docs/TASK.md` com status das tarefas completadas
+- [ ] Atualizar `docs/PLAN.md` se houve mudança estratégica
+- [ ] Criar ADR em `docs/adr/` se houve decisão arquitetural
+- [ ] Salvar análise em `docs/analyses/[data]-[tema].md`
+
 ---
 
-**Última atualização**: 2025-10-27
-**Versão**: 1.0
+## 🔗 Integração com Workflow de Branches
+
+**IMPORTANTE**: Ultra-think deve seguir o mesmo workflow de proteção de código usado em todo o projeto.
+
+### 📚 Documentação de Referência
+
+- **Workflow completo de branches**: `docs/WORKFLOW_BRANCHES.md`
+- **Script de criação de branches**: `scripts/create-feature-branch.sh`
+- **Exemplos de uso**: Ver seção "Proteção de Código" acima
+
+### 🌿 Tipos de Branches para Ultra-Think
+
+```bash
+# Análises estratégicas (>2h)
+./scripts/create-feature-branch.sh analysis-[tema]
+
+# Exemplos reais
+./scripts/create-feature-branch.sh analysis-whatsapp-architecture
+./scripts/create-feature-branch.sh analysis-ai-coach-strategy
+./scripts/create-feature-branch.sh analysis-database-migration
+
+# Decisões arquiteturais
+./scripts/create-feature-branch.sh arch-[decisao]
+
+# Exemplos
+./scripts/create-feature-branch.sh arch-microservices-vs-monolith
+./scripts/create-feature-branch.sh arch-event-driven-refactor
+```
+
+### 🔄 Ciclo Completo: Ultra-Think + Git Workflow
+
+```bash
+# 1. ANTES de começar ultra-think
+git status                          # Verificar estado
+git checkout main                   # Ir para main
+git pull origin main                # Sincronizar
+
+# 2. Criar branch dedicada (se análise >2h)
+./scripts/create-feature-branch.sh analysis-[tema]
+
+# 3. Executar ultra-think (Fases 1-10)
+# ... análise em progresso ...
+
+# 4. Commits intermediários
+# Após Fase 2
+git add docs/analyses/
+git commit -m "docs: ultra-think fase 2 - [tema]"
+
+# Após Fase 5
+git add docs/analyses/
+git commit -m "docs: ultra-think fase 5 - [tema]"
+
+# Após Fase 8
+git add docs/analyses/
+git commit -m "docs: ultra-think fase 8 - recomendação [tema]"
+
+# 5. Commit final
+git add docs/analyses/
+git commit -m "docs: ultra-think completo - [tema]
+
+[descrição detalhada da análise e recomendação]"
+
+# 6. Push e PR (se necessário)
+git push origin feat/analysis-[tema]
+# Criar PR no GitHub se decisão precisa de revisão
+```
+
+### ⚠️ Avisos e Verificações
+
+**SEMPRE verificar antes de começar**:
+
+```bash
+# Comando rápido de verificação
+git status && git branch && echo "--- PRONTO PARA ULTRA-THINK ---"
+```
+
+**Se ver estas mensagens, PARAR**:
+- "Changes not staged for commit" → Commitar ou stash primeiro
+- "Your branch is behind" → Fazer pull primeiro
+- "You are in detached HEAD state" → Checkout para branch apropriada
+
+**Cenários de recuperação**:
+
+```bash
+# Se esquecer de criar branch e já começou análise
+git stash                                           # Salvar trabalho
+./scripts/create-feature-branch.sh "analysis-tema" # Criar branch CORRETAMENTE
+git stash pop                                       # Recuperar trabalho
+
+# Se perder progresso (sem commit)
+# Verificar se ainda há no histórico do editor
+# Ou usar git reflog se houve algum commit
+git reflog
+git checkout [hash-do-commit-perdido]
+```
+
+### 🎯 Lembrete Final
+
+**Ultra-think SEM proteção Git = RISCO ALTO**
+
+- Análises longas (3-8 horas) podem ser perdidas
+- Sempre usar branch dedicada
+- Sempre salvar em `docs/analyses/`
+- Sempre fazer commits intermediários
+- Sempre seguir `docs/WORKFLOW_BRANCHES.md`
+
+**Veja também**:
+- `docs/WORKFLOW_BRANCHES.md` - Workflow completo de Git
+- `scripts/create-feature-branch.sh` - Automação de branches
+- `docs/analyses/README.md` - Índice de análises salvas
+
+---
+---
+
+**Última atualização**: 2025-11-01
+**Versão**: 2.0
 **Autor**: Windsurf AI Workflow (baseado em Claude Code ultra-think)
+**Mudanças v2.0**: Adicionadas seções de proteção de código e integração Git

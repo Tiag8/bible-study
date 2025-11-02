@@ -2,6 +2,15 @@
 description: Workflow Add-Feature (3/9) - Risk Analysis (Análise de Riscos)
 ---
 
+## 📚 Pré-requisito: Consultar Documentação Base
+
+Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
+- `docs/PLAN.md` - Visão estratégica atual
+- `docs/TASK.md` - Status das tarefas em andamento
+- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+
+---
+
 # Workflow 3/9: Risk Analysis (Análise de Riscos e Mitigações)
 
 Este é o **terceiro workflow** de 9 etapas modulares para adicionar uma nova funcionalidade.
@@ -116,10 +125,13 @@ Este é o **terceiro workflow** de 9 etapas modulares para adicionar uma nova fu
   - Migration é reversível?
   - Dados podem ser restaurados?
   - Deploy pode ser revertido?
+  - Branch foi criada com proteção (via script)?
 
 - **Probabilidade**: Alta / Média / Baixa
 - **Impacto**: Alto / Médio / Baixo
 - **Severidade**: 🔴 Crítico / 🟡 Moderado / 🟢 Baixo
+
+> **💡 Nota**: Usar `./scripts/create-feature-branch.sh` ao invés de `git checkout -b` protege contra perda de código ao criar novas branches.
 
 #### Time to Market
 - **Risco**: [Pode atrasar outras prioridades?]
@@ -136,6 +148,8 @@ Este é o **terceiro workflow** de 9 etapas modulares para adicionar uma nova fu
 ### 5.4 Plano de Rollback
 
 **Se algo der errado, como reverter?**
+
+> **💡 Dica**: O histórico de branches em `.git/branch-history.log` ajuda a rastrear de onde cada branch foi criada, facilitando recuperação e rollback.
 
 #### Opção 1: Revert Git
 ```bash
@@ -199,6 +213,7 @@ console.timeEnd('query-profit-cards');
 - ✅ Migration backward-compatible quando possível
 - ✅ Versionar APIs se mudar contrato
 - ✅ Testar manualmente features relacionadas
+- ✅ Criar branch usando script protegido (`./scripts/create-feature-branch.sh`)
 
 **Checklist de features a testar**:
 - [ ] [Feature 1 que pode ser afetada]
@@ -283,13 +298,17 @@ USING (auth.uid() = user_id);
 # Criar Preview Branch no Supabase Dashboard
 # Ou via CLI:
 supabase branches create feature-backup
+
+# IMPORTANTE: Ao criar branch Git, use o script protegido:
+./scripts/create-feature-branch.sh nome-da-feature
+# → Script verifica estrutura e previne perda de código
 ```
 **Quando usar**:
 - ✅ Migration complexa (mudar schema, adicionar tabelas)
 - ✅ Quer testar antes em ambiente isolado
 - ✅ Precisa garantir que migration funciona
 
-**Prós**: Ambiente isolado, testa migration, zero risco
+**Prós**: Ambiente isolado, testa migration, zero risco (script protege contra perda de commits não mergeados)
 **Contras**: Mais lento, requer Supabase Pro
 
 ---
@@ -377,3 +396,20 @@ Acionar workflow: .windsurf/workflows/add-feature-4-setup.md
 **Workflow criado em**: 2025-10-27
 **Parte**: 3 de 9
 **Próximo**: Setup (Preparação do Ambiente)
+
+
+## 📝 Atualização de Documentação
+
+Após completar este workflow:
+- [ ] Atualizar `docs/TASK.md` com status das tarefas completadas
+- [ ] Atualizar `docs/PLAN.md` se houve mudança estratégica
+- [ ] Criar ADR em `docs/adr/` se houve decisão arquitetural
+
+---
+
+## 🔗 Referências
+
+- **Workflow de Branches**: Ver `docs/WORKFLOW_BRANCHES.md` para detalhes sobre criação segura de branches
+- **Script de Branches**: `./scripts/create-feature-branch.sh` - protege contra perda de código
+
+---

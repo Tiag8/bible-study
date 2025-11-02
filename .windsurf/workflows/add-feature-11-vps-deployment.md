@@ -2,6 +2,15 @@
 description: Workflow Add-Feature (11/11) - VPS Deployment (Deploy para Produção)
 ---
 
+## 📚 Pré-requisito: Consultar Documentação Base
+
+Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
+- `docs/PLAN.md` - Visão estratégica atual
+- `docs/TASK.md` - Status das tarefas em andamento
+- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+
+---
+
 # Workflow 11/11: VPS Deployment (Deploy para Produção)
 
 Este é o **décimo primeiro e último workflow** de 11 etapas modulares para adicionar uma nova funcionalidade.
@@ -17,46 +26,6 @@ Este é o **décimo primeiro e último workflow** de 11 etapas modulares para ad
 
 ---
 
-## 🔧 CONFIGURAÇÃO INICIAL
-
-**IMPORTANTE**: Este workflow usa placeholders que DEVEM ser customizados para seu projeto.
-
-### Variáveis para Configurar:
-
-Antes de usar este workflow, substitua os seguintes placeholders nos scripts:
-
-```bash
-# Configurações VPS
-VPS_USER="root"                           # Usuário SSH (ex: root, deploy, ubuntu)
-VPS_HOST="192.168.1.100"                  # IP ou hostname do VPS
-VPS_PATH="/root/myapp"                    # Caminho no VPS para deploy
-DOMAIN="myapp.example.com"                # Domínio da aplicação
-STACK_NAME="myapp"                        # Nome do stack Docker Swarm
-PORT="3000"                               # Porta interna do container
-```
-
-### Onde Configurar:
-
-1. **`.env.production`** (criar se não existir):
-   ```bash
-   VPS_HOST=192.168.1.100
-   VPS_USER=root
-   VPS_PATH=/root/myapp
-   DOMAIN=myapp.example.com
-   STACK_NAME=myapp
-   PORT=3000
-   ```
-
-2. **Scripts** (editar diretamente ou ler do `.env.production`):
-   - `scripts/deploy-vps.sh`
-   - `scripts/vps-rollback.sh`
-   - `scripts/vps-smoke-tests.sh`
-
-3. **Docker Compose** (`docker-compose.swarm.yml`):
-   - Substituir labels do Traefik com seu domínio
-
----
-
 ## 🎯 Objetivo
 
 Deploy seguro e automatizado para VPS (Virtual Private Server) usando Docker Swarm + Traefik, com validação completa e procedimento de rollback.
@@ -65,19 +34,19 @@ Deploy seguro e automatizado para VPS (Virtual Private Server) usando Docker Swa
 
 ## 📍 Informações Críticas do Ambiente
 
-### VPS Details (CUSTOMIZE!)
-- **Host**: `${VPS_USER}@${VPS_HOST}` (ex: root@192.168.1.100)
-- **Domain**: `${DOMAIN}` (ex: myapp.example.com)
-- **Stack Name**: `${STACK_NAME}` (ex: myapp)
+### VPS Details
+- **Host**: `root@31.97.22.151`
+- **Domain**: `life-tracker.stackia.com.br`
+- **Stack Name**: `lifetracker`
 - **Orchestration**: Docker Swarm
 - **Reverse Proxy**: Traefik (SSL/TLS automático)
 - **Image Registry**: Docker Hub (ou registry local)
-- **Timezone**: America/Sao_Paulo (UTC-3) - ajustar se necessário
+- **Timezone**: America/Sao_Paulo (UTC-3)
 
 ### Arquivos Chave
-- **Dockerfile**: `Dockerfile.react` (template multi-stage)
-- **Docker Compose**: `docker-compose.swarm.yml` (para Swarm)
-- **Nginx Config**: `nginx.conf` (servir build React/Vite)
+- **Dockerfile**: `/Users/tiago/Projects/life_tracker/Dockerfile`
+- **Docker Compose**: `/Users/tiago/Projects/life_tracker/docker-compose.yml`
+- **Nginx Config**: `/Users/tiago/Projects/life_tracker/nginx.conf`
 
 ---
 
@@ -171,6 +140,108 @@ kill $PREVIEW_PID
 
 ---
 
+### 24.1.5 Validar Integridade do Merge (CRÍTICO)
+
+⚠️ **IMPORTANTE**: Workflow 9 diz que merge é OPCIONAL, mas deploy REQUER código atualizado!
+
+Esta validação garante que o código a ser deployado inclui todas as mudanças da feature.
+
+```bash
+# 1. Verificar se está na branch main
+CURRENT_BRANCH=$(git branch --show-current)
+if [ "$CURRENT_BRANCH" != "main" ]; then
+  echo "❌ ERRO: Você NÃO está na branch main (está em: $CURRENT_BRANCH)"
+  echo "Deploy deve ser feito SEMPRE da main!"
+  exit 1
+else
+  echo "✅ Branch main confirmada"
+fi
+
+# 2. Verificar se main está atualizada com origin
+git fetch origin main
+LOCAL_HASH=$(git rev-parse main)
+REMOTE_HASH=$(git rev-parse origin/main)
+
+if [ "$LOCAL_HASH" != "$REMOTE_HASH" ]; then
+  echo "❌ ERRO: Branch main local está DESATUALIZADA"
+  echo "Local:  $LOCAL_HASH"
+  echo "Remote: $REMOTE_HASH"
+  echo "Execute: git pull origin main"
+  exit 1
+else
+  echo "✅ Main sincronizada com origin"
+fi
+
+# 3. Verificar working tree limpo (sem mudanças não commitadas)
+if [ -n "$(git status --porcelain)" ]; then
+  echo "❌ ERRO: Working tree com mudanças não commitadas"
+  echo "Mudanças detectadas:"
+  git status --short
+  echo "Execute: git stash ou git commit antes do deploy"
+  exit 1
+else
+  echo "✅ Working tree limpo"
+fi
+
+# 4. Verificar que não há merge em progresso
+if [ -f .git/MERGE_HEAD ]; then
+  echo "❌ ERRO: Merge em progresso detectado!"
+  echo "Complete ou aborte o merge antes do deploy:"
+  echo "  git merge --abort   # Para abortar"
+  echo "  git merge --continue # Para continuar"
+  exit 1
+else
+  echo "✅ Nenhum merge em progresso"
+fi
+
+# 5. Verificar merge nos últimos commits (evidência de integração)
+RECENT_MERGES=$(git log --oneline --merges -10 | head -5)
+if [ -z "$RECENT_MERGES" ]; then
+  echo "⚠️ ATENÇÃO: Nenhum merge detectado nos últimos 10 commits"
+  echo "Você fez merge da feature branch na main (Workflow 9)?"
+  echo ""
+  echo "Últimos 5 commits:"
+  git log --oneline -5
+  echo ""
+  read -p "Confirmar deploy mesmo sem merge recente? (yes/NO): " CONFIRM_NO_MERGE
+  if [ "$CONFIRM_NO_MERGE" != "yes" ]; then
+    echo "Deploy cancelado. Execute Workflow 9 primeiro."
+    exit 1
+  fi
+else
+  echo "✅ Merge(s) recente(s) detectado(s):"
+  echo "$RECENT_MERGES"
+fi
+
+# 6. Mostrar commits desde último tag (se houver)
+LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+if [ -n "$LAST_TAG" ]; then
+  echo ""
+  echo "📊 Commits desde último deploy ($LAST_TAG):"
+  git log --oneline "$LAST_TAG..HEAD" | head -10
+else
+  echo ""
+  echo "📊 Últimos 10 commits a serem deployados:"
+  git log --oneline -10
+fi
+```
+
+**Checklist de Integridade do Merge**:
+- [ ] Branch atual é main
+- [ ] Main sincronizada com origin/main
+- [ ] Working tree limpo (sem mudanças pendentes)
+- [ ] Nenhum merge em progresso
+- [ ] Merge da feature detectado nos commits recentes (ou confirmado manualmente)
+- [ ] Lista de commits a serem deployados revisada
+
+**Por que isso é crítico?**
+- Deploy da feature branch = código incompleto/desatualizado
+- Main desatualizada = pode fazer deploy de código antigo
+- Merge em progresso = estado inconsistente
+- Working tree sujo = mudanças não rastreadas vão para produção
+
+---
+
 ### 24.2 Validações de Ambiente
 
 ```bash
@@ -178,50 +249,47 @@ kill $PREVIEW_PID
 if [ -f .env.production ]; then
   echo "✅ .env.production encontrado"
   # Verificar variáveis críticas (sem mostrar valores)
-  grep -q "VPS_HOST" .env.production && echo "✅ VPS_HOST OK" || echo "❌ VPS_HOST MISSING"
-  grep -q "DOMAIN" .env.production && echo "✅ DOMAIN OK" || echo "❌ DOMAIN MISSING"
+  grep -q "VITE_SUPABASE_URL" .env.production && echo "✅ VITE_SUPABASE_URL OK" || echo "❌ VITE_SUPABASE_URL MISSING"
+  grep -q "VITE_SUPABASE_ANON_KEY" .env.production && echo "✅ VITE_SUPABASE_ANON_KEY OK" || echo "❌ VITE_SUPABASE_ANON_KEY MISSING"
 else
   echo "❌ .env.production NÃO ENCONTRADO!"
 fi
 
 # 2. Verificar Dockerfile existe
-[ -f Dockerfile.react ] && echo "✅ Dockerfile.react OK" || echo "❌ Dockerfile.react MISSING"
+[ -f Dockerfile ] && echo "✅ Dockerfile OK" || echo "❌ Dockerfile MISSING"
 
-# 3. Verificar docker-compose.swarm.yml existe
-[ -f docker-compose.swarm.yml ] && echo "✅ docker-compose.swarm.yml OK" || echo "❌ docker-compose.swarm.yml MISSING"
+# 3. Verificar docker-compose.yml existe
+[ -f docker-compose.yml ] && echo "✅ docker-compose.yml OK" || echo "❌ docker-compose.yml MISSING"
 
-# 4. Verificar nginx.conf existe (se aplicável)
-[ -f nginx.conf ] && echo "✅ nginx.conf OK" || echo "ℹ️ nginx.conf não usado"
+# 4. Verificar nginx.conf existe
+[ -f nginx.conf ] && echo "✅ nginx.conf OK" || echo "❌ nginx.conf MISSING"
 ```
 
 **Checklist de Ambiente**:
 - [ ] `.env.production` existe com todas as variáveis
-- [ ] `Dockerfile.react` presente
-- [ ] `docker-compose.swarm.yml` presente
-- [ ] `nginx.conf` presente (se aplicável)
+- [ ] `Dockerfile` presente
+- [ ] `docker-compose.yml` presente
+- [ ] `nginx.conf` presente
 
 ---
 
 ### 24.3 Validações de Infraestrutura
 
 ```bash
-# Carregar variáveis do .env.production
-source .env.production
-
 # 1. Verificar conectividade com VPS
-ssh ${VPS_USER}@${VPS_HOST} "echo '✅ SSH OK'" || echo "❌ SSH FAIL - Verificar conexão"
+ssh root@31.97.22.151 "echo '✅ SSH OK'" || echo "❌ SSH FAIL - Verificar conexão"
 
 # 2. Verificar Docker Swarm ativo no VPS
-ssh ${VPS_USER}@${VPS_HOST} "docker info | grep -q 'Swarm: active' && echo '✅ Swarm OK' || echo '❌ Swarm INACTIVE'"
+ssh root@31.97.22.151 "docker info | grep -q 'Swarm: active' && echo '✅ Swarm OK' || echo '❌ Swarm INACTIVE'"
 
 # 3. Verificar espaço em disco no VPS
-ssh ${VPS_USER}@${VPS_HOST} "df -h / | awk 'NR==2 {print \$5}' | sed 's/%//' | awk '{if (\$1 < 80) print \"✅ Disk OK (\" \$1 \"% usado)\"; else print \"❌ Disk WARNING (\" \$1 \"% usado)\"}'"
+ssh root@31.97.22.151 "df -h / | awk 'NR==2 {print \$5}' | sed 's/%//' | awk '{if (\$1 < 80) print \"✅ Disk OK (\" \$1 \"% usado)\"; else print \"❌ Disk WARNING (\" \$1 \"% usado)\"}'"
 
 # 4. Verificar se Traefik está rodando
-ssh ${VPS_USER}@${VPS_HOST} "docker ps | grep -q traefik && echo '✅ Traefik OK' || echo '❌ Traefik NOT RUNNING'"
+ssh root@31.97.22.151 "docker ps | grep -q traefik && echo '✅ Traefik OK' || echo '❌ Traefik NOT RUNNING'"
 
-# 5. Verificar se stack já existe (para determinar se é deploy inicial ou update)
-ssh ${VPS_USER}@${VPS_HOST} "docker stack ls | grep -q ${STACK_NAME} && echo '✅ Stack existe (UPDATE)' || echo 'ℹ️ Stack não existe (DEPLOY INICIAL)'"
+# 5. Verificar se stack lifetracker já existe (para determinar se é deploy inicial ou update)
+ssh root@31.97.22.151 "docker stack ls | grep -q lifetracker && echo '✅ Stack existe (UPDATE)' || echo 'ℹ️ Stack não existe (DEPLOY INICIAL)'"
 ```
 
 **Checklist de Infraestrutura**:
@@ -263,8 +331,8 @@ fi
 
 ```bash
 # 1. Definir tag da imagem com timestamp
-IMAGE_TAG="${STACK_NAME}:$(date +%Y%m%d-%H%M%S)"
-IMAGE_LATEST="${STACK_NAME}:latest"
+IMAGE_TAG="life-tracker:$(date +%Y%m%d-%H%M%S)"
+IMAGE_LATEST="life-tracker:latest"
 
 echo "📦 Building Docker image: $IMAGE_TAG"
 
@@ -272,14 +340,14 @@ echo "📦 Building Docker image: $IMAGE_TAG"
 docker build \
   --tag $IMAGE_TAG \
   --tag $IMAGE_LATEST \
-  --file Dockerfile.react \
+  --file Dockerfile \
   --no-cache \
   .
 
 # ✅ Espera: Build completado com sucesso (exitcode 0)
 if [ $? -eq 0 ]; then
   echo "✅ Docker build OK"
-  docker images | grep ${STACK_NAME}
+  docker images | grep life-tracker
 else
   echo "❌ Docker build FAILED"
   exit 1
@@ -295,7 +363,7 @@ fi
 2. **Stage 2 (production)**: Nginx Alpine
    - Copia arquivos buildados de `/app/dist` para `/usr/share/nginx/html`
    - Configura Nginx com `nginx.conf`
-   - Configura timezone (America/Sao_Paulo por padrão)
+   - Configura timezone America/Sao_Paulo
    - Expõe porta 80
    - Imagem final < 50MB
 
@@ -310,22 +378,19 @@ fi
 ### 25.2 Testar Imagem Localmente
 
 ```bash
-# Carregar variáveis
-source .env.production
-
 # 1. Rodar container local para testes
 docker run -d \
-  --name ${STACK_NAME}-test \
+  --name lifetracker-test \
   --publish 8080:80 \
   --env NODE_ENV=production \
   --env TZ=America/Sao_Paulo \
-  ${IMAGE_LATEST}
+  $IMAGE_LATEST
 
 # 2. Aguardar 5s para inicialização
 sleep 5
 
 # 3. Verificar health check
-docker ps --filter "name=${STACK_NAME}-test" --format "{{.Status}}"
+docker ps --filter "name=lifetracker-test" --format "{{.Status}}"
 # ✅ Espera: Status com "(healthy)"
 
 # 4. Testar HTTP response
@@ -335,11 +400,11 @@ curl -f http://localhost:8080 > /dev/null && echo "✅ HTTP OK" || echo "❌ HTT
 curl -s http://localhost:8080 | grep -q "<!DOCTYPE html>" && echo "✅ HTML OK" || echo "❌ HTML MALFORMED"
 
 # 6. Verificar logs para erros
-docker logs ${STACK_NAME}-test | grep -i error && echo "⚠️ Errors found in logs" || echo "✅ No errors in logs"
+docker logs lifetracker-test | grep -i error && echo "⚠️ Errors found in logs" || echo "✅ No errors in logs"
 
 # 7. Limpar container de teste
-docker stop ${STACK_NAME}-test
-docker rm ${STACK_NAME}-test
+docker stop lifetracker-test
+docker rm lifetracker-test
 ```
 
 **Checklist de Validação Local**:
@@ -356,7 +421,7 @@ docker rm ${STACK_NAME}-test
 
 ```bash
 # Verificar tamanho da imagem
-docker images ${STACK_NAME}:latest --format "{{.Repository}}:{{.Tag}} - {{.Size}}"
+docker images life-tracker:latest --format "{{.Repository}}:{{.Tag}} - {{.Size}}"
 
 # ✅ Target: < 100MB (ideal: ~50MB com Nginx Alpine)
 ```
@@ -369,27 +434,129 @@ docker images ${STACK_NAME}:latest --format "{{.Repository}}:{{.Tag}} - {{.Size}
 
 ## 🚀 Fase 26: Deploy para VPS
 
-**IMPORTANTE**: Deploy automático via script.
+**IMPORTANTE**: Deploy pode ser automático (script) ou manual. Recomenda-se automático para consistência.
 
 ### 26.1 Deploy Automático (Recomendado)
 
-```bash
-# Executar script de deploy
-./scripts/deploy-vps.sh production
+**⚠️ ATENÇÃO**: Este script NÃO existe ainda no projeto. Vamos criar durante o deploy.
 
-# O script automaticamente:
+```bash
+# Criar script de deploy VPS
+cat > scripts/deploy-vps.sh << 'EOF'
+#!/bin/bash
+# Script de deploy automatizado para VPS
+# Deploy Life Tracker para Docker Swarm em VPS
+
+set -e  # Exit on error
+
+# Cores para output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Configurações
+VPS_HOST="root@31.97.22.151"
+STACK_NAME="lifetracker"
+IMAGE_NAME="life-tracker"
+IMAGE_TAG="latest"
+DOMAIN="life-tracker.stackia.com.br"
+
+echo -e "${GREEN}🚀 Life Tracker - Deploy para VPS${NC}"
+echo "================================================"
+echo "Host: $VPS_HOST"
+echo "Stack: $STACK_NAME"
+echo "Domain: $DOMAIN"
+echo "================================================"
+
 # 1. Build da imagem Docker localmente
-# 2. Salva imagem como .tar
-# 3. Transfere .tar para VPS via SCP
-# 4. Carrega imagem no Docker do VPS
-# 5. Transfere docker-compose.swarm.yml para VPS
+echo -e "\n${YELLOW}📦 Step 1/6: Building Docker image...${NC}"
+docker build -t $IMAGE_NAME:$IMAGE_TAG -f Dockerfile . || {
+  echo -e "${RED}❌ Docker build FAILED${NC}"
+  exit 1
+}
+echo -e "${GREEN}✅ Docker build OK${NC}"
+
+# 2. Salvar imagem como tar
+echo -e "\n${YELLOW}💾 Step 2/6: Saving image to tar...${NC}"
+docker save $IMAGE_NAME:$IMAGE_TAG -o /tmp/$IMAGE_NAME.tar || {
+  echo -e "${RED}❌ Docker save FAILED${NC}"
+  exit 1
+}
+echo -e "${GREEN}✅ Image saved to /tmp/$IMAGE_NAME.tar${NC}"
+
+# 3. Transferir imagem para VPS
+echo -e "\n${YELLOW}📤 Step 3/6: Transferring image to VPS...${NC}"
+scp /tmp/$IMAGE_NAME.tar $VPS_HOST:/tmp/ || {
+  echo -e "${RED}❌ SCP transfer FAILED${NC}"
+  exit 1
+}
+echo -e "${GREEN}✅ Image transferred${NC}"
+
+# 4. Carregar imagem no VPS
+echo -e "\n${YELLOW}📥 Step 4/6: Loading image on VPS...${NC}"
+ssh $VPS_HOST "docker load -i /tmp/$IMAGE_NAME.tar && rm /tmp/$IMAGE_NAME.tar" || {
+  echo -e "${RED}❌ Docker load FAILED${NC}"
+  exit 1
+}
+echo -e "${GREEN}✅ Image loaded on VPS${NC}"
+
+# 5. Transferir docker-compose.yml para VPS
+echo -e "\n${YELLOW}📋 Step 5/6: Transferring docker-compose.yml...${NC}"
+scp docker-compose.yml $VPS_HOST:/tmp/docker-compose-$STACK_NAME.yml || {
+  echo -e "${RED}❌ docker-compose.yml transfer FAILED${NC}"
+  exit 1
+}
+echo -e "${GREEN}✅ docker-compose.yml transferred${NC}"
+
 # 6. Deploy stack no Docker Swarm
-# 7. Limpa arquivos temporários
+echo -e "\n${YELLOW}🚢 Step 6/6: Deploying stack to Docker Swarm...${NC}"
+ssh $VPS_HOST "docker stack deploy -c /tmp/docker-compose-$STACK_NAME.yml $STACK_NAME" || {
+  echo -e "${RED}❌ Stack deploy FAILED${NC}"
+  exit 1
+}
+echo -e "${GREEN}✅ Stack deployed${NC}"
+
+# Limpar arquivo local
+rm /tmp/$IMAGE_NAME.tar
+
+echo -e "\n${GREEN}================================================${NC}"
+echo -e "${GREEN}🎉 Deploy completed successfully!${NC}"
+echo -e "${GREEN}================================================${NC}"
+echo ""
+echo "📊 Next steps:"
+echo "  1. Wait 30-60s for service to start"
+echo "  2. Check service status: ssh $VPS_HOST 'docker service ls'"
+echo "  3. Check logs: ssh $VPS_HOST 'docker service logs $STACK_NAME\_app'"
+echo "  4. Access: https://$DOMAIN"
+echo ""
+echo "🔍 Monitoring commands:"
+echo "  docker service ls                    # List services"
+echo "  docker service ps $STACK_NAME\_app   # Service tasks"
+echo "  docker service logs -f $STACK_NAME\_app  # Follow logs"
+echo ""
+EOF
+
+# Tornar script executável
+chmod +x scripts/deploy-vps.sh
+
+# Executar deploy
+./scripts/deploy-vps.sh
 ```
+
+**O que o script faz**:
+1. ✅ Build da imagem Docker localmente
+2. ✅ Salva imagem como `.tar`
+3. ✅ Transfere `.tar` para VPS via SCP
+4. ✅ Carrega imagem no Docker do VPS
+5. ✅ Transfere `docker-compose.yml` para VPS
+6. ✅ Deploy stack no Docker Swarm
+7. ✅ Limpa arquivos temporários
 
 **Tempo estimado**: 5-7 minutos (dependendo da velocidade da internet)
 
 **Checklist de Deploy Automático**:
+- [ ] Script `deploy-vps.sh` criado
 - [ ] Script executado sem erros
 - [ ] Imagem transferida para VPS
 - [ ] Stack deployed no Swarm
@@ -402,35 +569,32 @@ docker images ${STACK_NAME}:latest --format "{{.Repository}}:{{.Tag}} - {{.Size}
 **Use apenas se script automático falhar ou para entender o processo.**
 
 ```bash
-# Carregar variáveis
-source .env.production
-
 # 1. Build da imagem Docker localmente
-docker build -t ${STACK_NAME}:latest -f Dockerfile.react .
+docker build -t life-tracker:latest -f Dockerfile .
 
 # 2. Salvar imagem como tar
-docker save ${STACK_NAME}:latest -o /tmp/${STACK_NAME}.tar
+docker save life-tracker:latest -o /tmp/life-tracker.tar
 
 # 3. Transferir imagem para VPS
-scp /tmp/${STACK_NAME}.tar ${VPS_USER}@${VPS_HOST}:/tmp/
+scp /tmp/life-tracker.tar root@31.97.22.151:/tmp/
 
 # 4. Carregar imagem no VPS
-ssh ${VPS_USER}@${VPS_HOST} "docker load -i /tmp/${STACK_NAME}.tar && rm /tmp/${STACK_NAME}.tar"
+ssh root@31.97.22.151 "docker load -i /tmp/life-tracker.tar && rm /tmp/life-tracker.tar"
 
-# 5. Transferir docker-compose.swarm.yml para VPS
-scp docker-compose.swarm.yml ${VPS_USER}@${VPS_HOST}:/tmp/docker-compose-${STACK_NAME}.yml
+# 5. Transferir docker-compose.yml para VPS
+scp docker-compose.yml root@31.97.22.151:/tmp/docker-compose-lifetracker.yml
 
 # 6. Deploy stack no Docker Swarm
-ssh ${VPS_USER}@${VPS_HOST} "docker stack deploy -c /tmp/docker-compose-${STACK_NAME}.yml ${STACK_NAME}"
+ssh root@31.97.22.151 "docker stack deploy -c /tmp/docker-compose-lifetracker.yml lifetracker"
 
 # 7. Aguardar 30-60s para service iniciar
 sleep 60
 
 # 8. Verificar status do service
-ssh ${VPS_USER}@${VPS_HOST} "docker service ls | grep ${STACK_NAME}"
+ssh root@31.97.22.151 "docker service ls | grep lifetracker"
 
 # 9. Limpar arquivo local
-rm /tmp/${STACK_NAME}.tar
+rm /tmp/life-tracker.tar
 ```
 
 **Checklist de Deploy Manual**:
@@ -445,35 +609,99 @@ rm /tmp/${STACK_NAME}.tar
 
 **CRÍTICO**: Validar que a aplicação está rodando corretamente no VPS antes de concluir.
 
-### 27.1 Executar Smoke Tests Automáticos
+### 27.1 Verificar Status do Service
 
 ```bash
-# Executar script de smoke tests
-./scripts/vps-smoke-tests.sh production
+# 1. Verificar se service está rodando
+ssh root@31.97.22.151 "docker service ls" | grep lifetracker
 
-# O script testa automaticamente:
-# 1. Home page acessível (HTTP 200)
-# 2. Health endpoint (se existir)
-# 3. Recursos estáticos (CSS/JS)
-# 4. Performance (< 2s load time)
-# 5. Docker services health
-# 6. Certificado SSL válido
+# ✅ Espera: 1/1 réplica rodando (coluna REPLICAS)
+# ❌ Se 0/1: Service não iniciou, verificar logs (Seção 27.3)
+
+# 2. Verificar tasks do service
+ssh root@31.97.22.151 "docker service ps lifetracker_app --no-trunc"
+
+# ✅ Espera: Current State = "Running" (não "Preparing", "Starting", "Failed")
+# ⚠️ Se "Preparing"/"Starting": Aguardar mais 30s
+# ❌ Se "Failed": Verificar logs (Seção 27.3)
 ```
 
-**Checklist de Smoke Tests**:
-- [ ] Todos os testes passaram (ou >= 80% de sucesso)
-- [ ] HTTPS responde (status 200)
-- [ ] SSL certificado válido
-- [ ] Services Docker rodando (1/1 réplicas)
+**Checklist de Status**:
+- [ ] Service `lifetracker_app` existe
+- [ ] REPLICAS mostra 1/1 (ou 2/2 se multi-replica)
+- [ ] Current State = "Running"
+- [ ] Sem tasks com estado "Failed"
 
 ---
 
-### 27.2 Teste Manual no Browser
+### 27.2 Smoke Tests HTTP
+
+```bash
+# 1. Testar endpoint raiz (deve retornar HTML)
+curl -f https://life-tracker.stackia.com.br > /dev/null && echo "✅ HTTPS OK" || echo "❌ HTTPS FAIL"
+
+# 2. Verificar se HTML está bem formado
+curl -s https://life-tracker.stackia.com.br | grep -q "<!DOCTYPE html>" && echo "✅ HTML OK" || echo "❌ HTML MALFORMED"
+
+# 3. Verificar se assets estão sendo servidos (CSS, JS)
+curl -s https://life-tracker.stackia.com.br | grep -q "assets/" && echo "✅ Assets linked" || echo "⚠️ Assets not found"
+
+# 4. Verificar certificado SSL (Traefik Let's Encrypt)
+curl -s https://life-tracker.stackia.com.br -v 2>&1 | grep -q "SSL certificate verify ok" && echo "✅ SSL OK" || echo "⚠️ SSL warning"
+
+# 5. Testar redirect HTTP -> HTTPS (se configurado)
+curl -s -o /dev/null -w "%{http_code}" http://life-tracker.stackia.com.br | grep -q "301\|302" && echo "✅ HTTP redirect OK" || echo "ℹ️ No HTTP redirect"
+```
+
+**Checklist de Smoke Tests**:
+- [ ] HTTPS responde (status 200)
+- [ ] HTML válido sendo servido
+- [ ] Assets (CSS/JS) linkados corretamente
+- [ ] SSL certificado válido
+- [ ] HTTP -> HTTPS redirect (opcional)
+
+---
+
+### 27.3 Verificar Logs (Se houver problemas)
+
+```bash
+# Logs do service (últimas 50 linhas)
+ssh root@31.97.22.151 "docker service logs --tail 50 lifetracker_app"
+
+# ✅ Procurar por: "nginx: configuration file /etc/nginx/nginx.conf test is successful"
+# ❌ Procurar por: "error", "failed", "exit code"
+
+# Logs em tempo real (para monitoramento contínuo - Fase 28)
+ssh root@31.97.22.151 "docker service logs -f lifetracker_app"
+```
+
+**Problemas Comuns**:
+
+1. **Service não inicia (0/1 réplicas)**
+   - Verificar logs: `docker service logs lifetracker_app`
+   - Possível causa: Imagem corrompida, configuração inválida
+
+2. **Service "Failed" / "Rejected"**
+   - Verificar: `docker service ps lifetracker_app --no-trunc`
+   - Possível causa: Porta 80 já em uso, constraints não atendidos
+
+3. **HTTPS não responde**
+   - Verificar Traefik: `docker ps | grep traefik`
+   - Verificar labels no docker-compose.yml
+   - Aguardar 2-3 min para Let's Encrypt provisionar certificado
+
+4. **HTML vazio / 404**
+   - Verificar se build copiou arquivos: `ssh root@31.97.22.151 "docker exec \$(docker ps -q -f name=lifetracker) ls -la /usr/share/nginx/html"`
+   - Possível causa: Build falhou, arquivos não foram copiados
+
+---
+
+### 27.4 Teste Manual no Browser
 
 **IMPORTANTE**: Abrir browser e testar manualmente é essencial!
 
 ```
-1. Abrir: https://${DOMAIN}
+1. Abrir: https://life-tracker.stackia.com.br
 2. Verificar:
    - [ ] Página carrega corretamente
    - [ ] Não há erros no console do browser (F12)
@@ -501,11 +729,8 @@ rm /tmp/${STACK_NAME}.tar
 ### 28.1 Monitorar Logs em Tempo Real
 
 ```bash
-# Carregar variáveis
-source .env.production
-
 # Abrir logs em tempo real
-ssh ${VPS_USER}@${VPS_HOST} "docker service logs -f --tail 100 ${STACK_NAME}_app"
+ssh root@31.97.22.151 "docker service logs -f --tail 100 lifetracker_app"
 
 # Deixar rodando por 10 minutos
 # ✅ Procurar por: Requisições HTTP normais (200, 304)
@@ -524,11 +749,8 @@ ssh ${VPS_USER}@${VPS_HOST} "docker service logs -f --tail 100 ${STACK_NAME}_app
 ### 28.2 Monitorar Métricas do Service
 
 ```bash
-# Carregar variáveis
-source .env.production
-
 # A cada 2 minutos, verificar status
-watch -n 120 "ssh ${VPS_USER}@${VPS_HOST} 'docker service ps ${STACK_NAME}_app'"
+watch -n 120 "ssh root@31.97.22.151 'docker service ps lifetracker_app'"
 
 # ✅ Espera: State = "Running", sem restarts
 # ❌ Se restarts frequentes (> 2 em 10min): Problema crítico, acionar rollback (Fase 29)
@@ -539,6 +761,27 @@ watch -n 120 "ssh ${VPS_USER}@${VPS_HOST} 'docker service ps ${STACK_NAME}_app'"
 - [ ] Sem restarts inesperados
 - [ ] Logs mostram requisições normais
 - [ ] Sem erros 500/502/503/504
+
+---
+
+### 28.3 Testes de Carga Leve (Opcional)
+
+```bash
+# Simular 100 requisições (teste leve)
+for i in {1..100}; do
+  curl -s -o /dev/null -w "%{http_code}\n" https://life-tracker.stackia.com.br
+  sleep 0.5
+done | sort | uniq -c
+
+# ✅ Espera: Maioria 200, alguns 304 (cache)
+# ❌ Se muitos 500/502/503: Problema de performance, investigar
+```
+
+**Checklist de Carga**:
+- [ ] 100 requisições completadas
+- [ ] Maioria status 200/304
+- [ ] Sem timeouts
+- [ ] Service não reiniciou
 
 ---
 
@@ -557,19 +800,115 @@ watch -n 120 "ssh ${VPS_USER}@${VPS_HOST} 'docker service ps ${STACK_NAME}_app'"
 ### 29.1 Rollback Automático (Script)
 
 ```bash
-# Executar script de rollback
-./scripts/vps-rollback.sh production
+# Criar script de rollback VPS
+cat > scripts/vps-rollback.sh << 'EOF'
+#!/bin/bash
+# Script de rollback para VPS
+# Reverte deploy para versão anterior
 
-# O script automaticamente:
-# 1. Remove stack atual do Swarm
-# 2. Aguarda cleanup (30s)
-# 3. Reverte código para commit anterior (HEAD~1)
-# 4. Rebuild imagem com código antigo
-# 5. Redeploy stack
-# 6. Valida health checks
+set -e
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+VPS_HOST="root@31.97.22.151"
+STACK_NAME="lifetracker"
+
+echo -e "${YELLOW}🔄 Life Tracker - ROLLBACK VPS${NC}"
+echo "================================================"
+echo -e "${RED}ATENÇÃO: Esta operação vai reverter o deploy!${NC}"
+echo "================================================"
+
+read -p "Confirmar rollback? (yes/NO): " CONFIRM
+if [ "$CONFIRM" != "yes" ]; then
+  echo "Rollback cancelado."
+  exit 0
+fi
+
+echo -e "\n${YELLOW}Step 1/3: Stopping current stack...${NC}"
+ssh $VPS_HOST "docker stack rm $STACK_NAME" || {
+  echo -e "${RED}❌ Stack removal FAILED${NC}"
+  exit 1
+}
+echo -e "${GREEN}✅ Stack stopped${NC}"
+
+echo -e "\n${YELLOW}Step 2/3: Waiting for cleanup (30s)...${NC}"
+sleep 30
+
+echo -e "\n${YELLOW}Step 3/3: Deploying previous version...${NC}"
+echo "ℹ️ Para redeployer versão anterior, você precisa:"
+echo "  1. Git: git checkout <commit-anterior>"
+echo "  2. Build: docker build -t life-tracker:rollback ."
+echo "  3. Deploy: ./scripts/deploy-vps.sh"
+echo ""
+echo "Ou restaurar backup do banco (se necessário):"
+echo "  ./scripts/restore-supabase.sh backups/backup-YYYYMMDD-HHMMSS.sql"
+
+echo -e "\n${GREEN}================================================${NC}"
+echo -e "${GREEN}Stack removido. Próximo passo: redeployer versão anterior.${NC}"
+echo -e "${GREEN}================================================${NC}"
+EOF
+
+chmod +x scripts/vps-rollback.sh
+
+# Executar rollback
+./scripts/vps-rollback.sh
 ```
 
+**O que o script faz**:
+1. ⚠️ Pede confirmação (rollback é destrutivo)
+2. ✅ Remove stack atual do Swarm
+3. ✅ Aguarda cleanup (30s)
+4. ℹ️ Instrui como redeployer versão anterior
+
 **Tempo estimado**: 2-3 minutos
+
+---
+
+### 29.2 Rollback Manual (Passo a Passo)
+
+```bash
+# 1. Remover stack atual
+ssh root@31.97.22.151 "docker stack rm lifetracker"
+
+# 2. Aguardar cleanup (30s)
+sleep 30
+
+# 3. Verificar que stack foi removida
+ssh root@31.97.22.151 "docker stack ls" | grep lifetracker || echo "✅ Stack removida"
+
+# 4. (Local) Voltar para commit anterior
+git log --oneline -5  # Identificar commit anterior ao deploy
+git checkout <commit-hash-anterior>
+
+# 5. (Local) Rebuild imagem com código anterior
+docker build -t life-tracker:rollback -f Dockerfile .
+
+# 6. (Local) Redeploy versão anterior
+# Modificar scripts/deploy-vps.sh para usar tag "rollback" temporariamente
+# Ou executar deploy manual (Fase 26.2)
+
+# 7. Verificar se rollback funcionou (Fase 27 - Smoke Tests)
+```
+
+---
+
+### 29.3 Rollback do Banco de Dados (Se necessário)
+
+**APENAS se deploy incluiu migrations que corromperam dados.**
+
+```bash
+# 1. Listar backups disponíveis
+ls -lh backups/
+
+# 2. Restaurar backup anterior ao deploy
+./scripts/restore-supabase.sh backups/backup-YYYYMMDD-HHMMSS.sql
+
+# ⚠️ ATENÇÃO: Isso vai SOBRESCREVER dados do banco!
+# Certifique-se de que não há dados novos importantes criados após o deploy.
+```
 
 **Checklist de Rollback**:
 - [ ] Stack anterior removida
@@ -577,6 +916,7 @@ watch -n 120 "ssh ${VPS_USER}@${VPS_HOST} 'docker service ps ${STACK_NAME}_app'"
 - [ ] Imagem rebuild com código antigo
 - [ ] Redeploy executado
 - [ ] Smoke tests passando
+- [ ] Banco restaurado (se necessário)
 - [ ] Aplicação voltou ao normal
 
 ---
@@ -589,7 +929,6 @@ watch -n 120 "ssh ${VPS_USER}@${VPS_HOST} 'docker service ps ${STACK_NAME}_app'"
 
 ```bash
 # Criar arquivo de histórico (se não existir)
-mkdir -p docs/ops
 if [ ! -f docs/ops/deploy-history.md ]; then
   cat > docs/ops/deploy-history.md << 'EOF'
 # Deploy History
@@ -597,7 +936,63 @@ if [ ! -f docs/ops/deploy-history.md ]; then
 Histórico de deploys para produção (VPS).
 
 ---
+
+## Template
+
+```markdown
+### Deploy YYYY-MM-DD HH:MM
+
+**Branch**: `<branch-name>`
+**Commit**: `<hash>`
+**Merge Status**: ✅ Feature merged / ⚠️ Direct commit to main
+**Features Deployadas**:
+- Feature 1
+- Feature 2
+
+**Commits Incluídos** (desde último deploy):
+- `abc1234` feat: nova funcionalidade X
+- `def5678` fix: correção bug Y
+- `ghi9012` docs: atualizar documentação
+
+**Validações**:
+- [ ] Testes passando
+- [ ] Build OK
+- [ ] Smoke tests OK
+
+**Monitoramento**:
+- Sem erros nos primeiros 10min
+- Status: ✅ Sucesso / ❌ Rollback
+
+**Notas**:
+- [Observações, problemas encontrados, lições aprendidas]
+```
+
+---
 EOF
+fi
+
+# Capturar informações do deploy
+DEPLOY_DATE=$(date '+%Y-%m-%d %H:%M')
+CURRENT_BRANCH=$(git branch --show-current)
+COMMIT_HASH=$(git rev-parse --short HEAD)
+COMMIT_HASH_FULL=$(git rev-parse HEAD)
+LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+# Verificar merge status
+RECENT_MERGES=$(git log --oneline --merges -5 2>/dev/null | head -1)
+if [ -n "$RECENT_MERGES" ]; then
+  MERGE_STATUS="✅ Feature merged (último merge: $(echo $RECENT_MERGES | cut -d' ' -f1))"
+else
+  MERGE_STATUS="⚠️ Direct commit to main (nenhum merge recente detectado)"
+fi
+
+# Capturar commits desde último tag
+if [ -n "$LAST_TAG" ]; then
+  COMMITS_SINCE_LAST=$(git log --oneline "$LAST_TAG..HEAD" 2>/dev/null | head -10)
+  DEPLOY_RANGE="desde $LAST_TAG"
+else
+  COMMITS_SINCE_LAST=$(git log --oneline -10 2>/dev/null)
+  DEPLOY_RANGE="últimos 10 commits"
 fi
 
 # Adicionar entrada de deploy
@@ -605,13 +1000,23 @@ cat >> docs/ops/deploy-history.md << EOF
 
 ---
 
-### Deploy $(date '+%Y-%m-%d %H:%M')
+### Deploy $DEPLOY_DATE
 
-**Branch/Commit**: \`$(git rev-parse --short HEAD)\`
+**Branch**: \`$CURRENT_BRANCH\`
+**Commit**: \`$COMMIT_HASH\`
+**Merge Status**: $MERGE_STATUS
+
 **Features Deployadas**:
 - [Descrever features incluídas neste deploy]
 
+**Commits Incluídos** ($DEPLOY_RANGE):
+\`\`\`
+$COMMITS_SINCE_LAST
+\`\`\`
+
 **Validações**:
+- [x] Branch main validada
+- [x] Working tree limpo
 - [x] Testes passando
 - [x] Build OK
 - [x] Smoke tests OK
@@ -625,14 +1030,31 @@ cat >> docs/ops/deploy-history.md << EOF
 - Docker Swarm + Traefik
 - SSL provisionado automaticamente
 - Sem rollback necessário
+- Validações pré-deploy incluem verificação de integridade do merge
 
 **Links**:
-- Produção: https://${DOMAIN}
+- Produção: https://life-tracker.stackia.com.br
+- Commit: https://github.com/<user>/<repo>/commit/$COMMIT_HASH_FULL
 
 ---
 EOF
 
 echo "✅ Deploy history atualizado em docs/ops/deploy-history.md"
+```
+
+---
+
+### 30.2 Atualizar Documentação Geral (Se necessário)
+
+```bash
+# Se houver mudanças operacionais importantes, atualizar docs
+# Exemplos:
+# - Nova variável de ambiente adicionada
+# - Nova dependência de infraestrutura
+# - Mudança no processo de deploy
+
+# Atualizar README.md (seção Deploy, se houver)
+# Atualizar docs/ops/README.md (se houver novos procedimentos)
 ```
 
 ---
@@ -678,7 +1100,89 @@ echo "✅ Deploy history atualizado em docs/ops/deploy-history.md"
 
 ---
 
+## 🎯 Casos de Uso
+
+### Caso 1: Deploy de Feature Nova
+
+**Contexto**: Você completou Workflows 1-10 e quer levar feature para produção.
+
+**Passos**:
+1. Executar Fase 24 (Pré-Deploy Checklist) ✅
+2. Executar Fase 25 (Build e Validação Local) ✅
+3. Executar Fase 26 (Deploy Automático com script) ✅
+4. Executar Fase 27 (Smoke Tests) ✅
+5. Executar Fase 28 (Monitoramento 10min) ✅
+6. Executar Fase 30 (Documentação) ✅
+
+**Tempo total**: ~20-25 minutos
+
+---
+
+### Caso 2: Deploy com Migrations no Banco
+
+**Contexto**: Feature inclui mudanças no schema (novas tabelas/colunas).
+
+**Passos**:
+1. **Backup obrigatório** em Fase 24.4 ⚠️
+2. Testar migrations localmente ANTES do deploy ✅
+3. Deploy normalmente (Fases 25-28) ✅
+4. **Monitoramento extra** (20min ao invés de 10min) ✅
+5. Se houver problemas: Rollback + Restore banco (Fase 29.3) ⚠️
+
+**Atenção**: Migrations são irreversíveis sem backup!
+
+---
+
+### Caso 3: Rollback Após Deploy
+
+**Contexto**: Deploy foi feito, mas service está com erros críticos.
+
+**Passos**:
+1. Identificar problema (Fase 27.3 - Logs) ✅
+2. Decidir por rollback (Fase 29) ⚠️
+3. Executar `./scripts/vps-rollback.sh` ✅
+4. Voltar código para commit anterior (`git checkout <hash>`) ✅
+5. Rebuild e redeploy versão anterior ✅
+6. Restaurar banco se necessário (Fase 29.3) ⚠️
+7. Documentar incidente (Fase 30) ✅
+
+**Tempo total**: ~10-15 minutos
+
+---
+
+### Caso 4: Deploy Inicial (Primeira Vez)
+
+**Contexto**: Primeira vez deployando Life Tracker no VPS.
+
+**Diferenças**:
+- Stack `lifetracker` não existe ainda
+- Pode levar mais tempo (60-90s) para Traefik provisionar SSL
+- Verificar que domínio `life-tracker.stackia.com.br` aponta para VPS (DNS)
+
+**Passos extras**:
+1. Verificar DNS: `nslookup life-tracker.stackia.com.br` deve resolver para `31.97.22.151` ✅
+2. Verificar Traefik está configurado para Let's Encrypt ✅
+3. Aguardar 2-3min após deploy para SSL provisionar ✅
+4. Testar HTTP e HTTPS separadamente ✅
+
+---
+
 ## 📚 Troubleshooting Comum
+
+### Problema: "docker service ps" mostra "No such service"
+
+**Causa**: Stack não foi deployed ou nome incorreto.
+
+**Solução**:
+```bash
+# Verificar stacks existentes
+ssh root@31.97.22.151 "docker stack ls"
+
+# Se lifetracker não existe, redeploy
+./scripts/deploy-vps.sh
+```
+
+---
 
 ### Problema: Service fica em "Preparing" por muito tempo
 
@@ -687,9 +1191,9 @@ echo "✅ Deploy history atualizado em docs/ops/deploy-history.md"
 **Solução**:
 ```bash
 # Verificar se imagem foi carregada corretamente
-ssh ${VPS_USER}@${VPS_HOST} "docker images | grep ${STACK_NAME}"
+ssh root@31.97.22.151 "docker images | grep life-tracker"
 
-# Se não aparecer, retransferir imagem (Fase 26)
+# Se não aparecer, retranferir imagem (Fase 26)
 ```
 
 ---
@@ -701,15 +1205,15 @@ ssh ${VPS_USER}@${VPS_HOST} "docker images | grep ${STACK_NAME}"
 **Solução**:
 ```bash
 # 1. Verificar DNS
-nslookup ${DOMAIN}
-# Deve resolver para ${VPS_HOST}
+nslookup life-tracker.stackia.com.br
+# Deve resolver para 31.97.22.151
 
 # 2. Verificar Traefik
-ssh ${VPS_USER}@${VPS_HOST} "docker ps | grep traefik"
+ssh root@31.97.22.151 "docker ps | grep traefik"
 # Deve mostrar container rodando
 
 # 3. Verificar logs do Traefik
-ssh ${VPS_USER}@${VPS_HOST} "docker logs \$(docker ps -q -f name=traefik) | tail -50"
+ssh root@31.97.22.151 "docker logs \$(docker ps -q -f name=traefik) | tail -50"
 # Procurar por "certificate obtained" ou erros
 ```
 
@@ -722,12 +1226,29 @@ ssh ${VPS_USER}@${VPS_HOST} "docker logs \$(docker ps -q -f name=traefik) | tail
 **Solução**:
 ```bash
 # Verificar service health
-ssh ${VPS_USER}@${VPS_HOST} "docker service ps ${STACK_NAME}_app"
+ssh root@31.97.22.151 "docker service ps lifetracker_app"
 # Deve mostrar "Running", não "Failed"
 
 # Verificar logs do service
-ssh ${VPS_USER}@${VPS_HOST} "docker service logs ${STACK_NAME}_app | tail -50"
+ssh root@31.97.22.151 "docker service logs lifetracker_app | tail -50"
 # Procurar por erros de inicialização
+```
+
+---
+
+### Problema: Deploy demora muito (> 10min)
+
+**Causa**: Imagem muito grande, internet lenta, ou VPS com pouco recurso.
+
+**Solução**:
+```bash
+# Verificar tamanho da imagem
+docker images life-tracker:latest
+# Se > 200MB, otimizar Dockerfile (multi-stage build)
+
+# Verificar recursos do VPS
+ssh root@31.97.22.151 "free -h && df -h"
+# Se < 1GB RAM livre ou < 5GB disco, limpar ou aumentar VPS
 ```
 
 ---
@@ -746,7 +1267,7 @@ ssh ${VPS_USER}@${VPS_HOST} "docker service logs ${STACK_NAME}_app | tail -50"
 - ✅ Deploy history atualizado
 
 ### Aplicação em produção:
-🌐 **https://${DOMAIN}**
+🌐 **https://life-tracker.stackia.com.br**
 
 ### Métricas:
 - **Tempo de deploy**: ~7 minutos
@@ -760,7 +1281,7 @@ ssh ${VPS_USER}@${VPS_HOST} "docker service logs ${STACK_NAME}_app | tail -50"
 ### Manutenção Contínua
 
 1. **Monitoramento diário** (primeiros 3 dias após deploy):
-   - Verificar logs: `ssh ${VPS_USER}@${VPS_HOST} "docker service logs ${STACK_NAME}_app | tail -100"`
+   - Verificar logs: `ssh root@31.97.22.151 "docker service logs lifetracker_app | tail -100"`
    - Verificar métricas: uptime, response time, erros
 
 2. **Otimizações futuras**:
@@ -780,7 +1301,7 @@ ssh ${VPS_USER}@${VPS_HOST} "docker service logs ${STACK_NAME}_app | tail -50"
 ## 📞 Suporte
 
 **Se algo der errado**:
-1. Verificar logs (Fase 27)
+1. Verificar logs (Fase 27.3)
 2. Consultar Troubleshooting (seção acima)
 3. Acionar rollback se necessário (Fase 29)
 4. Documentar problema para melhorar processo
@@ -793,10 +1314,35 @@ ssh ${VPS_USER}@${VPS_HOST} "docker service logs ${STACK_NAME}_app | tail -50"
 ---
 
 **Workflow criado em**: 2025-10-31
-**Versão**: 1.0 (Generic Template)
+**Versão**: 1.0
 **Parte**: 11 de 11 (FINAL)
 **Próximo**: Voltar ao Workflow 1 para próxima feature
 
 ---
 
 **🎉 FIM DO WORKFLOW ADD-FEATURE COMPLETO (11 etapas)!**
+
+**Você dominou**:
+1. ✅ Planning (Workflow 1)
+2. ✅ Solution Design (Workflow 2)
+3. ✅ Risk Analysis (Workflow 3)
+4. ✅ Setup (Workflow 4)
+5. ✅ Implementation (Workflow 5)
+6. ✅ User Validation (Workflow 6)
+7. ✅ Quality Gates (Workflow 7)
+8. ✅ Meta-Learning (Workflow 8)
+9. ✅ Finalization (Workflow 9)
+10. ✅ Template Sync (Workflow 10)
+11. ✅ **VPS Deployment (Workflow 11)** 🚀
+
+**Sistema completo de desenvolvimento profissional estabelecido!**
+
+
+## 📝 Atualização de Documentação
+
+Após completar este workflow:
+- [ ] Atualizar `docs/TASK.md` com status das tarefas completadas
+- [ ] Atualizar `docs/PLAN.md` se houve mudança estratégica
+- [ ] Criar ADR em `docs/adr/` se houve decisão arquitetural
+
+---

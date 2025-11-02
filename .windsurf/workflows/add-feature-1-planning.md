@@ -13,6 +13,15 @@ Este é o **primeiro workflow** de 9 etapas modulares para adicionar uma nova fu
 
 ---
 
+## 📚 Pré-requisito: Consultar Documentação Base
+
+Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
+- `docs/PLAN.md` - Visão estratégica atual
+- `docs/TASK.md` - Status das tarefas em andamento
+- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+
+---
+
 ## 📋 Fase 1: Entendimento e Contexto
 
 Antes de começar, vou fazer perguntas para entender completamente o que você precisa:

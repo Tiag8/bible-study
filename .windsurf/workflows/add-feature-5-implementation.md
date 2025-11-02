@@ -2,6 +2,15 @@
 description: Workflow Add-Feature (5/9) - Implementation (Código + TDD + Testes)
 ---
 
+## 📚 Pré-requisito: Consultar Documentação Base
+
+Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
+- `docs/PLAN.md` - Visão estratégica atual
+- `docs/TASK.md` - Status das tarefas em andamento
+- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+
+---
+
 # Workflow 5/9: Implementation (Implementação)
 
 Este é o **quinto workflow** de 9 etapas modulares para adicionar uma nova funcionalidade.
@@ -16,6 +25,13 @@ Este é o **quinto workflow** de 9 etapas modulares para adicionar uma nova func
 - MAS precisa de validação manual do usuário (Workflow 6)
 - Só depois de usuário aprovar → Code Review → Security → Commit
 
+**🔀 IMPORTANTE - Branch Isolation**:
+- Branch foi criada com **sistema inteligente** no Workflow 4 (Setup)
+- ⚠️ NUNCA commite código não relacionado nesta branch!
+- ⚠️ Se você tem código em outra branch, NÃO misture aqui!
+- ✅ Todos os commits incrementais devem estar NESTA branch
+- 🚨 Código não commitado em branch errada = problema sério!
+
 ---
 
 ## 💻 Fase 10: Implementação (Pequenos Diffs + TDD)
@@ -26,6 +42,11 @@ Este é o **quinto workflow** de 9 etapas modulares para adicionar uma nova func
 - ✅ **Código limpo**: Seguir padrões do projeto (ESLint, Prettier)
 - ✅ **Sem secrets**: NUNCA hardcode credenciais
 - ✅ **Segurança em mente**: Validações e sanitização
+- ✅ **Branch isolation**: Commits SOMENTE relacionados a esta feature
+
+**⚠️ AVISO - Respeite o Isolamento da Branch**:
+Esta branch foi criada com **sistema inteligente** que protege contra perda de código.
+Se você está trabalhando em múltiplas features, certifique-se de estar na branch correta antes de cada commit!
 
 ---
 
@@ -141,6 +162,12 @@ git commit -m "refactor: otimizar useProfit - REFACTOR"
 - [ ] Commit: `git commit -m "refactor: otimizar componente Y"`
 ```
 
+**🔀 LEMBRETE IMPORTANTE - Branch Isolation**:
+- Todos estes commits devem estar na branch criada no Workflow 4
+- Verifique com `git branch` se você está na branch correta
+- Se implementação vai quebrar estrutura, VOLTE ao Workflow 4 (Setup)
+- NUNCA misture código de features diferentes na mesma branch
+
 ---
 
 ### 10.4 Validações de Segurança Durante Implementação
@@ -172,6 +199,11 @@ const { data } = await supabase
 ---
 
 ### 10.5 Exemplo de Fluxo Completo
+
+**⚠️ ANTES DE COMEÇAR**: Verifique que você está na branch correta!
+```bash
+git branch  # Deve mostrar a branch criada no Workflow 4
+```
 
 ```bash
 # 1. Database
@@ -215,6 +247,24 @@ git commit -m "style: tornar ProfitCard responsivo"
 - ✅ Fácil fazer rollback de mudança específica
 - ✅ Histórico git mais claro e útil
 - ✅ Merge conflicts menores
+
+**🚨 SE VOCÊ ESTÁ NA BRANCH ERRADA**:
+```bash
+# 1. NÃO entre em pânico!
+# 2. Verifique o que foi alterado
+git status
+
+# 3. Stash as mudanças (preservar trabalho)
+git stash save "WIP: mudanças da feature X"
+
+# 4. Volte para a branch correta
+git checkout feat/sua-branch-correta
+
+# 5. Aplique as mudanças na branch correta
+git stash pop
+
+# 6. Agora sim, faça seus commits incrementais aqui!
+```
 
 ---
 
@@ -291,6 +341,46 @@ build: {
 
 ---
 
+---
+
+### 10.6 Convenção de Nomes de Branches e Sistema Inteligente
+
+**Sistema Inteligente de Branches** (implementado no Workflow 4):
+- ✅ Detecta código não commitado (WIP) antes de criar branch
+- ✅ Preserva trabalho em progresso automaticamente
+- ✅ Registra histórico em `.branch-history.log`
+- ✅ Protege contra perda acidental de código
+- ✅ Sugere stash/commit quando necessário
+
+**Convenção de Nomes**:
+```bash
+feat/add-[feature-name]      # Nova funcionalidade
+fix/[bug-description]        # Correção de bug
+refactor/[what-changed]      # Refatoração
+docs/[documentation-topic]   # Documentação
+test/[test-description]      # Testes
+```
+
+**Verificar Branch Atual**:
+```bash
+# Ver branch ativa
+git branch
+
+# Ver histórico de branches criadas
+cat .branch-history.log
+
+# Verificar se há código não commitado
+git status
+```
+
+**⚠️ IMPORTANTE**:
+- Se você vê código não commitado durante implementação, **NÃO IGNORE**!
+- Commite incrementalmente (small diffs) ou stash temporariamente
+- NUNCA troque de branch com código não commitado desta feature
+- Sistema inteligente só protege na CRIAÇÃO da branch, não durante uso
+
+---
+
 ## 🔄 Fase 12: Auto-Fix (se testes falharem)
 
 **Se algum teste falhar:**
@@ -331,10 +421,16 @@ build: {
 - Code Review e Security Scan vêm depois
 
 **Status atual**:
-- Branch: `feat/add-profit-cards-makeup`
+- Branch: `feat/add-profit-cards-makeup` (criada com sistema inteligente)
 - Commits locais: ~8-12 commits
 - Testes: ✅ Todos passando
 - Build: ✅ Sem erros
+
+**🔀 Verificação de Branch Isolation**:
+- ✅ Branch foi criada com sistema inteligente no Workflow 4
+- ✅ Protegido contra perda de código por WIP/uncommitted changes
+- ✅ Histórico de branches registrado em `.branch-history.log`
+- ⚠️ Se houver código não commitado em outra branch, ele foi preservado
 
 **Próxima etapa:** **PARADA OBRIGATÓRIA** para você testar manualmente! 🚦
 
@@ -353,3 +449,13 @@ Acionar workflow: .windsurf/workflows/add-feature-6-user-validation.md
 **Workflow criado em**: 2025-10-27
 **Parte**: 5 de 9
 **Próximo**: User Validation (Validação Manual - CRÍTICO!)
+
+
+## 📝 Atualização de Documentação
+
+Após completar este workflow:
+- [ ] Atualizar `docs/TASK.md` com status das tarefas completadas
+- [ ] Atualizar `docs/PLAN.md` se houve mudança estratégica
+- [ ] Criar ADR em `docs/adr/` se houve decisão arquitetural
+
+---

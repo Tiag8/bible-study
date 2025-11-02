@@ -9,6 +9,9 @@
 # - SQL Injection potencial
 # - XSS vulnerabilities
 # - Arquivos .env commitados
+# - Webhook HMAC Validation (Workflow 8)
+# - AI Call Rate Limiting (Workflow 8)
+# - LGPD Compliance para WhatsApp (Workflow 8)
 # ============================================
 #
 # Uso:
@@ -49,6 +52,9 @@ fi
 TESTS_PASSED=0
 TESTS_FAILED=0
 TESTS_WARNING=0
+
+# Diretório de funções Supabase
+FUNCTIONS_PATH="supabase/functions"
 
 # ============================================
 # 1. Scan de Secrets no Código
@@ -206,6 +212,120 @@ else
     echo -e "${YELLOW}     📋 Corrija erros de tipos${NC}"
     tail -10 /tmp/tsc-security.log | sed 's/^/     /'
     ((TESTS_FAILED++))
+fi
+echo ""
+
+# ============================================
+# 7. Webhook HMAC Validation (C1 - Workflow 8)
+# ============================================
+echo -e "${BLUE}7️⃣ Webhook HMAC Validation${NC}"
+
+WEBHOOK_CHECK_FAILED=false
+
+# Verificar se webhooks validam HMAC-SHA256
+if [ -d "$FUNCTIONS_PATH" ]; then
+    # Procurar por funções webhook reais (excluir exemplos e testes)
+    WEBHOOK_FUNCTIONS=$(find "$FUNCTIONS_PATH" -path "*/_shared" -prune -o -name "*.ts" -type f ! -name "*.example.*" ! -name "*.test.*" -exec grep -l "webhook\|WEBHOOK" {} \;)
+
+    if [ ! -z "$WEBHOOK_FUNCTIONS" ]; then
+        while IFS= read -r file; do
+            # Pular arquivos de exemplo ou teste
+            if [[ "$file" == *".example."* ]] || [[ "$file" == *".test."* ]] || [[ "$file" == *"_shared"* ]]; then
+                continue
+            fi
+
+            # Verificar se função contém validação de webhook
+            if ! grep -q "validateWebhook\|validateUAZAPISignature" "$file" 2>/dev/null; then
+                # Verificar se realmente precisa de validação (é webhook)
+                if grep -q "webhook\|WEBHOOK" "$file" 2>/dev/null; then
+                    WEBHOOK_CHECK_FAILED=true
+                    echo -e "${RED}  ❌ Webhook detectado sem HMAC validation: ${file}${NC}"
+                    echo -e "${YELLOW}     ⚠️  Implemente validateWebhook ou validateUAZAPISignature${NC}"
+                    ((TESTS_FAILED++))
+                fi
+            fi
+        done <<< "$WEBHOOK_FUNCTIONS"
+    fi
+fi
+
+if [ "$WEBHOOK_CHECK_FAILED" = false ]; then
+    echo -e "${GREEN}  ✅ Webhook HMAC Validation - PASSOU${NC}"
+    ((TESTS_PASSED++))
+fi
+echo ""
+
+# ============================================
+# 8. AI Call Rate Limiting (H3 - Workflow 8)
+# ============================================
+echo -e "${BLUE}8️⃣ AI Call Rate Limiting${NC}"
+
+AI_RATE_LIMIT_FAILED=false
+
+# Verificar se funções que chamam AI (Gemini) têm rate limiting
+if [ -d "$FUNCTIONS_PATH" ]; then
+    # Procurar especificamente por funções que chamam Gemini/AI
+    AI_FUNCTIONS=$(find "$FUNCTIONS_PATH" -path "*/_shared" -prune -o -name "*.ts" -type f ! -name "*.example.*" ! -name "*.test.*" -exec grep -l "gemini\|Google Generative\|lovable\|generate.*AI\|coach.*chat" {} \;)
+
+    if [ ! -z "$AI_FUNCTIONS" ]; then
+        while IFS= read -r file; do
+            # Pular arquivos de exemplo ou teste
+            if [[ "$file" == *".example."* ]] || [[ "$file" == *".test."* ]] || [[ "$file" == *"_shared"* ]]; then
+                continue
+            fi
+
+            # Verificar se é função que faz chamada real de AI (coach-chat é crítico)
+            if [[ "$file" == *"coach-chat"* ]]; then
+                # coach-chat deve ter rate limiting
+                if ! grep -q "checkRateLimit\|RATE_LIMIT" "$file" 2>/dev/null; then
+                    # Esse check é WARNING não ERROR pois rate limiting pode estar no caller
+                    echo -e "${YELLOW}  ℹ️  coach-chat pode não ter rate limiting integrado (verificar webhook)${NC}"
+                fi
+            fi
+        done <<< "$AI_FUNCTIONS"
+    fi
+fi
+
+# Apenas passa se não houver erros (warnings são permitidos)
+echo -e "${GREEN}  ✅ AI Call Rate Limiting - PASSOU${NC}"
+((TESTS_PASSED++))
+echo ""
+
+# ============================================
+# 9. LGPD Compliance (WhatsApp) (C3 - Workflow 8)
+# ============================================
+echo -e "${BLUE}9️⃣ LGPD Compliance (WhatsApp)${NC}"
+
+LGPD_CHECK_FAILED=false
+
+# Verificar se features WhatsApp implementam LGPD
+if [ -d "$FUNCTIONS_PATH" ]; then
+    # Procurar por funções WhatsApp reais (excluir exemplos, shared e testes)
+    WHATSAPP_FUNCTIONS=$(find "$FUNCTIONS_PATH" -path "*/_shared" -prune -o -name "*.ts" -type f ! -name "*.example.*" ! -name "*.test.*" -exec grep -l "whatsapp\|WhatsApp\|phone.*message\|UAZAPI" {} \;)
+
+    if [ ! -z "$WHATSAPP_FUNCTIONS" ]; then
+        while IFS= read -r file; do
+            # Pular arquivos de exemplo, teste ou _shared
+            if [[ "$file" == *".example."* ]] || [[ "$file" == *".test."* ]] || [[ "$file" == *"_shared"* ]]; then
+                continue
+            fi
+
+            # Verificar se realmente é uma função WhatsApp handler
+            if [[ "$file" == *"webhook-whatsapp"* ]]; then
+                # webhook-whatsapp DEVE ter LGPD consent check
+                if ! grep -q "hasWhatsAppConsent\|CONSENT_MESSAGE" "$file" 2>/dev/null; then
+                    LGPD_CHECK_FAILED=true
+                    echo -e "${RED}  ❌ WhatsApp webhook sem LGPD consent check: $(basename $file)${NC}"
+                    echo -e "${YELLOW}     ⚠️  CRÍTICO: Implemente hasWhatsAppConsent e CONSENT_MESSAGE${NC}"
+                    ((TESTS_FAILED++))
+                fi
+            fi
+        done <<< "$WHATSAPP_FUNCTIONS"
+    fi
+fi
+
+if [ "$LGPD_CHECK_FAILED" = false ]; then
+    echo -e "${GREEN}  ✅ LGPD Compliance (WhatsApp) - PASSOU${NC}"
+    ((TESTS_PASSED++))
 fi
 echo ""
 

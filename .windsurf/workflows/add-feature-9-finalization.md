@@ -2,6 +2,15 @@
 description: Workflow Add-Feature (9/10) - Finalization (Docs + Commit + Merge)
 ---
 
+## 📚 Pré-requisito: Consultar Documentação Base
+
+Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
+- `docs/PLAN.md` - Visão estratégica atual
+- `docs/TASK.md` - Status das tarefas em andamento
+- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+
+---
+
 # Workflow 9/10: Finalization (Finalização)
 
 Este é o **nono workflow** de 10 etapas modulares para adicionar uma nova funcionalidade.
@@ -301,12 +310,24 @@ git fetch --prune
 Quando for criar nova feature:
 
 ```bash
-# Sempre partir da main ATUALIZADA!
-git checkout main
-git pull origin main
-
-# Criar nova branch
+# Sempre usar o script automatizado (NUNCA git checkout -b manual!)
 ./scripts/create-feature-branch.sh "proxima-funcionalidade"
+```
+
+**⚠️ IMPORTANTE**: O script é inteligente e detecta automaticamente:
+- ✅ Se sua branch atual tem commits não mergeados
+- ✅ Oferece 3 opções de segurança (se houver trabalho não mergeado)
+- ✅ Protege contra perda de código (117+ arquivos)
+- ✅ Registra histórico em `.git/branch-history.log`
+
+**Cenário comum após merge**:
+```bash
+# Você está em: main (acabou de fazer merge)
+./scripts/create-feature-branch.sh "proxima-funcionalidade"
+
+# Script detecta:
+# ✅ Está na main atualizada
+# → Cria branch normalmente
 ```
 
 Sua nova branch terá:
@@ -314,6 +335,54 @@ Sua nova branch terá:
 - ✅ Documentação atualizada
 - ✅ Scripts mais recentes
 - ✅ Tudo sincronizado
+
+**📚 Mais informações**: Ver `docs/WORKFLOW_BRANCHES.md` para entender as 3 opções do script.
+
+---
+
+## 🚀 Próximo Passo: Deploy VPS?
+
+**Pergunta OBRIGATÓRIA** (após merge na main):
+
+Esta feature requer deploy para VPS?
+
+**Opções:**
+- `s` (sim) → Executar **Workflow 11** (VPS Deployment)
+- `n` (não) → Pular para **Workflow 10** (Template Sync) - feature não requer deploy
+- `staging` → Deploy apenas para staging (testar antes de produção)
+
+**Quando responder "sim" (executar Workflow 11):**
+- ✅ Feature modifica frontend (componentes, UI, hooks)
+- ✅ Feature modifica backend (lógica, APIs, integrações)
+- ✅ Feature modifica infra (Docker, Nginx, configurações)
+- ✅ Hotfix crítico
+- ✅ Mudança visível para usuários
+
+**Quando responder "não" (pular Workflow 11):**
+- ❌ Feature apenas de docs (README, ADRs, markdown)
+- ❌ Feature apenas de testes (specs, test files)
+- ❌ Feature apenas de scripts (automações locais)
+- ❌ Refatoração interna sem mudança de comportamento
+- ❌ Merge ainda não aprovado (aguardando review)
+
+**Se responder "sim":**
+```bash
+# Acionar Workflow 11
+.windsurf/workflows/add-feature-11-vps-deployment.md
+```
+
+**Se responder "não":**
+- Pular diretamente para Workflow 10 (Template Sync)
+- Workflow de features termina aqui
+
+**Se responder "staging":**
+```bash
+# Deploy staging para testes
+./scripts/deploy-vps.sh staging
+
+# Testar em staging antes de produção
+# Deploy produção manualmente quando aprovado
+```
 
 ---
 
@@ -365,22 +434,27 @@ git push origin main --force  # ⚠️ CUIDADO: Force push!
 
 ## 🔄 Boas Práticas Git/GitHub (Seção Informativa)
 
-### Regra de Ouro: Sempre Partir da Main Atualizada
+### Regra de Ouro: SEMPRE usar o script de criação de branches
 
-**Problema comum**: Criar branch sem arquivos recentes (docs, scripts, migrations)
+**Problema comum**: Criar branch manualmente sem verificar commits não mergeados
 
-**Solução**: Seguir sempre este fluxo:
+**❌ NUNCA use `git checkout -b` manual** - pode perder código não mergeado!
+
+**✅ Solução CORRETA**: SEMPRE usar o script automatizado:
 
 ```bash
-# 1. Ir para main
-git checkout main
-
-# 2. Atualizar com remote
-git pull origin main
-
-# 3. Criar nova branch a partir da main
-git checkout -b feat/nova-funcionalidade
+# Script inteligente que detecta commits não mergeados
+./scripts/create-feature-branch.sh "nova-funcionalidade"
 ```
+
+**O que o script faz automaticamente**:
+1. Verifica se branch atual tem commits não mergeados
+2. Oferece 3 opções seguras se houver trabalho não mergeado
+3. Cria branch com nome padronizado (`feat/nova-funcionalidade`)
+4. Mantém histórico em `.git/branch-history.log`
+5. **PROTEGE contra perda de código**
+
+**Para mais detalhes**: Consulte `docs/WORKFLOW_BRANCHES.md`
 
 ### Quando Fazer Merge na Main?
 
@@ -394,13 +468,19 @@ git checkout -b feat/nova-funcionalidade
 
 ### Checklist Pré-Branch
 
-Antes de criar nova branch, confirme:
+Antes de criar nova branch, o script automatizado verifica:
 
-- [ ] Estou na main? (`git branch --show-current`)
-- [ ] Main está atualizada? (`git pull origin main`)
-- [ ] Tem docs/? (`ls docs/`)
-- [ ] Tem scripts/? (`ls scripts/`)
-- [ ] Tem .env.example? (`ls .env.example`)
+- ✅ Branch atual tem commits não mergeados? (detecção automática)
+- ✅ Oferece opções seguras se houver trabalho não mergeado
+- ✅ Cria branch com nome padronizado
+- ✅ Registra histórico em `.git/branch-history.log`
+
+**Você só precisa executar**:
+```bash
+./scripts/create-feature-branch.sh "nome-da-feature"
+```
+
+O script cuida de todo o resto e **protege contra perda de código**!
 
 ### Estratégia de Branches
 
