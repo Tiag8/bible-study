@@ -1,36 +1,18 @@
 #!/bin/bash
 
 # ============================================================================
-# Generic VPS Rollback Script (Template)
+# Life Tracker - VPS Rollback Script
 # ============================================================================
-# CUSTOMIZE: Configure VPS settings in .env.production or directly in this file
-# Description: Quick rollback script to revert problematic deployments
-# Usage: ./vps-rollback.sh [production|staging]
-# Author: Your Team
-# Date: 2025-10-31
+# Descrição: Script de rollback rápido para reverter deploy com problemas
+# Uso: ./vps-rollback.sh [production|staging]
+# Autor: Life Tracker Team
+# Data: 2025-10-31
 # ============================================================================
 
-set -e  # Fail fast on error
+set -e  # Fail fast em caso de erro
 
 # ----------------------------------------------------------------------------
-# CONFIGURATION SECTION - CUSTOMIZE FOR YOUR PROJECT!
-# ----------------------------------------------------------------------------
-# Option 1: Load from .env.production (recommended)
-if [ -f .env.production ]; then
-    source .env.production
-fi
-
-# Option 2: Set directly here (or override .env.production values)
-VPS_USER="${VPS_USER:-root}"
-VPS_HOST="${VPS_HOST:-192.168.1.100}"
-VPS_PATH="${VPS_PATH:-/root/myapp}"
-DOMAIN="${DOMAIN:-myapp.example.com}"
-STACK_NAME="${STACK_NAME:-myapp}"
-IMAGE_NAME="${IMAGE_NAME:-$STACK_NAME}"
-IMAGE_TAG="${IMAGE_TAG:-latest}"
-
-# ----------------------------------------------------------------------------
-# Colors for output
+# Cores para logs
 # ----------------------------------------------------------------------------
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -39,7 +21,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # ----------------------------------------------------------------------------
-# Logging functions
+# Funções de log
 # ----------------------------------------------------------------------------
 log_success() {
     echo -e "${GREEN}✓ $1${NC}"
@@ -58,29 +40,35 @@ log_info() {
 }
 
 # ----------------------------------------------------------------------------
-# Parameter validation
+# Validação de parâmetros
 # ----------------------------------------------------------------------------
 if [ -z "$1" ]; then
-    log_error "Environment not specified!"
-    echo "Usage: ./vps-rollback.sh [production|staging]"
+    log_error "Ambiente não especificado!"
+    echo "Uso: ./vps-rollback.sh [production|staging]"
     exit 1
 fi
 
 ENVIRONMENT=$1
 
 if [ "$ENVIRONMENT" != "production" ] && [ "$ENVIRONMENT" != "staging" ]; then
-    log_error "Invalid environment: $ENVIRONMENT"
-    echo "Valid environments: production, staging"
+    log_error "Ambiente inválido: $ENVIRONMENT"
+    echo "Ambientes válidos: production, staging"
     exit 1
 fi
 
 # ----------------------------------------------------------------------------
-# Environment-specific overrides (optional)
+# Variáveis por ambiente
 # ----------------------------------------------------------------------------
-if [ "$ENVIRONMENT" == "staging" ]; then
-    DOMAIN="${STAGING_DOMAIN:-staging.$DOMAIN}"
-    STACK_NAME="${STACK_NAME}-staging"
-    VPS_PATH="${VPS_PATH}-staging"
+if [ "$ENVIRONMENT" == "production" ]; then
+    VPS_HOST="root@31.97.22.151"
+    VPS_PATH="/root/life-tracker"
+    DOMAIN="life-tracker.stackia.com.br"
+    STACK_NAME="lifetracker"
+elif [ "$ENVIRONMENT" == "staging" ]; then
+    VPS_HOST="root@31.97.22.151"
+    VPS_PATH="/root/life-tracker-staging"
+    DOMAIN="staging.life-tracker.stackia.com.br"
+    STACK_NAME="lifetracker-staging"
 fi
 
 # ----------------------------------------------------------------------------
@@ -88,217 +76,188 @@ fi
 # ----------------------------------------------------------------------------
 echo ""
 echo -e "${RED}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${RED}║           Generic VPS Rollback Script                      ║${NC}"
+echo -e "${RED}║           Life Tracker - VPS Rollback                      ║${NC}"
 echo -e "${RED}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
-log_warning "WARNING: This operation will revert to the previous commit!"
+log_warning "ATENÇÃO: Esta operação irá reverter para o commit anterior!"
 echo ""
-log_info "Environment: $ENVIRONMENT"
-log_info "VPS Host: $VPS_USER@$VPS_HOST"
+log_info "Ambiente: $ENVIRONMENT"
+log_info "VPS Host: $VPS_HOST"
 log_info "Stack: $STACK_NAME"
 echo ""
 
 # ----------------------------------------------------------------------------
-# Validation: Check required variables
+# Validar acesso SSH
 # ----------------------------------------------------------------------------
-if [ "$VPS_HOST" == "192.168.1.100" ]; then
-    log_error "VPS_HOST is still the default value!"
-    log_warning "Please configure VPS settings in .env.production or this script"
-    exit 1
-fi
-
-# ----------------------------------------------------------------------------
-# Validate SSH access
-# ----------------------------------------------------------------------------
-log_info "Validating SSH access..."
-if ssh -o ConnectTimeout=10 -o BatchMode=yes "$VPS_USER@$VPS_HOST" "exit" 2>/dev/null; then
-    log_success "SSH access validated"
+log_info "Validando acesso SSH..."
+if ssh -o ConnectTimeout=10 -o BatchMode=yes "$VPS_HOST" "exit" 2>/dev/null; then
+    log_success "Acesso SSH validado"
 else
-    log_error "Failed to connect via SSH"
+    log_error "Falha ao conectar via SSH"
     exit 1
 fi
 
 # ----------------------------------------------------------------------------
-# Show current and previous commits
+# Mostrar commit atual e anterior
 # ----------------------------------------------------------------------------
-log_info "Checking commits..."
+log_info "Verificando commits..."
 echo ""
 
-CURRENT_COMMIT=$(ssh "$VPS_USER@$VPS_HOST" "cd $VPS_PATH && git log -1 --oneline" 2>/dev/null || echo "Unable to get current commit")
-PREVIOUS_COMMIT=$(ssh "$VPS_USER@$VPS_HOST" "cd $VPS_PATH && git log -2 --oneline | tail -n 1" 2>/dev/null || echo "Unable to get previous commit")
+CURRENT_COMMIT=$(ssh "$VPS_HOST" "cd $VPS_PATH && git log -1 --oneline" 2>/dev/null || echo "Erro ao obter commit atual")
+PREVIOUS_COMMIT=$(ssh "$VPS_HOST" "cd $VPS_PATH && git log -2 --oneline | tail -n 1" 2>/dev/null || echo "Erro ao obter commit anterior")
 
-echo -e "${YELLOW}Current commit:${NC}"
+echo -e "${YELLOW}Commit atual:${NC}"
 echo "  $CURRENT_COMMIT"
 echo ""
-echo -e "${YELLOW}Previous commit (rollback target):${NC}"
+echo -e "${YELLOW}Commit anterior (rollback target):${NC}"
 echo "  $PREVIOUS_COMMIT"
 echo ""
 
 # ----------------------------------------------------------------------------
-# User confirmation
+# Confirmação do usuário
 # ----------------------------------------------------------------------------
 echo -e "${RED}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${RED}║                    CONFIRMATION REQUIRED                    ║${NC}"
+echo -e "${RED}║                    CONFIRMAÇÃO NECESSÁRIA                  ║${NC}"
 echo -e "${RED}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
-log_warning "This operation will:"
-echo "  1. Revert code to previous commit (HEAD~1)"
-echo "  2. Rebuild Docker image"
-echo "  3. Redeploy stack $STACK_NAME"
+log_warning "Esta operação irá:"
+echo "  1. Reverter o código para o commit anterior (HEAD~1)"
+echo "  2. Rebuildar a imagem Docker"
+echo "  3. Redeployar o stack $STACK_NAME"
 echo ""
-log_error "This action cannot be undone automatically!"
+log_error "Esta ação não pode ser desfeita automaticamente!"
 echo ""
 
-read -p "Are you sure you want to continue? (type 'YES' to confirm): " CONFIRMATION
+read -p "Tem certeza que deseja continuar? (digite 'SIM' para confirmar): " CONFIRMATION
 
-if [ "$CONFIRMATION" != "YES" ]; then
-    log_warning "Rollback cancelled by user"
+if [ "$CONFIRMATION" != "SIM" ]; then
+    log_warning "Rollback cancelado pelo usuário"
     exit 0
 fi
 
 echo ""
-log_info "Starting rollback..."
+log_info "Iniciando rollback..."
 echo ""
 
 # ----------------------------------------------------------------------------
 # 1. Git checkout HEAD~1
 # ----------------------------------------------------------------------------
-log_info "Reverting code to previous commit..."
+log_info "Revertendo código para commit anterior..."
 
-# Save current branch
-CURRENT_BRANCH=$(ssh "$VPS_USER@$VPS_HOST" "cd $VPS_PATH && git rev-parse --abbrev-ref HEAD" 2>/dev/null || echo "main")
-log_info "Current branch: $CURRENT_BRANCH"
+# Salvar branch atual
+CURRENT_BRANCH=$(ssh "$VPS_HOST" "cd $VPS_PATH && git rev-parse --abbrev-ref HEAD" 2>/dev/null || echo "main")
+log_info "Branch atual: $CURRENT_BRANCH"
 
-# Checkout previous commit
-ssh "$VPS_USER@$VPS_HOST" "cd $VPS_PATH && git reset --hard HEAD~1" || {
-    log_error "Failed to execute git reset"
-    log_warning "Trying alternative rollback with git checkout..."
-    ssh "$VPS_USER@$VPS_HOST" "cd $VPS_PATH && git checkout HEAD~1" || {
-        log_error "Code rollback FAILED"
+# Fazer checkout do commit anterior
+ssh "$VPS_HOST" "cd $VPS_PATH && git reset --hard HEAD~1" || {
+    log_error "Falha ao executar git reset"
+    log_warning "Tentando rollback alternativo com git checkout..."
+    ssh "$VPS_HOST" "cd $VPS_PATH && git checkout HEAD~1" || {
+        log_error "Falha no rollback do código"
         exit 1
     }
 }
 
-log_success "Code reverted to previous commit"
+log_success "Código revertido para commit anterior"
 
-# Verify current commit after rollback
-NEW_CURRENT_COMMIT=$(ssh "$VPS_USER@$VPS_HOST" "cd $VPS_PATH && git log -1 --oneline")
-log_info "New current commit: $NEW_CURRENT_COMMIT"
+# Verificar commit atual após rollback
+NEW_CURRENT_COMMIT=$(ssh "$VPS_HOST" "cd $VPS_PATH && git log -1 --oneline")
+log_info "Novo commit atual: $NEW_CURRENT_COMMIT"
 echo ""
 
 # ----------------------------------------------------------------------------
-# 2. Rebuild Docker image
+# 2. Rebuild imagem Docker
 # ----------------------------------------------------------------------------
-log_info "Rebuilding Docker image..."
-echo -e "${YELLOW}This may take several minutes...${NC}"
+log_info "Rebuilding imagem Docker..."
+echo -e "${YELLOW}Isso pode levar alguns minutos...${NC}"
 
-# Check if Dockerfile exists
-DOCKERFILE_CMD="if [ -f '$VPS_PATH/Dockerfile.react' ]; then echo 'Dockerfile.react'; elif [ -f '$VPS_PATH/Dockerfile' ]; then echo 'Dockerfile'; else echo ''; fi"
-DOCKERFILE=$(ssh "$VPS_USER@$VPS_HOST" "$DOCKERFILE_CMD")
-
-if [ -z "$DOCKERFILE" ]; then
-    log_error "No Dockerfile found on VPS"
-    log_warning "Trying to revert git to previous state..."
-    ssh "$VPS_USER@$VPS_HOST" "cd $VPS_PATH && git reset --hard HEAD@{1}" || true
-    exit 1
-fi
-
-ssh "$VPS_USER@$VPS_HOST" "cd $VPS_PATH && docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f $DOCKERFILE ." || {
-    log_error "Failed to execute Docker build"
-    log_warning "Trying to revert git to previous state..."
-    ssh "$VPS_USER@$VPS_HOST" "cd $VPS_PATH && git reset --hard HEAD@{1}" || true
+ssh "$VPS_HOST" "cd $VPS_PATH && docker build -t ${STACK_NAME}:latest -f Dockerfile.production ." || {
+    log_error "Falha ao executar Docker build"
+    log_warning "Tentando reverter git para estado anterior..."
+    ssh "$VPS_HOST" "cd $VPS_PATH && git reset --hard HEAD@{1}" || true
     exit 1
 }
 
-log_success "Docker build completed"
+log_success "Docker build concluído"
 
 # ----------------------------------------------------------------------------
 # 3. Redeploy stack
 # ----------------------------------------------------------------------------
-log_info "Redeploying stack..."
+log_info "Redeployando stack..."
 
-# Find compose file
-COMPOSE_CMD="if [ -f '$VPS_PATH/docker-compose.swarm.yml' ]; then echo 'docker-compose.swarm.yml'; elif [ -f '$VPS_PATH/docker-compose.yml' ]; then echo 'docker-compose.yml'; else echo ''; fi"
-COMPOSE_FILE=$(ssh "$VPS_USER@$VPS_HOST" "$COMPOSE_CMD")
-
-if [ -z "$COMPOSE_FILE" ]; then
-    log_error "No docker-compose file found on VPS"
-    exit 1
-fi
-
-ssh "$VPS_USER@$VPS_HOST" "cd $VPS_PATH && docker stack deploy -c $COMPOSE_FILE $STACK_NAME" || {
-    log_error "Failed to execute Docker stack deploy"
+ssh "$VPS_HOST" "cd $VPS_PATH && docker stack deploy -c docker-compose.vps.yml $STACK_NAME" || {
+    log_error "Falha ao executar Docker stack deploy"
     exit 1
 }
 
 log_success "Stack redeployed"
 
 # ----------------------------------------------------------------------------
-# 4. Wait for containers to restart
+# 4. Aguardar containers reiniciarem
 # ----------------------------------------------------------------------------
-log_info "Waiting for containers to restart (30s)..."
+log_info "Aguardando containers reiniciarem (30s)..."
 for i in {30..1}; do
-    echo -ne "${YELLOW}⏳ $i seconds remaining...\r${NC}"
+    echo -ne "${YELLOW}⏳ $i segundos restantes...\r${NC}"
     sleep 1
 done
 echo -e "\n"
-log_success "Restart period completed"
+log_success "Período de reinicialização concluído"
 
 # ----------------------------------------------------------------------------
-# 5. Post-rollback validation
+# 5. Validação pós-rollback
 # ----------------------------------------------------------------------------
-log_info "Running post-rollback validation..."
+log_info "Executando validação pós-rollback..."
 
-# Check service status
-log_info "Service status:"
-ssh "$VPS_USER@$VPS_HOST" "docker service ls --filter name=$STACK_NAME"
+# Verificar status dos serviços
+log_info "Status dos serviços:"
+ssh "$VPS_HOST" "docker service ls --filter name=$STACK_NAME"
 echo ""
 
 # Health check
-log_info "Running health check..."
+log_info "Executando health check..."
 HEALTH_CHECK_URL="https://$DOMAIN"
 HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 10 "$HEALTH_CHECK_URL" || echo "000")
 
 if [ "$HTTP_STATUS" == "200" ]; then
-    log_success "Health check passed (HTTP $HTTP_STATUS)"
+    log_success "Health check passou (HTTP $HTTP_STATUS)"
 elif [ "$HTTP_STATUS" == "000" ]; then
-    log_error "Health check failed (timeout or connection error)"
-    log_warning "Application may have serious issues"
+    log_error "Health check falhou (timeout ou erro de conexão)"
+    log_warning "Aplicação pode estar com problemas graves"
     echo ""
-    log_warning "Check logs: ssh $VPS_USER@$VPS_HOST 'docker service logs ${STACK_NAME}_app'"
+    log_warning "Verifique os logs: ssh $VPS_HOST 'docker service logs ${STACK_NAME}_app'"
     exit 1
 else
-    log_warning "Health check returned HTTP $HTTP_STATUS"
-    log_warning "Application may be starting"
+    log_warning "Health check retornou HTTP $HTTP_STATUS"
+    log_warning "Aplicação pode estar inicializando"
 fi
 
 # ----------------------------------------------------------------------------
-# 6. Show recent logs
+# 6. Verificar logs recentes
 # ----------------------------------------------------------------------------
-log_info "Recent service logs:"
+log_info "Logs recentes do serviço:"
 echo -e "${YELLOW}----------------------------------------${NC}"
-ssh "$VPS_USER@$VPS_HOST" "docker service logs --tail 20 ${STACK_NAME}_app 2>&1 || echo 'Service does not have logs yet'"
+ssh "$VPS_HOST" "docker service logs --tail 20 ${STACK_NAME}_app 2>&1 || echo 'Serviço ainda não possui logs'"
 echo -e "${YELLOW}----------------------------------------${NC}"
 
 # ----------------------------------------------------------------------------
-# Final summary
+# Resumo final
 # ----------------------------------------------------------------------------
 echo ""
 echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║              Rollback completed successfully!               ║${NC}"
+echo -e "${GREEN}║              Rollback concluído com sucesso!               ║${NC}"
 echo -e "${GREEN}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
-log_success "Environment: $ENVIRONMENT"
-log_success "Previous commit restored: $NEW_CURRENT_COMMIT"
+log_success "Ambiente: $ENVIRONMENT"
+log_success "Commit anterior restaurado: $NEW_CURRENT_COMMIT"
 log_success "URL: $HEALTH_CHECK_URL"
 echo ""
-log_info "Next steps:"
-echo "  1. Run smoke tests: ./scripts/vps-smoke-tests.sh $ENVIRONMENT"
-echo "  2. Monitor logs: ssh $VPS_USER@$VPS_HOST 'docker service logs -f ${STACK_NAME}_app'"
-echo "  3. Investigate the cause of the problem in the reverted commit"
+log_info "Próximos passos:"
+echo "  1. Execute smoke tests: ./scripts/vps-smoke-tests.sh $ENVIRONMENT"
+echo "  2. Monitore logs: ssh $VPS_HOST 'docker service logs -f ${STACK_NAME}_app'"
+echo "  3. Investigue a causa do problema no commit revertido"
 echo ""
-log_warning "IMPORTANT: Branch is now at HEAD~1 (detached HEAD state)"
-log_warning "To return to normal state:"
-echo "  - If rollback was successful: ssh $VPS_USER@$VPS_HOST 'cd $VPS_PATH && git checkout $CURRENT_BRANCH'"
-echo "  - If you need to keep rollback: create a branch or git push --force (be careful!)"
+log_warning "IMPORTANTE: O branch está agora em HEAD~1 (detached HEAD state)"
+log_warning "Para voltar ao estado normal:"
+echo "  - Se rollback foi bem-sucedido: ssh $VPS_HOST 'cd $VPS_PATH && git checkout $CURRENT_BRANCH'"
+echo "  - Se precisa manter rollback: crie uma branch ou faça git push --force (com cuidado!)"
 echo ""

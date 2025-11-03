@@ -147,22 +147,33 @@ echo ""
 # ============================================
 echo -e "${BLUE}4️⃣ Verificação de SQL Injection${NC}"
 
-SQL_INJECTION_FOUND=false
-
-# Procurar por concatenação de strings em queries
-if grep -riE "\`SELECT .* FROM .* WHERE .* \$\{|\`INSERT INTO .* VALUES .* \$\{|\`UPDATE .* SET .* \$\{" "$SCAN_PATH" --exclude-dir=node_modules --exclude-dir=dist --exclude="*.test.*" > /dev/null 2>&1; then
-    SQL_INJECTION_FOUND=true
-    echo -e "${RED}  ❌ Possível SQL Injection detectado (string concatenation em query)${NC}"
-    grep -riE "\`SELECT .* FROM .* WHERE .* \$\{|\`INSERT INTO .* VALUES .* \$\{|\`UPDATE .* SET .* \$\{" "$SCAN_PATH" --exclude-dir=node_modules --exclude-dir=dist --exclude="*.test.*" | head -5 | sed 's/^/     /'
+SQL_INJECTION=$(grep -r "SELECT.*+" "$SCAN_PATH" --include="*.ts" --include="*.js" --exclude-dir=node_modules --exclude-dir=dist || true)
+if [ -n "$SQL_INJECTION" ]; then
+    echo -e "${RED}   ❌ Possível SQL Injection detectado!${NC}"
+    echo "$SQL_INJECTION" | sed 's/^/     /'
+    SQL_INJECTION_FAILED=true
+else
+    echo -e "${GREEN}   ✅ SQL Injection - PASSOU${NC}"
 fi
 
-if [ "$SQL_INJECTION_FOUND" = false ]; then
-    echo -e "${GREEN}  ✅ SQL Injection - PASSOU${NC}"
-    ((TESTS_PASSED++))
+# 4.1. Verificação de 'as any' em webhooks (Meta-Learning)
+echo "   🔍 Verificando 'as any' em webhooks..."
+ANY_TYPES=$(grep -r "as any" "$SCAN_PATH/supabase/functions/*/index.ts" || true)
+if [ -n "$ANY_TYPES" ]; then
+    echo -e "${YELLOW}   ⚠️  'as any' detectado em webhooks${NC}"
+    echo "$ANY_TYPES" | sed 's/^/     /'
+    echo -e "${YELLOW}   💡 Considere usar tipos específicos para melhor segurança${NC}"
 else
+    echo -e "${GREEN}   ✅ Tipos seguros em webhooks - PASSOU${NC}"
+fi
+
+if [ "$SQL_INJECTION_FAILED" = true ]; then
     echo -e "${RED}  ❌ SQL Injection - FALHOU${NC}"
     echo -e "${YELLOW}     ⚠️  Use parameterized queries (.eq(), .filter()) ao invés de concatenação!${NC}"
     ((TESTS_FAILED++))
+else
+    echo -e "${GREEN}  ✅ SQL Injection - PASSOU${NC}"
+    ((TESTS_PASSED++))
 fi
 echo ""
 

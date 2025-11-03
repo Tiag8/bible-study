@@ -114,7 +114,20 @@ Use quando:
 
 ### 3.2 Acionar Ultra Think (se aplicável)
 
-Se necessário, vou usar:
+Se necessário, vou usar**CRÍTICO**: Sempre siga os workflows em `.windsurf/workflows/`. NUNCA pule etapas, mesmo sob pressão.
+
+**🚨 EXCEÇÃO**: Fast-Track para bugs críticos em produção
+Se usuários estiverem bloqueados ou funcionalidade quebrada em produção:
+- Usar workflow: `add-feature-fast-track-critical-bug.md`
+- Foco: Correção rápida (< 2 horas)
+- Obrigatório: Code review + security scan pós-fix
+- Obrigatório: Documentação retrospectiva completa
+
+**Por que esta exceção?**
+- Meta-Learning mostrou que workflow completo demoraria 1 dia para bug crítico
+- Fast-track resolveu em < 2 horas mantendo qualidade
+- Usuários não ficam bloqueados desnecessariamente: [Descrição do problema/decisão]
+
 ```
 Acionar workflow: .windsurf/workflows/ultra-think.md
 Questão: [Descrição do problema/decisão]

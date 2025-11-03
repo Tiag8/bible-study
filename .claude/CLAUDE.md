@@ -1,21 +1,33 @@
-# Claude Code - Configuração do Projeto
+# Claude Code - Life Track Growth (Life Tracker)
 
-> [Adicione uma breve descrição do projeto aqui]
+> Aplicação AI-powered de desenvolvimento pessoal e habit tracking baseada na metodologia "Roda da Vida" (Wheel of Life).
 
 ---
 
 ## 📚 ESTRUTURA DE DOCUMENTAÇÃO
 
-Este arquivo contém instruções **específicas deste projeto**. Para regras **globais**, consulte:
+Este arquivo contém instruções **específicas do projeto Life Tracker**. Para regras **globais**, consulte:
 - **`/Users/tiago/.codeium/windsurf/memories/global_rules.md`**: Regras universais
 
-**Hierarquia**: Regras deste arquivo têm prioridade para este projeto.
+**Hierarquia**: Regras deste arquivo têm prioridade para Life Tracker.
 
 ---
 
-## 🤖 USO DE AGENTES (Claude Code)
+## ⚠️ MUITO IMPORTANTE: USO MÁXIMO DE AGENTES (Claude Code)
 
-**REGRA CRÍTICA**: SEMPRE avaliar possibilidade de usar o **máximo de agentes possível** em paralelo.
+> **🚨 REGRA ABSOLUTA E OBRIGATÓRIA 🚨**
+>
+> **SEMPRE** usar o **MÁXIMO de agentes possível** em paralelo para **TODAS** as tarefas.
+>
+> Esta é a regra **MAIS IMPORTANTE** de todas. NÃO PULE. NÃO IGNORE.
+>
+> **Casos de uso comprovados neste projeto:**
+> - Troubleshooting VPS Traefik: 5 agentes em paralelo = diagnóstico em 5min vs 20min+
+> - Criação de Workflow 11: 5 agentes em paralelo = criação completa em 8min vs 30min+
+> - Análise de infraestrutura VPS: 5 agentes em paralelo = análise completa em 4min vs 15min+
+
+### 🎯 REGRA CRÍTICA
+**SEMPRE** avaliar possibilidade de usar o **máximo de agentes possível** em paralelo.
 
 ### Quando Usar Múltiplos Agentes
 - Tarefas independentes executáveis simultaneamente
@@ -30,6 +42,63 @@ Este arquivo contém instruções **específicas deste projeto**. Para regras **
 - 🚀 Maior throughput de tarefas
 
 **Nota**: Esta regra aplica-se ao **Claude Code** (suporta multi-agentes). O Windsurf não tem suporte a múltiplos agentes.
+
+---
+
+## 📋 DOCUMENTAÇÃO OBRIGATÓRIA (PLAN.md e TASK.md)
+
+> **🚨 REGRA CRÍTICA 🚨**
+>
+> **SEMPRE** consultar PLAN.md e TASK.md **ANTES** de qualquer planejamento ou ação.
+
+### Documentos a Consultar SEMPRE
+
+**Antes de iniciar qualquer tarefa**:
+1. **`docs/PLAN.md`** - Plano estratégico atual e roadmap das 10 etapas macro
+2. **`docs/TASK.md`** - Status atual das tarefas e checklist executável
+3. **`docs/pesquisa-de-mercado/`** - Fundamentos científicos e pesquisas
+
+**Após completar tarefas**:
+1. **Atualizar `docs/TASK.md`** - Marcar tarefas como completadas
+2. **Atualizar `docs/PLAN.md`** - Se houver mudança estratégica
+3. **Criar ADR** - Se houver decisão arquitetural importante
+
+### Por que isso é crítico?
+- ✅ Mantém alinhamento com estratégia atual
+- ✅ Evita retrabalho e decisões conflitantes
+- ✅ Garante continuidade entre sessões
+- ✅ Documenta progresso real do projeto
+
+**Regra**: NUNCA iniciar trabalho sem ler PLAN.md e TASK.md primeiro!
+
+---
+
+## 🎯 CORE CONCEPT: 8 ÁREAS DA VIDA
+
+**CRÍTICO**: O Life Tracker é baseado na metodologia "Roda da Vida" com **8 áreas fixas**:
+
+1. **Saúde** (Health) - ID: 1
+2. **Carreira** (Career) - ID: 2
+3. **Relacionamentos** (Relationships) - ID: 3
+4. **Finanças** (Finance) - ID: 4
+5. **Desenvolvimento Pessoal** (Personal Development) - ID: 5
+6. **Lazer** (Leisure) - ID: 6
+7. **Espiritualidade** (Spirituality) - ID: 7
+8. **Ambiente** (Environment) - ID: 8
+
+**⚠️ REGRA ABSOLUTA**: NUNCA adicionar/remover áreas. IDs 1-8 são fixos e imutáveis.
+
+---
+
+## 🎯 FEATURES CORE (Resumo)
+
+1. **Assessments Dinâmicos**: IA gera perguntas adaptativas, gráfico Wheel of Life, histórico
+2. **Habit Tracking**: Criação manual/IA, streak counting, calendário visual, gamificação
+3. **AI Coach** (Gemini 2.5 Flash): Chat contextual, insights personalizados, daily messages
+4. **Goals**: SMART goals, milestones, progress tracking
+5. **Dashboard**: Wheel of Life, métricas agregadas, charts (Recharts)
+6. **Onboarding**: Welcome wizard, tours interativos
+7. **Admin**: Gestão usuários, analytics, system health
 
 ---
 
@@ -53,38 +122,31 @@ Este arquivo contém instruções **específicas deste projeto**. Para regras **
 
 ## 🛠️ STACK CORE
 
-> **IMPORTANTE**: Atualizar esta seção com a stack específica do projeto
-
-### Frontend
-- **Framework**: [React/Vue/Angular/etc]
-- **Language**: TypeScript
-- **Build Tool**: [Vite/Webpack/etc]
-- **Styling**: [TailwindCSS/CSS Modules/etc]
-- **UI**: [shadcn/ui/Material-UI/etc]
-- **Router**: [React Router/Vue Router/etc]
-- **State**: [React Query/Redux/Zustand/etc]
-- **Forms**: [React Hook Form/Formik/etc]
-
-### Backend
-- **Platform**: [Supabase/Node.js/Python/etc]
-- **Framework**: [Express/FastAPI/Django/etc]
-- **Database**: [PostgreSQL/MongoDB/MySQL/etc]
-- **Auth**: [Supabase Auth/Auth0/JWT/etc]
+- **Frontend**: React 18.3 + TypeScript 5.8 + Vite 5.4 + TailwindCSS 3.4
+- **UI**: shadcn/ui (Radix UI primitives)
+- **Router**: React Router v7.1
+- **State**: React Query (TanStack Query)
+- **Forms**: React Hook Form + Zod
+- **Backend**: Supabase (PostgreSQL 15+, Auth, Storage, Edge Functions Deno)
+- **AI**: Google Gemini 2.5 Flash
+- **Charts**: Recharts
 
 ---
 
 ## 🗄️ DATABASE SCHEMA (Resumo)
 
-> **IMPORTANTE**: Documentar schema principal
+**Prefixo obrigatório**: `lifetracker_` em TODAS as tabelas
 
-**Convenção de nomes**: [snake_case/camelCase/PascalCase]
+**21 tabelas principais**:
+- `lifetracker_profiles`: Perfis usuário
+- `lifetracker_life_areas`: 8 áreas fixas (IDs 1-8)
+- `lifetracker_habits`, `lifetracker_habit_entries`: Hábitos + log
+- `lifetracker_goals`, `lifetracker_goal_entries`: Metas + progresso
+- `lifetracker_assessment_history`, `lifetracker_assessment_responses`: Assessments
+- `lifetracker_coach_conversations`, `lifetracker_coach_messages`: AI Coach
+- Outras: categories, refinements, insights, suggestions, milestones, versions, logs
 
-**Tabelas principais**:
-- `table_1`: [Descrição]
-- `table_2`: [Descrição]
-- ...
-
-**Ver detalhes**: `docs/ARCHITECTURE.md` ou migrations em `[caminho]`
+**Ver detalhes**: `docs/ARCHITECTURE.md` ou migrations em `supabase/migrations/`
 
 ---
 
@@ -93,12 +155,16 @@ Este arquivo contém instruções **específicas deste projeto**. Para regras **
 ### Naming:
 - **Variáveis/funções**: camelCase (inglês)
 - **Componentes**: PascalCase
-- **Database**: snake_case
-- **API Routes**: kebab-case (`/api/resource-name`)
+- **Database**: snake_case + prefixo `lifetracker_`
+- **API Routes**: kebab-case (`/api/life-areas`)
 
 ### Comentários:
 - **Código**: Português
 - **Commits**: Português + Conventional Commits (`feat:`, `fix:`, `refactor:`)
+
+### 8 Áreas da Vida:
+- SEMPRE usar IDs 1-8 (não strings)
+- NUNCA permitir CRUD nas áreas (são fixas)
 
 ---
 
@@ -106,7 +172,7 @@ Este arquivo contém instruções **específicas deste projeto**. Para regras **
 
 Ver `.windsurf/workflows/`:
 
-1. **`/add-feature-1-planning`**: Sistema modular 10 etapas (Planning → Solution → Implementation → Validation → Docs → Template Sync)
+1. **`/add-feature-1-planning`**: Sistema modular 9 etapas (Planning → Solution → Implementation → Validation → Docs)
 2. **`/ultra-think`**: Análise profunda para decisões arquiteturais
 
 **Regra**: SEMPRE seguir workflows. NUNCA pular etapas.
@@ -116,9 +182,9 @@ Ver `.windsurf/workflows/`:
 ## 🔒 SEGURANÇA CRÍTICA
 
 1. **ZERO secrets hardcoded** - Sempre `.env` + variáveis de ambiente
-2. **RLS obrigatório** - Row Level Security (se Supabase)
-3. **NUNCA logar**: Dados sensíveis do usuário
-4. **Anonimização**: Analytics agregadas sem identificação
+2. **RLS obrigatório** - Row Level Security em TODAS as tabelas Supabase
+3. **NUNCA logar**: Assessment responses, coach messages, habit data (dados sensíveis)
+4. **Anonimização**: Analytics agregadas sem identificação de usuários
 5. **GDPR/LGPD**: Direito ao esquecimento, exportação de dados
 6. **Queries parametrizadas**: NUNCA SQL injection
 
@@ -127,37 +193,36 @@ Ver `.windsurf/workflows/`:
 ## 🚀 PERFORMANCE CRÍTICA
 
 ### Targets:
-- **Dashboard**: < 2s load
-- **API Responses**: < 500ms
-- **Page Load**: < 3s (First Contentful Paint)
+- **Dashboard**: < 2s load (múltiplas queries)
+- **Coach Chat**: < 3s response (Edge Function + LLM)
+- **Habit Logging**: Instantâneo (optimistic updates)
+- **Assessments**: < 2s perguntas dinâmicas
 
 ### Técnicas:
 - **React Query**: Cache agressivo (5 min staleTime)
-- **Lazy Loading**: Componentes pesados
-- **Optimistic Updates**: UI responde antes de API
+- **Lazy Loading**: Componentes pesados (Wheel of Life, Calendar)
+- **Optimistic Updates**: UI responde antes de API (habit logging)
 - **Memoização**: useMemo/useCallback em cálculos pesados
 
 ---
 
-## 💰 CUSTOS DE AI (se aplicável)
+## 💰 CUSTOS DE AI
 
-> **IMPORTANTE**: Atualizar se o projeto usa LLMs/AI
+- **Gemini 2.5 Flash**: Modelo econômico ($0.30/1M tokens input, $2.50/1M output)
+- **Context Caching**: 75-90% economia (cachear system prompts)
+- **Rate Limiting**: 30 msgs/hora (coach), 5 assessments/dia
+- **Token Limits**: coach (500 tokens), assessment (300), habit suggestions (400)
 
-- **Modelo**: [Gemini/GPT-4/Claude/etc]
-- **Context Caching**: [Economia esperada]
-- **Rate Limiting**: [Limites por usuário/hora]
-- **Token Limits**: [Limites por operação]
-
-**Orçamento**: [Estimativa mensal]
+**Orçamento**: ~$11-15/mês para 100 usuários ativos (com caching).
 
 ---
 
 ## 🧪 TESTES PRIORITÁRIOS
 
-1. **Auth/Autorização**: Usuário não vê dados de outros
-2. **API Validations**: Validação Zod/Yup/Joi
-3. **Critical Paths**: [Listar fluxos críticos]
-4. **Edge Cases**: [Casos específicos do negócio]
+1. **RLS Policies**: Usuário não vê dados de outros
+2. **AI Responses**: Validação Zod (não confiar em LLM)
+3. **Habit Streaks**: Lógica de cálculo crítica (gamificação depende disso)
+4. **Assessment Scores**: Cálculos precisos das 8 áreas
 
 **TDD obrigatório**: Lógica de negócio (hooks, cálculos, validações).
 
@@ -189,27 +254,86 @@ git push
 
 ---
 
+## 🚀 DEPLOYMENT & INFRA
+
+### VPS Docker Swarm
+- **Provider**: VPS (31.97.22.151)
+- **Stack**: Docker Swarm + Traefik + Nginx
+- **Domain**: https://life-tracker.stackia.com.br
+- **Deployment**: Automático via `./scripts/deploy-vps.sh production`
+- **Acesso**: Ver `docs/ops/vps-access.md`
+
+### Docker Best Practices (Projeto)
+- **Multi-stage builds**: Redução 95% tamanho (1GB → 45MB)
+- **Health checks**: 127.0.0.1 (Alpine Linux) - NÃO usar localhost
+- **Traefik labels**: OBRIGATÓRIO `traefik.docker.network=network_public` em Swarm
+- **.env em build time**: Vite precisa de variáveis em BUILD TIME (incluir .env no Docker build)
+
+### Workflow de Deploy
+1. Feature desenvolvida localmente (Workflows 1-9)
+2. Merge na main (manual)
+3. Deploy VPS (Workflow 11): `./scripts/deploy-vps.sh production`
+4. Validação (smoke tests, health checks)
+5. Monitoramento (10min)
+6. Rollback se necessário: `./scripts/vps-rollback.sh`
+
+### Troubleshooting Rápido
+- **Container não inicia**: `ssh root@31.97.22.151 "docker service logs -f lifetracker_app"`
+- **Traefik não roteia**: Verificar label `traefik.docker.network` no docker-compose.yml
+- **Health check falha**: Usar 127.0.0.1 em vez de localhost (Alpine)
+- **Build falha**: Verificar se .env está disponível para Vite (variáveis VITE_*)
+- **Rollback**: `./scripts/vps-rollback.sh production` (2-3min)
+
+### Meta-Learnings Críticos
+- **ML-1**: .dockerignore bloqueando .env → Vite precisa em BUILD TIME
+- **ML-2**: traefik.docker.network label → CRÍTICO em multi-network Swarm
+- **ML-3**: Alpine 127.0.0.1 vs localhost → Health checks falham com localhost
+- **ML-4**: 5 agentes paralelos = 4x rápido → Troubleshooting 5min vs 20min+
+- **ML-5**: Multi-stage builds → Redução 95% tamanho
+
+### ADR Relacionado
+- **ADR 003**: Docker Swarm + Traefik (2025-10-31)
+
+---
+
 ## 📚 DOCUMENTAÇÃO COMPLEMENTAR
 
 **Para informações detalhadas removidas desta versão otimizada**, consulte:
 
 - **Features detalhadas**: `docs/FEATURES.md`
 - **Arquitetura completa**: `docs/ARCHITECTURE.md`
+- **Migration History**: `docs/MIGRATION_COMPLETE.md`
 - **Troubleshooting**: `docs/TROUBLESHOOTING.md`
 - **Comandos úteis**: `docs/COMMANDS.md`
 - **Workflows detalhados**: `.windsurf/workflows/`
+- **User Flows**: `docs/USER_FLOWS.md` (4 fluxos críticos)
 - **Design Principles**: `docs/DESIGN_PRINCIPLES.md`
 
 ---
 
-**Última atualização**: [Data]
-**Versão**: 2.0.0 (Otimizada para performance IA)
-**Projeto**: [Nome do Projeto]
-**Stack Core**: [Resumo da stack]
+**Última atualização**: 2025-11-01 (v2.2 - PLAN.md e TASK.md obrigatórios)
+**Versão**: 2.2.0 (Documentação Obrigatória)
+**Projeto**: Life Track Growth (Life Tracker)
+**Stack Core**: React 18.3 + TypeScript 5.8 + Vite 5.4 + Supabase + Gemini AI
 
-**Changelog v2.0.0**:
-- Versão otimizada baseada em pesquisa (Cursor, Copilot, Anthropic)
-- Redução de ~88% no tamanho (alinhado com 2 páginas recomendadas)
+**Changelog v2.2.0 (2025-11-01)**:
+- Adicionado: Seção "Documentação Obrigatória (PLAN.md e TASK.md)"
+- Adicionado: Regra crítica de consultar PLAN.md/TASK.md antes de qualquer ação
+- Atualizado: Todos os 13 workflows com pré-requisito e atualização de docs
+- Criado: docs/PLAN.md (estratégia macro 10 etapas)
+- Criado: docs/TASK.md (checklist executável)
+
+**Changelog v2.1.0 (2025-10-31)**:
+- Adicionado: Seção "Deployment & Infra" (Docker Swarm + Traefik)
+- Adicionado: Meta-learnings críticos de deploy (5 lessons learned)
+- Adicionado: Troubleshooting rápido VPS
+- Adicionado: Workflow de deploy completo
+- Referência: ADR 003 (Docker Swarm + Traefik)
+
+**Changelog v2.0.0 (2025-10-30)**:
+- Redução de 88% no tamanho (2091 → 242 linhas) - superou meta de -66%
 - Adicionado: Seção "Uso de Agentes" para Claude Code (multi-agente)
-- Foco em: Regras críticas, convenções, segurança, performance
+- Removido: Seções duplicadas, troubleshooting detalhado, princípios de design extensos
+- Foco em: Regras críticas, convenções, 8 áreas da vida, stack core, segurança
+- Alinhado com práticas Cursor/Copilot/Anthropic (2 páginas de instruções essenciais)
 - Documentação detalhada movida para `docs/` (referências adicionadas)
