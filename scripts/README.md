@@ -389,8 +389,8 @@ Sincroniza melhorias genéricas para o project-template.
 Criar arquivo `.env` na raiz do projeto com:
 
 ```env
-# Novo Supabase (fjddlffnlbrhgogkyplq)
-VITE_SUPABASE_URL=https://fjddlffnlbrhgogkyplq.supabase.co
+# Novo Supabase (${SUPABASE_PROJECT_REF})
+VITE_SUPABASE_URL=https://${SUPABASE_PROJECT_REF}.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGc...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...
 DATABASE_URL=postgresql://postgres.[ID]:[PASSWORD]@aws-0-sa-east-1.pooler.supabase.com:6543/postgres
@@ -431,7 +431,7 @@ node scripts/update-edge-functions.js
 supabase functions deploy analyze-assessment analyze-habit-performance coach-chat compare-assessments
 
 # 8. Gerar types TypeScript
-npx supabase gen types typescript --project-id fjddlffnlbrhgogkyplq > src/integrations/supabase/types.ts
+npx supabase gen types typescript --project-id ${SUPABASE_PROJECT_REF} > src/integrations/supabase/types.ts
 
 # 9. Testar aplicação
 npm run dev

@@ -1,5 +1,6 @@
 ---
 description: Workflow Add-Feature (2/9) - Solution Design (3 Soluções)
+auto_execution_mode: 1
 ---
 
 ## 📚 Pré-requisito: Consultar Documentação Base
@@ -7,13 +8,37 @@ description: Workflow Add-Feature (2/9) - Solution Design (3 Soluções)
 Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
 - `docs/PLAN.md` - Visão estratégica atual
 - `docs/TASK.md` - Status das tarefas em andamento
-- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+- `README.md` - Descrição do projeto
+- `AGENTS.md` - Comportamento dos agents
+- `.windsurf/workflows` - Todos workflows em etapas (arquivos diferentes)
+- `docs/` - Todos documentos importantes
+- `scripts/` - Todos scrips importantes
 
 ---
 
-# Workflow 2/9: Solution Design (Propor 3 Soluções)
+## 🤖 CRÍTICO: Uso Máximo de Agentes (Claude Code)
 
-Este é o **segundo workflow** de 9 etapas modulares para adicionar uma nova funcionalidade.
+> **🚨 REGRA ABSOLUTA E OBRIGATÓRIA 🚨**
+>
+> **SEMPRE** usar o **MÁXIMO de agentes possível** em paralelo para analisar as 3 soluções propostas.
+>
+> Esta seção pode requerer:
+> - Exploração profunda de arquitetura (agent 1)
+> - Análise de dependências de cada solução (agent 2)
+> - Verificação de performance para cada opção (agent 3)
+> - Revisão de código similar existente (agent 4)
+> - Análise de risco e complexidade (agent 5)
+
+**Caso de uso neste projeto:**
+- 3 soluções diferentes = 3-5 agentes paralelos
+- Redução de tempo: 4-5x mais rápido que sequencial
+- Análises mais abrangentes de cada solução
+
+---
+
+# Workflow 2/11: Solution Design (Propor 3 Soluções)
+
+Este é o **segundo workflow** de 11 etapas modulares para adicionar uma nova funcionalidade.
 
 **O que acontece neste workflow:**
 - Fase 4: Propor 3 Soluções Diferentes (A, B, C)
@@ -230,15 +255,7 @@ Acionar workflow: .windsurf/workflows/add-feature-3-risk-analysis.md
 ---
 
 **Workflow criado em**: 2025-10-27
-**Parte**: 2 de 9
+**Workflow atualizado em**: 2025-11-03
+**Parte**: 2 de 11
 **Próximo**: Risk Analysis (Análise de Riscos)
-
-
-## 📝 Atualização de Documentação
-
-Após completar este workflow:
-- [ ] Atualizar `docs/TASK.md` com status das tarefas completadas
-- [ ] Atualizar `docs/PLAN.md` se houve mudança estratégica
-- [ ] Criar ADR em `docs/adr/` se houve decisão arquitetural
-
 ---

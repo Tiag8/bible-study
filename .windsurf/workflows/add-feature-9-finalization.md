@@ -27,6 +27,22 @@ Este é o **nono workflow** de 10 etapas modulares para adicionar uma nova funci
 
 ---
 
+## ⚠️ REGRA CRÍTICA: USO MÁXIMO DE AGENTES
+
+**SEMPRE usar o MÁXIMO de agentes possível em paralelo** para todas as fases deste workflow.
+
+**Benefícios:**
+- ⚡ Redução drástica do tempo de execução (até 36x mais rápido)
+- 🎯 Melhor cobertura de análise
+- 🚀 Maior throughput de tarefas
+
+**Exemplo:**
+- Documentação + Commits: 2+ agentes explorando paralelamente
+- Validação final: 3+ agentes checando diferentes aspetos (docs, código, build)
+- Merge preparation: 2+ agentes verificando branch status e changelog
+
+---
+
 ## 📚 Fase 19: Atualização de Documentação
 
 **IMPORTANTE**: A documentação é atualizada **incorporando aprendizados** da Fase 17 (Meta-Learning).
@@ -43,23 +59,9 @@ Este é o **nono workflow** de 10 etapas modulares para adicionar uma nova funci
 - Criar novo `.md` se for feature totalmente nova
 
 **O que documentar**:
-```markdown
-## 🎨 UI - Componentes
-- Componente: ProfitCard
-- Path: src/components/ProfitCard.tsx
-- Props: { period: '7d' | '14d' | '30d' | '180d' }
-
-## 🪝 Hooks - Lógica de Dados
-- Hook: useProfit
-- Assinatura: useProfit(period: string) => { data, loading, error }
-- Query: SELECT * FROM profit_stats WHERE period = ?
-- Propósito: Buscar dados de PROFIT por período
-
-## 🗄️ Database
-- Tabela: profit_stats
-- Colunas novas: period, amount, timestamp
-- Índices: idx_profit_stats_period
-```
+- Componente novo: path, props, uso
+- Hook novo: assinatura, query, propósito
+- Database: tabelas, colunas, índices
 
 ---
 
@@ -69,31 +71,7 @@ Este é o **nono workflow** de 10 etapas modulares para adicionar uma nova funci
 
 **Arquivo**: `docs/adr/XXX-titulo-decisao.md` (XXX = número sequencial)
 
-**Template**:
-```markdown
-# ADR XXX: Título da Decisão
-
-## Status
-Aceito
-
-## Contexto
-Por que precisamos tomar essa decisão?
-
-## Decisão
-O que decidimos fazer?
-
-## Consequências
-### Positivas
-- Benefício 1
-- Benefício 2
-
-### Negativas
-- Trade-off 1
-
-## Alternativas Consideradas
-- Opção A: ... (rejeitada porque...)
-- Opção B: ... (aceita)
-```
+**Template**: Ver `docs/adr/` (template padrão ADR com Status, Contexto, Decisão, Consequências, Alternativas)
 
 ---
 
@@ -119,27 +97,11 @@ O que decidimos fazer?
 
 ## 💾 Fase 20: Commit e Push
 
-// turbo
-
 ```bash
 ./scripts/commit-and-push.sh "feat: adicionar cards PROFIT (7/14/30/180d) no MakeUp"
 ```
 
-### Commits criados:
-```
-✅ 1. migration: adicionar tabela profit_stats
-✅ 2. test: adicionar testes para useProfit - RED
-✅ 3. feat: implementar useProfit hook - GREEN
-✅ 4. test: adicionar testes para ProfitCard
-✅ 5. feat: criar ProfitCard (estrutura básica)
-✅ 6. feat: conectar ProfitCard com useProfit
-✅ 7. style: estilizar ProfitCard
-✅ 8. style: tornar ProfitCard responsivo
-✅ 9. fix: corrigir cálculo de PROFIT (feedback do usuário)
-✅ 10. docs: atualizar mapa de feature MakeUp
-```
-
-**Push realizado com sucesso!** ✅
+Script cria múltiplos commits (TDD: tests → implementation → styles → docs). Push realizado! ✅
 
 ---
 
@@ -157,12 +119,8 @@ O que decidimos fazer?
 - [x] Commits e push realizados
 
 ### 📊 Métricas:
-- **Arquivos modificados**: [X]
-- **Linhas adicionadas**: +XXX
-- **Linhas removidas**: -XX
-- **Testes adicionados**: [X]
-- **Cobertura**: XX%
 - **Commits**: 8-15 commits pequenos ✅
+- **Cobertura**: Testado manualmente com sucesso
 
 ---
 
@@ -216,127 +174,38 @@ Testar app no preview (http://localhost:4173):
 2. ✅ Está 100% confiante que o código está pronto
 3. ✅ Não há mais ajustes a fazer
 
-### Opção A: Merge Direto (Projeto Solo/Pequeno)
+### Opção A: Merge Direto
 
 ```bash
-# 1. Ir para main
 git checkout main
-
-# 2. Atualizar main (sempre!)
 git pull origin main
-
-# 3. Fazer merge da sua feature
 git merge feat/add-profit-cards-makeup
-
-# 4. Resolver conflitos se houver
-# (edite arquivos, depois):
-git add .
-git merge --continue
-
-# 5. Push para main
 git push origin main
-
-# 6. Deletar branch (opcional - boa prática)
 git branch -d feat/add-profit-cards-makeup
-git push origin --delete feat/add-profit-cards-makeup
 ```
 
----
-
-### Opção B: Pull Request (Projeto com Time/Revisão)
+### Opção B: Pull Request (com Time)
 
 ```bash
-# Criar PR via GitHub CLI
-gh pr create \
-  --title "feat: adicionar cards PROFIT no MakeUp" \
-  --body "## Mudanças
-- Card PROFIT 7 dias
-- Card PROFIT 14 dias
-- Card PROFIT 30 dias
-- Card PROFIT 180 dias
-
-## Testes
-- [x] Testado manualmente
-- [x] Build passa
-- [x] Sem warnings
-- [x] Code review aprovado
-- [x] Security scan passou
-
-## Screenshots
-[adicione screenshots se relevante]"
-
-# Aguardar aprovação de code review
-# Depois: Merge pelo GitHub UI
+gh pr create --title "feat: adicionar cards PROFIT no MakeUp" \
+  --body "## Mudanças\n- Implementado cards PROFIT\n## Testes\n- [x] Manual\n- [x] Build OK\n- [x] Code review OK"
 ```
-
----
 
 ### Opção C: Não Fazer Merge Ainda
 
-**Situações onde NÃO deve fazer merge**:
-- ❌ Encontrou bugs nos testes manuais
-- ❌ Precisa fazer mais ajustes
-- ❌ Quer que alguém revise antes
-- ❌ Feature ainda não está completa
-- ❌ Está esperando feedback do cliente
-
-**Neste caso**: Continue trabalhando na branch e repita validação depois.
+Encontrou bugs ou precisa ajustes? Continue trabalhando na branch e repita validação.
 
 ---
 
-## 🎉 Fase 24: Pós-Merge (Apenas se fez merge)
+## 🎉 Fase 24: Pós-Merge
 
-### ✅ O que acontece após merge?
-
-1. **Main está atualizada**: `git log main --oneline -5`
-2. **Novas branches herdam tudo**: Próxima feature criada terá seu código
-3. **Código em produção** (se deploy automático habilitado)
-
-### 🧹 Limpeza (Opcional)
+Após merge, a main está atualizada. Para próxima feature:
 
 ```bash
-# Deletar branch local
-git branch -d feat/add-profit-cards-makeup
-
-# Deletar branch remota
-git push origin --delete feat/add-profit-cards-makeup
-
-# Limpar branches remotas já deletadas
-git fetch --prune
-```
-
-### 📊 Próxima Feature
-
-Quando for criar nova feature:
-
-```bash
-# Sempre usar o script automatizado (NUNCA git checkout -b manual!)
 ./scripts/create-feature-branch.sh "proxima-funcionalidade"
 ```
 
-**⚠️ IMPORTANTE**: O script é inteligente e detecta automaticamente:
-- ✅ Se sua branch atual tem commits não mergeados
-- ✅ Oferece 3 opções de segurança (se houver trabalho não mergeado)
-- ✅ Protege contra perda de código (117+ arquivos)
-- ✅ Registra histórico em `.git/branch-history.log`
-
-**Cenário comum após merge**:
-```bash
-# Você está em: main (acabou de fazer merge)
-./scripts/create-feature-branch.sh "proxima-funcionalidade"
-
-# Script detecta:
-# ✅ Está na main atualizada
-# → Cria branch normalmente
-```
-
-Sua nova branch terá:
-- ✅ Código da feature anterior (já na main)
-- ✅ Documentação atualizada
-- ✅ Scripts mais recentes
-- ✅ Tudo sincronizado
-
-**📚 Mais informações**: Ver `docs/WORKFLOW_BRANCHES.md` para entender as 3 opções do script.
+Script automaticamente detecta commits não mergeados e oferece opções seguras. Ver `docs/WORKFLOW_BRANCHES.md`.
 
 ---
 
@@ -367,9 +236,11 @@ Esta feature requer deploy para VPS?
 
 **Se responder "sim":**
 ```bash
-# Acionar Workflow 11
-.windsurf/workflows/add-feature-11-vps-deployment.md
+# Acionar Workflow 11 (Parte A - Prep)
+/add-feature-11a-vps-deployment-prep
 ```
+
+**Nota**: Workflow 11 foi split em 3 partes (11a, 11b, 11c) para ficar dentro do limite de caracteres. Parte 11a chama 11b, que chama 11c automaticamente.
 
 **Se responder "não":**
 - Pular diretamente para Workflow 10 (Template Sync)
@@ -386,138 +257,35 @@ Esta feature requer deploy para VPS?
 
 ---
 
-## 🔄 Rollback (Se necessário após merge)
+## 🔄 Rollback (Se necessário)
 
-**Se fez merge mas precisa reverter**:
+Se fez merge mas precisa reverter:
 
-### Opção 1: Revert (Recomendado - Seguro)
 ```bash
-# Criar commit que desfaz a merge
-git checkout main
-git revert -m 1 HEAD  # Reverte último merge
-git push origin main
-```
+# Opção 1: Revert (Seguro - cria commit novo)
+git revert -m 1 HEAD && git push origin main
 
-### Opção 2: Reset (Perigoso - Use com cuidado!)
-```bash
-# Voltar para commit anterior ao merge
-git checkout main
-git reset --hard HEAD~1
-git push origin main --force  # ⚠️ CUIDADO: Force push!
-```
+# Opção 2: Reset (Perigoso - force push)
+git reset --hard HEAD~1 && git push origin main --force
 
-### Opção 3: Restaurar Backup do Banco
-```bash
-# Se mudanças no banco precisam ser revertidas
+# Opção 3: Banco de dados
 ./scripts/restore-supabase.sh backups/backup-YYYYMMDD-HHMMSS.sql
 ```
 
 ---
 
-## 📝 Notas Finais
+## 📝 Resumo
 
-- **Backup salvo em**: `backups/backup-YYYYMMDD-HHMMSS.sql`
-- **Branch feature**: `feat/add-profit-cards-makeup`
-- **Status**: ⏸️ Aguardando validação manual e decisão de merge
-- **Documentação atualizada**: `docs/features/makeup.md`
-- **Tempo de workflow**: ~XX minutos (automático) + validação manual
-
-### ⚡ Lembretes Importantes
-
-1. **Workflow para na Fase 21**: Push foi feito, mas merge NÃO
-2. **Fase 22 é SUA responsabilidade**: Testar build de produção (opcional)
-3. **Fase 23 precisa de SUA aprovação**: Você decide quando fazer merge
-4. **Main sempre funcional**: Só faça merge de código 100% testado
-5. **Branch efêmera**: Após merge, pode deletar a branch
+- **Status**: ⏸️ Aguardando merge manual (Fase 23)
+- **Lembretes**: Fase 22 é opcional. Fase 23 precisa SUA aprovação. Main sempre funcional!
 
 ---
 
-## 🔄 Boas Práticas Git/GitHub (Seção Informativa)
+## 🎉 FIM DO WORKFLOW ADD-FEATURE!
 
-### Regra de Ouro: SEMPRE usar o script de criação de branches
+Parabéns! Completou: planejamento, implementação TDD, validação, code review, documentação, commits.
 
-**Problema comum**: Criar branch manualmente sem verificar commits não mergeados
-
-**❌ NUNCA use `git checkout -b` manual** - pode perder código não mergeado!
-
-**✅ Solução CORRETA**: SEMPRE usar o script automatizado:
-
-```bash
-# Script inteligente que detecta commits não mergeados
-./scripts/create-feature-branch.sh "nova-funcionalidade"
-```
-
-**O que o script faz automaticamente**:
-1. Verifica se branch atual tem commits não mergeados
-2. Oferece 3 opções seguras se houver trabalho não mergeado
-3. Cria branch com nome padronizado (`feat/nova-funcionalidade`)
-4. Mantém histórico em `.git/branch-history.log`
-5. **PROTEGE contra perda de código**
-
-**Para mais detalhes**: Consulte `docs/WORKFLOW_BRANCHES.md`
-
-### Quando Fazer Merge na Main?
-
-**Frequência recomendada**: Sempre que uma feature estiver **completa e testada**
-
-**Benefícios**:
-- ✅ Novas branches criadas terão tudo atualizado
-- ✅ Menos conflitos de merge
-- ✅ Código sempre funcional na main
-- ✅ Facilita rollback se necessário
-
-### Checklist Pré-Branch
-
-Antes de criar nova branch, o script automatizado verifica:
-
-- ✅ Branch atual tem commits não mergeados? (detecção automática)
-- ✅ Oferece opções seguras se houver trabalho não mergeado
-- ✅ Cria branch com nome padronizado
-- ✅ Registra histórico em `.git/branch-history.log`
-
-**Você só precisa executar**:
-```bash
-./scripts/create-feature-branch.sh "nome-da-feature"
-```
-
-O script cuida de todo o resto e **protege contra perda de código**!
-
-### Estratégia de Branches
-
-**Branches efêmeras (feature branches)**:
-- `feat/add-ranking-stats` → Adiciona funcionalidade
-- `fix/performance-bug` → Corrige bug
-- `refactor/cleanup-hooks` → Refatoração
-- `docs/update-architecture` → Documentação
-
-**Lifetime**: Curto (1-3 dias) → Merge para main → Delete
-
-**Main/Master**:
-- Sempre funcional
-- Sempre testada
-- Sempre documentada
-- Base para novas branches
-
----
-
-## 🎉 FIM DO WORKFLOW ADD-FEATURE COMPLETO!
-
-**Parabéns! Você completou o workflow de adicionar uma nova funcionalidade!**
-
-**O que foi conquistado:**
-- ✅ Planejamento profundo (3 soluções consideradas)
-- ✅ Análise de riscos (mitigações planejadas)
-- ✅ Setup seguro (backup + branch)
-- ✅ Implementação com TDD (pequenos commits)
-- ✅ Validação manual (feedback iterativo) ⭐
-- ✅ Code review + Security scan
-- ✅ Meta-aprendizado (sistema evoluindo)
-- ✅ Documentação atualizada
-- ✅ Commits + Push
-
-**Próximo passo**: Iniciar próxima feature (começar do zero, Workflow 1)!
-
-**Dúvidas?** É só me chamar! 🎉
+**Próximo passo**: Iniciar próxima feature (Workflow 1) ou fazer deploy (Workflow 11).
 
 ---
 

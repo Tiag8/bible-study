@@ -2,7 +2,7 @@
 
 /**
  * Script de teste de conectividade com o Supabase
- * Verifica se o projeto válido fjddlffnlbrhgogkyplq está acessível
+ * Verifica se o projeto válido ${SUPABASE_PROJECT_REF} está acessível
  */
 
 import dotenv from 'dotenv';
@@ -10,8 +10,8 @@ import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
 
-const PROJECT_ID = 'fjddlffnlbrhgogkyplq';
-const PROJECT_URL = 'https://fjddlffnlbrhgogkyplq.supabase.co';
+const PROJECT_ID = '${SUPABASE_PROJECT_REF}';
+const PROJECT_URL = 'https://${SUPABASE_PROJECT_REF}.supabase.co';
 
 // Carregar credenciais do ambiente
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || PROJECT_URL;

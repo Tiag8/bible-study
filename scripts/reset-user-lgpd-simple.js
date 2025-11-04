@@ -10,7 +10,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://fjddlffnlbrhgogkyplq.supabase.co';
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://${SUPABASE_PROJECT_REF}.supabase.co';
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY;
 
 if (!SUPABASE_ANON_KEY) {
@@ -113,7 +113,7 @@ async function main() {
   console.log('🔧 INSTRUÇÕES:');
   console.log('=' .repeat(60));
   console.log('1. Copie o SQL acima');
-  console.log('2. Acesse: https://supabase.com/dashboard/project/fjddlffnlbrhgogkyplq');
+  console.log('2. Acesse: https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}');
   console.log('3. Vá para: SQL Editor (no menu lateral)');
   console.log('4. Cole o SQL e clique em "Run"');
   console.log('5. Confirme que os campos estão NULL');

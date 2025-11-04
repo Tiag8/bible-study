@@ -2,7 +2,7 @@
 
 /**
  * Script para corrigir todas as referências ao Supabase
- * Substitui projetos inválidos pelo projeto válido fjddlffnlbrhgogkyplq
+ * Substitui projetos inválidos pelo projeto válido ${SUPABASE_PROJECT_REF}
  */
 
 import fs from 'fs';
@@ -12,33 +12,33 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const VALID_PROJECT_ID = 'fjddlffnlbrhgogkyplq';
-const VALID_URL = 'https://fjddlffnlbrhgogkyplq.supabase.co';
+const VALID_PROJECT_ID = '${SUPABASE_PROJECT_REF}';
+const VALID_URL = 'https://${SUPABASE_PROJECT_REF}.supabase.co';
 
 // Mapeamento de substituições
 const REPLACEMENTS = [
   {
-    from: 'https://fjddlffnlbrhgogkyplq.supabase.co',
+    from: 'https://${SUPABASE_PROJECT_REF}.supabase.co',
     to: VALID_URL
   },
   {
-    from: 'https://fjddlffnlbrhgogkyplq.supabase.co',
+    from: 'https://${SUPABASE_PROJECT_REF}.supabase.co',
     to: VALID_URL
   },
   {
-    from: 'https://fjddlffnlbrhgogkyplq.supabase.co',
+    from: 'https://${SUPABASE_PROJECT_REF}.supabase.co',
     to: VALID_URL
   },
   {
-    from: 'db.fjddlffnlbrhgogkyplq.supabase.co',
-    to: 'db.fjddlffnlbrhgogkyplq.supabase.co'
+    from: 'db.${SUPABASE_PROJECT_REF}.supabase.co',
+    to: 'db.${SUPABASE_PROJECT_REF}.supabase.co'
   },
   {
-    from: '"project_id": "fjddlffnlbrhgogkyplq"',
+    from: '"project_id": "${SUPABASE_PROJECT_REF}"',
     to: `"project_id": "${VALID_PROJECT_ID}"`
   },
   {
-    from: '"project_id": "fjddlffnlbrhgogkyplq"',
+    from: '"project_id": "${SUPABASE_PROJECT_REF}"',
     to: `"project_id": "${VALID_PROJECT_ID}"`
   }
 ];

@@ -4,7 +4,7 @@
  * Script para testar payload real da UAZAPI
  */
 
-const WEBHOOK_URL = 'https://fjddlffnlbrhgogkyplq.supabase.co/functions/v1/webhook-whatsapp-adapter';
+const WEBHOOK_URL = '${VITE_SUPABASE_URL}/functions/v1/webhook-whatsapp-adapter';
 
 // Payload mínimo para teste
 const SIMPLE_PAYLOAD = {

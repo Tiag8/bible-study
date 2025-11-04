@@ -12,7 +12,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Configurações do Lovable Cloud Supabase (banco antigo)
-const LOVABLE_URL = 'https://fjddlffnlbrhgogkyplq.supabase.co';
+const LOVABLE_URL = 'https://${SUPABASE_PROJECT_REF}.supabase.co';
 const LOVABLE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6eXFrc3RqZ2RwbHpobnBwZGdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MjM0NjQsImV4cCI6MjA3NDk5OTQ2NH0.wSZ9ucFAvQshnkZgF5EI6CumqmVyPujm4nXJsmMvt08';
 const USER_EMAIL = 'tiag8guimaraes@gmail.com';
 const USER_PASSWORD = '123456';
@@ -124,7 +124,7 @@ function displaySQLInstructions() {
 
   console.log(colors.cyan + 'PASSO 1: Acesse o Supabase Dashboard' + colors.reset);
   console.log('  URL: https://supabase.com/dashboard');
-  console.log('  Project: Life Tracker (fjddlffnlbrhgogkyplq)');
+  console.log('  Project: Life Tracker (${SUPABASE_PROJECT_REF})');
 
   console.log('\n' + colors.cyan + 'PASSO 2: Vá para SQL Editor' + colors.reset);
   console.log('  Menu: SQL Editor (no painel esquerdo)');
@@ -177,7 +177,7 @@ function displaySQLInstructions() {
 async function main() {
   console.log('\n' + '='.repeat(80));
   log('VERIFICAÇÃO DE USUÁRIOS - LOVABLE CLOUD SUPABASE', colors.bright);
-  log(`Database: Life Tracker (ID: fjddlffnlbrhgogkyplq)`, colors.cyan);
+  log(`Database: Life Tracker (ID: ${SUPABASE_PROJECT_REF})`, colors.cyan);
   log(`Timestamp: ${getTimestamp()}`, colors.gray);
   console.log('='.repeat(80));
 

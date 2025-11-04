@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Configurações do Supabase Lovable
-const SUPABASE_URL = 'https://fjddlffnlbrhgogkyplq.supabase.co';
+const SUPABASE_URL = 'https://${SUPABASE_PROJECT_REF}.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6eXFrc3RqZ2RwbHpobnBwZGdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MjM0NjQsImV4cCI6MjA3NDk5OTQ2NH0.wSZ9ucFAvQshnkZgF5EI6CumqmVyPujm4nXJsmMvt08';
 const USER_EMAIL = 'tiag8guimaraes@gmail.com';
 const USER_PASSWORD = '123456';

@@ -1,15 +1,32 @@
 ---
-description: Workflow Add-Feature (1/9) - Planning e Entendimento
+description: Workflow Add-Feature (1/11) - Planning e Entendimento
+auto_execution_mode: 1
 ---
 
-# Workflow 1/9: Planning (Entendimento e Contexto)
+# Workflow 1/11: Planning (Entendimento e Contexto)
 
-Este é o **primeiro workflow** de 9 etapas modulares para adicionar uma nova funcionalidade com segurança e qualidade.
+Este é o **primeiro workflow** de 11 etapas modulares para adicionar uma nova funcionalidade com segurança e qualidade.
 
 **O que acontece neste workflow:**
-- Fase 1: Entendimento e Contexto
+- Fase 1: Entendimento e Contexto (dinâmico e adaptativo)
 - Fase 2: Análise de Documentação Existente
 - Fase 3: Planejamento Profundo (Ultra Think, se necessário)
+
+---
+
+## ⚠️ REGRA CRÍTICA: USO MÁXIMO DE AGENTES
+
+**SEMPRE usar o MÁXIMO de agentes possível em paralelo** para todas as fases deste workflow.
+
+**Benefícios:**
+- ⚡ Redução drástica do tempo de execução (até 36x mais rápido)
+- 🎯 Melhor cobertura de análise
+- 🚀 Maior throughput de tarefas
+
+**Exemplo:**
+- Phase 2 (Análise de Documentação): 3+ agentes explorando diferentes áreas (docs/, supabase/, código)
+- Phase 3 (Planejamento Profundo): 5+ agentes analisando diferentes aspectos de impacto
+- Investigações paralelas: UI/UX, Database, Backend, Performance, Segurança
 
 ---
 
@@ -18,30 +35,92 @@ Este é o **primeiro workflow** de 9 etapas modulares para adicionar uma nova fu
 Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
 - `docs/PLAN.md` - Visão estratégica atual
 - `docs/TASK.md` - Status das tarefas em andamento
-- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+- `README.md` - Documentação principal do projeto
+- `docs/` - **TODA** a pasta de documentação
+- `supabase/` - **TODA** a pasta do backend
 
 ---
 
 ## 📋 Fase 1: Entendimento e Contexto
 
-Antes de começar, vou fazer perguntas para entender completamente o que você precisa:
+### 🔍 Análise Dinâmica da Requisição
 
-### Perguntas de Contexto
-1. **Qual é a funcionalidade?** (ex: "Adicionar cards PROFIT (7/14/30/180d) no MakeUp")
-2. **Onde vai aparecer na UI?** (página, seção, posição)
-3. **Quais dados precisa?** (tabelas, campos, cálculos)
-4. **Tem algum exemplo/referência?** (screenshot, outra feature similar)
-5. **Qual a prioridade?** (urgente, normal, baixa)
-6. **Tem algum risco conhecido?** (performance, breaking change, etc)
+**PRIMEIRO**: Analisar a mensagem/requisição do usuário para identificar:
+- Tipo de solicitação (bug, feature, otimização, análise, etc.)
+- Escopo e complexidade aparente
+- Áreas do projeto afetadas
+- Nível de urgência
 
-### Análise de Impacto
-Baseado nas respostas, vou identificar:
+### ❓ Perguntas de Contexto (Dinâmicas)
+
+**Baseado na sua requisição**, vou fazer perguntas específicas para eliminar ambiguidades:
+
+#### Perguntas Fundamentais (sempre aplicáveis)
+1. **Qual é o objetivo final?** (O que você quer alcançar com esta ação?)
+2. **Qual é o critério de sucesso?** (Como saberemos que está funcionando corretamente?)
+
+#### Perguntas Contextuais (adaptadas ao tipo de solicitação)
+
+**Se for BUG/CORREÇÃO:**
+- Onde está ocorrendo o problema? (página, componente, função)
+- Quando começou a acontecer?
+- Qual é o comportamento esperado vs atual?
+- Já tentou alguma solução?
+
+**Se for FEATURE/NOVA FUNCIONALIDADE:**
+- Onde vai aparecer na UI? (página, seção, posição)
+- Quais dados precisa? (tabelas, campos, cálculos)
+- Tem algum exemplo/referência? (screenshot, outra feature similar)
+- Qual a prioridade? (urgente, normal, baixa)
+
+**Se for OTIMIZAÇÃO/MELHORIA:**
+- O que está lento/ineficiente agora?
+- Qual é a meta de performance? (tempo de resposta, etc.)
+- Já identificou gargalos específicos?
+- Tem métricas atuais para comparar?
+
+**Se for ANÁLISE/AUDITORIA:**
+- Qual é o escopo da análise? (tabelas, código, performance, etc.)
+- O que você espera encontrar? (problemas, oportunidades, etc.)
+- Já tem algum ponto de preocupação específico?
+- Para que servirá esta análise? (decisão, planejamento, etc.)
+
+**Se for REFACTOR/REORGANIZAÇÃO:**
+- O que está funcionando mal atualmente?
+- Qual é o problema de manutenção?
+- Já pensou nos riscos da mudança?
+- Quer manter compatibilidade?
+
+#### Perguntas de Impacto e Risco
+1. **Tem algum risco conhecido?** (performance, breaking change, dados, etc.)
+2. **Afeta outros sistemas/funcionalidades?**
+3. **Precisa de migração de dados?**
+4. **Tem deadline específico?**
+
+---
+
+## ⏸️ **PONTO DE PARADA OBRIGATÓRIO**
+
+**🚨 FLUXO PAUSADO - AGUARDANDO SUAS RESPOSTAS**
+
+Por favor, responda às perguntas acima. **Só continuarei após suas respostas** para garantir 100% de entendimento e eliminar qualquer ambiguidade.
+
+**Objetivo**: Garantir que eu entenda exatamente o que você precisa antes de prosseguir.
+
+---
+
+## *(Continuação só após suas respostas)*
+
+### 📊 Análise de Impacto (será preenchida após suas respostas)
+
+Baseado nas suas respostas, vou identificar:
 - 🎨 **UI**: Componentes que serão criados/modificados
 - 🪝 **Hooks**: Lógica de dados necessária
 - 🗄️ **Database**: Tabelas/views/functions envolvidas
 - 📊 **Performance**: Impacto em queries/carga
 - 🔒 **Segurança**: RLS, validações necessárias
 - 📚 **Docs**: Documentação a ser atualizada
+- 🚨 **Riscos**: Potenciais problemas e mitigações
 
 ---
 
@@ -51,24 +130,11 @@ Baseado nas respostas, vou identificar:
 
 ### 2.1 Verificar Documentação
 ```bash
-# Explorar estrutura de documentação
+# Verificar TODA documentação
 ls -la docs/
 
-# Verificar arquitetura
-ls -la docs/architecture/
-ls -la docs/arquitetura/
-
-# Verificar features existentes
-ls -la docs/features/
-
-# Verificar ADRs (Architecture Decision Records)
-ls -la docs/adr/
-
-# Verificar regras de negócio
-ls -la docs/regras-de-negocio/
-
-# Verificar docs do Supabase
-ls -la docs/supabase/
+# Explorar pasta completa do backend Supabase
+ls -la supabase/
 ```
 
 ### 2.2 Buscar Padrões e Código Reutilizável
@@ -165,5 +231,6 @@ Acionar workflow: .windsurf/workflows/add-feature-2-solutions.md
 ---
 
 **Workflow criado em**: 2025-10-27
-**Parte**: 1 de 9
+**Workflow atualizado em**: 2025-11-03
+**Parte**: 1 de 11
 **Próximo**: Solution Design (3 Soluções)

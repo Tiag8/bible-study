@@ -19,7 +19,7 @@ const { Client } = pg;
 
 // Credenciais Lovable Cloud (origem)
 const LOVABLE_CONFIG = {
-  host: 'db.fjddlffnlbrhgogkyplq.supabase.co',
+  host: 'db.${SUPABASE_PROJECT_REF}.supabase.co',
   port: 5432,
   database: 'postgres',
   user: 'postgres',
@@ -28,7 +28,7 @@ const LOVABLE_CONFIG = {
 
 // Credenciais Novo Supabase (destino)
 const NEW_SUPABASE_CONFIG = {
-  host: 'db.fjddlffnlbrhgogkyplq.supabase.co',
+  host: 'db.${SUPABASE_PROJECT_REF}.supabase.co',
   port: 5432,
   database: 'postgres',
   user: 'postgres',

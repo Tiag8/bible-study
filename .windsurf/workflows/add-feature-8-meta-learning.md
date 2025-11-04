@@ -1,5 +1,6 @@
 ---
 description: Workflow Add-Feature (8/9) - Meta-Learning (Aprender ANTES de Documentar)
+auto_execution_mode: 1
 ---
 
 ## 📚 Pré-requisito: Consultar Documentação Base
@@ -7,13 +8,17 @@ description: Workflow Add-Feature (8/9) - Meta-Learning (Aprender ANTES de Docum
 Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
 - `docs/PLAN.md` - Visão estratégica atual
 - `docs/TASK.md` - Status das tarefas em andamento
-- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+- `README.md` - Descrição do projeto
+- `AGENTS.md` - Comportamento dos agents
+- `.windsurf/workflows` - Todos workflows em etapas (arquivos diferentes)
+- `docs/` - Todos documentos importantes
+- `scripts/` - Todos scrips importantes
 
 ---
 
-# Workflow 8/9: Meta-Learning (Meta-Aprendizado)
+# Workflow 8/11: Meta-Learning (Meta-Aprendizado)
 
-Este é o **oitavo workflow** de 9 etapas modulares para adicionar uma nova funcionalidade.
+Este é o **oitavo workflow** de 11 etapas modulares para adicionar uma nova funcionalidade.
 
 **O que acontece neste workflow:**
 - Fase 17: Meta-Aprendizado (análise guiada de aprendizados)
@@ -26,6 +31,22 @@ Este é o **oitavo workflow** de 9 etapas modulares para adicionar uma nova func
 - ✅ Sistema evolui continuamente
 
 **⭐ IMPORTANTE**: Esta fase é fundamental para evolução do template e workflows!
+
+---
+
+## ⚠️ REGRA CRÍTICA: USO MÁXIMO DE AGENTES
+
+**SEMPRE usar o MÁXIMO de agentes possível em paralelo** para todas as fases deste workflow.
+
+**Benefícios:**
+- ⚡ Redução drástica do tempo de execução (até 36x mais rápido)
+- 🎯 Melhor cobertura de análise
+- 🚀 Maior throughput de tarefas
+
+**Exemplo:**
+- Phase 17 (Meta-Aprendizado): 3+ agentes analisando diferentes aspectos (workflows, scripts, documentação)
+- Phase 18 (Identificação de Docs): 5+ agentes investigando necessidades de diferentes áreas
+- Investigações paralelas: Padrões, Segurança, Performance, Scripts, Documentação
 
 ---
 
@@ -117,6 +138,9 @@ Este é o **oitavo workflow** de 9 etapas modulares para adicionar uma nova func
 - [ ] **Faltou algum tipo de documentação?**
       → Se SIM: Qual? Para que serve?
       → Exemplo: "docs/apis/ para documentar endpoints"
+
+- [ ] **Tem algum documento inútil para o projeto?**
+      → Se SIM: Qual? Porquê? Serve de histórico ou não serve para nada?
 
 - [ ] **ADRs foram úteis? Precisam de melhorias?**
       → Se SIM: Que melhoria no template de ADR?
@@ -217,78 +241,54 @@ const { default: jsPDF } = await import('jspdf');
 
 ---
 
+### 18.6 Validar Tamanho de Workflows (OBRIGATÓRIO)
+
+**Executar**: `./scripts/validate-workflow-size.sh`
+
+**Se > 12k**: Split em `workflow-Xa.md`, `workflow-Xb.md` com navegação.
+
+**Se splits < 12k juntos**: Consolidar se subsequentes diretos (fases relacionadas, fluxo contínuo). Caso contrário, manter separados (checkpoint natural é crítico).
+
+**Checklist**:
+- [ ] Validação executada
+- [ ] Todos workflows <= 12.000 caracteres
+- [ ] Splits com navegação (se necessário)
+- [ ] Consolidações aplicadas (se aplicável)
+- [ ] Referências atualizadas
+
+---
+
+### 18.7 Workflows (se necessário)
+
+**Quando atualizar**:
+- Quando alguma etapa foi pulada
+- Quando ficou mais tempo que o normal em uma mesma etapa
+- Quando faltou alguma etapa ou fase dentro de uma etapa
+- Quando arquivo de workflow passa de 12 mil caracteres. Precisa dividir em mais de um arquivo e manter limite de 12 mil caracteres.
+- Quando a atualização será benéfica para todo tipo de projeto, ou seja, nunca atualize arquivos de workflows com dados específicos do projeto corrente. As atualizações precisam ser genéricas e servir para todos projetos.
+OBS: atualize inclusive esse próprio workflow de meta aprendizado se necessário.
+
+---
+
 ## 🔄 Sistema de Aprovação de Mudanças
 
-**IMPORTANTE**: Antes de aplicar qualquer mudança em workflows, scripts ou padrões, SEMPRE seguir este processo:
+**Processo**: Identificar → Documentar proposta → Pedir aprovação → Aplicar (SE aprovado)
 
-### Passo 1: Identificar Melhoria
-
-Se você identificou alguma melhoria (novo script, melhoria em workflow, padrão novo), siga este fluxo:
-
-1. Descrever claramente a melhoria proposta
-2. Explicar o problema que resolve
-3. Mostrar benefícios esperados
-
-### Passo 2: Preparar Proposta
-
-**Template de Solicitação de Mudança:**
-```markdown
-## 🔄 Proposta de Melhoria
-
-**Tipo**: [Workflow / Script / Documentação / Padrão]
-
-**Problema Identificado**:
-[O que não funciona bem hoje]
-
-**Solução Proposta**:
-[O que vai mudar e como resolve]
-
-**Benefícios Esperados**:
-- ✅ Benefício 1
-- ✅ Benefício 2
-
-**Riscos/Trade-offs**:
-- ⚠️ Risco 1 (e como mitigar)
-```
-
-### Passo 3: Pedir Aprovação ao Usuário
-
-**⚠️ AGUARDAR RESPOSTA DO USUÁRIO**
-
-Não aplicar mudanças até receber aprovação explícita!
-
-### Passo 4: Aplicar (SE Aprovado)
-
-Apenas se usuário aprovar:
-1. Aplicar mudança no projeto atual
-2. Testar mudança
-3. Commit: `git commit -m "meta: [descrição da melhoria]"`
-4. Sincronizar com template (se melhoria for genérica)
-5. Documentar evolução em `docs/TEMPLATE_EVOLUTION.md`
+1. **Descrever** problema + solução + benefícios esperados
+2. **Propor** mudança claramente (Workflow/Script/Documentação/Padrão)
+3. **Aguardar aprovação** do usuário (CRÍTICO - não aplicar antes!)
+4. **Aplicar** (se aprovado) → Testar → Commit `"meta: ..."`
+5. **Sincronizar** com template (se genérico) + atualizar `docs/TEMPLATE_EVOLUTION.md`
 
 ---
 
 ## ✅ Checklist Final de Meta-Aprendizado
 
-**Antes de finalizar, confirme:**
-
-#### Análise Completa
-- [ ] Respondi todas as perguntas de análise (ou marquei N/A)
-- [ ] Identifiquei pelo menos 1 aprendizado (mesmo que pequeno)
-- [ ] Avaliei se workflow funcionou bem nesta feature
-
-#### Ações Tomadas
-- [ ] **Se identifiquei melhoria** → Documentei proposta
-- [ ] **Se proposta criada** → Pedi aprovação ao usuário (ANTES/DEPOIS)
-- [ ] **Se usuário aprovou** → Apliquei mudança e testei
-- [ ] **Se aplicado** → Commit com mensagem "meta: ..."
-
-#### Documentação Identificada
-- [ ] Listei que docs criar/atualizar
-- [ ] Novos padrões → AGENTS.md
-- [ ] Decisões importantes → ADR
-- [ ] Feature implementada → docs/features/
-- [ ] Regras de negócio → docs/regras-de-negocio/
+- [ ] Análise completa: todas perguntas respondidas ou N/A
+- [ ] Pelo menos 1 aprendizado identificado
+- [ ] Melhoria proposta (se houver) → aguardando aprovação
+- [ ] Documentação mapeada: padrões (AGENTS.md), ADRs, features, regras-negocio
+- [ ] Validação de workflow size executada (18.6)
 
 ---
 
@@ -318,15 +318,6 @@ Acionar workflow: .windsurf/workflows/add-feature-9-finalization.md
 ---
 
 **Workflow criado em**: 2025-10-27
-**Parte**: 8 de 9
+**Workflow atualizado em**: 2025-11-03
+**Parte**: 8 de 11
 **Próximo**: Finalization (Docs + Commit + Merge)
-
-
-## 📝 Atualização de Documentação
-
-Após completar este workflow:
-- [ ] Atualizar `docs/TASK.md` com status das tarefas completadas
-- [ ] Atualizar `docs/PLAN.md` se houve mudança estratégica
-- [ ] Criar ADR em `docs/adr/` se houve decisão arquitetural
-
----

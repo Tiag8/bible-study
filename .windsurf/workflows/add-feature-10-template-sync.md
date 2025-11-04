@@ -1,25 +1,36 @@
 ---
 description: Workflow Add-Feature (10/10) - Template Sync (Sincronização com Template Base)
+auto_execution_mode: 1
 ---
 
 ## 📚 Pré-requisito: Consultar Documentação Base
 
-Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
+Antes de iniciar, SEMPRE ler:
 - `docs/PLAN.md` - Visão estratégica atual
-- `docs/TASK.md` - Status das tarefas em andamento
-- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+- `docs/TASK.md` - Status das tarefas
+- `README.md`, `AGENTS.md`, `.windsurf/workflows`, `docs/`, `scripts/`
 
 ---
 
-# Workflow 10/10: Template Sync
+# Workflow 10/11: Template Sync
 
-Este é o **décimo e último workflow** de 10 etapas modulares para adicionar uma nova funcionalidade.
+Este é o **décimo e último workflow** de 11 etapas modulares para adicionar uma nova funcionalidade.
 
 **O que acontece neste workflow:**
 - Identificar melhorias genéricas aplicadas nesta feature
 - Sincronizar com project-template
 - Documentar sincronização
-- Fechar ciclo de melhoria contínua
+
+## ⚠️ REGRA CRÍTICA: USO MÁXIMO DE AGENTES
+
+**SEMPRE usar o MÁXIMO de agentes possível em paralelo** para todas as fases deste workflow.
+
+**Benefícios:**
+- ⚡ Redução drástica do tempo de execução (até 36x mais rápido)
+- 🎯 Melhor cobertura de análise
+- 🚀 Maior throughput de tarefas
+
+**Exemplo**: FASE 1 (3+ agentes), FASE 2 (template + validação), FASE 3 (secrets, paths), FASE 4 (docs)
 
 ---
 
@@ -60,12 +71,7 @@ git diff main...HEAD --name-only
 git log main..HEAD --oneline
 ```
 
-**Candidatos automáticos para sincronização:**
-- `scripts/*.sh` - Se não contém lógica específica do projeto
-- `.windsurf/workflows/*.md` - Sempre genéricos (processos)
-- `.claude/CLAUDE.md` - Seções reutilizáveis (ex: troubleshooting, comandos úteis)
-- `AGENTS.md` - Seções genéricas (ex: coding style, git workflow)
-- `docs/adr/*.md` - Padrões/decisões genéricas (ex: ADR sobre TypeScript any)
+**Candidatos**: `scripts/*.sh` (sem lógica específica), `.windsurf/workflows/*.md`, `.claude/CLAUDE.md` (seções reutilizáveis), `AGENTS.md` (genéricas), `docs/adr/*.md`
 
 **Perguntar ao usuário:**
 
@@ -93,32 +99,13 @@ Sincronizar com project-template? (sim/não/escolher)
 ./scripts/sync-to-template.sh
 ```
 
-**O script faz:**
-
-1. **Detecta mudanças** em caminhos sincronizáveis:
-   - `.windsurf/workflows/`
-   - `.claude/commands/`
-   - `.claude/CLAUDE.md`
-   - `scripts/`
-   - `AGENTS.md`
-
-2. **Apresenta lista** de arquivos modificados com diff
-
-3. **Permite seleção:**
-   - `a` - Sincronizar TODOS
-   - `n` - NÃO sincronizar nenhum
-   - `s` - Selecionar individualmente
-
-4. **Copia arquivos** para `/Users/tiago/Projects/project-template`
-
-5. **Oferece commit** automático no template:
-   - Mensagem padrão: `meta: sincronizar melhorias do projeto`
-   - Permite customizar mensagem
-
-**Verificações automáticas do script:**
-- ✅ Template path existe?
-- ✅ Arquivos realmente mudaram (diff)?
-- ✅ Criar diretórios se não existirem?
+**O script**:
+1. Detecta mudanças em `.windsurf/workflows/`, `.claude/`, `scripts/`, `AGENTS.md`
+2. Apresenta lista com diff
+3. Permite seleção (a=todos, n=nenhum, s=individual)
+4. Copia para `/Users/tiago/Projects/project-template`
+5. Oferece commit automático
+6. Verifica: template path existe? arquivos mudaram? cria diretórios?
 
 ---
 
@@ -139,29 +126,9 @@ git diff
 cat scripts/[arquivo-sincronizado].sh
 ```
 
-**Checklist de Validação:**
-- [ ] Arquivos copiados corretamente?
-- [ ] **SEM referências específicas** ao projeto original? (usar placeholders genéricos)
-- [ ] **SEM secrets** ou dados sensíveis?
-- [ ] **SEM hardcoded paths** específicos? (usar variáveis/placeholders)
-- [ ] Comentários em português? (padrão)
-- [ ] Código limpo e documentado?
+**Checklist**: Arquivos copiados? Sem referências específicas? Sem secrets? Sem paths hardcoded? Código limpo?
 
-**Exemplos de limpeza necessária:**
-
-```bash
-# ❌ RUIM - Específico do projeto
-SUPABASE_URL="https://clteam.supabase.co"
-
-# ✅ BOM - Genérico (placeholder)
-SUPABASE_URL="${VITE_SUPABASE_URL}"
-
-# ❌ RUIM - Path hardcoded
-BACKUP_DIR="/Users/tiago/Projects/clteam/backups"
-
-# ✅ BOM - Path relativo
-BACKUP_DIR="./backups"
-```
+**Exemplos**: SUPABASE_URL="${VITE_SUPABASE_URL}" (genérico, não hardcoded), BACKUP_DIR="./backups" (relativo)
 
 ---
 
@@ -262,82 +229,23 @@ Feature N+1 (Projeto A - próxima feature):
 
 ### Exemplo 1: Script Melhorado
 
-**Feature**: `feat/add-profit-cards`
-
-**Melhoria aplicada**: `run-security-tests.sh` agora aceita path específico
-
-**Sincronização:**
-
-```bash
-# 1. Identificar
-git diff main scripts/run-security-tests.sh
-# Mudança: Adicionado parâmetro opcional $1 para path
-
-# 2. Executar sync
-./scripts/sync-to-template.sh
-# Selecionar: scripts/run-security-tests.sh
-
-# 3. Validar no template
-cd /Users/tiago/Projects/project-template
-cat scripts/run-security-tests.sh
-# ✅ Sem referências ao CLTeam
-
-# 4. Documentar
-# Atualizar TEMPLATE_EVOLUTION.md:
-## v2.1 - 2025-10-28
-### Script run-security-tests.sh melhorado
-- Aceita path opcional para escanear apenas diretório/arquivo específico
-- Uso: ./scripts/run-security-tests.sh src/hooks
-```
+`run-security-tests.sh` agora aceita path. Sincronizar: `./scripts/sync-to-template.sh` → selecionar script → validar sem referências ao projeto → atualizar TEMPLATE_EVOLUTION.md
 
 ### Exemplo 2: Workflow Atualizado
 
-**Feature**: `feat/fix-pdf-export-layout`
-
-**Melhoria aplicada**: Workflow 5 (Implementation) agora tem "Fase 5.4: Parsing de Dados com Estrutura Desconhecida"
-
-**Sincronização:**
-
-```bash
-# 1. Identificar
-git diff main .windsurf/workflows/add-feature-5-implementation.md
-# Mudança: Adicionada Fase 5.4 (processo para parsing de dados desconhecidos)
-
-# 2. Executar sync
-./scripts/sync-to-template.sh
-# Selecionar: .windsurf/workflows/add-feature-5-implementation.md
-
-# 3. Validar no template
-# ✅ Processo genérico (aplicável a qualquer projeto)
-
-# 4. Documentar
-## v2.1 - 2025-10-28
-### Workflow 5 (Implementation) enriquecido
-- Fase 5.4: Processo obrigatório para parsing de dados com estrutura desconhecida
-- Impacto: Reduz iterações de 4+ para 1
-```
+Workflow 5 (Implementation) com "Fase 5.4: Parsing". Sincronizar: diff → sync → validar genérico → documentar
 
 ---
 
 ## 🚀 Boas Práticas
 
-### ✅ O QUE sincronizar
+### ✅ Sincronizar
 
-- Scripts automação (se genéricos)
-- Processos/workflows (sempre genéricos)
-- Padrões de código (sempre genéricos)
-- ADRs de decisões reutilizáveis
-- Troubleshooting genérico
-- Comandos úteis genéricos
+Scripts automação, processos/workflows, padrões de código, ADRs reutilizáveis, troubleshooting, comandos úteis
 
-### ❌ O QUE NÃO sincronizar
+### ❌ NÃO sincronizar
 
-- Lógica de negócio específica
-- Schemas de banco específicos
-- Configurações específicas do projeto
-- Secrets/credenciais
-- Dados de produção
-- Features específicas do domínio
+Lógica de negócio, schemas específicos, configurações, secrets/credenciais, dados de produção, features do domínio
 
 ---
 
@@ -390,25 +298,13 @@ git diff main .windsurf/workflows/add-feature-5-implementation.md
 
 **Parabéns! Você completou o workflow de adicionar uma nova funcionalidade!**
 
-**O que foi conquistado:**
-- ✅ Planejamento profundo (3 soluções)
-- ✅ Análise de riscos (mitigações planejadas)
-- ✅ Setup seguro (backup + branch)
-- ✅ Implementação com TDD
-- ✅ Validação manual (feedback iterativo)
-- ✅ Code review + Security scan
-- ✅ Meta-aprendizado (sistema evoluindo)
-- ✅ Documentação atualizada
-- ✅ Commits + Push
-- ✅ **Template sincronizado (futuros projetos herdam!)** ⭐
+Conquistado: Planejamento, análise de riscos, setup, TDD, validação, code review, security, meta-aprendizado, docs, commits, **template sincronizado!**
 
-**Próximo passo**: Iniciar próxima feature (começar do zero, Workflow 1)!
+**Próximo**: Iniciar próxima feature (Workflow 1)
 
 ---
 
-**Workflow criado em**: 2025-10-28
-**Versão**: 1.0
-**Autor**: Tiago + Claude Code + Windsurf AI
+**Workflow criado em**: 2025-10-28 | **Versão**: 1.0
 
 
 ## 📝 Atualização de Documentação

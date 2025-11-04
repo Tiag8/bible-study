@@ -20,7 +20,7 @@ dotenv.config();
 
 // Configuração Lovable Supabase (origem)
 const LOVABLE_CONFIG = {
-  url: 'https://fjddlffnlbrhgogkyplq.supabase.co',
+  url: 'https://${SUPABASE_PROJECT_REF}.supabase.co',
   anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6eXFrc3RqZ2RwbHpobnBwZGdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MjM0NjQsImV4cCI6MjA3NDk5OTQ2NH0.wSZ9ucFAvQshnkZgF5EI6CumqmVyPujm4nXJsmMvt08',
   auth: {
     email: 'tiag8guimaraes@gmail.com',

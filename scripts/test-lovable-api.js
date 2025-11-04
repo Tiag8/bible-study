@@ -50,9 +50,9 @@ async function testLovableAPI() {
         console.log('\n📋 AÇÃO:');
         console.log('1. Verifique se a key está correta no .env');
         console.log('2. Verifique se a mesma key está configurada no Supabase:');
-        console.log('   supabase secrets list --project-ref fjddlffnlbrhgogkyplq');
+        console.log('   supabase secrets list --project-ref ${SUPABASE_PROJECT_REF}');
         console.log('3. Se necessário, atualize:');
-        console.log(`   supabase secrets set GEMINI_API_KEY="${GEMINI_API_KEY}" --project-ref fjddlffnlbrhgogkyplq`);
+        console.log(`   supabase secrets set GEMINI_API_KEY="${GEMINI_API_KEY}" --project-ref ${SUPABASE_PROJECT_REF}`);
       }
 
       if (response.status === 402) {
@@ -82,7 +82,7 @@ async function testLovableAPI() {
     console.log('- Erro na lógica da Edge Function');
     console.log('- Schema de tabela incorreto');
     console.log('\nVerifique os logs no Dashboard:');
-    console.log('https://supabase.com/dashboard/project/fjddlffnlbrhgogkyplq/logs/edge-functions');
+    console.log('https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}/logs/edge-functions');
 
     process.exit(0);
 

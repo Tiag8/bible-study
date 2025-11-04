@@ -1,19 +1,17 @@
 ---
 description: Workflow Add-Feature (3/9) - Risk Analysis (Análise de Riscos)
+auto_execution_mode: 1
 ---
 
-## 📚 Pré-requisito: Consultar Documentação Base
+## 📚 Pré-requisito
 
-Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
-- `docs/PLAN.md` - Visão estratégica atual
-- `docs/TASK.md` - Status das tarefas em andamento
-- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+Ler ANTES de iniciar: `docs/PLAN.md`, `docs/TASK.md`, `README.md`, `AGENTS.md`
 
 ---
 
-# Workflow 3/9: Risk Analysis (Análise de Riscos e Mitigações)
+# Workflow 3/11: Risk Analysis (Análise de Riscos e Mitigações)
 
-Este é o **terceiro workflow** de 9 etapas modulares para adicionar uma nova funcionalidade.
+Este é o **terceiro workflow** de 11 etapas modulares para adicionar uma nova funcionalidade.
 
 **O que acontece neste workflow:**
 - Fase 5: Análise de Riscos Detalhada
@@ -28,161 +26,80 @@ Este é o **terceiro workflow** de 9 etapas modulares para adicionar uma nova fu
 
 ---
 
+## 🤖 USO MÁXIMO DE AGENTES
+
+**SEMPRE paralelo** (nunca sequencial):
+- 3 agentes: Análise técnica + segurança + negócio
+- 4-5 agentes: Mitigações em diferentes áreas
+- Benefício: 20-30 minutos vs 2-3 horas
+
+---
+
 ## 🛡️ Fase 5: Análise de Riscos Detalhada
 
 ### 5.1 Riscos Técnicos
 
 #### Performance
-- **Risco**: [Descrever potencial impacto em performance]
-  - Query lenta? N+1 queries? Tabela sem índice?
-  - Volume de dados esperado?
-  - Tempo de resposta aceitável? (< 500ms ideal)
-
+- **Risco**: [Impacto em performance, queries lentas, escalabilidade]
 - **Probabilidade**: Alta / Média / Baixa
 - **Impacto**: Alto / Médio / Baixo
-- **Severidade**: 🔴 Crítico / 🟡 Moderado / 🟢 Baixo
+- **Severidade**: 🔴 / 🟡 / 🟢
 
 #### Breaking Changes
-- **Risco**: [Pode quebrar funcionalidades existentes?]
-  - Mudanças em schema que afetam outras features?
-  - Mudanças em APIs/contratos?
-  - Mudanças em componentes compartilhados?
-
+- **Risco**: [Quebra de funcionalidades, mudanças em schema/APIs]
 - **Probabilidade**: Alta / Média / Baixa
 - **Impacto**: Alto / Médio / Baixo
-- **Severidade**: 🔴 Crítico / 🟡 Moderado / 🟢 Baixo
+- **Severidade**: 🔴 / 🟡 / 🟢
 
-#### Escalabilidade
-- **Risco**: [Solução escala com crescimento de dados/usuários?]
-  - Preparado para 10x o volume atual?
-  - Queries otimizadas?
-  - Cache/memoization necessário?
-
+#### Escalabilidade & Complexidade
+- **Risco**: [Código complexo, difícil de manter, escalabilidade limitada]
 - **Probabilidade**: Alta / Média / Baixa
 - **Impacto**: Alto / Médio / Baixo
-- **Severidade**: 🔴 Crítico / 🟡 Moderado / 🟢 Baixo
-
-#### Complexidade
-- **Risco**: [Código muito complexo, difícil de manter?]
-  - Muitas dependências?
-  - Lógica difícil de testar?
-  - Poucos devs entendem?
-
-- **Probabilidade**: Alta / Média / Baixa
-- **Impacto**: Alto / Médio / Baixo
-- **Severidade**: 🔴 Crítico / 🟡 Moderado / 🟢 Baixo
+- **Severidade**: 🔴 / 🟡 / 🟢
 
 ---
 
 ### 5.2 Riscos de Segurança
 
-#### Exposição de Dados Sensíveis
-- **Risco**: [Dados sensíveis podem vazar?]
-  - RLS (Row Level Security) configurado?
-  - Logs expõem dados sensíveis?
-  - API expõe mais dados que necessário?
-
+#### Exposição de Dados & Injeção
+- **Risco**: [Vazamento de dados sensíveis, SQL injection/XSS]
 - **Probabilidade**: Alta / Média / Baixa
 - **Impacto**: Alto / Médio / Baixo
-- **Severidade**: 🔴 Crítico / 🟡 Moderado / 🟢 Baixo
-
-#### SQL Injection / XSS
-- **Risco**: [Vulnerável a ataques de injeção?]
-  - Queries usam parameterização?
-  - Inputs são sanitizados?
-  - Outputs são escapados?
-
-- **Probabilidade**: Alta / Média / Baixa
-- **Impacto**: Alto / Médio / Baixo
-- **Severidade**: 🔴 Crítico / 🟡 Moderado / 🟢 Baixo
+- **Severidade**: 🔴 / 🟡 / 🟢
 
 #### Autenticação/Autorização
-- **Risco**: [Controle de acesso adequado?]
-  - RLS valida ownership?
-  - Auth tokens validados?
-  - CORS configurado corretamente?
-
+- **Risco**: [RLS, tokens, CORS mal configurados]
 - **Probabilidade**: Alta / Média / Baixa
 - **Impacto**: Alto / Médio / Baixo
-- **Severidade**: 🔴 Crítico / 🟡 Moderado / 🟢 Baixo
+- **Severidade**: 🔴 / 🟡 / 🟢
 
 ---
 
 ### 5.3 Riscos de Negócio
 
-#### Impacto no Usuário
-- **Risco**: [UX pode piorar? Usuários podem ficar confusos?]
-  - Mudança na interface familiar?
-  - Fluxo mais complexo?
-  - Performance perceptível?
-
+#### Impacto no Usuário & Reversibilidade
+- **Risco**: [UX piora, difícil reverter mudanças de schema/dados]
 - **Probabilidade**: Alta / Média / Baixa
 - **Impacto**: Alto / Médio / Baixo
-- **Severidade**: 🔴 Crítico / 🟡 Moderado / 🟢 Baixo
-
-#### Reversibilidade
-- **Risco**: [Difícil de reverter se der errado?]
-  - Migration é reversível?
-  - Dados podem ser restaurados?
-  - Deploy pode ser revertido?
-  - Branch foi criada com proteção (via script)?
-
-- **Probabilidade**: Alta / Média / Baixa
-- **Impacto**: Alto / Médio / Baixo
-- **Severidade**: 🔴 Crítico / 🟡 Moderado / 🟢 Baixo
-
-> **💡 Nota**: Usar `./scripts/create-feature-branch.sh` ao invés de `git checkout -b` protege contra perda de código ao criar novas branches.
+- **Severidade**: 🔴 / 🟡 / 🟢
 
 #### Time to Market
-- **Risco**: [Pode atrasar outras prioridades?]
-  - Bloqueador para outras features?
-  - Deadline apertado?
-  - Recursos limitados?
-
+- **Risco**: [Bloqueador para outras features, deadline apertado]
 - **Probabilidade**: Alta / Média / Baixa
 - **Impacto**: Alto / Médio / Baixo
-- **Severidade**: 🔴 Crítico / 🟡 Moderado / 🟢 Baixo
+- **Severidade**: 🔴 / 🟡 / 🟢
 
 ---
 
 ### 5.4 Plano de Rollback
 
-**Se algo der errado, como reverter?**
+**Opções** (em ordem de preferência):
+1. **Git revert**: Bugs no código, banco OK → `git revert <hash>`
+2. **Restaurar backup**: Migration quebrou dados → `./scripts/restore-supabase.sh`
+3. **Feature flag**: Desabilitar sem redeploy (se implementado)
+4. **Redeploy anterior**: Bugs críticos em produção
 
-> **💡 Dica**: O histórico de branches em `.git/branch-history.log` ajuda a rastrear de onde cada branch foi criada, facilitando recuperação e rollback.
-
-#### Opção 1: Revert Git
-```bash
-# Reverter commits específicos
-git revert <commit-hash>
-git push origin main
-```
-**Quando usar**: Código tem bugs, mas banco OK
-
-#### Opção 2: Restaurar Backup do Banco
-```bash
-# Restaurar backup
-./scripts/restore-supabase.sh backups/backup-YYYYMMDD-HHMMSS.sql
-```
-**Quando usar**: Migration quebrou dados, precisa restaurar estado anterior
-
-#### Opção 3: Feature Flag (se implementado)
-```typescript
-// Desabilitar feature remotamente
-if (featureFlags.newFeature === false) {
-  return <OldComponent />;
-}
-```
-**Quando usar**: Feature deployada mas tem problema, desabilitar sem redeploy
-
-#### Opção 4: Deploy Previous Version
-```bash
-# Redeploy versão anterior (Vercel/Netlify)
-# Via dashboard ou CLI
-```
-**Quando usar**: Bugs críticos em produção, reverter tudo
-
-**Tempo estimado de rollback**: [X minutos]
+**Tempo estimado**: [X minutos]
 
 ---
 
@@ -190,156 +107,58 @@ if (featureFlags.newFeature === false) {
 
 ### 6.1 Mitigações de Riscos Técnicos
 
-#### Performance
-**Mitigações**:
-- ✅ Criar índices nas colunas usadas em WHERE/JOIN
-- ✅ Usar `.select()` específico (não SELECT *)
-- ✅ Adicionar limite (LIMIT) em queries que podem retornar muitos registros
-- ✅ Implementar cache/memoization (useMemo, React Query)
-- ✅ Monitorar tempo de queries (< 500ms)
+#### Performance & Escalabilidade
+- ✅ Índices em WHERE/JOIN, `.select()` específico, LIMIT em queries
+- ✅ Cache (useMemo, React Query), paginação, lazy loading
+- ✅ Monitorar tempo queries (< 500ms)
 
-**Script de monitoramento**:
-```sql
--- Verificar queries lentas no Supabase Dashboard
--- Ou adicionar logging no hook:
-console.time('query-profit-cards');
-const { data } = await supabase.from('profit_stats').select('*');
-console.timeEnd('query-profit-cards');
-```
-
-#### Breaking Changes
-**Mitigações**:
-- ✅ Testes de regressão (rodar testes de features existentes)
-- ✅ Migration backward-compatible quando possível
-- ✅ Versionar APIs se mudar contrato
-- ✅ Testar manualmente features relacionadas
-- ✅ Criar branch usando script protegido (`./scripts/create-feature-branch.sh`)
-
-**Checklist de features a testar**:
-- [ ] [Feature 1 que pode ser afetada]
-- [ ] [Feature 2 que pode ser afetada]
-- [ ] [Feature 3 que pode ser afetada]
-
-#### Escalabilidade
-**Mitigações**:
-- ✅ Queries otimizadas desde o início
-- ✅ Paginação/Infinite scroll para listas grandes
-- ✅ Lazy loading de componentes pesados
-- ✅ Code splitting de libs grandes
-
-#### Complexidade
-**Mitigações**:
-- ✅ Documentação inline (comentários explicando "por que")
-- ✅ Testes unitários (comportamento documentado em testes)
-- ✅ Código modular (funções pequenas, SRP)
+#### Breaking Changes & Complexidade
+- ✅ Testes de regressão, migration backward-compatible
+- ✅ Testar features relacionadas
+- ✅ Documentação inline, testes unitários, código modular
 - ✅ ADR se decisão arquitetural importante
 
 ---
 
 ### 6.2 Mitigações de Riscos de Segurança
 
-#### Exposição de Dados
-**Mitigações**:
-- ✅ RLS (Row Level Security) habilitado no Supabase
-- ✅ Queries usam filtros de ownership (user_id, etc)
-- ✅ API retorna apenas campos necessários (select específico)
-- ✅ Logs não contêm dados sensíveis (sanitizar antes de logar)
-
-**Exemplo de RLS**:
-```sql
--- Política RLS exemplo
-CREATE POLICY "Users can only see their own data"
-ON profit_stats FOR SELECT
-USING (auth.uid() = user_id);
-```
-
-#### SQL Injection / XSS
-**Mitigações**:
-- ✅ SEMPRE usar Supabase query builder (parameterized queries)
-- ✅ NUNCA concatenar strings em SQL
-- ✅ Validar inputs no backend (não confiar só no frontend)
-- ✅ React escapa automaticamente (evitar dangerouslySetInnerHTML)
-
-**Checklist de segurança**:
-- [ ] Queries usam `.eq()`, `.filter()` (não raw SQL)
-- [ ] Inputs validados (tipo, range, format)
-- [ ] Sem `dangerouslySetInnerHTML` no código
-- [ ] Security scan passa (./scripts/run-security-tests.sh)
+#### Dados Sensíveis & Injeção
+- ✅ RLS habilitado, queries com filtros ownership, `.select()` específico
+- ✅ Supabase query builder (`.eq()`, `.filter()`), NUNCA raw SQL
+- ✅ Inputs validados, sem `dangerouslySetInnerHTML`
+- ✅ Logs sanitizados
 
 #### Autenticação/Autorização
-**Mitigações**:
-- ✅ Supabase Auth tokens em headers (não URL/query params)
-- ✅ RLS valida ownership em TODAS as tabelas
-- ✅ CORS configurado para domínios específicos (não *)
-- ✅ Tokens expiram (não tokens eternos)
+- ✅ Auth tokens em headers (não URL/params)
+- ✅ RLS valida ownership em TODAS tabelas
+- ✅ CORS para domínios específicos (não *)
+- ✅ Tokens expiram (não eternos)
 
 ---
 
 ### 6.3 Backup e Contingência
 
-#### Estratégia de Backup
+**Opção A: Dump Lógico** (mudanças pequenas)
+- `./scripts/backup-supabase.sh`
+- Prós: Rápido, rollback < 5min
+- Cons: Não testa migration em ambiente isolado
 
-**Opção A: Dump Lógico (Recomendado para mudanças pequenas)**
-```bash
-./scripts/backup-supabase.sh
-```
-**Quando usar**:
-- ✅ Não tem migration (só código)
-- ✅ Migration pequena (adicionar coluna, índice)
-- ✅ Rollback rápido (< 5min)
+**Opção B: Preview Branch** (mudanças complexas)
+- `supabase branches create feature-backup`
+- Prós: Ambiente isolado, testa migration
+- Cons: Mais lento, requer Supabase Pro
 
-**Prós**: Rápido, simples, restauração fácil
-**Contras**: Não testa migration em ambiente separado
-
----
-
-**Opção B: Preview Branch (Recomendado para mudanças grandes)**
-```bash
-# Criar Preview Branch no Supabase Dashboard
-# Ou via CLI:
-supabase branches create feature-backup
-
-# IMPORTANTE: Ao criar branch Git, use o script protegido:
-./scripts/create-feature-branch.sh nome-da-feature
-# → Script verifica estrutura e previne perda de código
-```
-**Quando usar**:
-- ✅ Migration complexa (mudar schema, adicionar tabelas)
-- ✅ Quer testar antes em ambiente isolado
-- ✅ Precisa garantir que migration funciona
-
-**Prós**: Ambiente isolado, testa migration, zero risco (script protege contra perda de commits não mergeados)
-**Contras**: Mais lento, requer Supabase Pro
-
----
-
-**Decisão**: [Dump Lógico / Preview Branch]
-
-**Justificativa**: [Por que esta opção é adequada para este caso]
+**Escolher**: [Dump Lógico / Preview Branch]
+**Justificativa**: [Por que]
 
 ---
 
 ### 6.4 Checklist de Testes
 
-**Antes de prosseguir, garantir**:
-
-#### Testes Automáticos
-- [ ] TypeScript compilation passa (npx tsc --noEmit)
-- [ ] ESLint passa (npm run lint)
-- [ ] Testes unitários passam (npm run test)
-- [ ] Build produção funciona (npm run build)
-
-#### Testes Manuais (Fase 6)
-- [ ] Feature funciona como esperado
-- [ ] UI está correta
-- [ ] Performance aceitável (< 500ms)
+- [ ] TypeScript, ESLint, testes unitários, build produção passam
+- [ ] Feature funciona, UI correta, performance < 500ms
 - [ ] Não quebrou features existentes
-
-#### Testes de Segurança (Fase 7)
-- [ ] Security scan passa (./scripts/run-security-tests.sh)
-- [ ] ZERO secrets hardcoded
-- [ ] RLS configurado
-- [ ] Inputs sanitizados
+- [ ] Security scan passa, ZERO secrets, RLS, inputs sanitizados
 
 ---
 
@@ -394,22 +213,15 @@ Acionar workflow: .windsurf/workflows/add-feature-4-setup.md
 ---
 
 **Workflow criado em**: 2025-10-27
-**Parte**: 3 de 9
+**Workflow atualizado em**: 2025-11-03
+**Parte**: 3 de 11
 **Próximo**: Setup (Preparação do Ambiente)
-
-
-## 📝 Atualização de Documentação
-
-Após completar este workflow:
-- [ ] Atualizar `docs/TASK.md` com status das tarefas completadas
-- [ ] Atualizar `docs/PLAN.md` se houve mudança estratégica
-- [ ] Criar ADR em `docs/adr/` se houve decisão arquitetural
 
 ---
 
 ## 🔗 Referências
 
-- **Workflow de Branches**: Ver `docs/WORKFLOW_BRANCHES.md` para detalhes sobre criação segura de branches
-- **Script de Branches**: `./scripts/create-feature-branch.sh` - protege contra perda de código
+- `docs/WORKFLOW_BRANCHES.md`: Criação segura de branches
+- `./scripts/create-feature-branch.sh`: Proteção contra perda de código
 
 ---

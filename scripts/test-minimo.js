@@ -4,7 +4,7 @@
  * Teste mínimo do webhook
  */
 
-const WEBHOOK_URL = 'https://fjddlffnlbrhgogkyplq.supabase.co/functions/v1/webhook-whatsapp-adapter';
+const WEBHOOK_URL = 'https://${SUPABASE_PROJECT_REF}.supabase.co/functions/v1/webhook-whatsapp-adapter';
 
 // Payload super simples
 const MINIMO_PAYLOAD = {

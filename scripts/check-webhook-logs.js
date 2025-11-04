@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://fjddlffnlbrhgogkyplq.supabase.co';
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://${SUPABASE_PROJECT_REF}.supabase.co';
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY;
 
 if (!SUPABASE_ANON_KEY) {
@@ -108,7 +108,7 @@ async function main() {
   console.log('⚠️ Botão "não aceito" com erro no AI Coach');
   console.log('✅ Correção do bug trim() confirmada');
   console.log('\n💡 Para ver logs detalhados, acesse:');
-  console.log('   https://supabase.com/dashboard/project/fjddlffnlbrhgogkyplq/functions/webhook-whatsapp-adapter/logs');
+  console.log('   https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}/functions/webhook-whatsapp-adapter/logs');
 }
 
 main();

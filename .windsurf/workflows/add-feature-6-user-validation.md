@@ -1,5 +1,6 @@
 ---
 description: Workflow Add-Feature (6/9) - User Validation (Validação Manual - CRÍTICO!)
+auto_execution_mode: 1
 ---
 
 ## 📚 Pré-requisito: Consultar Documentação Base
@@ -7,13 +8,33 @@ description: Workflow Add-Feature (6/9) - User Validation (Validação Manual - 
 Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
 - `docs/PLAN.md` - Visão estratégica atual
 - `docs/TASK.md` - Status das tarefas em andamento
-- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+- `README.md` - Descrição do projeto
+- `AGENTS.md` - Comportamento dos agents
+- `.windsurf/workflows` - Todos workflows em etapas (arquivos diferentes)
+- `docs/` - Todos documentos importantes
+- `scripts/` - Todos scrips importantes
 
 ---
 
-# Workflow 6/9: User Validation (Validação Manual)
+## ⚠️ REGRA CRÍTICA: USO MÁXIMO DE AGENTES
 
-Este é o **sexto workflow** de 9 etapas modulares para adicionar uma nova funcionalidade.
+**SEMPRE usar o MÁXIMO de agentes possível em paralelo** para todas as fases deste workflow.
+
+**Benefícios:**
+- ⚡ Redução drástica do tempo de execução (até 36x mais rápido)
+- 🎯 Melhor cobertura de análise
+- 🚀 Maior throughput de tarefas
+
+**Exemplo:**
+- Fase 13 (Testes Funcionais): Executar testes em paralelo (UI, Performance, Integração)
+- Fase 14 (Feedback): Analisar múltiplos problemas simultaneamente em agentes separados
+- Análises paralelas: Funcionalidade, Design, Performance, Segurança, Edge Cases
+
+---
+
+# Workflow 6/11: User Validation (Validação Manual)
+
+Este é o **sexto workflow** de 11 etapas modulares para adicionar uma nova funcionalidade.
 
 **O que acontece neste workflow:**
 - Fase 13: **PARADA OBRIGATÓRIA** - Testar Manualmente
@@ -170,6 +191,29 @@ Abra o navegador em: **http://localhost:5173/**
 4. **Volta para Fase 11** (testes automáticos)
 5. Se testes passarem → **Volta para Fase 13** (você testa novamente)
 6. Repete até **TUDO estiver OK**
+
+**🐛 Se Encontrar Problemas Complexos**
+
+**Quando usar**: Problema com comportamento inesperado, múltiplas features afetadas, ou dificuldade em reproduzir.
+
+**Ação**: Execute o workflow de debugging:
+
+```bash
+# Ver workflow completo
+cat .windsurf/workflows/debug-complex-problem.md
+```
+
+**O que ele faz**:
+- 5 agentes paralelos diagnosticam (Database, Frontend, Backend, Auth, Logs)
+- Root cause analysis sistemática
+- Solution design com rollback plan
+- Documentação do caso em docs/debugging/
+
+**Quando é complexo**:
+- ❌ "Às vezes salva, às vezes não" (intermitente)
+- ❌ "Funciona local mas quebra em produção"
+- ❌ "Múltiplos campos afetados, não sei por quê"
+- ❌ "Erro genérico, difícil de debugar"
 
 **Exemplo**:
 ```

@@ -155,7 +155,7 @@ function testExtractButtonPayload() {
 async function testWebhookEndpoint() {
   console.log('\n🌐 Testando endpoint do webhook...');
   
-  const WEBHOOK_URL = 'https://fjddlffnlbrhgogkyplq.supabase.co/functions/v1/webhook-whatsapp-adapter';
+  const WEBHOOK_URL = 'https://${SUPABASE_PROJECT_REF}.supabase.co/functions/v1/webhook-whatsapp-adapter';
   
   try {
     const response = await fetch(WEBHOOK_URL, {

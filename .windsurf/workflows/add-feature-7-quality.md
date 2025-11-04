@@ -1,5 +1,6 @@
 ---
 description: Workflow Add-Feature (7/9) - Quality (Code Review + Security)
+auto_execution_mode: 1
 ---
 
 ## 📚 Pré-requisito: Consultar Documentação Base
@@ -7,13 +8,37 @@ description: Workflow Add-Feature (7/9) - Quality (Code Review + Security)
 Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
 - `docs/PLAN.md` - Visão estratégica atual
 - `docs/TASK.md` - Status das tarefas em andamento
-- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+- `README.md` - Descrição do projeto
+- `AGENTS.md` - Comportamento dos agents
+- `.windsurf/workflows` - Todos workflows em etapas (arquivos diferentes)
+- `docs/` - Todos documentos importantes
+- `scripts/` - Todos scrips importantes
 
 ---
 
-# Workflow 7/9: Quality (Code Review + Security)
+# Workflow 7/11: Quality (Code Review + Security)
 
-Este é o **sétimo workflow** de 9 etapas modulares para adicionar uma nova funcionalidade.
+Este é o **sétimo workflow** de 11 etapas modulares para adicionar uma nova funcionalidade.
+
+---
+
+## ⚠️ REGRA CRÍTICA: USO MÁXIMO DE AGENTES
+
+**SEMPRE usar o MÁXIMO de agentes possível em paralelo** para todas as fases de validação deste workflow.
+
+**Benefícios:**
+- ⚡ Redução drástica do tempo de execução (até 36x mais rápido)
+- 🎯 Melhor cobertura de análise
+- 🚀 Maior throughput de tarefas
+
+**Exemplo:**
+- Phase 15 (Code Review): 3+ agentes analisando diferentes aspectos (code quality, segurança, performance)
+- Phase 16 (Security): 4+ agentes realizando verificações paralelas (secrets scan, dependencies, static analysis, RLS)
+- Validações paralelas: ESLint, TypeScript, SQL Security, XSS Prevention, CSRF Prevention
+
+---
+
+
 
 **O que acontece neste workflow:**
 - Fase 15: Code Review Automatizado (OBRIGATÓRIO)

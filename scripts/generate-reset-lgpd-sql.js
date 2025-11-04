@@ -57,7 +57,7 @@ WHERE phone_number = '${cleanPhone}';
 -- ==========================================
 -- INSTRUÇÕES:
 -- 1. Copie este SQL inteiro
--- 2. Acesse: https://supabase.com/dashboard/project/fjddlffnlbrhgogkyplq
+-- 2. Acesse: https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}
 -- 3. Vá para: SQL Editor (menu lateral)
 -- 4. Cole o SQL e clique em "Run"
 -- 5. Confirme que whatsapp_consent_at está NULL

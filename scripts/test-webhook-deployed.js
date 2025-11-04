@@ -5,7 +5,7 @@
  * Envia o payload real para a função em produção
  */
 
-const WEBHOOK_URL = 'https://fjddlffnlbrhgogkyplq.supabase.co/functions/v1/webhook-whatsapp-adapter';
+const WEBHOOK_URL = 'https://${SUPABASE_PROJECT_REF}.supabase.co/functions/v1/webhook-whatsapp-adapter';
 
 // Payload real do botão (pode mudar para testar diferentes cenários)
 const TEST_PAYLOADS = {

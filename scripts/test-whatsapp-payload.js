@@ -9,7 +9,7 @@
  * Uso: ./scripts/test-whatsapp-payload.js [payload-file.json]
  */
 
-const WEBHOOK_URL = process.env.WEBHOOK_URL || 'https://fjddlffnlbrhgogkyplq.supabase.co/functions/v1/webhook-whatsapp-adapter';
+const WEBHOOK_URL = process.env.WEBHOOK_URL || 'https://${SUPABASE_PROJECT_REF}.supabase.co/functions/v1/webhook-whatsapp-adapter';
 
 // Payloads reais descobertos em produção
 const REAL_PAYLOADS = {

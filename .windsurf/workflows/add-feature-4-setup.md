@@ -1,5 +1,6 @@
 ---
 description: Workflow Add-Feature (4/9) - Setup (Preparação do Ambiente)
+auto_execution_mode: 1
 ---
 
 ## 📚 Pré-requisito: Consultar Documentação Base
@@ -7,13 +8,47 @@ description: Workflow Add-Feature (4/9) - Setup (Preparação do Ambiente)
 Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
 - `docs/PLAN.md` - Visão estratégica atual
 - `docs/TASK.md` - Status das tarefas em andamento
-- `docs/pesquisa-de-mercado/` - Fundamentos científicos
+- `README.md` - Descrição do projeto
+- `AGENTS.md` - Comportamento dos agents
+- `.windsurf/workflows` - Todos workflows em etapas (arquivos diferentes)
+- `docs/` - Todos documentos importantes
+- `scripts/` - Todos scrips importantes
 
 ---
 
-# Workflow 4/9: Setup (Preparação do Ambiente)
+## 🤖 ⚡ REGRA CRÍTICA: Uso Máximo de Agentes em Paralelo
 
-Este é o **quarto workflow** de 9 etapas modulares para adicionar uma nova funcionalidade.
+> **🚨 OBRIGATÓRIO: SEMPRE usar o máximo de agentes possível** em paralelo para otimizar performance.
+
+### Quando Usar Múltiplos Agentes
+- **SEMPRE** que houver tarefas independentes que possam ser executadas simultaneamente
+- Backup + Sincronização com main + Verificação de documentação
+- Atualização de múltiplos arquivos em paralelo
+- Análise de dependências + verificação de configurações simultânea
+- Testes em diferentes módulos/componentes
+
+### Como Usar Agentes em Paralelo
+
+Este workflow tem **3 fases independentes** que podem rodar em paralelo:
+
+```markdown
+# Exemplo: Lançar 3 agentes simultaneamente
+- Agent 1: Criar backup (Fase 7)
+- Agent 2: Sincronizar com main (Fase 8)
+- Agent 3: Criar branch git (Fase 9)
+```
+
+**Benefícios**:
+- ⚡ Redução drástica do tempo de execução (3 fases em paralelo)
+- 🎯 Melhor uso de recursos
+- 🚀 Maior throughput de tarefas
+- 💡 Execução simultânea de operações independentes
+
+---
+
+# Workflow 4/11: Setup (Preparação do Ambiente)
+
+Este é o **quarto workflow** de 11 etapas modulares para adicionar uma nova funcionalidade.
 
 **O que acontece neste workflow:**
 - Fase 7: Checkpoint (Backup do banco de dados)

@@ -141,7 +141,7 @@ try {
   console.log(`   Email: ${LOVABLE_USER_EMAIL}\n`);
 
   console.log('⚠️  IMPORTANTE: Redefina a senha do usuário:');
-  console.log('   1. Acesse: https://supabase.com/dashboard/project/fjddlffnlbrhgogkyplq/auth/users');
+  console.log('   1. Acesse: https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}/auth/users');
   console.log(`   2. Encontre ${LOVABLE_USER_EMAIL}`);
   console.log('   3. Clique em "Send password recovery" ou defina senha manualmente\n');
 

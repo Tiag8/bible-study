@@ -132,7 +132,7 @@ async function main() {
           console.log('- Erro na lógica da Edge Function');
           console.log('\n📋 AÇÃO NECESSÁRIA:');
           console.log('Acesse os logs no Dashboard:');
-          console.log(`https://supabase.com/dashboard/project/fjddlffnlbrhgogkyplq/logs/edge-functions`);
+          console.log(`https://supabase.com/dashboard/${SUPABASE_PROJECT_REF}/logs/edge-functions`);
           console.log('\nOu teste a API Lovable diretamente:');
           console.log('curl -X POST https://ai.gateway.lovable.dev/v1/chat/completions \\');
           console.log(`  -H "Authorization: Bearer YOUR_GEMINI_KEY" \\`);

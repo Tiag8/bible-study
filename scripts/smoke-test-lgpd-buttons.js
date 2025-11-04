@@ -15,7 +15,7 @@
  */
 
 // Configuração de ambiente
-const SUPABASE_PROJECT_ID = 'fjddlffnlbrhgogkyplq';
+const SUPABASE_PROJECT_ID = '${SUPABASE_PROJECT_REF}';
 const WEBHOOK_URL = `https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/webhook-whatsapp-adapter`;
 const FRONTEND_URL_PRODUCTION = 'https://life-tracker.stackia.com.br';
 const FRONTEND_URL_STAGING = 'https://staging.life-tracker.stackia.com.br';

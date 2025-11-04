@@ -4,7 +4,7 @@
  * Script para testar payload real do WhatsApp Cloud API
  */
 
-const WEBHOOK_URL = 'https://fjddlffnlbrhgogkyplq.supabase.co/functions/v1/webhook-whatsapp-adapter';
+const WEBHOOK_URL = 'https://${SUPABASE_PROJECT_REF}.supabase.co/functions/v1/webhook-whatsapp-adapter';
 
 // Payload real do WhatsApp Cloud API (formato que estamos recebendo)
 const WHATSAPP_CLOUD_API_PAYLOAD = {

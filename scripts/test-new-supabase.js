@@ -4,7 +4,7 @@
  * Script de Teste de Conexão - NOVO Supabase
  *
  * Testa conectividade, estrutura do banco, permissões e auth
- * do novo projeto Supabase (fjddlffnlbrhgogkyplq)
+ * do novo projeto Supabase (${SUPABASE_PROJECT_REF})
  *
  * Uso: node scripts/test-new-supabase.js
  */
@@ -18,7 +18,7 @@ import path from 'path';
 // ============================================================================
 
 const NEW_SUPABASE = {
-  url: 'https://fjddlffnlbrhgogkyplq.supabase.co',
+  url: 'https://${SUPABASE_PROJECT_REF}.supabase.co',
   anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqZGRsZmZubGJyaGdvZ2t5cGxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5MTY4MjYsImV4cCI6MjA2MzQ5MjgyNn0.qZTfi6D2eCqUEfWVXOIqBwukRyytR0FL0L_gRHPAIKU',
   serviceRoleKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqZGRsZmZubGJyaGdvZ2t5cGxxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NzkxNjgyNiwiZXhwIjoyMDYzNDkyODI2fQ.RNkuoLK0pMloNvUOoO9d2AUFyoxvXgYF1MmdbM-WbJA'
 };
