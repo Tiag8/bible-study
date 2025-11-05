@@ -1,0 +1,41 @@
+# 📚 [Project Name] - Índice Completo de Documentação
+
+> **Central navegável de toda documentação técnica, estratégica e operacional**
+
+---
+
+## 🚀 COMECE AQUI - 3 Documentos Essenciais
+
+<!-- Listar seus 3 documentos mais importantes -->
+
+---
+
+## 🔄 Workflows do Projeto
+
+Sistema modular de workflows para desenvolvimento de features.
+
+### Workflows Principais
+
+| Workflow | Descrição | Arquivo |
+|----------|-----------|---------|
+| **1** | Planning | [add-feature-1-planning.md](../.windsurf/workflows/add-feature-1-planning.md) |
+<!-- Adicionar seus workflows -->
+
+### Workflows Divididos (se aplicável)
+
+| Workflow Original | Parte A | Parte B | Status |
+|-------------------|---------|---------|--------|
+<!-- Workflows divididos A/B -->
+
+---
+
+## 🔧 Scripts Principais
+
+| Script | Descrição | Uso |
+|--------|-----------|-----|
+<!-- Listar seus scripts -->
+
+---
+
+**Última atualização**: [DATA]
+**Versão**: [VERSÃO]
