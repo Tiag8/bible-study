@@ -120,6 +120,85 @@ ssh root@31.97.22.151 "docker service logs --tail 50 lifetracker_app"
 - HTTPS não responde: Aguardar 2-3min (Let's Encrypt provisioning)
 - HTML vazio: Build falhou, verificar `/usr/share/nginx/html`
 
+---
+
+### 27.1 Root Cause Analysis (Se Validação Falhar)
+
+**Quando usar**: Smoke tests falham, mas causa não é óbvia após verificar logs.
+
+**Processo sistemático (5 Why's)**:
+
+```
+Exemplo 1: "Service não inicia (Current State = Rejected)"
+
+1. Por quê service foi rejeitado?
+   → "Docker Swarm recusou iniciar o container"
+
+2. Por quê Swarm recusou?
+   → "Health check falhou 3 vezes consecutivas"
+
+3. Por quê health check falha?
+   → "curl http://localhost:80 retorna erro de conexão"
+
+4. Por quê conexão falha?
+   → "Alpine Linux não resolve localhost, apenas 127.0.0.1"
+
+5. Causa Raiz: Health check usa localhost em Alpine
+   Solução: Alterar HEALTHCHECK no Dockerfile para usar 127.0.0.1
+```
+
+```
+Exemplo 2: "HTTPS responde mas HTML está vazio"
+
+1. Por quê HTML está vazio?
+   → "Nginx está servindo diretório vazio"
+
+2. Por quê diretório está vazio?
+   → "dist/ não foi copiado para /usr/share/nginx/html"
+
+3. Por quê dist/ não foi copiado?
+   → "Dockerfile multi-stage não copia dist/ do builder"
+
+4. Por quê COPY falhou?
+   → "COPY --from=builder /app/dist não encontra arquivos"
+
+5. Causa Raiz: Build de produção (npm run build) não executou no stage builder
+   Solução: Verificar Dockerfile, adicionar RUN npm run build antes de COPY
+```
+
+**Problemas deploy + RCA típico**:
+
+| Sintoma | 5 Why's Resumido | Causa Raiz | Solução | ADR/Doc |
+|---------|------------------|------------|---------|---------|
+| Service "Rejected" | Por quê? Health check falha → Por quê? localhost em Alpine | Health check usa localhost | Usar 127.0.0.1 em HEALTHCHECK | Meta-Learning 3 |
+| Traefik não roteia | Por quê? Service não aparece em /api/routes → Por quê? Label faltando | traefik.docker.network não definida | Adicionar label no docker-compose.yml | Meta-Learning 2 |
+| HTML vazio | Por quê? dist/ vazio → Por quê? Build não executou | .env não disponível em build time | .dockerignore bloqueia .env, remover | Meta-Learning 1 |
+| HTTPS ERR_CERT | Por quê? Let's Encrypt falhou → Por quê? DNS não propaga | DNS não aponta para VPS | Verificar nslookup + aguardar propagação | docs/ops/dns.md |
+| Performance lenta | Por quê? CPU 100% → Por quê? Loop infinito | Code regression | Verificar git diff, rollback se necessário | git revert |
+
+**Correlacionar múltiplos sinais**:
+
+Se múltiplos problemas aparecem juntos, pode ser causa raiz comum:
+- Service não inicia + Logs vazios + Health check fail → **Imagem corrompida** (rebuild)
+- HTTPS timeout + Traefik logs error + DNS OK → **Rate limit Let's Encrypt** (aguardar 1h)
+- HTML OK + API 502 + Database timeout → **Supabase credentials inválidas** (verificar .env)
+
+**Checklist RCA**:
+- [ ] Identifiquei sintoma exato (status, log, comportamento)
+- [ ] Coletei evidências (logs VPS, Traefik, container)
+- [ ] Perguntei "Por quê?" 5 vezes até causa raiz
+- [ ] Causa raiz é algo fixável (não "sorte" ou "timing")
+- [ ] Testei solução em ambiente isolado (se possível)
+- [ ] Documentei em commit/ADR/TROUBLESHOOTING.md
+
+**Se RCA não resolve em 10-15min**: Use workflow de debugging completo:
+```bash
+# Ver workflow de debugging multi-agent
+cat .windsurf/workflows/debug-complex-problem.md
+```
+
+---
+
 **Checklist**:
 - [ ] Service status = 1/1 replicas
 - [ ] Current State = "Running"
@@ -143,9 +222,95 @@ ssh root@31.97.22.151 "docker service logs --tail 50 lifetracker_app"
 
 ---
 
+---
+
+## 🧠 Meta-Learning: Captura de Aprendizados
+
+**⚠️ CRÍTICO - NÃO PULE**: Esta fase é fundamental para evolução contínua do sistema.
+
+**Objetivo**: Identificar melhorias nos workflows, scripts e processos baseado na execução desta feature.
+
+### Questões de Reflexão (Responder TODAS)
+
+**1. Eficiência do Workflow (Nota 1-10):**
+- [ ] Nota atribuída: __/10
+- [ ] Se nota < 8: Qual fase foi ineficiente? Como melhorar?
+- [ ] Alguma fase tomou muito tempo? Qual? Por quê?
+
+**2. Iterações com Usuário:**
+- [ ] Número de iterações necessárias: __
+- [ ] Se > 3 iterações: O que causou múltiplas idas e vindas?
+- [ ] Como tornar workflow mais autônomo/claro para próxima vez?
+
+**3. Gaps Identificados:**
+- [ ] Alguma validação faltou? (Se SIM: qual? onde inserir checklist?)
+- [ ] Algum gate falhou para detectar erro? (Se SIM: qual gate melhorar?)
+- [ ] Algum comando foi repetido 3+ vezes? (Se SIM: automatizar em script?)
+
+**4. Root Cause Analysis (RCA) - Se identificou problema:**
+- [ ] Problema: [descrever brevemente]
+- [ ] 5 Whys aplicados? (validar causa raiz sistêmica, não sintoma pontual)
+- [ ] Causa raiz afeta múltiplas features? (SE NÃO: descartar learning - não é sistêmico)
+- [ ] Meta-learning previne recorrência? (não apenas corrige sintoma desta feature)
+
+### Ações de Melhoria (Se Aplicável)
+
+**Documentação a atualizar:**
+- [ ] Este workflow (.md) precisa melhorias? → Descrever alterações necessárias
+- [ ] CLAUDE.md precisa novo padrão/seção? → Especificar o quê
+- [ ] Novo script seria útil? → Nome do script + função
+- [ ] ADR necessário? → Decisão arquitetural a documentar
+
+**ROI Esperado:** [Estimar ganho - ex: "20min economizadas por feature futura" ou "Previne bug que custaria 2h debugging"]
+
+### ⚠️ IMPORTANTE
+
+- **Só documentar learnings SISTÊMICOS** (não pontuais/específicos desta feature)
+- **Aplicar RCA obrigatoriamente** para validar se é realmente sistêmico
+- **Consolidação final** acontece no Workflow 8a (Meta-Learning centralizado)
+
+### Validação de Tamanho do Workflow
+
+```bash
+# Se você fez alterações neste workflow, validar tamanho
+wc -c .windsurf/workflows/NOME_DESTE_WORKFLOW.md
+# ✅ Espera: < 12000 chars (12k limit)
+# ❌ Se > 12000: Comprimir ou dividir workflow
+```
+
+**Checklist de Otimização** (se workflow > 11k chars):
+- [ ] Remover exemplos redundantes
+- [ ] Consolidar checklists similares
+- [ ] Extrair detalhes para docs/
+- [ ] Dividir em 2 workflows (se > 12k)
+
 ## 🔄 Próximo Workflow (Automático)
 
 ✅ Deploy executado! Prosseguindo automaticamente para **Workflow 11c1** (Monitoramento).
+
+---
+
+## 🚨 REGRA CRÍTICA: ANTI-ROI
+
+**NUNCA calcule ou mencione**:
+- ❌ ROI (Return on Investment)
+- ❌ Tempo de execução/produção
+- ❌ "Horas economizadas"
+- ❌ Estimativas temporais (Xmin vs Ymin)
+
+**Por quê**:
+- Projeto desenvolvido por IA (não humanos)
+- IA executa tarefas em paralelo (não linear)
+- Cálculos consomem tokens sem valor
+- Polui documentação com dados irrelevantes
+
+**Permitido**:
+- ✅ Evidências concretas (código, logs, testes)
+- ✅ Comparações qualitativas ("mais rápido", "mais eficiente")
+- ✅ Métricas técnicas (latência, throughput, memory usage)
+
+**Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
+
 
 **Próximo**: `.windsurf/workflows/add-feature-11c1-vps-monitoring.md`
 

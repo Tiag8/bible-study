@@ -26,6 +26,9 @@ Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
 - `docs/TASK.md` - Status das tarefas em andamento
 - `docs/pesquisa-de-mercado/` - Fundamentos científicos
 
+> **💡 MCPs Úteis**: `supabase_lifetracker` (EXPLAIN ANALYZE queries lentas), `gemini-cli` (RCA profundo)
+> Ver: `docs/integrations/MCP.md`
+
 ---
 
 # Workflow 5b/9: Refactoring e Root Cause Analysis
@@ -173,6 +176,110 @@ CREATE INDEX idx_habit_entries_created_at ON lifetracker_habit_entries(created_a
 
 ---
 
+## 🕸️ Resolução em Teia (DEPOIS do RCA)
+
+**CRÍTICO**: Se você executou RCA (5 Whys), SEMPRE mapear teia completa ANTES de implementar fix.
+
+**Por quê**: Causa raiz pode afetar múltiplos arquivos/features. Resolver apenas 1 arquivo = bug volta em outro lugar.
+
+---
+
+### Quando Aplicar (Mesmo Contexto que RCA)
+
+Use Resolução em Teia quando usar RCA:
+- ✅ Bug recorrente (volta mesmo depois de "consertado")
+- ✅ Erro de lógica não detectado em code review
+- ✅ Testes falharam 2+ vezes (indica padrão)
+- ✅ Bug intermitente (difícil reproduzir)
+- ✅ Performance degradou após implementação
+- ✅ Falha em edge case (volume alto, concorrência)
+
+---
+
+### Checklist Resolução em Teia (OBRIGATÓRIO)
+
+**Ver** `.claude/CLAUDE.md` Regra 4B para metodologia completa.
+
+**Resumo rápido** (14 checks em 3 grupos):
+
+**1. Mapeamento da Teia** (5 checks):
+- [ ] Listei TODOS arquivos que importam/exportam código afetado?
+- [ ] Identifiquei TODAS funções chamadas/chamadoras?
+- [ ] Mapeei TODAS tabelas/queries relacionadas?
+- [ ] Encontrei TODOS componentes que consomem dados afetados?
+- [ ] Busquei TODA documentação relacionada?
+
+**2. Análise de Impacto** (4 checks):
+- [ ] Avaliei impacto da mudança em CADA conexão mapeada?
+- [ ] Busquei padrões similares no codebase?
+- [ ] Validei se outros lugares têm mesmo problema?
+- [ ] Identifiquei testes faltantes?
+
+**3. Resolução Holística** (5 checks):
+- [ ] Vou corrigir causa raiz (RCA)?
+- [ ] Vou corrigir TODOS padrões similares identificados?
+- [ ] Vou atualizar TODA documentação relacionada?
+- [ ] Vou adicionar testes para TODA teia mapeada?
+- [ ] Vou validar que não introduzi regressões?
+
+---
+
+### Ferramentas de Mapeamento
+
+```bash
+# 1. Buscar imports/exports do arquivo afetado
+grep -r "import.*from.*arquivo-afetado" src/ supabase/
+
+# 2. Buscar chamadas da função problemática
+grep -r "funçãoProblematica(" src/ supabase/
+
+# 3. Buscar referências no database
+grep -r "lifetracker_tabela_afetada" supabase/
+
+# 4. Buscar em documentação
+grep -r "feature-afetada" docs/
+
+# 5. Histórico git (casos passados similares)
+git log --all --grep="keyword-relacionada"
+```
+
+---
+
+### Exemplo Prático
+
+**Problema**: "Email não salva no onboarding"
+
+**RCA identificou**: Faltava validação de formato antes de INSERT
+
+**Resolução em Teia MAPEIA**:
+- Backend: 3 Edge Functions fazem INSERT de email (não apenas 1!)
+- Frontend: 2 componentes com formulário de email
+- Database: Constraint NULL em lifetracker_profiles.email
+- Docs: README menciona "email obrigatório" (desatualizado)
+- Testes: Zero testes de validação de email
+
+**Resolução COMPLETA** (não apenas pontual):
+1. ✅ Adicionar validação em TODOS 3 Edge Functions
+2. ✅ Adicionar validação client-side nos 2 formulários
+3. ✅ Atualizar constraint DB (NOT NULL + formato)
+4. ✅ Atualizar README com regra validação
+5. ✅ Adicionar 5 unit tests (validação email)
+6. ✅ Adicionar 1 E2E test (fluxo completo onboarding)
+
+---
+
+### ⚠️ Se NÃO Executar Resolução em Teia
+
+**Risco ALTO**: Bug recorre em outros arquivos com mesmo padrão (ex: corrigiu webhook A, mas webhook B continua quebrado).
+
+**Resultado**: Retrabalho, testes quebram novamente, usuário reporta bug "já corrigido".
+
+---
+
+**Próxima Fase**: Após completar Resolução em Teia, prosseguir com implementação dos fixes.
+
+---
+
 ### Como Aplicar RCA no Auto-Fix (Fase 12)
 
 **Passo a passo**:
@@ -242,6 +349,93 @@ Se identificou causa raiz sistêmica:
 - ⚠️ Código NÃO foi commitado remotamente ainda
 
 **Próxima etapa**: **PARADA OBRIGATÓRIA** para você testar manualmente!
+
+---
+
+---
+
+## 🧠 Meta-Learning: Captura de Aprendizados
+
+**⚠️ CRÍTICO - NÃO PULE**: Esta fase é fundamental para evolução contínua do sistema.
+
+**Objetivo**: Identificar melhorias nos workflows, scripts e processos baseado na execução desta feature.
+
+### Questões de Reflexão (Responder TODAS)
+
+**1. Eficiência do Workflow (Nota 1-10):**
+- [ ] Nota atribuída: __/10
+- [ ] Se nota < 8: Qual fase foi ineficiente? Como melhorar?
+- [ ] Alguma fase tomou muito tempo? Qual? Por quê?
+
+**2. Iterações com Usuário:**
+- [ ] Número de iterações necessárias: __
+- [ ] Se > 3 iterações: O que causou múltiplas idas e vindas?
+- [ ] Como tornar workflow mais autônomo/claro para próxima vez?
+
+**3. Gaps Identificados:**
+- [ ] Alguma validação faltou? (Se SIM: qual? onde inserir checklist?)
+- [ ] Algum gate falhou para detectar erro? (Se SIM: qual gate melhorar?)
+- [ ] Algum comando foi repetido 3+ vezes? (Se SIM: automatizar em script?)
+
+**4. Root Cause Analysis (RCA) - Se identificou problema:**
+- [ ] Problema: [descrever brevemente]
+- [ ] 5 Whys aplicados? (validar causa raiz sistêmica, não sintoma pontual)
+- [ ] Causa raiz afeta múltiplas features? (SE NÃO: descartar learning - não é sistêmico)
+- [ ] Meta-learning previne recorrência? (não apenas corrige sintoma desta feature)
+
+### Ações de Melhoria (Se Aplicável)
+
+**Documentação a atualizar:**
+- [ ] Este workflow (.md) precisa melhorias? → Descrever alterações necessárias
+- [ ] CLAUDE.md precisa novo padrão/seção? → Especificar o quê
+- [ ] Novo script seria útil? → Nome do script + função
+- [ ] ADR necessário? → Decisão arquitetural a documentar
+
+**ROI Esperado:** [Estimar ganho - ex: "20min economizadas por feature futura" ou "Previne bug que custaria 2h debugging"]
+
+### ⚠️ IMPORTANTE
+
+- **Só documentar learnings SISTÊMICOS** (não pontuais/específicos desta feature)
+- **Aplicar RCA obrigatoriamente** para validar se é realmente sistêmico
+- **Consolidação final** acontece no Workflow 8a (Meta-Learning centralizado)
+
+### Validação de Tamanho do Workflow
+
+```bash
+# Se você fez alterações neste workflow, validar tamanho
+wc -c .windsurf/workflows/NOME_DESTE_WORKFLOW.md
+# ✅ Espera: < 12000 chars (12k limit)
+# ❌ Se > 12000: Comprimir ou dividir workflow
+```
+
+**Checklist de Otimização** (se workflow > 11k chars):
+- [ ] Remover exemplos redundantes
+- [ ] Consolidar checklists similares
+- [ ] Extrair detalhes para docs/
+- [ ] Dividir em 2 workflows (se > 12k)
+
+---
+
+## 🚨 REGRA CRÍTICA: ANTI-ROI
+
+**NUNCA calcule ou mencione**:
+- ❌ ROI (Return on Investment)
+- ❌ Tempo de execução/produção
+- ❌ "Horas economizadas"
+- ❌ Estimativas temporais (Xmin vs Ymin)
+
+**Por quê**:
+- Projeto desenvolvido por IA (não humanos)
+- IA executa tarefas em paralelo (não linear)
+- Cálculos consomem tokens sem valor
+- Polui documentação com dados irrelevantes
+
+**Permitido**:
+- ✅ Evidências concretas (código, logs, testes)
+- ✅ Comparações qualitativas ("mais rápido", "mais eficiente")
+- ✅ Métricas técnicas (latência, throughput, memory usage)
+
+**Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
 
 ---
 

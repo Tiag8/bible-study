@@ -55,6 +55,9 @@ Este é o **segundo workflow (parte B)** de 11 etapas modulares para adicionar u
 
 ## 🔍 Root Cause Analysis (RCA) - QUANDO APLICÁVEL
 
+> **💡 MCPs Úteis**: `context7` (validar APIs libs), `gemini-cli` (análise arquitetura)
+> Ver: `docs/integrations/MCP.md`
+
 **⚠️ USAR APENAS SE**: Você está resolvendo um problema/bug arquitetural ou decisão técnica problemática.
 
 **PULAR ESTA SEÇÃO SE**: Esta é uma nova feature sem problema prévio.
@@ -93,11 +96,11 @@ Use RCA na **Fase 3 (Technical Design)** quando:
 
 ### Exemplos de RCA na Prática
 
-**Ex 1 (Email)**: Email não salvou → metadata.whatsapp_state erro → Coluna não existe → Migration não criou → Código antes de migration → **Causa Raiz**: Sem checklist "Schema First" → **Ação**: Gate obrigatório: schema validado antes de código
+**Email**: metadata column missing → migration não criou → código before schema → **Causa**: Sem "Schema First" gate → **Ação**: Validar schema antes de código
 
-**Ex 2 (Webhook)**: Parsing falhou → payload structure undefined → API mudou → Sem validação → Paths hardcoded → **Causa Raiz**: Não validar APIs externas → **Ação**: Zod validation + ADR 007 (Adaptive Parser)
+**Webhook**: Parsing falhou → API mudou → sem validação → **Causa**: Não validar APIs externas → **Ação**: Zod validation + ADR
 
-**Ex 3 (State)**: State machine não escala → Lógica espalhada → Sem coordenação → useState local → MVP não considerou crescimento → **Causa Raiz**: Arquitetura MVP sem "path to scale" → **Ação**: Context API ou Zustand + ADR
+**State**: Machine não escala → useState local → **Causa**: MVP sem "path to scale" → **Ação**: Context API/Zustand + ADR
 
 ---
 
@@ -156,6 +159,27 @@ Se identificou causa raiz sistêmica, documentar em:
 
 **Solução escolhida**: [A / B / C / Customizada]
 
+### 🔍 Pré-requisito: Validar Sincronização DB (OBRIGATÓRIO)
+
+**SEMPRE executar ANTES de análise de schema**:
+
+```bash
+# Validar sincronização DB real vs types.ts vs migrations
+./scripts/validate-db-sync.sh
+
+# Se defasado, regenerar types
+./scripts/regenerate-supabase-types.sh
+```
+
+**Por quê**:
+- DB real pode diferir de migrations (falhas silenciosas)
+- types.ts pode estar desatualizado (>3 dias)
+- Análise baseada em código desatualizado = falsos positivos
+
+**Regra**: NUNCA confiar em código estático. Source of truth = DB real.
+
+---
+
 ### Arquitetura Detalhada
 
 **Componentes a criar/modificar**:
@@ -186,16 +210,22 @@ Se identificou causa raiz sistêmica, documentar em:
 
 ### Dependências
 
-**Novas dependências** (se houver):
-```json
-{
-  "dependencies": {
-    "[package]": "[version]"
-  }
-}
-```
+**⚠️ METODOLOGIA: Escolha de Ferramentas**
 
-**Justificativa**: [Por que adicionar esta dependência?]
+**4 passos obrigatórios**:
+1. **Check Current**: `cat package.json | jq '.dependencies'`
+2. **Verify Versions**: `npm info @package-name version`
+3. **Suggest 2-3 Options**: Incluir "usar existente" como opção
+4. **Comparison Table**:
+   | Critério | Opção A | Opção B | Opção C |
+   |----------|---------|---------|---------|
+   | Precisão | 85-90% | 70-75% | 85-90% |
+   | Latência | +200ms | Base | +200ms |
+   | Custo | +20% | Base | +20% |
+   | Uso Atual | ✅ | ❌ | ✅ |
+   | ★ | ⭐ | - | ⭐⭐ |
+
+**Justificativa**: Por que esta opção vs. alternativas?
 
 ---
 
@@ -232,7 +262,55 @@ Se identificou causa raiz sistêmica, documentar em:
 
 ---
 
+## 🚨 Validação Anti-Over-Engineering (OBRIGATÓRIO)
+
+**CRÍTICO**: SEMPRE validar design técnico antes de aprovar.
+
+### Checklist YAGNI/KISS
+- [ ] **Design resolve problema REAL** (não edge cases hipotéticos)?
+  - Problema documentado: [onde? evidência?]
+  - vs "pode acontecer no futuro" ❌
+
+- [ ] **Existe design mais SIMPLES**?
+  - Alternativa simplificada: [descrever]
+  - Por que não funciona: [evidência técnica]
+
+- [ ] **Complexidade justificada por EVIDÊNCIA**?
+  - Benchmark/docs oficiais: [link]
+  - Caso real de uso: [exemplo concreto]
+  - Relevância ao projeto: [como se aplica]
+
+- [ ] **Posso validar com POC (10% do código)**?
+  - POC: [prova de conceito mínima]
+  - Critério de sucesso: [métrica mensurável]
+
+### Red Flags Detectados?
+- [ ] ❌ Mais de 3 camadas de abstração
+- [ ] ❌ Padrões complexos para problema simples
+- [ ] ❌ Otimização prematura (sem evidência de gargalo)
+- [ ] ❌ Dependências "nice-to-have" (não must-have)
+
+**Se 2+ red flags**: ⛔ REJEITAR design, simplificar
+
+**Exemplo Real**:
+- ❌ Implementar caching distribuído para 10 usuários
+- ✅ useState + React Query (escala até 1000+ usuários)
+
+**Ver**: `.claude/CLAUDE.md` → REGRA #10 Anti-Over-Engineering
+
+---
+
 ## 📝 ADR (Architecture Decision Record) - SE NECESSÁRIO
+
+**⚠️ ANTES DE CRIAR ADR**: Verificar ADRs existentes!
+
+```bash
+# Listar ADRs existentes
+ls -1 docs/adr/
+
+# Ver último número de ADR
+ls -1 docs/adr/ | grep -E "^ADR-[0-9]+" | tail -1
+```
 
 **Criar ADR quando**:
 - ✅ Decisão arquitetural significativa (state management, API design, etc)
@@ -240,38 +318,29 @@ Se identificou causa raiz sistêmica, documentar em:
 - ✅ Padrão novo foi introduzido no projeto
 - ✅ RCA identificou necessidade de mudança arquitetural
 
-**Template ADR**:
+**Não criar ADR duplicado**:
+- ❌ Se ADR similar já existe, atualizar o existente (adicionar seção "Updates")
+- ❌ Se ADR supersede anterior, marcar anterior como "Superseded by ADR-XXX"
+
+**Template ADR** (`docs/adr/ADR-[número]-[título].md`):
 
 ```markdown
-# ADR [número]: [Título da Decisão]
+# ADR [número]: [Título]
+**Status**: Proposto | Aceito | Rejeitado | Deprecated | Superseded by ADR-XXX
+**Data**: YYYY-MM-DD
 
-**Status**: Proposto | Aceito | Rejeitado | Deprecated | Superseded by [ADR-XXX]
+**Contexto**: Problema a resolver
 
-**Data**: [YYYY-MM-DD]
-
-**Contexto**: [Qual problema estamos resolvendo? Por quê esta decisão é necessária?]
-
-**Decisão**: [Qual solução foi escolhida? Descrever em detalhes.]
+**Decisão**: Solução escolhida
 
 **Consequências**:
-- **Positivas**:
-  - [Benefício 1]
-  - [Benefício 2]
+- Positivas: [benefícios]
+- Negativas: [trade-offs]
 
-- **Negativas**:
-  - [Trade-off 1]
-  - [Trade-off 2]
+**Alternativas**: [Opções rejeitadas e por quê]
 
-**Alternativas Consideradas**:
-1. [Alternativa 1] - Rejeitada porque [razão]
-2. [Alternativa 2] - Rejeitada porque [razão]
-
-**Referências**:
-- [Workflow ou discussão que originou]
-- [Documentação técnica relevante]
+**Referências**: [Workflow/docs relacionados]
 ```
-
-**Localização**: `docs/adr/ADR-[número]-[título-kebab-case].md`
 
 ---
 
@@ -284,7 +353,90 @@ Se identificou causa raiz sistêmica, documentar em:
 - ✅ Riscos identificados e mitigados
 - ✅ ADR criado (se necessário)
 
+---
+
+## 👿 Advogado do Diabo: Validação Técnica (OBRIGATÓRIO)
+
+**ANTES de Risk Analysis**, validar:
+
+### Checklist de Validação
+- [ ] **E se o oposto for verdade?** (ex: arquitetura NÃO escala?)
+- [ ] **Problema é sintoma sistêmico?** (RCA aplicado se sim)
+- [ ] **Fontes consultadas?**
+  - [ ] Código similar (src/...), migrations, ADRs, padrões
+- [ ] **Stack validado?** (package.json, dependencies, database schema)
+- [ ] **Dependências atualizadas?** (`npm info X version`)
+- [ ] **RCA se aplicável?** (5 Whys completos, causa raiz documentada)
+- [ ] **Validação pré-implementação?** (POC necessário? Rollback plan?)
+
+**Resultado**: ✅ APROVADO | ⚠️ AJUSTAR | ❌ REJEITAR
+
+---
+
 **Próxima etapa:** Análise de riscos e planejamento de mitigações!
+
+---
+
+---
+
+## 🧠 Meta-Learning: Captura de Aprendizados
+
+**⚠️ CRÍTICO**: Identificar melhorias sistêmicas (não pontuais).
+
+### Questões de Reflexão
+
+**1. Eficiência** (Nota 1-10): __/10
+- Se < 8: Qual fase ineficiente? Como melhorar?
+
+**2. Iterações**: __
+- Se > 3: O que causou idas/vindas? Como tornar workflow mais claro?
+
+**3. Gaps**:
+- [ ] Validação faltou? Gate falhou? Comando repetiu 3+x?
+- [ ] Ação: [Inserir checklist/melhorar gate/automatizar script]
+
+**4. RCA** (se problema identificado):
+- [ ] 5 Whys aplicados? Causa raiz SISTÊMICA (afeta múltiplas features)?
+- [ ] Meta-learning previne recorrência? (não apenas corrige sintoma)
+
+### Ações de Melhoria
+
+**Documentação**:
+- [ ] Workflow/CLAUDE.md/Script/ADR a atualizar? [Especificar]
+
+**ROI**: [ex: "20min/feature futura" ou "Previne 2h debugging"]
+
+**Consolidação**: Workflow 8a (Meta-Learning centralizado)
+
+### Validação Tamanho
+
+```bash
+wc -c .windsurf/workflows/add-feature-2b-technical-design.md
+# ✅ < 12000 chars | ❌ > 12000: Comprimir
+```
+
+---
+
+## 🚨 REGRA CRÍTICA: ANTI-ROI
+
+**NUNCA calcule ou mencione**:
+- ❌ ROI (Return on Investment)
+- ❌ Tempo de execução/produção
+- ❌ "Horas economizadas"
+- ❌ Estimativas temporais (Xmin vs Ymin)
+
+**Por quê**:
+- Projeto desenvolvido por IA (não humanos)
+- IA executa tarefas em paralelo (não linear)
+- Cálculos consomem tokens sem valor
+- Polui documentação com dados irrelevantes
+
+**Permitido**:
+- ✅ Evidências concretas (código, logs, testes)
+- ✅ Comparações qualitativas ("mais rápido", "mais eficiente")
+- ✅ Métricas técnicas (latência, throughput, memory usage)
+
+**Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
 
 ---
 

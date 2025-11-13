@@ -1,28 +1,29 @@
 ---
-description: Workflow Add-Feature (11/11) - VPS Deployment - Parte 3a/3 (Monitoring)
+description: Workflow Add-Feature (11/11) - VPS Deployment - Parte 3a/3 (Monitoring - Health Checks e Testes)
 ---
 
-## 📋 Workflow 11 - Parte 3a/3 (Monitoramento)
+## 📋 Workflow 11c1a - Monitoramento (Parte 1/2)
 
 **Este é o Workflow 11 - Parte 3a/3 (Monitoramento do Deploy para Produção)**
 
 **Partes do Workflow 11**:
-- **Parte 1/3**: `add-feature-11a-vps-deployment-prep.md` (Pré-Deploy Checklist + Build Local)
-- **Parte 2/3**: `add-feature-11b-vps-deployment-exec.md` (Deploy Automático + Validação Pós-Deploy)
-- **Parte 3a/3**: `add-feature-11c1-vps-monitoring.md` (Monitoramento) ← **VOCÊ ESTÁ AQUI**
-- **Parte 3b/3**: `add-feature-11c2-vps-rollback-docs.md` (Rollback + Documentação)
+- **Parte 1/3**: `add-feature-11a-vps-deployment-prep.md` (Pré-Deploy + Build)
+- **Parte 2/3**: `add-feature-11b-vps-deployment-exec.md` (Deploy + Validação)
+- **Parte 3a/3**: `add-feature-11c1a-vps-monitoring.md` (Monitoring) ← **VOCÊ ESTÁ AQUI**
+- **Parte 3b/3**: `add-feature-11c1b-rca-rollback.md` (RCA + Rollback)
+- **Parte 3c/3**: `add-feature-11c2-vps-rollback-docs.md` (Documentação)
 
 ---
 
 ## ⚡ Use Múltiplos Agentes
 
-**Fase 28**: Logs + Testes de Carga + Métricas + Teste Manual (4 agentes paralelos) = Monitoramento completo.
+**Fase 28**: Logs + Testes de Carga + Métricas + Teste Manual (4 agentes paralelos)
 
 ---
 
 ## 🎯 Objetivo
 
-Monitorar saúde da aplicação após deploy, executar testes de carga, validar funcionalidades, e garantir que aplicação está estável.
+Monitorar saúde da aplicação após deploy, executar testes de carga, validar funcionalidades, e garantir estabilidade.
 
 ---
 
@@ -30,345 +31,210 @@ Monitorar saúde da aplicação após deploy, executar testes de carga, validar 
 
 **CRÍTICO**: Monitorar por pelo menos 10 minutos após deploy bem-sucedido.
 
-Este é o momento em que a aplicação será testada em produção. Erros sutis que não foram detectados localmente podem aparecer aqui.
-
 ### 28.1 Monitorar Logs em Tempo Real
 
 ```bash
-# Terminal 1: Abrir logs em tempo real
+# Terminal 1: Logs em tempo real
 ssh root@31.97.22.151 "docker service logs -f --tail 100 lifetracker_app"
-
-# Deixar rodando por 10 minutos
-# ✅ Procurar por: Requisições HTTP normais (200, 304)
-# ❌ Alertar para: 500, 502, 503, 504, "error", "crash"
 ```
 
-**O que observar**:
-- ✅ Requisições HTTP normais (GET /assets, GET /index.html)
-- ✅ Status codes 200, 304 (cache)
-- ✅ Timestamps corretos (timezone America/Sao_Paulo)
-- ❌ Erros 500 (Internal Server Error)
-- ❌ Erros 502/503/504 (Gateway/Service Unavailable)
-- ❌ Crashes / restarts do container
-- ❌ Exceções não tratadas
-- ❌ Warnings de dependências
-
-**Exemplo de logs bons**:
-```
-GET /index.html HTTP/1.1 200 5432 "-" "Mozilla/5.0..." 0.045ms
-GET /assets/main.abc123.js HTTP/1.1 304 0 "-" "Mozilla/5.0..." 0.012ms
-GET /assets/style.def456.css HTTP/1.1 200 123456 "-" "Mozilla/5.0..." 0.025ms
-```
-
-**Exemplo de logs ruins**:
-```
-GET /api/data HTTP/1.1 502 0 "-" "Mozilla/5.0..." timeout
-[ERROR] Cannot connect to database: Connection refused
-[CRITICAL] Service restart detected (restart count: 3)
-```
-
-**Checklist de Logs**:
-- [ ] Logs aparecem em tempo real (sem delays)
-- [ ] Requisições HTTP mostram status 200/304
-- [ ] Nenhum erro 500/502/503/504 nos primeiros 10min
-- [ ] Nenhum "error", "crash", "fatal" nos logs
-- [ ] Timestamps estão corretos
+**Checklist**:
+- [ ] Logs aparecem em tempo real
+- [ ] Requisições HTTP mostram status 200/304 (não 500/502/503/504)
+- [ ] Nenhum "error", "crash", "fatal" nos primeiros 10min
+- [ ] Timestamps corretos
 
 ---
 
 ### 28.2 Monitorar Métricas do Service
 
 ```bash
-# Terminal 2: A cada 2 minutos, verificar status
+# Terminal 2: Verificar status a cada 2min
 watch -n 120 "ssh root@31.97.22.151 'docker service ps lifetracker_app'"
 
-# ✅ Espera: State = "Running", sem restarts
-# ❌ Se restarts frequentes (> 2 em 10min): Problema crítico, acionar rollback (Fase 29)
+# ❌ Se restarts > 2 em 10min: Acionar rollback (Workflow 11c1b)
 ```
 
-**Informações a observar**:
-- **Current State**: Deve ser "Running" o tempo todo
-- **Desired State**: Deve ser "Running"
-- **Error**: Deve estar vazio
-- **Restart Count**: Deve permanecer 0 ou 1 (máximo) durante 10min
-- **Node**: Deve estar no mesmo nó (Docker node)
-
-**Exemplo de status bom**:
-```
-ID        NAME                           IMAGE               NODE  DESIRED STATE  CURRENT STATE
-abc123xyz lifetracker_app.1.xyz789abc    life-tracker:latest node1 Running        Running 5 minutes ago
-```
-
-**Exemplo de status ruim**:
-```
-ID        NAME                           IMAGE               NODE  DESIRED STATE  CURRENT STATE
-abc123xyz lifetracker_app.1.xyz789abc    life-tracker:latest node1 Running        Rejected 1 second ago
-(ou)
-ID        NAME                           IMAGE               NODE  DESIRED STATE  CURRENT STATE
-abc123xyz lifetracker_app.1.xyz789abc    life-tracker:latest node1 Running        Failed 10 seconds ago
-```
-
-**Checklist de Métricas**:
-- [ ] Current State = "Running"
-- [ ] Desired State = "Running"
-- [ ] Restart count = 0 ou 1 (máximo)
-- [ ] Sem mudanças de node durante monitoramento
-- [ ] Task ID permanece o mesmo (não é substituída)
+**Checklist**:
+- [ ] Current State = "Running", Desired State = "Running"
+- [ ] Restart count ≤ 1
+- [ ] Sem mudanças de node, Task ID permanece o mesmo
 
 ---
 
-### 28.3 Testes de Carga Leve (Paralelo com logs)
-
-**Execute em paralelo com logs (Terminal 3 ou 4)**:
+### 28.3 Testes de Carga Leve
 
 ```bash
-# Simular 100 requisições ao longo de ~1 minuto
+# Terminal 3: Simular 100 requisições ao longo de ~1min
 for i in {1..100}; do
   HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://life-tracker.stackia.com.br)
   echo "Requisição $i: HTTP $HTTP_CODE"
   sleep 0.5
 done | sort | uniq -c | sort -rn
-
-# ✅ Espera:
-#   90+ respostas com 200
-#   5-10 respostas com 304 (cache)
-#   0 respostas com 500/502/503/504
-
-# ❌ Se muitos 500/502/503: Problema de performance ou banco de dados
 ```
 
-**Análise dos resultados**:
-
-```
-      95 HTTP 200    ← Maioria
-       5 HTTP 304    ← Cache (normal)
-       0 HTTP 50x    ← Bom sinal
-```
-
-Se resultado for ruim:
-```
-      30 HTTP 200    ← Muito baixo!
-      10 HTTP 304
-      60 HTTP 502    ← Problema crítico → Investigar logs
-```
-
-**Checklist de Carga**:
+**Checklist**:
 - [ ] 100 requisições completadas
-- [ ] Maioria status 200 (90+%)
-- [ ] Alguns status 304 (5-10%)
-- [ ] Sem timeouts
-- [ ] Sem 500/502/503
+- [ ] 90%+ status 200, 5-10% status 304
+- [ ] Sem timeouts ou 500/502/503
 - [ ] Service não reiniciou durante teste
 
 ---
 
 ### 28.4 Teste Manual no Browser
 
-**IMPORTANTE**: Abrir browser e testar manualmente é essencial!
-
 Navegue para: **https://life-tracker.stackia.com.br**
 
-**Verificar**:
+**Verificações críticas**:
 
 ```
-1. Página carrega sem problemas
-   [ ] Página inicial aparece
-   [ ] Layout não está quebrado
-   [ ] Imagens carregam normalmente
+1. Página Inicial + Console (F12)
+   [ ] Página carrega sem erros, layout OK
+   [ ] Console sem erros em vermelho/CORS
 
-2. Verificar console do browser (F12 → Console)
-   [ ] Nenhum erro em vermelho (Red X)
-   [ ] Nenhum "Uncaught Error"
-   [ ] Warnings são aceitáveis (deprecation, CSP)
-   [ ] Nenhum erro de CORS
+2. Network (F12 → Network)
+   [ ] Requisições HTTP retornam 200/304
+   [ ] Tempo de resposta < 1s para HTML
 
-3. Verificar Network (F12 → Network)
-   [ ] Requisições HTTP para /api/* retornam 200/304
-   [ ] Assets carregam com status 200 ou 304 (cache)
-   [ ] Tempo de resposta razoável (< 1s para HTML principal)
+3. Funcionalidade
+   [ ] Autenticação funciona (login/logout)
+   [ ] Feature nova está visível e funcional
+   [ ] Dashboard carrega, formulários submetem sem erro
 
-4. Testes Funcionais
-   [ ] Autenticação funciona (login, logout)
-   [ ] Feature recém-deployada está visível
-   [ ] Dashboard carrega corretamente
-   [ ] Gráficos renderizam sem erros
-   [ ] Formulários submitem sem erro
-
-5. Performance Subjetiva
-   [ ] Página não trava ao clicar
-   [ ] Animações são smooth
-   [ ] Scroll é responsivo
-   [ ] Nenhuma lag visível
-
-6. Compatibilidade
-   [ ] Testar em diferentes abas/janelas
-   [ ] Testar em modo dark (se aplicável)
+4. Performance + Compatibilidade
+   [ ] Página não trava, animações smooth
    [ ] Testar em mobile (responsividade)
-   [ ] Testar em diferentes navegadores (Chrome, Firefox, Safari)
 ```
 
-**Se encontrar erro no console**:
-1. Notar a mensagem de erro exata
-2. Reproduzir a ação que causou o erro
-3. Ir para Fase 27.3 (Verificar Logs) para correlacionar com backend
-
-**Checklist de Teste Manual**:
-- [ ] Página principal carrega sem erros
-- [ ] Sem erros críticos no console
-- [ ] Assets carregam com sucesso
-- [ ] Feature nova está presente e funcional
-- [ ] Sem regressões em features existentes
-- [ ] Performance aceitável (sem travamentos)
+**Se encontrar erro**: Ir para Workflow 11c1b (RCA + Rollback)
 
 ---
 
-### 28.5 Resumo do Monitoramento (10min check)
-
-Após 10 minutos, preencher checklist final:
+### 28.5 Resumo do Monitoramento
 
 ```bash
 # Capturar dados finais
 echo "=== MONITORAMENTO 10 MINUTOS ==="
-echo ""
-echo "Logs:"
 ssh root@31.97.22.151 "docker service logs --tail 20 lifetracker_app"
-echo ""
-echo "Service Status:"
 ssh root@31.97.22.151 "docker service ps lifetracker_app"
-echo ""
 echo "Uptime verificado por 10min: ✅"
 ```
 
 **Decisão**:
-- ✅ **Tudo OK?** → Prosseguir para Fase 30 (Documentação)
-- ⚠️ **Warnings menores?** → Documentar e monitorar por mais tempo
-- ❌ **Erro crítico?** → Prosseguir para Fase 29 (Rollback)
+- ✅ **Tudo OK?** → Prosseguir para Workflow 11c2 (Documentação)
+- ⚠️ **Warnings menores?** → Documentar, monitorar mais tempo, prosseguir 11c2
+- ❌ **Erro crítico?** → Prosseguir para Workflow 11c1b (RCA + Rollback)
 
 ---
 
-## 🔍 Troubleshooting Comum (Fase 28)
-
-### Problema: Logs cheios de "Connection refused"
-
-**Causa**: Banco de dados inacessível, ou credenciais inválidas.
-
-**Solução**:
-```bash
-# 1. Verificar variáveis de ambiente no container
-ssh root@31.97.22.151 "docker exec $(docker ps -q -f name=lifetracker) env | grep SUPABASE"
-
-# 2. Verificar conectividade com banco
-ssh root@31.97.22.151 "docker exec $(docker ps -q -f name=lifetracker) curl -v <SUPABASE_URL>"
-
-# 3. Se credenciais inválidas: Rollback (Fase 29)
-```
-
----
-
-### Problema: Service reinicia constantemente
-
-**Causa**: Memory leak, infinite loop, ou recurso insuficiente.
-
-**Solução**:
-```bash
-# 1. Verificar logs de erro
-ssh root@31.97.22.151 "docker service logs lifetracker_app | tail -100 | grep -i 'error\|fatal'"
-
-# 2. Verificar recursos do VPS
-ssh root@31.97.22.151 "free -h && df -h"
-
-# 3. Se < 1GB RAM livre: Aumentar VPS ou otimizar código
-# 4. Se código tem erro: Rollback (Fase 29)
-```
-
----
-
-### Problema: Resposta HTTP muito lenta (> 5s)
-
-**Causa**: Banco de dados lento, falta de índices, ou muita carga.
-
-**Solução**:
-```bash
-# 1. Verificar logs para queries lentas
-ssh root@31.97.22.151 "docker service logs lifetracker_app | grep -i 'slow\|timeout'"
-
-# 2. Monitorar recursos em tempo real
-ssh root@31.97.22.151 "top -b -n 1 | head -20"
-
-# 3. Se problema detectado:
-#    - Otimizar queries (adicionar índices)
-#    - Implementar caching (Redis)
-#    - Escalar horizontalmente (múltiplas réplicas)
-```
-
----
-
-### Problema: Browser mostra "ERR_CERT_AUTHORITY_INVALID"
-
-**Causa**: Certificado SSL não foi provisionado, ou expirou.
-
-**Solução**:
-```bash
-# 1. Verificar status do Traefik
-ssh root@31.97.22.151 "docker ps | grep traefik"
-
-# 2. Verificar logs do Traefik
-ssh root@31.97.22.151 "docker logs $(docker ps -q -f name=traefik) | tail -50"
-
-# 3. Se Let's Encrypt falhou:
-#    - Verificar DNS (nslookup life-tracker.stackia.com.br)
-#    - Verificar conectividade com Let's Encrypt (curl https://letsencrypt.org)
-#    - Aguardar mais 2-3min para renewal
-```
-
----
-
-## ✅ Checklist Final: Monitoramento Completo
-
-**Parabéns! Fase 28 monitoramento concluída. Verifique todos os itens:**
+## ✅ Checklist Final: Monitoramento Completo (Fase 28)
 
 - [ ] Logs monitorados por 10min sem interrupção
 - [ ] Nenhum erro 500/502/503/504
-- [ ] Service status "Running" o tempo todo
-- [ ] Restart count = 0 ou 1 (máximo)
+- [ ] Service status "Running" o tempo todo, restart count ≤ 1
 - [ ] Teste de carga OK (100 requisições, 90%+ status 200)
-- [ ] Teste manual no browser OK
-- [ ] Feature nova funcionando
+- [ ] Teste manual no browser OK, feature nova funcionando
 - [ ] Sem regressões detectadas
+
+---
+
+## 🧠 Meta-Learning: Captura de Aprendizados
+
+**⚠️ CRÍTICO - NÃO PULE**: Fundamental para evolução contínua do sistema.
+
+### Questões de Reflexão (Responder TODAS)
+
+**1. Eficiência do Workflow (Nota 1-10):**
+- [ ] Nota atribuída: __/10
+- [ ] Se nota < 8: Qual fase foi ineficiente? Como melhorar?
+
+**2. Iterações com Usuário:**
+- [ ] Número de iterações: __
+- [ ] Se > 3: O que causou múltiplas idas e vindas?
+
+**3. Gaps Identificados:**
+- [ ] Alguma validação faltou? (qual? onde inserir checklist?)
+- [ ] Algum gate falhou? (qual gate melhorar?)
+- [ ] Algum comando repetido 3+ vezes? (automatizar em script?)
+
+**4. Root Cause Analysis (RCA) - Se identificou problema:**
+- [ ] Problema: [descrever]
+- [ ] 5 Whys aplicados? (validar causa raiz sistêmica)
+- [ ] Causa raiz afeta múltiplas features? Meta-learning previne recorrência?
+
+### Ações de Melhoria (Se Aplicável)
+
+**Documentação a atualizar:**
+- [ ] Este workflow (.md) precisa melhorias? → Descrever
+- [ ] CLAUDE.md precisa novo padrão/seção? → Especificar
+- [ ] Novo script seria útil? → Nome + função
+- [ ] ADR necessário? → Decisão arquitetural
+
+**ROI Esperado:** [Estimar ganho - ex: "20min economizadas por feature futura"]
+
+**⚠️ IMPORTANTE**:
+- Só documentar learnings SISTÊMICOS (não pontuais)
+- Aplicar RCA obrigatoriamente para validar se é sistêmico
+- Consolidação final acontece no Workflow 8a (Meta-Learning centralizado)
+
+**Guia completo**: `docs/WORKFLOW_META_LEARNING.md`
+
+### Validação de Tamanho do Workflow
+
+```bash
+# Se alterou este workflow, validar tamanho
+wc -c .windsurf/workflows/add-feature-11c1a-vps-monitoring.md
+# ✅ Espera: < 12000 chars (12k limit)
+```
+
+**Se workflow > 11k chars**: Remover exemplos redundantes, consolidar checklists, extrair detalhes para docs/, dividir em 2 workflows.
 
 ---
 
 ## 🔄 Próximo Workflow (Condicional)
 
-**Se monitoramento OK** (sem erros críticos em 10 min):
-✅ Prosseguir para **Workflow 11c2** (Documentação & Rollback): `add-feature-11c2-vps-rollback-docs.md`
+**Checkpoint**: Decisão baseada em métricas da Seção 28.5.
 
-**Se encontrou problemas**:
-❌ Execute rollback IMEDIATAMENTE: Ir direto para **Fase 29** em `add-feature-11c2-vps-rollback-docs.md`
-
-**Checkpoint**: Decisão baseada em métricas observadas na Seção 28.5.
-
-**Caso 1 - Tudo OK (Prosseguir para 11c2 normalmente)**:
+### Caso 1 - Tudo OK ✅
 - Monitoramento passou sem erros críticos
-- Logs mostram apenas requisições normais (200, 304)
-- Service status = "Running" o tempo todo
-- Restart count ≤ 1
+- Service status = "Running", restart count ≤ 1
 - Teste de carga OK (90%+ status 200)
 - Teste manual no browser sem erros
 
-**Caso 2 - Problemas encontrados (Prosseguir para Rollback em 11c2)**:
+**Ação**: → **Workflow 11c2** (Documentação): `add-feature-11c2-vps-rollback-docs.md`
+
+### Caso 2 - Problemas Detectados ❌
 - Service status = "Failed" ou "Rejected"
 - Erros 500/502/503 em > 20% requisições
 - Service reinicia > 3 vezes em 10 min
-- Feature quebrara funcionalidade crítica
-- Banco corrompido / bugs críticos
-- Timeout em > 30% das requisições
+- Feature quebrou funcionalidade crítica
 
-**Importante**: 11c2 é preparado para AMBOS os cenários. Ele contém:
-- Fase 29: Rollback (apenas se necessário)
-- Fase 30: Documentação (sempre necessário)
+**Ação**: → **Workflow 11c1b** (RCA + Rollback): `add-feature-11c1b-rca-rollback.md`
+---
+
+## 🚨 REGRA CRÍTICA: ANTI-ROI
+
+**NUNCA calcule ou mencione**:
+- ❌ ROI (Return on Investment)
+- ❌ Tempo de execução/produção
+- ❌ "Horas economizadas"
+- ❌ Estimativas temporais (Xmin vs Ymin)
+
+**Por quê**:
+- Projeto desenvolvido por IA (não humanos)
+- IA executa tarefas em paralelo (não linear)
+- Cálculos consomem tokens sem valor
+- Polui documentação com dados irrelevantes
+
+**Permitido**:
+- ✅ Evidências concretas (código, logs, testes)
+- ✅ Comparações qualitativas ("mais rápido", "mais eficiente")
+- ✅ Métricas técnicas (latência, throughput, memory usage)
+
+**Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
+
+
 
 ---
 
-**Próximo**: `add-feature-11c2-vps-rollback-docs.md` (Rollback + Documentação)
-
+**Fim do Workflow 11c1a** - Monitoramento concluído.

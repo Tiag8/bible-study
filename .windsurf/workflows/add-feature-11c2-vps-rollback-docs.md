@@ -59,12 +59,113 @@ docker build -t life-tracker:rollback .
 
 **Tempo**: 2-3 minutos. Ver `docs/ops/vps-access.md` para detalhes.
 
-### 29.2 Pós-Rollback
+### 29.2 Pós-Rollback: Root Cause Analysis
 
-1. Documentar problema em `docs/INCIDENTS.md`
-2. Analisar commits e identificar causa
-3. Corrigir código + adicionar testes
-4. Re-executar Workflow 11
+**CRÍTICO**: Após rollback, SEMPRE fazer RCA para evitar recorrência.
+
+**Processo (5 Why's + Lições)**:
+
+```
+Exemplo: "Deploy quebrou login de usuários"
+
+1. Por quê login quebrou?
+   → "API retorna 401 Unauthorized para todos os requests"
+
+2. Por quê retorna 401?
+   → "JWT token validation falha no backend"
+
+3. Por quê validation falha?
+   → "JWT secret mudou entre deploy"
+
+4. Por quê secret mudou?
+   → ".env.production tinha VITE_SUPABASE_ANON_KEY diferente do .env local"
+
+5. Por quê tinha diferente?
+   → "Secrets foram rotacionados no Supabase mas .env.production não foi atualizado"
+
+Causa Raiz: .env.production desatualizado após rotação de secrets
+Solução: Sincronizar .env.production com secrets atuais do Supabase
+Prevenção: Adicionar validação em pre-deploy (Workflow 11a) para verificar secrets válidos
+```
+
+**Documentação obrigatória**:
+
+1. **Criar incident report** em `docs/INCIDENTS.md`:
+```markdown
+## [2025-11-03 15:30] Deploy Rollback - Login Failure
+
+**Sintoma**: Login quebrou para todos os usuários após deploy
+
+**Causa Raiz**: .env.production com secrets desatualizados (JWT secret rotacionado)
+
+**Impacto**:
+- Duração: 15 minutos (deploy + monitoramento + rollback)
+- Usuários afetados: Todos (~100 usuários)
+- Funcionalidade afetada: Login/Autenticação
+
+**Timeline**:
+- 15:00: Deploy iniciado
+- 15:07: Smoke tests detectaram 401 em todas as APIs
+- 15:10: Rollback iniciado
+- 15:13: Rollback completado
+- 15:15: Validação OK (versão anterior funcionando)
+
+**Root Cause Analysis**:
+- [5 Why's acima]
+
+**Solução Aplicada**:
+- Rollback para commit abc123
+- Sincronização .env.production com Supabase
+- Re-deploy após validação
+
+**Prevenção Futura**:
+- Adicionar validação de secrets em Workflow 11a (Fase 24.2)
+- Script de sincronização automática de .env com Supabase
+- Health check mais robusto (testar autenticação antes de deploy)
+
+**Lições Aprendidas**:
+1. Secrets devem ser validados ANTES de build (não apenas após deploy)
+2. Smoke tests devem incluir autenticação (não apenas HTTP 200)
+3. Rollback time foi bom (15min), mas pode melhorar para <10min
+```
+
+2. **Atualizar `docs/TROUBLESHOOTING.md`** (se novo tipo de problema):
+```markdown
+### Deploy falha: 401 Unauthorized após deploy
+
+**Sintoma**: API retorna 401 para requests autenticados
+
+**Causa comum**: JWT secret ou SUPABASE_ANON_KEY desatualizado em .env
+
+**Solução**:
+1. Verificar secrets no Supabase Dashboard (Project Settings → API)
+2. Comparar com .env.production local
+3. Atualizar .env.production se necessário
+4. Rebuild + Re-deploy
+
+**Prevenção**: Validar secrets em Workflow 11a antes de build
+```
+
+3. **Criar ADR** (se decisão arquitetural necessária):
+```markdown
+# ADR XXX: Validação de Secrets no Pre-Deploy
+
+**Status**: Accepted
+**Date**: 2025-11-03
+**Context**: Deploy falhou por secrets desatualizados em .env.production
+**Decision**: Adicionar validação automática de secrets em Workflow 11a
+**Consequences**: Zero deploys com secrets inválidos (prevenção)
+```
+
+**Checklist Pós-Rollback**:
+- [ ] Rollback executado com sucesso (versão anterior OK)
+- [ ] 5 Why's completado (causa raiz identificada)
+- [ ] Incident report criado em docs/INCIDENTS.md
+- [ ] TROUBLESHOOTING.md atualizado (se novo problema)
+- [ ] ADR criado (se decisão arquitetural)
+- [ ] Solução implementada e testada
+- [ ] Re-deploy bem-sucedido (se solução pronta)
+- [ ] Meta-learning aplicado em workflow (prevenção futura)
 
 ---
 
@@ -129,6 +230,30 @@ Aplicação em produção: **https://life-tracker.stackia.com.br**
 
 Após finalizar:
 - [ ] Atualizar `docs/TASK.md`
+---
+
+## 🚨 REGRA CRÍTICA: ANTI-ROI
+
+**NUNCA calcule ou mencione**:
+- ❌ ROI (Return on Investment)
+- ❌ Tempo de execução/produção
+- ❌ "Horas economizadas"
+- ❌ Estimativas temporais (Xmin vs Ymin)
+
+**Por quê**:
+- Projeto desenvolvido por IA (não humanos)
+- IA executa tarefas em paralelo (não linear)
+- Cálculos consomem tokens sem valor
+- Polui documentação com dados irrelevantes
+
+**Permitido**:
+- ✅ Evidências concretas (código, logs, testes)
+- ✅ Comparações qualitativas ("mais rápido", "mais eficiente")
+- ✅ Métricas técnicas (latência, throughput, memory usage)
+
+**Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
+
+
 - [ ] Atualizar `docs/PLAN.md` (se mudança estratégica)
 - [ ] Criar ADR (se decisão arquitetural)
 - [ ] Adicionar entry em `docs/ops/deploy-history.md`

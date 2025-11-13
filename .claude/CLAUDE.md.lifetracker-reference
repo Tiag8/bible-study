@@ -1,0 +1,1032 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
+
+# Life Track Growth - AI Habit Tracker
+
+> Aplicação AI-powered de desenvolvimento pessoal baseada na metodologia "Roda da Vida" (8 áreas fixas).
+
+**Stack**: React 18.3 + TypeScript 5.8 + Vite 5.4 + Supabase + Gemini AI 2.5 Flash
+
+---
+
+## 📚 ESTRUTURA DE DOCUMENTAÇÃO
+
+**Hierarquia**: Este arquivo > `/Users/tiago/.codeium/windsurf/memories/global_rules.md`
+
+**Documentação detalhada**: Ver `docs/` para arquitetura completa, features, workflows, etc.
+
+---
+
+## 🛠️ COMANDOS ESSENCIAIS
+
+```bash
+# Development
+npm run dev                   # http://localhost:8080
+npm run build && npm run preview
+
+# Quality Gates (PRE-COMMIT)
+./scripts/run-tests.sh                 # TypeScript + ESLint + Build
+./scripts/code-review.sh               # Auto review
+./scripts/run-security-tests.sh        # Security scan
+
+# Database
+supabase migration new <name>
+supabase db push
+./scripts/regenerate-supabase-types.sh  # Após schema changes
+
+# Deploy
+./scripts/deploy-vps.sh production     # VPS Docker Swarm
+./scripts/vps-rollback.sh production   # Rollback (2-3min)
+
+# Validation (listar todos)
+ls scripts/validate-*.sh        # 10+ validation scripts disponíveis
+ls scripts/*.sh | grep -E "(test|validate|check)"  # Scripts qualidade
+```
+
+---
+
+## 🏗️ ARQUITETURA
+
+### Estrutura de Diretórios
+
+```
+life_tracker/
+├── .claude/agents/         # 12 subagents especializados
+├── .windsurf/workflows/    # 34 workflows modulares
+├── src/
+│   ├── components/         # Feature-first (assessment/, coach/, habits/)
+│   ├── hooks/              # Custom hooks (useDashboardData, etc)
+│   ├── integrations/       # Supabase client + types
+│   └── lib/                # Utils (dateUtils, cardUtils)
+├── supabase/
+│   ├── functions/          # 10 Edge Functions (Deno)
+│   │   └── _shared/        # 46 utilities (auth, security, RAG, etc)
+│   └── migrations/         # 41 SQL migrations
+├── docs/                   # 152+ docs (ADRs, debugging, ops)
+└── scripts/                # 40+ automation scripts
+```
+
+### Padrões Críticos
+
+**1. Feature-First Components**
+```typescript
+src/components/
+├── assessment/  # Tudo de assessments aqui
+├── coach/       # Tudo de AI Coach aqui
+├── habits/      # Tudo de habits aqui
+└── ui/          # shadcn/ui shared
+```
+
+**2. Custom Hooks (Lógica Isolada)**
+```typescript
+// Parallel queries - NUNCA sequencial
+const useDashboardData = () => {
+  const { data: profile } = useQuery({...});
+  const { data: habits } = useQuery({...});
+  const { data: goals } = useQuery({...});
+  return { profile, habits, goals };
+};
+```
+
+**3. Webhook + RLS Pattern**
+```typescript
+// Edge Functions: Service Role bypass RLS inicial
+const supabase = createClient(url, SERVICE_ROLE_KEY); // Bypass RLS
+const userId = await getOrCreateUser(phone);
+await supabase.from('lifetracker_profiles').insert({ user_id: userId, ... });
+// Frontend: RLS aplica automaticamente
+```
+
+**4. FSM WhatsApp Onboarding**
+```typescript
+// 9 estados sequenciais em JSONB metadata
+{ "whatsapp_state": "category_selected", "onboarding_step": 4 }
+switch (state) {
+  case 'lgpd_consent': return handleConsent();
+  case 'email_collected': return handleEmail();
+}
+```
+
+---
+
+## ⚠️ REGRAS ABSOLUTAS
+
+**Índice de Regras** (12 regras críticas):
+1. Uso Máximo de Agentes (paralelização)
+2. Nunca Parar Desnecessariamente (80-90% contexto)
+3. Reframing Antes de RCA (problema CERTO)
+4. Root Cause Analysis - RCA (5 Whys → causa raiz)
+4B. Resolução em Teia (mapear TODA teia conectada)
+5. Advogado do Diabo (10 perguntas validação)
+6. Nunca Calcular ROI/Tempo (proibido para IA)
+7. Prevenção de Regressão (código funcionando é SAGRADO)
+8. Source of Truth Validation (DB real > código)
+9. Princípio Pareto 80/20 (20% entrega 80% valor)
+10. Anti-Over-Engineering (YAGNI + KISS)
+11. Evidências Obrigatórias (NUNCA achismos)
+
+---
+
+### 🚨 1. USO MÁXIMO DE AGENTES (MAIS IMPORTANTE)
+
+**SEMPRE** usar **MÁXIMO de agentes possível em paralelo**.
+
+**SEMPRE** verificar quais agentes da pasta @claude/agents fazem sentido para a tarefa atual.
+
+**Quando usar múltiplos agentes**:
+- Tarefas independentes executáveis simultaneamente
+- Exploração código + análise deps + verificação configs
+- Testes em diferentes módulos
+
+**Benefício**: Paralelização massiva de tarefas
+
+---
+
+### 🚨 2. NUNCA PARAR DESNECESSARIAMENTE
+
+**PARE APENAS** quando: tokens < 20% E tarefa complexa OR erro crítico OR usuário pediu
+
+**NÃO PARE para**:
+- ❌ Criar docs intermediárias
+- ❌ "Organizar" código funcionando
+- ❌ Pausas preventivas
+
+**Target**: Usar 80-90% contexto (160k-180k tokens)
+
+**Cálculo**:
+```
+Tokens estimados = linhas_código * 4 + contexto * 2
+SE tokens_restantes > estimados * 1.5: CONTINUAR
+```
+
+---
+
+### 🚨 3. REFRAMING ANTES DE RCA
+
+**Ordem crítica**:
+1. **Reframing** → Problema CERTO
+2. **RCA (5 Whys)** → Causa raiz
+3. **Resolução em Teia** → Mapear tudo conectado
+4. **Solução** → Fix + prevenção
+
+**Pergunta forte**: "Qual problema, se resolvido, eliminaria múltiplos problemas?"
+
+**Checklist**:
+- [ ] Questionei problema apresentado?
+- [ ] Busquei 2+ perspectivas externas?
+- [ ] Apliquei pergunta forte?
+- [ ] Novo framing abre soluções invisíveis?
+
+---
+
+### 🚨 4. ROOT CAUSE ANALYSIS (5 Whys)
+
+**SEMPRE** executar 5 Whys ANTES de correções.
+
+**Exemplo**:
+1. Por quê X falhou? → Y retornou NULL
+2. Por quê NULL? → Coluna não existe
+3. Por quê não existe? → Migration não criou
+4. Por quê não criou? → Código antes de migration
+5. Por quê antes? → Faltou checklist Schema-First
+
+**Causa Raiz**: Falta de checklist pre-implementation
+
+**Regra**: Se solução não previne recorrência, NÃO é solução - é band-aid.
+
+**Documentar**:
+- ADR (decisão arquitetural)
+- Debugging Case (`docs/debugging-cases/`)
+- Meta-Learning (lesson learned)
+
+---
+
+### 🚨 4B. RESOLUÇÃO EM TEIA (Web Resolution)
+
+**CRÍTICO**: Após identificar a causa raiz (RCA), SEMPRE mapear e resolver TODA a teia de problemas conectados.
+
+**Quando usar**: DEPOIS do RCA, ANTES de implementar solução final.
+
+**Objetivo**: Garantir solução completa que previne múltiplos problemas relacionados, não apenas o sintoma inicial.
+
+**Metodologia**:
+
+**1. Mapeamento da Teia** (Análise 360°):
+- **Frontend**: Componentes, hooks, context, state management
+- **Backend**: Edge Functions, APIs, validações, business logic
+- **Database**: Schema, RLS policies, migrations, triggers, functions
+- **Integrações**: APIs externas, webhooks, eventos
+- **Documentação**: ADRs, debugging cases, workflows, README
+- **Testes**: Unit, integration, E2E, validações
+- **Configs**: Environment vars, build configs, deploy
+
+**2. Identificação de Conexões**:
+- Quais arquivos IMPORTAM/EXPORTAM código relacionado?
+- Quais funções CHAMAM/SÃO CHAMADAS pela área afetada?
+- Quais tabelas têm FOREIGN KEYS ou JOINS relacionados?
+- Quais componentes CONSOMEM os dados afetados?
+- Quais docs REFERENCIAM o problema ou área?
+
+**3. Análise de Impacto**:
+- [ ] Mudança na causa raiz afeta outras features?
+- [ ] Existem padrões similares com mesmo problema?
+- [ ] Outros lugares usam mesma lógica problemática?
+- [ ] Documentação precisa ser atualizada?
+- [ ] Testes existentes cobrem casos relacionados?
+
+**4. Resolução Holística**:
+- ✅ Corrigir causa raiz (RCA)
+- ✅ Corrigir padrões similares (prevenção)
+- ✅ Atualizar documentação relacionada
+- ✅ Adicionar testes para casos conectados
+- ✅ Validar não introduziu regressões
+
+**Exemplo Prático (Bug Parsing WhatsApp)**:
+
+**RCA identificou**: Formato de botão UAZAPI mudou (`selectedID` → `selectedId`)
+
+**Resolução em Teia MAPEIA**:
+
+**Frontend**:
+- [ ] Componentes que exibem mensagens WhatsApp
+- [ ] Hooks que processam histórico de mensagens
+- [ ] Types/interfaces de mensagens WhatsApp
+
+**Backend**:
+- [ ] ✅ `webhook-whatsapp-natural/index.ts` (causa raiz)
+- [ ] `webhook-whatsapp-adapter/index.ts` (usa mesmo parsing?)
+- [ ] `_shared/habit-field-extractor.ts` (processa botões?)
+- [ ] Outras Edge Functions que recebem webhooks UAZAPI
+
+**Database**:
+- [ ] Tabela `lifetracker_conversations` (armazena mensagens)
+- [ ] Função `build_user_context` (usa histórico)
+- [ ] Views/queries que filtram por tipo de mensagem
+
+**Integrações**:
+- [ ] UAZAPI docs (formato oficial atualizado?)
+- [ ] Webhook signature validation (ainda válida?)
+- [ ] Rate limits/retries (afetados?)
+
+**Docs**:
+- [ ] `docs/integrations/UAZAPI.md` (atualizar formato)
+- [ ] ADR sobre parsing de mensagens
+- [ ] Debugging case deste bug
+
+**Testes**:
+- [ ] Unit test para parsing de botões
+- [ ] Integration test webhook → database
+- [ ] E2E test fluxo WhatsApp completo
+
+**Resolução COMPLETA**:
+1. ✅ Fix parsing em `webhook-whatsapp-natural` (causa raiz)
+2. ✅ Validar `webhook-whatsapp-adapter` usa parsing correto
+3. ✅ Adicionar type guard `isButtonReply()` em `_shared/types`
+4. ✅ Criar unit test para todos formatos de botão UAZAPI
+5. ✅ Atualizar `docs/integrations/UAZAPI.md` com formato novo
+6. ✅ Documentar em debugging case
+7. ✅ Verificar se outras webhooks têm parsing similar
+
+**Checklist Resolução em Teia** (OBRIGATÓRIO):
+
+**Mapeamento**:
+- [ ] Listei TODOS arquivos conectados (import/export)?
+- [ ] Identifiquei TODAS funções que chamam/são chamadas?
+- [ ] Mapeei TODAS tabelas/queries relacionadas?
+- [ ] Encontrei TODOS componentes que consomem dados?
+- [ ] Busquei TODA documentação relacionada?
+
+**Análise**:
+- [ ] Avaliei impacto da mudança em CADA conexão?
+- [ ] Busquei padrões similares no codebase?
+- [ ] Validei se outros lugares têm mesmo problema?
+- [ ] Identifiquei testes faltantes?
+
+**Resolução**:
+- [ ] Corrigi causa raiz (RCA)?
+- [ ] Corrigi padrões similares identificados?
+- [ ] Atualizei TODA documentação relacionada?
+- [ ] Adicionei testes para TODA teia mapeada?
+- [ ] Validei não introduzi regressões?
+
+**Ferramentas para Mapeamento**:
+
+```bash
+# 1. Buscar imports/exports
+grep -r "import.*from.*arquivo" src/
+grep -r "export.*função" src/
+
+# 2. Buscar chamadas de função
+grep -r "nomeFunção(" src/
+
+# 3. Buscar referências em DB
+grep -r "lifetracker_table" supabase/
+
+# 4. Buscar em documentação
+grep -r "termo" docs/
+
+# 5. Git history (casos passados)
+git log --all --grep="keyword"
+```
+
+**Benefícios**:
+- ✅ Solução COMPLETA (não pontual)
+- ✅ Previne múltiplos bugs relacionados
+- ✅ Mantém consistência no codebase
+- ✅ Documentação sincronizada
+- ✅ Testes abrangentes
+
+**Anti-Patterns**:
+- ❌ Corrigir apenas arquivo do erro (míope)
+- ❌ Ignorar padrões similares (retrabalho)
+- ❌ Esquecer documentação (conhecimento perdido)
+- ❌ Não adicionar testes (regressão futura)
+
+**Regra de Ouro**: "Uma correção superficial é um bug em potencial. Uma correção em teia é uma solução definitiva."
+
+**Ver**:
+- Regra #4: RCA (identifica causa raiz)
+- Regra #7: Prevenção de Regressão (valida mudanças)
+- Regra #9: Pareto 80/20 (foca no core da teia)
+
+---
+
+### 🚨 5. ADVOGADO DO DIABO (Planning Validation)
+
+**OBRIGATÓRIO** ao sugerir solução, criar plano, modificar/remover código existente, ou remover docs.
+
+**10 Perguntas críticas**:
+
+**Suposições**:
+1. E se oposto for verdade?
+2. O que NÃO estamos vendo?
+3. Sintoma de algo maior?
+
+**Fontes** ⭐:
+4. Quais são suas fontes? (listar TODAS)
+5. Pesquisou lugares certos? (gaps?)
+6. Fontes atualizadas? (versões?)
+
+**Abordagem**:
+7. Problema CERTO? (Reframing validado?)
+8. O que pode dar errado? (pre-mortem)
+9. Como validar antes? (POC/MVP?)
+
+**Resultado**: ✅ APROVADO | ⚠️ AJUSTAR | ❌ REJEITAR
+
+---
+
+### 🚨 6. NUNCA CALCULAR ROI OU TEMPO DE EXECUÇÃO
+
+**CRÍTICO**: Projeto é desenvolvido por IA, não humanos.
+
+**PROIBIDO calcular**:
+- ❌ ROI (Return on Investment)
+- ❌ Tempo de execução de tarefas/projetos
+- ❌ Estimativas de "horas economizadas"
+- ❌ Comparações de "Xmin vs Ymin"
+
+**Por quê**:
+- IA executa tarefas em paralelo (não linear)
+- Tempo varia muito por contexto/complexidade
+- ROI não se aplica (sem custo humano)
+- Gasta tokens e polui relatórios
+
+**Permitido**:
+- ✅ Evidências concretas (código, logs, dados)
+- ✅ Comparações qualitativas ("mais rápido", "mais eficiente")
+- ✅ Dados externos validados (benchmarks, docs oficiais)
+
+**Regra**: NEVER guess or assume. Use dados concretos ou não mencione.
+
+---
+
+### 🚨 7. PREVENÇÃO DE REGRESSÃO
+
+**NUNCA modificar código funcionando** sem:
+1. BUG COMPROVADO (screenshot/log)
+2. REQUISITO EXPLÍCITO do usuário
+3. PROBLEMA REAL medido
+
+**Código funcionando é SAGRADO**.
+
+**Checklist pré-modificação**:
+- [ ] Motivo explícito documentado
+- [ ] Snapshot ANTES capturado
+- [ ] Branch separada criada
+- [ ] Validação manual completa
+- [ ] Snapshot DEPOIS vs ANTES comparado
+- [ ] Teste automatizado criado
+
+**Regra #5**: "No Bug Fix Without Test"
+
+**Deploy incremental**:
+1. Deploy 1ª mudança → Validar 5-10min
+2. Deploy próxima → SE FALHAR: rollback
+3. Repetir
+
+**Benefício**: Validação incremental previne debugging massivo
+
+---
+
+### 🚨 8. SOURCE OF TRUTH VALIDATION (Database)
+
+**Problema**: Arquivos podem ficar defasados vs DB real.
+
+**Source of Truth**: DB real > migrations > types.ts > docs
+
+**SEMPRE validar ANTES de análise**:
+```bash
+./scripts/validate-db-sync.sh      # Validar sincronização
+./scripts/regenerate-supabase-types.sh  # Se defasado
+```
+
+**Quando validar**:
+- ✅ ANTES de Workflow 2b (Technical Design)
+- ✅ ANTES de usar database-schema-validator agent
+- ✅ APÓS aplicar migrations/mudanças schema
+
+**Regra**: NUNCA confie em código. SEMPRE query DB real.
+
+---
+
+### 🚨 9. PRINCÍPIO PARETO 80/20 (FRAMEWORK OBRIGATÓRIO)
+
+**CRÍTICO**: TODAS as soluções devem seguir o framework completo na ORDEM exata:
+
+**Framework Obrigatório** (executar sequencialmente):
+1. **Reframing** → Qual é o problema REAL? (não sintoma)
+2. **RCA (5 Whys)** → Qual é a causa RAIZ? (sistêmica, não pontual)
+3. **Advogado do Diabo** → 10 perguntas críticas de validação
+4. **80/20 Pareto** → Qual 20% entrega 80% do resultado?
+
+**Aplicação do 80/20**:
+
+**Antes de QUALQUER solução, perguntar**:
+- Qual 20% do código/features entrega 80% do valor?
+- Quais 20% dos problemas causam 80% das falhas?
+- Qual solução MÍNIMA resolve o core issue?
+
+**Identificar Bloat (os 80% desnecessários)**:
+- Código over-engineered (premature optimization)
+- Features nice-to-have vs must-have
+- Complexidade sem ROI comprovado
+- Padrões excessivos para problema simples
+
+**Priorização Radical**:
+1. Core functionality FIRST (20% que entrega 80%)
+2. Nice-to-have LATER (80% que entrega 20%)
+3. NUNCA implementar os 80% antes dos 20%
+
+**Exemplo Real (WhatsApp Conversational AI)**:
+
+**BLOAT (80% código, 20% valor)**:
+- FSM com 15 estados (1,500 linhas)
+- RAG system (300 linhas)
+- Intent detection (200 linhas)
+- RAPPORT/personality (250 linhas)
+- Streaming SSE (150 linhas)
+
+**CORE (20% código, 80% valor)**:
+- Load last 10 messages (10 linhas)
+- Call Gemini API (15 linhas)
+- Save user + assistant messages (20 linhas)
+- Send to WhatsApp (10 linhas)
+- Total: ~55 linhas vs 2,400 linhas = 98% redução
+
+**Checklist Validação 80/20**:
+- [ ] Framework completo executado? (Reframing → RCA → Advogado → 80/20)
+- [ ] Identifiquei os 20% críticos?
+- [ ] Identifiquei os 80% bloat?
+- [ ] Solução MÍNIMA viável definida?
+- [ ] Complexidade justificada por EVIDÊNCIA (não teoria)?
+- [ ] Validação incremental planejada?
+
+**Regra de Ouro**: "Simple is better than complex. Complex is better than complicated." - Zen of Python
+
+**Anti-Patterns a Evitar**:
+- ❌ "Vamos fazer completo desde o início"
+- ❌ "Precisamos cobrir todos edge cases agora"
+- ❌ "Futuramente vai precisar, então já implemento"
+- ❌ "É best practice, então deve ter"
+
+**Patterns Corretos**:
+- ✅ "Qual MÍNIMO funciona?"
+- ✅ "Posso validar com 10% do código?"
+- ✅ "Edge case tem evidência de ocorrer?"
+- ✅ "Best practice aplica a ESTE contexto?"
+
+**Quando NÃO aplicar 80/20**:
+- Segurança (RLS, auth, validação) - 100% obrigatório
+- Compliance (LGPD, GDPR) - 100% obrigatório
+- Data integrity - 100% obrigatório
+
+**Documentação 80/20**:
+- ADR para decisões de remover bloat
+- Debugging Case se over-engineering causou bug
+- Meta-Learning para prevenir recorrência
+
+---
+
+### 🚨 10. ANTI-OVER-ENGINEERING (YAGNI + KISS)
+
+**CRÍTICO**: SEMPRE validar se solução não é over-engineered ANTES de implementar.
+
+**Princípios**:
+1. **YAGNI** (You Aren't Gonna Need It) - Não implemente "para o futuro"
+2. **KISS** (Keep It Simple, Stupid) - Solução mais simples SEMPRE vence
+3. **Pareto 80/20** - 20% do código entrega 80% do valor
+
+**Checklist Anti-Over-Engineering (OBRIGATÓRIO)**:
+- [ ] Esta solução resolve problema REAL (não hipotético)?
+- [ ] Existe solução mais SIMPLES que funciona?
+- [ ] Esta complexidade tem EVIDÊNCIA de ser necessária?
+- [ ] Posso validar com 10% do código proposto?
+- [ ] Se remover isso, sistema QUEBRA ou apenas perde nice-to-have?
+
+**Red Flags** (sinais de over-engineering):
+- "Futuramente vai precisar..."
+- "É best practice, então deve ter..."
+- "Vamos fazer completo desde o início..."
+- Mais de 3 camadas de abstração
+- Padrão complexo para problema simples
+
+**Exemplo Real (Sentry MCP)**:
+- **Prometia**: Debug automático via MCP
+- **Realidade**: Curl + API Sentry faz o mesmo
+- **Overhead**: Configuração, manutenção, documentação
+- **ROI**: Negativo (mais trabalho que benefício)
+- **Decisão**: REMOVER (over-engineering)
+
+**Quando NÃO simplificar**:
+- Segurança (RLS, auth, crypto)
+- Compliance (LGPD, GDPR)
+- Data integrity (transações, validações)
+
+**Documentação**:
+- ADR 010: Anti-Over-Engineering Framework
+
+---
+
+### 🚨 11. EVIDÊNCIAS OBRIGATÓRIAS (CRÍTICO)
+
+**REGRA ABSOLUTA**: TODA orientação, sugestão, solução ou análise DEVE ser baseada em evidências concretas.
+
+**NUNCA basear em**:
+- ❌ Intuição ("acho que...", "provavelmente...")
+- ❌ Suposições fictícias ("pode ser que...", "talvez...")
+- ❌ Teoria não validada ("geralmente é...", "costuma...")
+- ❌ "Best practices" sem fonte específica
+- ❌ Feeling, achismo, paranoia
+
+**SEMPRE basear em**:
+- ✅ **Dados reais do projeto** (logs, métricas, testes, git history)
+- ✅ **Documentação oficial RECENTE** (últimos 2 anos, versão atual)
+- ✅ **Casos passados documentados** (docs/debugging-cases/, ADRs)
+- ✅ **Pesquisa web validada** (mínimo 3 fontes confiáveis, 2023+)
+- ✅ **Código fonte do projeto** (análise direta, não suposição)
+
+### Checklist Validação de Evidências (OBRIGATÓRIO)
+
+Para CADA orientação/sugestão, documentar:
+
+**1. Tipo de Evidência**
+- [ ] **Dados Projeto**: [métrica/log/teste específico + valor]
+- [ ] **Docs Oficiais**: [URL + seção + versão + data]
+- [ ] **Caso Passado**: [docs/debugging-cases/XXX.md ou ADR/XXX]
+- [ ] **Pesquisa Web**: [3+ URLs + snippets relevantes + datas]
+- [ ] **Código Fonte**: [arquivo:linha + análise direta]
+
+**2. Atualidade**
+- [ ] **Documentação é RECENTE**? (< 2 anos, versão compatível)
+- [ ] **Pesquisa é ATUAL**? (2023+, tecnologia ainda relevante)
+- [ ] **Caso passado é APLICÁVEL**? (stack similar, contexto matching)
+
+**3. Confiabilidade da Fonte**
+- [ ] **Fonte primária**? (docs oficial, RFC, código fonte)
+  - vs ❌ Fonte secundária (blog, tutorial, opinião)
+- [ ] **Autor confiável**? (mantainer, empresa oficial, expert reconhecido)
+- [ ] **Múltiplas fontes confirmam**? (mínimo 3 fontes independentes)
+
+### Ferramentas Obrigatórias para Validação
+
+**1. Pesquisa Web** (MCP firecrawl):
+```bash
+firecrawl_search({
+  query: "topic official docs 2025",  # Sempre incluir ano
+  limit: 5,
+  sources: ["web"]
+})
+```
+
+**2. Documentação Oficial** (MCP context7):
+```bash
+context7_get_library_docs({
+  libraryID: "/org/project",  # Resolver ID antes
+  topic: "specific feature",
+  tokens: 3000
+})
+```
+
+**3. Análise Código Projeto**:
+```bash
+# Grep para dados reais
+grep -r "pattern" src/
+# Git history para casos passados
+git log --grep="keyword" --since="2024-01-01"
+```
+
+**4. Dados Mensuráveis**:
+```bash
+# Logs, métricas, testes
+cat logs/production.log | grep "ERROR"
+npm test -- --coverage
+```
+
+### Exemplo Aplicado
+
+**❌ SEM EVIDÊNCIAS** (PROIBIDO):
+```
+Sugestão: Usar Redis para cache
+Motivo: "Redis é best practice para performance"
+```
+
+**✅ COM EVIDÊNCIAS** (CORRETO):
+```
+Sugestão: React Query cache (staleTime: 5min)
+Evidências:
+1. Dados projeto: Query atual 1.2s (medido: src/hooks/useDashboardData.ts:15)
+2. Docs oficial: https://tanstack.com/query/latest/docs/guides/caching (2024-11-01)
+3. Caso passado: docs/debugging-cases/001-slow-dashboard.md (stack idêntica)
+4. Pesquisa web:
+   - https://react-query.tanstack.com/community/tkdodos-blog (2024-10)
+   - https://github.com/TanStack/query/discussions/5892 (2024-09)
+   - Stack Overflow #78234567 (2024-08, 234 upvotes)
+5. Teste local: Implementado em branch test/react-query → 1.2s → 0.3s (75% redução)
+```
+
+### Red Flags - REJEITAR Orientação SE:
+
+- [ ] ❌ Zero evidências citadas (puro achismo)
+- [ ] ❌ Fonte > 2 anos desatualizada (tech mudou)
+- [ ] ❌ Apenas 1 fonte (pode ser outlier/incorreta)
+- [ ] ❌ Fonte não confiável (blog random, fórum sem reputação)
+- [ ] ❌ Contexto diferente (escala/stack/versão incompatível)
+- [ ] ❌ Dados projeto não verificados (suposição, não medição)
+
+### Exceções (Quando NÃO exigir evidências externas)
+
+**Casos onde evidência INTERNA é suficiente**:
+- ✅ Leitura direta do código-fonte do projeto
+- ✅ Execução de testes/scripts do projeto
+- ✅ Análise de logs/métricas reais do projeto
+- ✅ Git history / debugging cases documentados
+
+**MAS ainda exige**: Referência específica (file:line, log timestamp, git hash)
+
+### Punição por Violação
+
+**SE orientação sem evidências**:
+1. ⛔ **REJEITAR** orientação imediatamente
+2. 🔍 **PESQUISAR** evidências (web + docs + projeto)
+3. 📝 **REFORMULAR** com evidências concretas
+4. ✅ **VALIDAR** com checklist acima
+
+**Regra de Ouro**: "Extraordinary claims require extraordinary evidence" - Carl Sagan
+
+### Benefícios
+
+- ✅ Decisões baseadas em **fatos**, não opiniões
+- ✅ Soluções **comprovadamente eficazes**
+- ✅ Documentação **rastreável e auditável**
+- ✅ Prevenção de **over-engineering** e **achismos**
+- ✅ Aprendizado **sistêmico e fundamentado**
+
+**Ver**:
+- Workflow 3: Riscos e Mitigações baseados em evidências
+- RULE #5: Advogado do Diabo (questões 4-6 sobre fontes)
+- RULE #10: Anti-Over-Engineering (complexidade justificada)
+
+---
+
+## 🤖 SUBAGENTS (12 Especializados)
+
+**Orquestrador**: `.claude/agents/orchestrator.md` - Coordena os demais subagents
+
+**SEMPRE invocar o orquestrador automaticamente para qualquer tarefa**
+
+**NÃO invocar quando**: Tarefa trivial (< 3 passos), leitura simples
+
+**Agentes para chamar sempre**:
+- `agent-meta-learner` - Aprender com cada interação
+- `meta-learning-extractor` - Extrair e aplicar aprendizado
+- `context-optimizer` - Melhorar contexto
+
+**Agentes críticos**:
+- `rca-analyzer` - 5 Whys → causa sistêmica
+- `regression-guard` - Snapshots BEFORE/AFTER
+- `multi-script-runner` - Execução paralela
+
+**High impact**:
+- `workflow-optimizer`, `test-coverage-analyzer`
+- `documentation-sync-checker`, `context-optimizer`
+- `database-schema-validator`
+
+**Cores**:
+- 🟣 purple - Orchestrator
+- 🔴 red - Critical/Protection
+- 🔵 blue - Learning
+- 🟢 green - Performance
+- 🟠 orange - Validation
+
+Ver: `.claude/agents/README.md`, `docs/SUBAGENTS.md`
+
+---
+
+## 🔌 MCPs INTEGRADOS (5 Servers)
+
+**Model Context Protocol Servers** disponíveis para capacidades especializadas:
+
+| MCP | Tipo | O que faz | Quando usar |
+|-----|------|-----------|-------------|
+| **context7** | HTTP | Docs atualizadas de bibliotecas | Implementar com libs externas |
+| **playwright** | stdio | Automação browser + testes E2E | Testes UI/UX, debugging frontend |
+| **firecrawl-mcp** | stdio | Web scraping (search/crawl/map) | Pesquisa mercado, benchmarking |
+| **gemini-cli** | stdio | Gemini AI CLI (sandbox/changeMode) | Análise complexa, validação código |
+| **supabase_lifetracker** | stdio | Gerenciamento Supabase (SQL, migrations, Edge Functions) | Debugging DB, análise produção, deploy functions |
+
+**Uso por Workflow**:
+- **Workflow 2a** (Solutions): firecrawl search + context7 + gemini brainstorm
+- **Workflow 2b** (Technical Design): context7 (validar APIs)
+- **Workflow 5a** (Implementation): gemini sandbox + context7 (resolver doubts)
+- **Workflow 5b** (Refactoring & RCA): supabase_lifetracker (EXPLAIN ANALYZE queries)
+- **Workflow 6a** (User Validation): playwright (testes E2E)
+- **Workflow 13b** (RCA & Metrics): gemini (RCA profundo) + firecrawl (pesquisa) + supabase_lifetracker (dados produção)
+
+**Configuração Supabase MCP**:
+- Arquivo `.mcp.json` (gitignored - não commitar token!)
+- Personal Access Token: https://supabase.com/dashboard/account/tokens
+- Ferramentas: execute_sql, apply_migration, deploy_edge_function
+
+**Documentação Completa**: `docs/integrations/MCP.md`
+
+---
+
+## 📋 DOCUMENTAÇÃO OBRIGATÓRIA
+
+**SEMPRE consultar ANTES de ação**:
+1. `docs/PLAN.md` - Roadmap estratégico
+2. `docs/TASK.md` - Status tarefas
+3. `docs/pesquisa-de-mercado/` - Fundamentos
+4. `docs/adr/` - Decisões arquiteturais
+5. `docs/INDEX.md` - Índice de documentos
+6. `README.md` - Documentação do projeto
+
+**SEMPRE atualizar DEPOIS**:
+1. `docs/TASK.md` - Marcar completadas
+2. `docs/PLAN.md` - Se mudança estratégica
+3. `docs/adr/` - Se decisão arquitetural
+4. `docs/INDEX.md` - Se novo documento
+5. `README.md` - Se mudança significativa
+
+**Regra**: NUNCA iniciar sem ler PLAN.md + TASK.md!
+
+---
+
+## 🎯 CORE CONCEPTS
+
+### 8 Áreas da Vida (FIXAS)
+
+1. Saúde (Health) - ID: 1
+2. Carreira (Career) - ID: 2
+3. Relacionamentos (Relationships) - ID: 3
+4. Finanças (Finance) - ID: 4
+5. Desenvolvimento Pessoal - ID: 5
+6. Lazer (Leisure) - ID: 6
+7. Espiritualidade - ID: 7
+8. Ambiente (Environment) - ID: 8
+
+**⚠️ NUNCA adicionar/remover áreas. IDs 1-8 imutáveis.**
+
+### Features Core
+
+1. **Assessments Dinâmicos**: IA adaptativa, Wheel of Life
+2. **Habit Tracking**: Streak counting, calendário, gamificação
+3. **AI Coach**: Chat contextual, insights, daily messages
+4. **Goals**: SMART goals, milestones, progress
+5. **Dashboard**: Métricas agregadas, charts (Recharts)
+
+---
+
+## 🗄️ DATABASE
+
+**Prefixo obrigatório**: `lifetracker_`
+
+**RLS obrigatório**:
+```sql
+ALTER TABLE lifetracker_table ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users view own" ON lifetracker_table FOR SELECT USING (auth.uid() = user_id);
+```
+
+**Ver**: `docs/ARCHITECTURE.md`, `supabase/migrations/` (validação em Regra 🚨 8)
+
+---
+
+## 📐 CONVENÇÕES
+
+**Naming**:
+- Variáveis/funções: `camelCase` (inglês)
+- Componentes: `PascalCase`
+- Database: `snake_case` + `lifetracker_`
+- API: `kebab-case`
+
+**Comentários/Commits**: Português + Conventional Commits
+
+**8 Áreas**: Sempre IDs 1-8 (não strings), NUNCA CRUD
+
+---
+
+## 🔄 WORKFLOWS
+
+**31 workflows ativos**: `.windsurf/workflows/`
+
+**Regra**: SEMPRE seguir workflows. NUNCA pular etapas.
+
+Ver: `docs/WORKFLOW_META_LEARNING.md`
+
+---
+
+## ⏰ CONTEXTO TEMPORAL
+
+**Timezone**: America/Sao_Paulo (UTC-3)
+
+**Regras**:
+1. NUNCA hardcode anos/meses → `new Date()`
+2. Queries dinâmicas: `WHERE data >= CURRENT_DATE`
+3. Logs com timezone
+
+---
+
+## 🔒 SEGURANÇA
+
+1. ZERO secrets hardcoded → `.env`
+2. RLS obrigatório
+3. NUNCA logar dados sensíveis
+4. Queries parametrizadas (SQL injection)
+5. GDPR/LGPD compliance
+
+---
+
+## 🚀 PERFORMANCE
+
+**Targets**:
+- Dashboard: < 2s
+- Coach Chat: < 5s
+- Habit Logging: Instantâneo (optimistic)
+
+**Técnicas**:
+- React Query cache (5min staleTime)
+- Lazy Loading (Wheel, Calendar)
+- Optimistic Updates
+- Memoização (useMemo/useCallback)
+
+---
+
+## 💰 AI COSTS
+
+- **Gemini 2.5 Flash**: $0.30/1M input, $2.50/1M output
+- **Context Caching**: 75-90% economia
+- **Rate Limits**: 30 msgs/h (coach), 5 assessments/dia
+- **Token Limits**: coach (500), assessment (300)
+
+---
+
+## 🧪 TESTES
+
+**Prioritários**:
+1. RLS Policies (isolamento usuários)
+2. AI Responses (Zod validation)
+3. Habit Streaks (lógica gamificação)
+4. Assessment Scores (8 áreas)
+
+**TDD obrigatório**: Lógica negócio
+
+**Regra**: "No Bug Fix Without Test"
+
+---
+
+## 🔄 FLUXO DESENVOLVIMENTO
+
+```bash
+# 1. Branch
+git checkout -b feat/nome
+
+# 2. Develop + TDD
+npm run dev
+
+# 3. Quality Gates
+./scripts/run-tests.sh
+./scripts/code-review.sh
+./scripts/run-security-tests.sh
+
+# 4. Validação Manual (OBRIGATÓRIA)
+# - Screenshot ANTES
+# - Testar fluxo
+# - Screenshot DEPOIS
+# - Comparar ANTES vs DEPOIS
+
+# 5. Commit
+git commit -m "feat: descrição"
+
+# 6. Merge (após validação)
+```
+
+---
+
+## 🚀 DEPLOYMENT
+
+**VPS Docker Swarm**: 31.97.22.151
+
+**Deploy**: `./scripts/deploy-vps.sh production`
+
+**Best Practices**:
+- Multi-stage builds (1GB → 45MB)
+- Health checks: `127.0.0.1` (Alpine, NÃO localhost)
+- Traefik label: `traefik.docker.network=network_public`
+- .env em BUILD TIME (Vite)
+
+**Workflow**:
+1. Feature local (Workflows 1-9)
+2. Merge main
+3. **Checklist pré-deploy** (ver Prevenção Regressão)
+4. Deploy VPS
+5. Smoke tests + health checks
+6. Monitor 10-15min
+7. Rollback se necessário
+
+**Troubleshooting**:
+- Container não inicia: `ssh root@IP "docker service logs -f lifetracker_app"`
+- Traefik: Verificar label `docker.network`
+- Build: Verificar .env disponível
+
+**Meta-Learnings**:
+- ML-1: .dockerignore bloqueando .env
+- ML-2: traefik.docker.network CRÍTICO
+- ML-3: Alpine 127.0.0.1 vs localhost
+- ML-4: 5 agentes = 4x rápido
+- ML-5: Multi-stage = 95% redução
+
+Ver: `docs/ops/`, ADR 003
+
+---
+
+## 📚 DOCS COMPLEMENTARES
+
+**Detalhes completos**:
+- `docs/FEATURES.md` - Features detalhadas
+- `docs/ARCHITECTURE.md` - Arquitetura completa
+- `docs/TROUBLESHOOTING.md` - Debugging
+- `docs/USER_FLOWS.md` - 4 fluxos críticos
+
+---
+
+**Versão**: 2.11.0 (2025-11-09)
+**Projeto**: Life Track Growth
+
+**Changelog v2.11.0**:
+- ✅ **Workflow 7a/7b Quality Gates Completo**: 100% security approved
+  - 3 testes Pareto 80/20 validados (get_user_progress, log_habit_entry, RAG 768 dims)
+  - 6 bugs corrigidos iterativamente (V1→V10)
+  - Gap sistêmico identificado: Scripts security não filtram escopo (RCA completo)
+  - Meta-Learning: Flag `--scope` para scripts (reduz 96% falsos positivos)
+- 🎯 **Novo Padrão: Fuzzy Matching Multi-Strategy**
+  - 4 estratégias: exact (100), substring (80), root (60), partial (40)
+  - Success rate: 91% em testes morfológicos ("treino" → "Treinar")
+  - Aplicável: NLP, search, matching user input vs database
+- ⏰ **Edge Functions Timezone Pattern**
+  - UTC (server) → America/Sao_Paulo (user) conversion obrigatório
+  - Previne bugs off-by-one em datas
+  - Implementação: `new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))`
+- 📋 **TASK.md Task 9.3 adicionada**: Workflow 7a/7b documentado
+- 📚 **INDEX.md v2.1**: Quality Gates milestone registrado
+
+**Changelog v2.10.0**:
+- ✅ **NOVA REGRA 4B**: Resolução em Teia (Web Resolution)
+  - Metodologia completa para mapear e resolver TODA teia de problemas conectados
+  - Análise 360°: Frontend + Backend + Database + Integrações + Docs + Testes
+  - Checklist obrigatório de mapeamento, análise e resolução
+  - Ferramentas de mapeamento (grep patterns) incluídas
+  - Exemplo prático (Bug Parsing WhatsApp) documentado
+- 📝 Atualizado índice de regras (12 regras críticas)
+- 🔗 Cross-references atualizadas (Regra 3, 4, 7, 9)
+- 📊 Benefícios documentados: Solução completa, prevenção múltiplos bugs, consistência
+
+**Changelog v2.9.0** (2025-11-08):
+- Otimizado para < 40k chars (Anthropic guidelines)
+- Removido conteúdo redundante/detalhado (movido para docs/)
+- Mantidas TODAS regras críticas (RCA, Regressão, Agentes, etc)
+- Formato mais escaneável (bullets, exemplos concisos)
+- Priorizado: Comandos essenciais, padrões arquiteturais, regras absolutas

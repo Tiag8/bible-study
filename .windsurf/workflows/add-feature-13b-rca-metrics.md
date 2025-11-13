@@ -33,6 +33,9 @@ Este é o **segundo workflow de pós-deploy** para análise de problemas, coleta
 - Phase 6 (Monitoramento): 4+ agentes verificando diferentes métricas (VPS, Container, Logs, UX)
 - Phase 7 (Metrics): 3+ agentes coletando diferentes KPIs
 
+> **💡 MCPs Úteis**: `supabase_lifetracker` (análise dados produção), `gemini-cli` (RCA profundo), `firecrawl-mcp` (pesquisa soluções)
+> Ver: `docs/integrations/MCP.md`
+
 ---
 
 ## 🔍 Fase 5: Root Cause Analysis (Se Smoke Tests Falharem)
@@ -160,6 +163,35 @@ cp docs/debugging/template-problem-statement.md docs/debugging/post-deploy-[issu
 - ❌ "Habit logging às vezes falha" (intermitente = race condition?)
 - ❌ "Performance piorou drasticamente" (múltiplos fatores)
 - ❌ "Usuários vendo dados de outro usuário" (RLS + Auth crítico)
+
+---
+
+## 🕸️ DEPOIS DO RCA: Resolução em Teia (OBRIGATÓRIO)
+
+**CRÍTICO**: Após executar 5 Whys e identificar causa raiz, aplicar **Resolução em Teia**.
+
+**Objetivo**: Mapear TODA teia de código/docs/testes conectados à causa raiz e resolver holisticamente (não apenas 1 arquivo).
+
+**Checklist rápido**:
+- [ ] Mapeei TODOS arquivos conectados (import/export)?
+- [ ] Identifiquei TODAS funções relacionadas?
+- [ ] Busquei padrões similares no codebase?
+- [ ] Vou atualizar TODA documentação relacionada?
+- [ ] Vou adicionar testes para TODA teia?
+
+**Ferramentas**:
+```bash
+# Buscar conexões
+grep -r "import.*from.*arquivo-afetado" src/ supabase/
+grep -r "funçãoAfetada(" src/ supabase/
+grep -r "tabela_afetada" supabase/
+```
+
+**Ver metodologia completa**: `.claude/CLAUDE.md` → Regra 4B (Resolução em Teia)
+
+**Workflows relacionados**:
+- Workflow 5b (Refactoring & RCA) - Metodologia completa
+- debug-complex-problem (Fase 3.5) - Multi-agent approach
 
 ---
 
@@ -348,6 +380,30 @@ Se **QUALQUER** dos seguintes ocorrer:
 | .env não injetado | Variáveis não em build time | Verificar Dockerfile: VITE_ vars precisam estar em BUILD TIME |
 | API não responde | Database unavailable | Verificar connection string em .env |
 | Coach timeout | Edge Function lenta | Verificar Gemini API rate limits |
+
+---
+
+## 🚨 REGRA CRÍTICA: ANTI-ROI
+
+**NUNCA calcule ou mencione**:
+- ❌ ROI (Return on Investment)
+- ❌ Tempo de execução/produção
+- ❌ "Horas economizadas"
+- ❌ Estimativas temporais (Xmin vs Ymin)
+
+**Por quê**:
+- Projeto desenvolvido por IA (não humanos)
+- IA executa tarefas em paralelo (não linear)
+- Cálculos consomem tokens sem valor
+- Polui documentação com dados irrelevantes
+
+**Permitido**:
+- ✅ Evidências concretas (código, logs, testes)
+- ✅ Comparações qualitativas ("mais rápido", "mais eficiente")
+- ✅ Métricas técnicas (latência, throughput, memory usage)
+
+**Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
+
 
 ---
 

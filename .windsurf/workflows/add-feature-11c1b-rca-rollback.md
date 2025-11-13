@@ -107,6 +107,35 @@ cp docs/debugging/template-problem-statement.md docs/debugging/problema-[nome].m
 
 ---
 
+## 🕸️ DEPOIS DO RCA: Resolução em Teia (OBRIGATÓRIO)
+
+**CRÍTICO**: Após executar 5 Whys e identificar causa raiz, aplicar **Resolução em Teia**.
+
+**Objetivo**: Mapear TODA teia de código/docs/testes conectados à causa raiz e resolver holisticamente (não apenas 1 arquivo).
+
+**Checklist rápido**:
+- [ ] Mapeei TODOS arquivos conectados (import/export)?
+- [ ] Identifiquei TODAS funções relacionadas?
+- [ ] Busquei padrões similares no codebase?
+- [ ] Vou atualizar TODA documentação relacionada?
+- [ ] Vou adicionar testes para TODA teia?
+
+**Ferramentas**:
+```bash
+# Buscar conexões
+grep -r "import.*from.*arquivo-afetado" src/ supabase/
+grep -r "funçãoAfetada(" src/ supabase/
+grep -r "tabela_afetada" supabase/
+```
+
+**Ver metodologia completa**: `.claude/CLAUDE.md` → Regra 4B (Resolução em Teia)
+
+**Workflows relacionados**:
+- Workflow 5b (Refactoring & RCA) - Metodologia completa
+- debug-complex-problem (Fase 3.5) - Multi-agent approach
+
+---
+
 ## 🔧 Troubleshooting Comum
 
 ### Problemas Comuns (Troubleshooting)
@@ -277,6 +306,68 @@ git commit -m "docs: rollback v1.2.4 → v1.2.3 - [motivo]"
 
 ---
 
+---
+
+## 🧠 Meta-Learning: Captura de Aprendizados
+
+**⚠️ CRÍTICO - NÃO PULE**: Esta fase é fundamental para evolução contínua do sistema.
+
+**Objetivo**: Identificar melhorias nos workflows, scripts e processos baseado na execução desta feature.
+
+### Questões de Reflexão (Responder TODAS)
+
+**1. Eficiência do Workflow (Nota 1-10):**
+- [ ] Nota atribuída: __/10
+- [ ] Se nota < 8: Qual fase foi ineficiente? Como melhorar?
+- [ ] Alguma fase tomou muito tempo? Qual? Por quê?
+
+**2. Iterações com Usuário:**
+- [ ] Número de iterações necessárias: __
+- [ ] Se > 3 iterações: O que causou múltiplas idas e vindas?
+- [ ] Como tornar workflow mais autônomo/claro para próxima vez?
+
+**3. Gaps Identificados:**
+- [ ] Alguma validação faltou? (Se SIM: qual? onde inserir checklist?)
+- [ ] Algum gate falhou para detectar erro? (Se SIM: qual gate melhorar?)
+- [ ] Algum comando foi repetido 3+ vezes? (Se SIM: automatizar em script?)
+
+**4. Root Cause Analysis (RCA) - Se identificou problema:**
+- [ ] Problema: [descrever brevemente]
+- [ ] 5 Whys aplicados? (validar causa raiz sistêmica, não sintoma pontual)
+- [ ] Causa raiz afeta múltiplas features? (SE NÃO: descartar learning - não é sistêmico)
+- [ ] Meta-learning previne recorrência? (não apenas corrige sintoma desta feature)
+
+### Ações de Melhoria (Se Aplicável)
+
+**Documentação a atualizar:**
+- [ ] Este workflow (.md) precisa melhorias? → Descrever alterações necessárias
+- [ ] CLAUDE.md precisa novo padrão/seção? → Especificar o quê
+- [ ] Novo script seria útil? → Nome do script + função
+- [ ] ADR necessário? → Decisão arquitetural a documentar
+
+**ROI Esperado:** [Estimar ganho - ex: "20min economizadas por feature futura" ou "Previne bug que custaria 2h debugging"]
+
+### ⚠️ IMPORTANTE
+
+- **Só documentar learnings SISTÊMICOS** (não pontuais/específicos desta feature)
+- **Aplicar RCA obrigatoriamente** para validar se é realmente sistêmico
+- **Consolidação final** acontece no Workflow 8a (Meta-Learning centralizado)
+
+### Validação de Tamanho do Workflow
+
+```bash
+# Se você fez alterações neste workflow, validar tamanho
+wc -c .windsurf/workflows/NOME_DESTE_WORKFLOW.md
+# ✅ Espera: < 12000 chars (12k limit)
+# ❌ Se > 12000: Comprimir ou dividir workflow
+```
+
+**Checklist de Otimização** (se workflow > 11k chars):
+- [ ] Remover exemplos redundantes
+- [ ] Consolidar checklists similares
+- [ ] Extrair detalhes para docs/
+- [ ] Dividir em 2 workflows (se > 12k)
+
 ## 🔄 Próximo Workflow
 
 **Após completar RCA/Rollback**:
@@ -288,6 +379,30 @@ git commit -m "docs: rollback v1.2.4 → v1.2.3 - [motivo]"
 - Atualizar docs/TASK.md
 - Atualizar docs/PLAN.md (se necessário)
 - Criar tag git (se deploy OK)
+---
+
+## 🚨 REGRA CRÍTICA: ANTI-ROI
+
+**NUNCA calcule ou mencione**:
+- ❌ ROI (Return on Investment)
+- ❌ Tempo de execução/produção
+- ❌ "Horas economizadas"
+- ❌ Estimativas temporais (Xmin vs Ymin)
+
+**Por quê**:
+- Projeto desenvolvido por IA (não humanos)
+- IA executa tarefas em paralelo (não linear)
+- Cálculos consomem tokens sem valor
+- Polui documentação com dados irrelevantes
+
+**Permitido**:
+- ✅ Evidências concretas (código, logs, testes)
+- ✅ Comparações qualitativas ("mais rápido", "mais eficiente")
+- ✅ Métricas técnicas (latência, throughput, memory usage)
+
+**Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
+
+
 
 ---
 
