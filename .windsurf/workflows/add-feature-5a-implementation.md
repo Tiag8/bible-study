@@ -54,6 +54,7 @@ tail -30 .context/${BRANCH_PREFIX}_attempts.log
 - [ ] Li temp-memory.md (estado atual)?
 - [ ] Li decisions.md (decisões já tomadas)?
 - [ ] Li últimas 30 linhas de attempts.log?
+- [ ] 🚨 Validei Pre-Implementation Gates (Workflow 4.5)?
 
 **Se NÃO leu**: ⛔ PARAR e ler AGORA.
 
@@ -63,6 +64,36 @@ tail -30 .context/${BRANCH_PREFIX}_attempts.log
 BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
 echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 5a (Implementation) - START" >> .context/${BRANCH_PREFIX}_attempts.log
 ```
+
+### 0.5 Validate Pre-Implementation Gates 🚨 OBRIGATÓRIO
+
+**⚠️ BLOQUEIO AUTOMÁTICO**: Este script BLOQUEIA Workflow 5a se Workflow 4.5 não executado.
+
+```bash
+./scripts/validate-pre-implementation-gates.sh
+```
+
+**O que valida**:
+- ✅ Workflow 4.5 executado (verificação em attempts.log)
+- ✅ 6 gates aprovados (Tool Validation, Runtime, FK, File Size, Anti-Over-Engineering, Schema-First)
+- ⚠️ Bypass disponível (export SKIP_GATES=1) mas NÃO RECOMENDADO
+
+**Por quê obrigatório**:
+- Baseado em ML-CONTEXT-03 (Pre-Implementation Quality Gates)
+- Previne 70% bugs pós-código (evidência: feat-payment 5h vs feat-sync 52h)
+- Economia 10x (47h) com gates preventivos
+
+**SE BLOQUEADO**:
+1. Execute Workflow 4.5: `.windsurf/workflows/add-feature-4.5-pre-implementation-gates.md`
+2. Retorne para Workflow 5a
+
+**SE NÃO QUER GATES** (aceita risco):
+```bash
+export SKIP_GATES=1
+./scripts/validate-pre-implementation-gates.sh
+```
+
+⚠️ **IMPORTANTE**: Bypass aumenta risco bugs 10x. Use APENAS se feature é trivial (< 3 arquivos).
 
 ---
 

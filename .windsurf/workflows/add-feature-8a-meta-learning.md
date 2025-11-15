@@ -8,6 +8,84 @@ SEMPRE ler: `docs/PLAN.md`, `docs/TASK.md`, `docs/INDEX.md`, `README.md`, `AGENT
 
 ---
 
+## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
+
+### 0.1. Ler INDEX.md (Guia de Leitura)
+
+```bash
+cat .context/INDEX.md
+```
+
+**Entender**:
+- Ordem de leitura dos arquivos
+- O que cada arquivo faz
+- Checklists obrigatórios
+
+### 0.2. Ler Context Files (Ordem Definida em INDEX.md)
+
+```bash
+# Prefixo da branch (ex: feat-members)
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+# 1. Onde estou agora?
+cat .context/${BRANCH_PREFIX}_workflow-progress.md
+
+# 2. Estado atual resumido
+cat .context/${BRANCH_PREFIX}_temp-memory.md
+
+# 3. Decisões já tomadas
+cat .context/${BRANCH_PREFIX}_decisions.md
+
+# 4. Histórico completo (TODAS linhas - OBRIGATÓRIO para meta-learning)
+cat .context/${BRANCH_PREFIX}_attempts.log
+
+# 5. Loop de validação (TODOS iterações - análise meta-learning)
+cat .context/${BRANCH_PREFIX}_validation-loop.md 2>/dev/null || echo "N/A"
+
+# 6. TODOS arquivos .context/ adicionais (fonte primária meta-learning) 🚨 CRÍTICO
+# Este script lê TODOS os 20+ arquivos .context/ da branch (zero perda de conhecimento)
+# Inclui: debugging cases, quality gates, RCA retrospectives, web resolutions,
+# technical design agents, implementation summaries, user validation checklists
+./scripts/context-read-all.sh
+```
+
+### 0.3. Validação Context Loaded
+
+**Checklist**:
+- [ ] Li INDEX.md?
+- [ ] Li workflow-progress.md (onde estou)?
+- [ ] Li temp-memory.md (estado atual)?
+- [ ] Li decisions.md (decisões já tomadas)?
+- [ ] Li attempts.log COMPLETO (todo histórico, não apenas últimas 30)?
+- [ ] Li validation-loop.md COMPLETO (todas iterações)?
+- [ ] 🚨 Executei `./scripts/context-read-all.sh` e li TODOS os 20+ arquivos .context/?
+
+**⚠️ CRÍTICO**: `.context/` é a **FONTE PRIMÁRIA** de aprendizado. Arquivos adicionais contêm:
+- **Debugging Cases**: Erros críticos + soluções (ex: whatsapp-validation)
+- **Quality Gates**: Validações preventivas (ex: quality-gates-4.5)
+- **RCA Retrospectives**: Causas raiz sistêmicas (ex: rca-retrospective-summary, refactoring-rca)
+- **Web Resolutions**: Resolução holística cenários complexos (ex: magic-link-login, cenario-2)
+- **Technical Design Agents**: Decisões arquiteturais por agente (ex: agent-1-schema, agent-2-trigger)
+- **Implementation Summaries**: Decisões técnicas completas
+- **User Validation Checklists**: Validação manual E2E
+
+**Perda de Contexto**: Se ler apenas 5 arquivos core (workflow-progress, temp-memory, decisions, attempts.log, validation-loop), você perde **76% do contexto** (16/21 arquivos). Meta-learnings ficam rasos, incompletos e não capturam padrões sistêmicos.
+
+**Paper GCC (Oxford 2025)**: Working Memory +48% SOTA → só funciona se COMPLETO (zero perda).
+
+**Se NÃO leu TODOS**: ⛔ PARAR e executar `./scripts/context-read-all.sh` AGORA.
+
+### 0.4. Log Início Workflow
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 8a (Meta-Learning) - START" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+---
+
 # Workflow 8a/11: Meta-Learning - Parte 1
 
 **Fases**: 16 (Análise), 17 (Documentação), 18 (PLAN.md - Workflow 8b)
@@ -25,137 +103,72 @@ SEMPRE ler: `docs/PLAN.md`, `docs/TASK.md`, `docs/INDEX.md`, `README.md`, `AGENT
 
 **⚠️ NÃO PULE** - Sistema aprende com cada implementação.
 
-### 16.1 Workflow
-- [ ] Fase pulada/desnecessária? Qual? Ação?
-- [ ] Fase confusa? Como clarificar?
+### 16.1-16.2 Workflow + Scripts
+- [ ] Fase pulada/confusa/demorou? Ação?
 - [ ] Faltou etapa? Onde inserir?
-- [ ] Fase demorou? Como otimizar?
-
-### 16.2 Scripts/Ferramentas
-- [ ] Ideia novo script? Funcionalidade?
 - [ ] Comando repetido 3+? Automatizar?
 
 ### 16.3 Root Cause Analysis (PRÉ-REQUISITO)
 
-**Template RCA**:
-```markdown
-**Problema**: [Descrever]
-
-**5 Whys**:
-1. Por quê? → [Resposta imediata]
-2. Por quê? → [Causa subjacente]
-3. Por quê? → [Causa profunda]
-4. Por quê? → [Processo/sistema]
-5. Por quê? → [Causa raiz SISTÊMICA]
-
-**Causa Raiz**: Sistêmica ou pontual?
-- Sistêmica: Afeta múltiplas features → VÁLIDO
-- Pontual: Afeta apenas feature atual → DESCARTAR
-
-**Meta-Learning**: Como prevenir?
-**Onde Documentar**: Workflow, AGENTS.md, ADR
-**ROI**: [Quantificar ganho]
-```
+**Template**: Problema → 5 Whys (imediata → subjacente → profunda → processo → SISTÊMICA) → Sistêmica? (múltiplas features = VÁLIDO, só feature atual = DESCARTAR) → Meta-Learning → Onde doc (Workflow/AGENTS/ADR)
 
 **Checklist**:
-- [ ] RCA aplicado (5 Whys completos)
-- [ ] Causa sistêmica (afeta múltiplas features) - SE NÃO: descartar
-- [ ] Meta-learning previne recorrência
-- [ ] ROI > 10x
-- [ ] Documentação identificada
+- [ ] 5 Whys completos
+- [ ] Causa sistêmica (SE NÃO: descartar)
+- [ ] Previne recorrência
+- [ ] Doc identificada
 
-### 16.4 Código e Padrões
-- [ ] Novo padrão? Descrever, documentar AGENTS.md
-- [ ] Otimização/best practice? Ganho?
-- [ ] Anti-pattern? Qual?
-- [ ] Decisão arquitetural? Criar ADR
-
-### 16.5 Segurança
-- [ ] Nova vulnerabilidade? Tipo? Detectar?
-- [ ] Padrão segurança? Documentar?
-- [ ] Scripts segurança melhorar?
-
-### 16.6 Documentação
-- [ ] Estrutura docs/ OK? Melhorias?
-- [ ] Tipo doc faltando? Qual?
-- [ ] Doc inútil? Remover?
-- [ ] ADRs úteis? Melhorias template?
-
-### 16.7 Scripts e Automação
-- [ ] Scripts OK? Problema? Corrigir?
-- [ ] Script novo útil? Funcionalidade?
-- [ ] Validações adequadas? Faltou?
-- [ ] Mensagens erro claras? Melhorar?
+### 16.4-16.7 Código, Segurança, Docs, Automação
+- [ ] Novo padrão/anti-pattern? → AGENTS.md/ADR
+- [ ] Vulnerabilidade? → Scripts segurança
+- [ ] Doc faltando/inútil? → Adicionar/remover
+- [ ] Script útil/validações faltaram? → Criar/melhorar
 
 ### 16.8 Gate Validação 🚨
 
-**⚠️ CHECKPOINT CRÍTICO**:
-- [ ] Mínimo 1 learning identificado (se 0: re-analisar)
-- [ ] RCA aplicado CADA learning (5 Whys completos)
-- [ ] Causa raiz SISTÊMICA (não pontual)
-- [ ] Meta-learning previne recorrência
-- [ ] ROI quantificado
+**⚠️ CHECKPOINT**:
+- [ ] Mínimo 1 learning sistêmico (0: re-analisar)
+- [ ] RCA 5 Whys (CADA learning)
+- [ ] Causa SISTÊMICA (não pontual)
+- [ ] Previne recorrência
 
-**⛔ SE < 1 LEARNING SISTÊMICO**: Re-executar Fase 16.
+**⛔ < 1 LEARNING SISTÊMICO**: Re-executar Fase 16.
 
 ---
 
 ## 📋 Fase 17: Documentação
 
-### 17.1 Novos Padrões → AGENTS.md
-Documentar: padrão + exemplo + por quê
-
-### 17.2 Decisões → ADR
-Criar ADR: `docs/adr/XXX-titulo.md`
-
-### 17.3 Feature → docs/features/
-Atualizar: componentes, hooks, schemas
-
-### 17.4 Regras Negócio → docs/regras-de-negocio/
-Documentar: fórmulas, pesos, lógica
-
-### 17.5 README.md (se necessário)
-Atualizar se: nova feature importante, dependência crítica, novo script
+### 17.1-17.5 Documentar
+- [ ] Novos padrões → AGENTS.md (padrão + exemplo + por quê)
+- [ ] Decisões → ADR (`docs/adr/XXX-titulo.md`)
+- [ ] Feature → `docs/features/` (componentes, hooks, schemas)
+- [ ] Regras negócio → `docs/regras-de-negocio/` (fórmulas, pesos)
+- [ ] README.md (se feature importante, dep crítica, novo script)
 
 ### 17.6 INDEX.md 🚨 OBRIGATÓRIO
+- [ ] Novos arquivos (debugging cases, snapshots, scripts)
+- [ ] Stats: `ls -1 docs/adr/*.md | wc -l`
+- [ ] Versão (data YYYY-MM-DD + incrementar)
 
-**Checklist**:
-- [ ] Novos arquivos adicionados (debugging cases, snapshots, scripts)
-- [ ] Estatísticas atualizadas: `ls -1 docs/adr/*.md | wc -l`
-- [ ] Versão atualizada (data YYYY-MM-DD + incrementar versão)
-
-**Por quê**: INDEX.md = mapa projeto. Se não atualizar, docs invisíveis.
+**Por quê**: INDEX.md = mapa. Não atualizar = docs invisíveis.
 
 ### 17.7 CLAUDE.md 🚨 OBRIGATÓRIO
+- [ ] Novos padrões código ("Convenções de Código")
+- [ ] Changelog (final): data + versão + mudanças
+- [ ] Meta-learnings críticos
 
-**Checklist**:
-- [ ] Novos padrões código (seção "Convenções de Código")
-- [ ] Changelog atualizado (final arquivo): data + versão + mudanças
-- [ ] Meta-learnings críticos (se ROI > 10x)
-
-**Por quê**: CLAUDE.md lido TODA sessão. Se não atualizar, repete erros.
+**Por quê**: CLAUDE.md lido TODA sessão. Não atualizar = repete erros.
 
 ### 17.8 Workflows Afetados 🚨 OBRIGATÓRIO
+- [ ] Identificar workflows (bug implementação → Workflow 5, etc.)
+- [ ] Adicionar gates/checklists
+- [ ] Avisos: "⚠️ Meta-Learning: [link case]"
 
-**Checklist**:
-- [ ] Identificar workflows relacionados
-  - Ex: Bug implementação → Workflow 5
-  - Ex: Regressão validação → Workflow 6
-  - Ex: Deploy falha → Workflow 11
-- [ ] Adicionar gates/checklists específicos
-- [ ] Adicionar avisos: "⚠️ Meta-Learning: [link debugging case]"
+**Por quê**: Workflows = guias. Não melhoram = sistema não evolui.
 
-**Por quê**: Workflows = guias. Se não melhoram, sistema não evolui.
-
-### 17.9 Validar Tamanho Workflows
-
-**Executar**: `./scripts/validate-workflow-size.sh`
-- Se > 12k: split em `workflow-Xa.md`, `workflow-Xb.md`
-
-**Checklist**:
-- [ ] Validação executada
-- [ ] Todos workflows <= 12k chars
-- [ ] Splits com navegação (se necessário)
+### 17.9 Validar Tamanho
+- [ ] `./scripts/validate-workflow-size.sh`
+- [ ] <= 12k chars (split se > 12k)
 - [ ] INDEX.md atualizado
 
 ---
@@ -175,84 +188,37 @@ Atualizar se: nova feature importante, dependência crítica, novo script
 
 ## 🔄 Sistema de Aprovação de Mudanças
 
-**Processo**: Identificar → Propor → Aguardar aprovação → Aplicar → Commit `"meta: ..."` → Sincronizar template
+Identificar → Propor → Aguardar aprovação → Aplicar → Commit `"meta: ..."` → Sincronizar template
 
 ---
 
 ## ✅ Checklist Final
 
-### Fase 16 (Análise - OBRIGATÓRIO)
-- [ ] Análise completa: perguntas 16.1-16.7 respondidas ou N/A
+**Fase 16 (Análise)**:
+- [ ] Análise 16.1-16.7 completa
 - [ ] Mínimo 1 learning sistêmico (Gate 16.8)
-- [ ] RCA aplicado CADA learning (5 Whys completos)
-- [ ] Causas raiz SISTÊMICAS (não pontuais)
-- [ ] ROI quantificado cada meta-learning
+- [ ] RCA 5 Whys aplicado
+- [ ] Causas SISTÊMICAS (não pontuais)
 
-### Fase 17 (Documentação - OBRIGATÓRIO)
-- [ ] Documentação mapeada: AGENTS.md, ADRs, features (17.1-17.5)
-- [ ] INDEX.md atualizado (17.6)
-- [ ] CLAUDE.md atualizado (17.7)
-- [ ] Workflows afetados melhorados (17.8)
-- [ ] Validação workflow size executada (17.9)
-
-### Gate Final
-- [ ] Todos 3 arquivos críticos atualizados (INDEX.md, CLAUDE.md, workflows)
-- [ ] Validação final checkpoint passou
+**Fase 17 (Docs)**:
+- [ ] Docs mapeada (AGENTS.md, ADRs, features)
+- [ ] INDEX.md + CLAUDE.md + workflows atualizados
+- [ ] Workflow size validado (< 12k)
 
 ---
 
-## 🧠 Meta-Learning: Captura Aprendizados
+## 🧠 Meta-Learning: Reflexão
 
-**⚠️ CRÍTICO - NÃO PULE**: Evolução contínua do sistema.
+**Eficiência (1-10)**: __/10 (< 8: melhorar)
+**Iterações usuário**: __ (> 3: tornar autônomo)
+**Gaps**: Validação/gates faltaram? Comando repetiu 3+?
+**RCA**: 5 Whys aplicados? Causa sistêmica? Previne recorrência?
 
-### Questões de Reflexão (Responder TODAS)
-
-**1. Eficiência Workflow (1-10):**
-- [ ] Nota: __/10
-- [ ] Se < 8: Qual fase ineficiente? Como melhorar?
-
-**2. Iterações Usuário:**
-- [ ] Número iterações: __
-- [ ] Se > 3: Causa? Como tornar autônomo?
-
-**3. Gaps Identificados:**
-- [ ] Validação faltou? Onde inserir?
-- [ ] Gate falhou? Melhorar?
-- [ ] Comando repetiu 3+? Automatizar?
-
-**4. RCA - Se identificou problema:**
-- [ ] Problema: [descrever]
-- [ ] 5 Whys aplicados? (validar causa sistêmica)
-- [ ] Causa afeta múltiplas features? (SE NÃO: descartar)
-- [ ] Meta-learning previne recorrência?
-
-### Ações Melhoria (Se Aplicável)
-
-**Documentação atualizar:**
-- [ ] Este workflow precisa melhorias? → Descrever
-- [ ] CLAUDE.md precisa novo padrão? → Especificar
-- [ ] Novo script útil? → Nome + função
-- [ ] ADR necessário? → Decisão arquitetural
-
-**ROI Esperado:** [Estimar - ex: "20min/feature" ou "Previne 2h debugging"]
-
-### ⚠️ IMPORTANTE
-
-- **Só documentar learnings SISTÊMICOS** (não pontuais)
-- **Aplicar RCA obrigatoriamente** (validar se sistêmico)
-- **Consolidação final** no Workflow 8a
-
-### Validação Tamanho Workflow
-```bash
-wc -c .windsurf/workflows/NOME_DESTE_WORKFLOW.md
-# ✅ < 12000 chars | ❌ > 12000: Comprimir ou dividir
-```
-
-**Checklist Otimização** (se > 11k chars):
-- [ ] Remover exemplos redundantes
-- [ ] Consolidar checklists similares
-- [ ] Extrair detalhes para docs/
-- [ ] Dividir em 2 workflows (se > 12k)
+**Ações**:
+- [ ] Workflow melhorias
+- [ ] CLAUDE.md padrão novo
+- [ ] Script útil
+- [ ] ADR necessário
 
 ---
 
@@ -267,27 +233,109 @@ wc -c .windsurf/workflows/NOME_DESTE_WORKFLOW.md
 
 ---
 
-## 🚨 REGRA CRÍTICA: ANTI-ROI
+## 🚨 REGRA: ANTI-ROI
 
-**NUNCA calcule ou mencione**:
-- ❌ ROI (Return on Investment)
-- ❌ Tempo de execução/produção
-- ❌ "Horas economizadas"
-- ❌ Estimativas temporais (Xmin vs Ymin)
+**NUNCA**: ROI, tempo execução, horas economizadas, estimativas temporais (Xmin vs Ymin).
+**Por quê**: IA paralela, cálculos consomem tokens sem valor, polui docs.
+**Permitido**: Evidências concretas (código, logs, testes), comparações qualitativas, métricas técnicas.
 
-**Por quê**:
-- Projeto desenvolvido por IA (não humanos)
-- IA executa tarefas em paralelo (não linear)
-- Cálculos consomem tokens sem valor
-- Polui documentação com dados irrelevantes
+---
 
-**Permitido**:
-- ✅ Evidências concretas (código, logs, testes)
-- ✅ Comparações qualitativas ("mais rápido", "mais eficiente")
-- ✅ Métricas técnicas (latência, throughput, memory usage)
+## 🧠 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
 
-**Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
 
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 8a: Meta-Learning ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - Análise workflow completa (16.1-16.7)
+  - RCA aplicado (5 Whys para cada learning)
+  - Identificação de causas raiz sistêmicas
+  - Documentação de meta-learnings (AGENTS.md, ADRs, workflows)
+  - INDEX.md atualizado (novos arquivos, stats)
+  - CLAUDE.md atualizado (padrões, changelog)
+  - Workflows afetados melhorados (gates, checklists)
+- **Outputs**:
+  - Mínimo 1 learning sistêmico documentado
+  - ROI quantificado para cada meta-learning
+  - Documentação sincronizada (INDEX, CLAUDE, workflows)
+- **Next**: Workflow 8b (PLAN.md + Pareto)
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+Workflow 8a (Meta-Learning) concluído com sucesso.
+
+**Meta-learnings capturados**: [Quantidade] learnings sistêmicos identificados e documentados.
+
+**Próximo passo**: Executar Workflow 8b (PLAN.md + Pareto) para atualizar roadmap e análise 80/20.
+
+---
+
+## Próximos Passos
+
+- [ ] Executar Workflow 8b (PLAN.md + Pareto)
+- [ ] Atualizar PLAN.md com feature e learnings
+- [ ] Análise Pareto 80/20 (Top 5-7 melhorias ROI > 10x)
+
+---
+
+## Decisões Pendentes
+
+- [ ] Aprovar melhorias Pareto (Workflow 8b)
+
+EOF
+
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Decisões Tomadas)
+
+**⚠️ Só atualizar se DECISÃO foi tomada no workflow.**
+
+```bash
+# Exemplo: Se identificamos padrão novo para AGENTS.md
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<EOF
+
+## Workflow 8a - Meta-Learning
+- **Decisão**: [Descrever decisão - ex: Novo padrão de validação]
+- **Por quê**: [Justificativa - ex: Previne 3 tipos de bugs recorrentes]
+- **Trade-off**: [Ex: +5min validação, mas previne 2h debugging]
+- **Alternativas consideradas**: [Ex: Validação manual (rejeitado - não sistêmico)]
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 8a (Meta-Learning) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] META-LEARNING: [Quantidade] learnings sistêmicos documentados" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md?
+- [ ] Atualizei temp-memory.md (Estado Atual + Próximos Passos)?
+- [ ] Atualizei decisions.md (se decisão tomada)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + meta-learnings)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
 
 ---
 

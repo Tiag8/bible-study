@@ -9,6 +9,60 @@ Antes de iniciar, SEMPRE ler: `docs/PLAN.md`, `docs/TASK.md`, README.md, AGENTS.
 
 ---
 
+## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
+
+### 0.1. Ler INDEX.md (Guia de Leitura)
+
+```bash
+cat .context/INDEX.md
+```
+
+**Entender**:
+- Ordem de leitura dos arquivos
+- O que cada arquivo faz
+- Checklists obrigatórios
+
+### 0.2. Ler Context Files (Ordem Definida em INDEX.md)
+
+```bash
+# Prefixo da branch (ex: feat-members)
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+# 1. Onde estou agora?
+cat .context/${BRANCH_PREFIX}_workflow-progress.md
+
+# 2. Estado atual resumido
+cat .context/${BRANCH_PREFIX}_temp-memory.md
+
+# 3. Decisões já tomadas
+cat .context/${BRANCH_PREFIX}_decisions.md
+
+# 4. Histórico completo (últimas 30 linhas)
+tail -30 .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### 0.3. Validação Context Loaded
+
+**Checklist**:
+- [ ] Li INDEX.md?
+- [ ] Li workflow-progress.md (onde estou)?
+- [ ] Li temp-memory.md (estado atual)?
+- [ ] Li decisions.md (decisões já tomadas)?
+- [ ] Li últimas 30 linhas de attempts.log?
+
+**Se NÃO leu**: ⛔ PARAR e ler AGORA.
+
+### 0.4. Log Início Workflow
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 4 (Setup) - START" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+---
+
 ## 🤖 REGRA CRÍTICA: Uso Máximo de Agentes em Paralelo
 
 **OBRIGATÓRIO**: SEMPRE usar máximo de agentes possível em paralelo.
@@ -37,25 +91,115 @@ Antes de iniciar, SEMPRE ler: `docs/PLAN.md`, `docs/TASK.md`, README.md, AGENTS.
 
 // turbo
 
-### Opção A: Dump Lógico (padrão)
+### 🚨 MÉTODO OBRIGATÓRIO: MCP Supabase
+
+**Por quê MCP**:
+- ✅ Não requer `.env` configurado
+- ✅ Usa autenticação MCP (já configurada)
+- ✅ Backup JSON estruturado (fácil restaurar)
+- ✅ Snapshot completo de tabelas críticas
+- ❌ Script `backup-supabase.sh` falha sem `.env`
+
+---
+
+### 7.1. Backup via MCP (OBRIGATÓRIO)
+
+**Tabelas Críticas a Backupear**:
+- `lifetracker_profiles` (sempre)
+- Outras tabelas modificadas pela feature (se aplicável)
+
+**Comando MCP**:
+```typescript
+// 1. Listar colunas da tabela
+mcp5_execute_sql({
+  query: `
+    SELECT column_name, data_type, is_nullable
+    FROM information_schema.columns
+    WHERE table_schema = 'public' 
+      AND table_name = 'lifetracker_profiles'
+    ORDER BY ordinal_position;
+  `
+});
+
+// 2. Backup completo da tabela
+mcp5_execute_sql({
+  query: `
+    SELECT *
+    FROM lifetracker_profiles
+    ORDER BY created_at DESC;
+  `
+});
+
+// 3. Estatísticas pré-migration
+mcp5_execute_sql({
+  query: `
+    SELECT 
+      COUNT(*) as total_profiles,
+      COUNT(phone_number) as profiles_with_phone,
+      COUNT(CASE WHEN whatsapp_verified = true THEN 1 END) as whatsapp_verified_count
+    FROM lifetracker_profiles;
+  `
+});
+```
+
+**Salvar Backup**:
+```bash
+# Criar arquivo JSON com dados
+# Arquivo: backups/backup-[tabela]-pre-migration-YYYYMMDD.json
+```
+
+**Template Backup JSON**:
+```json
+{
+  "backup_metadata": {
+    "date": "YYYY-MM-DDTHH:mm:ss-03:00",
+    "feature": "Nome da Feature",
+    "workflow": "4 (Setup)",
+    "purpose": "Backup PRÉ-MIGRATION",
+    "total_records": 12,
+    "method": "MCP Supabase (mcp5_execute_sql)"
+  },
+  "schema_before": {
+    "columns": ["col1", "col2", ...],
+    "total_columns": 15
+  },
+  "records": [
+    { "id": "...", "field": "..." }
+  ],
+  "restore_instructions": {
+    "rollback_migration": "Aplicar migration reversa",
+    "manual_restore": "UPDATE ... WHERE ..."
+  }
+}
+```
+
+**Documentação**:
+```bash
+# Criar README do backup
+# Arquivo: backups/BACKUP_README.md
+```
+
+---
+
+### 7.2. Fallback: Script Shell (SE MCP falhar)
+
+**Apenas se MCP Supabase não disponível**:
 ```bash
 ./scripts/backup-supabase.sh
 ```
 
-**Quando**: Migration simples, rollback rápido, baixo risco
+**Requer**: Arquivo `.env` configurado com `SUPABASE_DB_PASSWORD`
 
-**Output esperado**:
-```
-✅ Backup criado: backups/backup-YYYYMMDD-HHMMSS.sql
-🔄 Restaurar: ./scripts/restore-supabase.sh <arquivo>
-```
+---
 
-### Opção B: Preview Branch (mudanças grandes)
+### 7.3. Opção Avançada: Preview Branch
+
+**Quando**: Migration complexa, teste isolado necessário
 ```bash
 supabase branches create feature-backup
 ```
 
-**Quando**: Migration complexa, teste isolado necessário
+**Requer**: Supabase Pro plan
 
 ---
 
@@ -254,6 +398,108 @@ wc -c .windsurf/workflows/add-feature-4-setup.md
 - ✅ Métricas técnicas (latência, throughput, memory usage)
 
 **Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
+
+---
+
+## 🧠 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 4: Setup ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - Checkpoint criado (backup Supabase)
+  - Main branch sincronizada
+  - Branch git criada com sistema inteligente
+  - WIP/uncommitted changes preservados
+- **Outputs**:
+  - Backup disponível em backups/
+  - Main atualizada (docs/, scripts/, .env.example)
+  - Branch isolada criada (feat/...)
+  - Histórico registrado em .branch-history.log
+- **Next**: Workflow 5a (Implementation)
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+# Atualizar seção "Estado Atual"
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+Workflow 4 (Setup) concluído com sucesso.
+
+**Ambiente preparado**:
+- Backup criado: [arquivo backup]
+- Main sincronizada: [último commit]
+- Branch criada: [nome da branch]
+
+**Próximo passo**: Executar Workflow 5a (Implementation) para implementar código com TDD.
+
+---
+
+## Próximos Passos
+
+- [ ] Executar Workflow 5a (Implementation)
+- [ ] Implementar em pequenos diffs (8+ commits)
+- [ ] Aplicar TDD quando apropriado
+- [ ] Validar testes automatizados
+
+---
+
+## Decisões Pendentes
+
+- [ ] Nenhuma (Setup concluído)
+
+EOF
+
+# Substituir seção no arquivo original (preservar "Última Atualização")
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Decisões Tomadas)
+
+**⚠️ Só atualizar se DECISÃO foi tomada no workflow.**
+
+```bash
+# Exemplo: Se escolhemos criar branch a partir de outra (não main)
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<EOF
+
+## Workflow 4 - Setup
+- **Decisão**: Branch criada a partir de [main / outra branch]
+- **Por quê**: [Commits uncommitted / feature dependente / independente]
+- **Trade-off**: [Zero risco perda vs isolamento total]
+- **Alternativas consideradas**: [Opção rejeitada]
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 4 (Setup) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] DECISION: Branch [nome] criada - backup disponível" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md?
+- [ ] Atualizei temp-memory.md (Estado Atual + Próximos Passos)?
+- [ ] Atualizei decisions.md (se decisão tomada)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + decisões)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
 
 ---
 

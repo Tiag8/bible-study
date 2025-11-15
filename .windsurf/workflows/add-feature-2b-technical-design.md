@@ -26,18 +26,103 @@ Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
 
 ---
 
-## 🤖 CRÍTICO: Uso Máximo de Agentes (Claude Code)
+## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
 
-> **🚨 REGRA ABSOLUTA E OBRIGATÓRIA 🚨**
->
-> **SEMPRE** usar o **MÁXIMO de agentes possível** em paralelo para validação técnica.
->
-> Esta seção pode requerer:
-> - Análise de viabilidade técnica (agent 1)
-> - Verificação de dependências (agent 2)
-> - Revisão de código similar (agent 3)
-> - Análise de performance (agent 4)
-> - Root Cause Analysis profunda (agent 5)
+**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
+
+### 0.1. Ler INDEX.md (Guia de Leitura)
+
+```bash
+cat .context/INDEX.md
+```
+
+**Entender**:
+- Ordem de leitura dos arquivos
+- O que cada arquivo faz
+- Checklists obrigatórios
+
+### 0.2. Ler Context Files (Ordem Definida em INDEX.md)
+
+```bash
+# Prefixo da branch (ex: feat-members)
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+# 1. Onde estou agora?
+cat .context/${BRANCH_PREFIX}_workflow-progress.md
+
+# 2. Estado atual resumido
+cat .context/${BRANCH_PREFIX}_temp-memory.md
+
+# 3. Decisões já tomadas
+cat .context/${BRANCH_PREFIX}_decisions.md
+
+# 4. Histórico completo (últimas 30 linhas)
+tail -30 .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### 0.3. Validação Context Loaded
+
+**Checklist**:
+- [ ] Li INDEX.md?
+- [ ] Li workflow-progress.md (onde estou)?
+- [ ] Li temp-memory.md (estado atual)?
+- [ ] Li decisions.md (decisões já tomadas)?
+- [ ] Li últimas 30 linhas de attempts.log?
+
+**Se NÃO leu**: ⛔ PARAR e ler AGORA.
+
+### 0.4. Log Início Workflow
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 2b (Technical Design) - START" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+---
+
+## ⚠️ REGRA: 5 AGENTES OBRIGATÓRIOS (100% Features)
+
+**CRÍTICO**: SEMPRE executar os 5 agentes abaixo em PARALELO. Não opcional.
+
+**Benefício**: 4x faster (15-20min vs 1-2h sequencial), análise completa, zero gaps.
+
+**5 Agentes Obrigatórios**:
+1. **Agent Schema Design**
+   - Analisa database schema (tabelas, colunas, constraints, índices)
+   - Valida prefixos `lifetracker_`, RLS policies, migrations
+   - Output: `.context/{branch}_technical-design-agent-1-schema.md`
+
+2. **Agent Trigger Design**
+   - Analisa triggers PostgreSQL, functions, procedures
+   - Valida lógica de invalidação, sync cross-channel
+   - Output: `.context/{branch}_technical-design-agent-2-trigger.md`
+
+3. **Agent Backend Design**
+   - Analisa Edge Functions (Deno), APIs, webhooks
+   - Valida runtime compatibility, secrets, error handling
+   - Output: `.context/{branch}_technical-design-agent-3-backend.md`
+
+4. **Agent Frontend Design**
+   - Analisa componentes React, hooks, context, state
+   - Valida feature-first structure, custom hooks, UI/UX
+   - Output: `.context/{branch}_technical-design-agent-4-frontend.md`
+
+5. **Agent Testing & RCA**
+   - Analisa cenários teste (E2E, unit, integration)
+   - Valida riscos, edge cases, RCA preventivo
+   - Output: `.context/{branch}_technical-design-agent-5-testing-rca.md`
+
+**Exemplo de Execução** (usar Task tool 5x em 1 mensagem):
+```markdown
+Vou executar os 5 agentes em paralelo:
+[Task Agent 1 - Schema]
+[Task Agent 2 - Trigger]
+[Task Agent 3 - Backend]
+[Task Agent 4 - Frontend]
+[Task Agent 5 - Testing & RCA]
+```
+
+**⚠️ SE LLM ESQUECER**: Workflow DEVE bloquear e avisar "Faltam X agentes. Executar TODOS 5."
 
 ---
 
@@ -177,6 +262,112 @@ Se identificou causa raiz sistêmica, documentar em:
 - Análise baseada em código desatualizado = falsos positivos
 
 **Regra**: NUNCA confiar em código estático. Source of truth = DB real.
+
+---
+
+### 🔍 Pré-Design: Duplication Check (OBRIGATÓRIO)
+
+**CRÍTICO**: Validar que solução NÃO duplica funcionalidade existente ANTES de design detalhado.
+
+#### Ferramentas de Validação
+
+**1. Grep Codebase** (buscar implementações similares):
+```bash
+# Buscar funcionalidade similar
+grep -r "parse\|extract\|transform" supabase/functions/_shared/
+grep -r "cache\|stale\|invalidate" src/hooks/
+grep -r "auth\|login\|otp" supabase/functions/
+
+# Se encontrar → Analisar se reutilizar vs criar novo
+# Perguntar: "Esta função JÁ faz o que preciso?"
+```
+
+**2. Testar Solução Atual** (antes de redesenhar):
+```typescript
+// Exemplo: Testar se Gemini JÁ extrai frequência
+const userMessage = "Quero treinar 3x por semana";
+const result = await callGemini(userMessage, HABIT_TOOLS);
+
+// Se result.tool_calls[0].name === "create_habit"
+// E result.tool_calls[0].parameters.target_frequency === 3
+// → NÃO criar parser, Gemini JÁ faz!
+```
+
+**3. Consultar Docs Oficiais** (MCP context7):
+```bash
+# Validar se biblioteca/framework JÁ tem feature
+context7_get_library_docs({
+  libraryID: "/google/generative-ai",  # Gemini
+  topic: "function calling structured output",
+  tokens: 3000
+})
+
+# Se docs confirmam feature nativa → NÃO reimplementar
+```
+
+**4. Análise de Duplicação** (código atual):
+```bash
+# Buscar padrões similares
+find supabase/functions -name "*.ts" -exec grep -l "parse\|extract" {} \;
+
+# Comparar implementações (se encontrar múltiplas)
+diff file1.ts file2.ts
+
+# Decisão:
+# - Se idênticas → Consolidar em 1
+# - Se complementares → Documentar diferenças
+# - Se redundantes → Deletar menos usada
+```
+
+#### Checklist Validação
+
+**Antes de prosseguir para "Arquitetura Detalhada"**:
+- [ ] **Grepei codebase** por funcionalidade similar?
+  - Arquivos encontrados: [listar ou "nenhum"]
+  - Análise: [reutilizar / criar novo / consolidar]
+
+- [ ] **Testei solução atual** e FALHOU?
+  - Teste executado: [código/comando]
+  - Resultado: [success → NÃO criar / failed → prosseguir]
+  - Evidência: [log/screenshot]
+
+- [ ] **Consultei docs oficiais** (biblioteca/framework)?
+  - Fonte: [URL + seção + data]
+  - Feature nativa existe? [sim/não]
+  - Se SIM: [link doc + exemplo uso]
+
+- [ ] **Analisei duplicações** (se encontradas)?
+  - Arquivos comparados: [listar]
+  - Decisão: [consolidar / deletar / manter separado]
+  - Justificativa: [por quê não é duplicação OU por quê manter ambos]
+
+#### Resultado Esperado
+
+- ✅ **Zero duplicação** → Prosseguir para Design
+- ⚠️ **Duplicação parcial** → Reutilizar existente + complementar (não recriar)
+- ❌ **Duplicação total** → ⛔ CANCELAR design, usar existente
+
+#### Ação se Duplicação Detectada
+
+- ⛔ **PAUSAR** Workflow 2b
+- 🔙 **VOLTAR** para Workflow 2a (reprojetar solução)
+- 📝 **DOCUMENTAR** por quê duplicação não foi detectada no Gate 1.5
+- ✅ **APRENDER** (meta-learning) para prevenir recorrência
+
+#### Exemplos Reais (Histórico)
+
+**1. ❌ Duplicação Detectada Tarde (Parser)**
+- **Workflow 2a**: Gate 1.5 não executado corretamente
+- **Workflow 2b**: Parser criado (680 linhas)
+- **Descoberta**: Commit e380c00 (revert após identificação)
+- **Custo**: 2h desenvolvimento + 1h revert + doc
+- **Prevenção**: Este checklist adicionado
+
+**2. ✅ Duplicação Detectada Cedo (Cache Custom)**
+- **Workflow 2a**: Gate 1.5 bloqueou (React Query já tem staleTime)
+- **Workflow 2b**: NÃO iniciado (prevenido)
+- **Ação**: Documentar uso React Query (5min)
+- **Economia**: ~8h desenvolvimento + manutenção futura
 
 ---
 
@@ -347,6 +538,8 @@ ls -1 docs/adr/ | grep -E "^ADR-[0-9]+" | tail -1
 ## ✅ Checkpoint: Design Técnico Validado!
 
 **Validações completas**:
+- ✅ 5 agentes executados em paralelo (não sequencial)
+- ✅ 5 arquivos `.context/*_technical-design-agent-*.md` criados
 - ✅ RCA executado (se aplicável)
 - ✅ Design técnico detalhado
 - ✅ Viabilidade confirmada
@@ -437,6 +630,221 @@ wc -c .windsurf/workflows/add-feature-2b-technical-design.md
 - ✅ Métricas técnicas (latência, throughput, memory usage)
 
 **Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
+
+---
+
+## ✅ FASE 5: CHECKPOINTS (REGRA #13 - Uma Ação Por Vez)
+
+**CRÍTICO**: Durante todo este workflow, SEMPRE executar checkpoint após CADA ação atômica.
+
+### 5.1. O que é uma Ação Atômica?
+
+**Ação atômica** = Menor unidade testável e reversível.
+
+**Exemplos deste workflow (Technical Design)**:
+- ✅ "Criar schema SQL para tabela X"
+- ✅ "Definir interface TypeScript para componente Y"
+- ✅ "Especificar contrato da API endpoint Z"
+- ✅ "Validar schema com database-schema-validator agent"
+- ✅ "Documentar decisão arquitetural em ADR"
+- ❌ "Criar todo design técnico completo" (NÃO atômico - múltiplas ações)
+
+### 5.2. Checkpoint Obrigatório (Após Cada Ação)
+
+**Usar script automatizado**:
+```bash
+./scripts/checkpoint.sh "descrição da ação executada"
+```
+
+**Ou manualmente**:
+
+**Template de Checkpoint**:
+```
+✅ AÇÃO COMPLETA: [descrição da ação]
+
+📸 EVIDÊNCIA:
+[schema SQL, interface TypeScript, spec API, validação]
+
+🔍 VALIDAÇÃO:
+- [x] Ação executada com sucesso
+- [x] Sem erros/warnings
+- [x] Design documentado
+- [x] Próxima ação identificada
+
+🎯 PRÓXIMA AÇÃO PROPOSTA:
+[descrição da próxima ação]
+
+⏸️ AGUARDANDO APROVAÇÃO do usuário para continuar.
+```
+
+### 5.3. Checklist Checkpoint (Executar a Cada Ação)
+
+- [ ] **Executei apenas 1 ação?**
+- [ ] **Mostrei evidência ao usuário?** (schema, interface, spec)
+- [ ] **Usuário validou?** (aprovação explícita)
+- [ ] **Documentei em `.context/`?** (attempts.log)
+- [ ] **Identifiquei próxima ação?** (planejamento incremental)
+
+### 5.4. Exemplo de Aplicação (Technical Design)
+
+**Fluxo com Checkpoints**:
+
+```
+1. AÇÃO: "Criar schema SQL para tabela lifetracker_X"
+   → Executar → Checkpoint → Aprovação
+
+2. AÇÃO: "Adicionar RLS policies para tabela"
+   → Executar → Checkpoint → Aprovação
+
+3. AÇÃO: "Definir interface TypeScript para hook useX()"
+   → Executar → Checkpoint → Aprovação
+
+4. AÇÃO: "Especificar contrato Edge Function /api/X"
+   → Executar → Checkpoint → Aprovação
+
+5. AÇÃO: "Validar design com database-schema-validator"
+   → Executar → Checkpoint → Aprovação
+```
+
+### 5.5. Quando NÃO Aplicar Checkpoint
+
+**Exceções** (ações podem ser agrupadas):
+- ✅ **Schema + RLS**: Se trivial e padrão (ex: tabela CRUD simples)
+- ✅ **Validação múltipla**: Rodar 3 validators em paralelo
+
+**MAS**: Mesmo nas exceções, mostrar resultado ANTES de próxima ação.
+
+### 5.6. Benefícios no Technical Design
+
+**Eficiência**:
+- ✅ Schema validado ANTES de migration
+- ✅ Interface TypeScript validada ANTES de componente
+- ✅ Zero retrabalho (cada design validado incrementalmente)
+
+**Colaboração**:
+- ✅ Usuário vê design incremental (tabela → RLS → API)
+- ✅ Feedback loop rápido (30seg por checkpoint)
+- ✅ Correção de design imediata (antes de código)
+
+### 5.7. Documentação Automática
+
+Cada checkpoint DEVE logar em `.context/attempts.log`:
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] CHECKPOINT: [ação] - SUCCESS" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+**Ver**: REGRA #13 em `.claude/CLAUDE.md` para detalhes completos.
+
+---
+
+## 🧠 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 2b: Technical Design ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - Validação sincronização DB (validate-db-sync.sh executado)
+  - Pre-Design: Duplication Check (grep codebase + docs oficiais)
+  - Arquitetura detalhada (componentes, hooks, database, queries)
+  - Dependências validadas (4 passos metodologia)
+  - Viabilidade técnica confirmada (stack, schema, performance, segurança)
+  - Validação Anti-Over-Engineering (YAGNI/KISS)
+  - Advogado do Diabo executado (fontes validadas, abordagem correta)
+  - ADR criado (se decisão arquitetural importante)
+- **Outputs**:
+  - Design técnico completo
+  - Lista de componentes/hooks/migrations necessários
+  - Riscos técnicos identificados + mitigações
+  - ADR (se aplicável)
+- **Next**: Workflow 3 (Risk Analysis)
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+# Atualizar seção "Estado Atual"
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+Workflow 2b (Technical Design) concluído com sucesso.
+
+**Design técnico validado e aprovado**.
+
+**Componentes planejados**: [Lista resumida de componentes principais]
+
+**Migrations necessárias**: [Lista de tabelas/mudanças DB]
+
+**Próximo passo**: Executar Workflow 3 (Risk Analysis) para análise detalhada de riscos e estratégias de mitigação.
+
+---
+
+## Próximos Passos
+
+- [ ] Executar Workflow 3 (Risk Analysis)
+- [ ] Identificar riscos técnicos, segurança e negócio
+- [ ] Definir estratégias de mitigação
+- [ ] Planejar rollback strategy
+
+---
+
+## Decisões Pendentes
+
+[Se houver decisões técnicas pendentes após design]
+
+EOF
+
+# Substituir seção no arquivo original (preservar "Última Atualização")
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Decisões Tomadas)
+
+**⚠️ Só atualizar se DECISÃO foi tomada no workflow.**
+
+```bash
+# Exemplo: Se criamos ADR sobre state management
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<EOF
+
+## Workflow 2b - Technical Design
+- **Decisão**: Usar Zustand para state management (vs Context API)
+- **Por quê**: Performance superior, bundle menor, API simples
+- **Trade-off**: Mais uma dependência, mas ROI positivo (< 3KB gzipped)
+- **Alternativas consideradas**:
+  - Context API: Rejeitada - re-renders desnecessários
+  - Redux: Rejeitada - over-engineering para escopo atual
+- **ADR**: docs/adr/ADR-XXX-zustand-state-management.md
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 2b (Technical Design) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] OUTPUT: Design técnico validado + ADR criado (se aplicável)" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md?
+- [ ] Atualizei temp-memory.md (Estado Atual + Próximos Passos)?
+- [ ] Atualizei decisions.md (se decisão tomada)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + outputs)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
 
 ---
 

@@ -8,6 +8,7 @@
 
 Este arquivo contém instruções **específicas do projeto Life Tracker**. Para regras **globais**, consulte:
 - **`/Users/tiago/.codeium/windsurf/memories/global_rules.md`**: Regras universais
+- **`docs/INDEX-MASTER.md`**: ⭐ Índice mestre da documentação (consultar ANTES de criar docs)
 
 **Hierarquia**: Regras deste arquivo têm prioridade para Life Tracker.
 
@@ -293,6 +294,57 @@ git push
 
 ### ADR Relacionado
 - **ADR 003**: Docker Swarm + Traefik (2025-10-31)
+
+---
+
+## 🚨 GEMINI SYSTEM PROMPT HARD LIMIT (9000 TOKENS)
+
+**CRÍTICO**: Gemini 2.5 Flash falha silenciosamente quando system prompt > 9000 tokens.
+
+**Problema**:
+- Gemini retorna vazio (`{"content": {"role": "model"}}` sem `parts`)
+- `finishReason: "STOP"` mas sem tool call ou texto
+- Nenhum erro explícito, falha 100% silenciosa
+
+**Evidências**:
+- **9350 tokens**: Gemini retorna vazio ❌
+- **9034 tokens**: Gemini chama tools corretamente ✅
+- **Limite real**: ~9000 tokens (não documentado oficialmente)
+
+**Regra Obrigatória**:
+> **System prompt do Gemini 2.5 Flash NUNCA pode exceder 9000 tokens.**
+
+**Monitoramento**:
+```typescript
+// SEMPRE logar promptTokenCount
+console.log('[DEBUG] 📥 Gemini Response:', JSON.stringify(result));
+// Verificar: "promptTokenCount": 9034  // ✅ < 9000
+```
+
+**Prevenção**:
+1. ❌ **NUNCA adicionar** examples/tools sem remover outros
+2. ✅ **SEMPRE verificar** total após mudanças
+3. ✅ **SEMPRE manter** margem de 1000 tokens (safety buffer)
+4. ✅ **SEMPRE remover** redundâncias (examples similares, descriptions verbosas)
+
+**Otimização**:
+- **Examples**: Máximo 5 (essenciais, não redundantes)
+- **Tool descriptions**: Concisas (< 200 chars por tool)
+- **RAG context**: Máximo 200 tokens (últimas 20 msgs)
+- **Total target**: 8000-8500 tokens (margem de 500-1000)
+
+**Red Flags**:
+- ⚠️ Prompt > 8500 tokens → Risco alto
+- 🔴 Prompt > 9000 tokens → Falha garantida
+- ❌ Adicionar example sem remover outro
+
+**Checklist** (antes de modificar system prompt):
+- [ ] Contei tokens atuais?
+- [ ] Nova mudança adiciona quantos tokens?
+- [ ] Total ficará < 9000?
+- [ ] Posso remover algo redundante?
+
+**Benefício**: Previne falhas silenciosas, tool calling 100% estável
 
 ---
 
