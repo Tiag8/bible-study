@@ -115,6 +115,28 @@ git log main..HEAD --oneline
 
 **Candidatos**: `scripts/*.sh` (sem lógica específica), `.windsurf/workflows/*.md`, `.claude/agents/*.md` (genéricas), `.claude/commands/*.md`, `.claude/CLAUDE.md` (seções reutilizáveis), `AGENTS.md`, `docs/adr/*.md`
 
+---
+
+### FASE 1.5: Auditoria Multi-Categoria (3+ Agentes Paralelos)
+
+**CRÍTICO**: Executar auditoria estrutural ANTES de sync.
+
+```bash
+# Usar Task tool com 3-4 agentes paralelos
+```
+
+**Agentes**:
+1. Workflows: Detectar duplicatas + obsoletos + novos
+2. Scripts: Listar genéricos (validate-*, context-*, deploy-*)
+3. .claude/: Agentes/commands genéricos
+4. docs/: ADRs/guides genéricos (sem específicos projeto)
+
+**Output esperado**:
+- ADD: Lista arquivos novos
+- DELETE: Lista obsoletos
+- UPDATE: Lista desatualizados (diff bytes)
+- SKIP: Lista específicos (não sync)
+
 **Perguntar ao usuário:**
 
 ```
@@ -141,13 +163,15 @@ Sincronizar com project-template? (sim/não/escolher)
 ./scripts/sync-to-template.sh
 ```
 
-**O script**:
-1. Detecta mudanças em `.windsurf/workflows/`, `.claude/agents/`, `.claude/commands/`, `.claude/CLAUDE.md`, `scripts/`, `AGENTS.md`
-2. Apresenta lista com diff
-3. Permite seleção (a=todos, n=nenhum, s=individual)
-4. Copia para `/Users/tiago/Projects/project-template`
-5. Oferece commit automático
-6. Verifica: template path existe? arquivos mudaram? cria diretórios?
+**O script v2.0**:
+1. ✅ Backup automático (`.backup-YYYYMMDD/`)
+2. ✅ Cleanup duplicatas workflows (número inteiro → deletar)
+3. ✅ Detecta mudanças (diff multi-categoria)
+4. ✅ Apresenta lista categorizada (ADD/DELETE/UPDATE/SKIP)
+5. ✅ Permite seleção (a/n/s)
+6. ✅ Copia + sobrescreve template
+7. ✅ Validação estrutural (diff vazio = sucesso)
+8. ✅ Oferece commit automático
 
 ---
 
@@ -171,6 +195,22 @@ cat scripts/[arquivo-sincronizado].sh
 **Checklist**: Arquivos copiados? Sem referências específicas? Sem secrets? Sem paths hardcoded? Código limpo?
 
 **Exemplos**: SUPABASE_URL="${VITE_SUPABASE_URL}" (genérico, não hardcoded), BACKUP_DIR="./backups" (relativo)
+
+---
+
+### FASE 3.5: Validação Estrutural (OBRIGATÓRIA)
+
+**SEMPRE executar**:
+
+```bash
+# 1. Workflows estrutura idêntica
+diff <(ls -1 /Users/tiago/Projects/life_tracker/.windsurf/workflows/add-feature-*.md | xargs -n1 basename | sort) \
+     <(ls -1 /Users/tiago/Projects/project-template/.windsurf/workflows/add-feature-*.md | xargs -n1 basename | sort)
+
+# Diff VAZIO = ✅ | Diff NÃO VAZIO = ❌
+```
+
+**Se falhar**: Investigar diferenças, corrigir, re-executar sync.
 
 ---
 
