@@ -23,6 +23,60 @@ Antes de iniciar, SEMPRE ler:
 
 ---
 
+## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
+
+### 0.1. Ler INDEX.md (Guia de Leitura)
+
+```bash
+cat .context/INDEX.md
+```
+
+**Entender**:
+- Ordem de leitura dos arquivos
+- O que cada arquivo faz
+- Checklists obrigatórios
+
+### 0.2. Ler Context Files (Ordem Definida em INDEX.md)
+
+```bash
+# Prefixo da branch (ex: feat-members)
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+# 1. Onde estou agora?
+cat .context/${BRANCH_PREFIX}_workflow-progress.md
+
+# 2. Estado atual resumido
+cat .context/${BRANCH_PREFIX}_temp-memory.md
+
+# 3. Decisões já tomadas
+cat .context/${BRANCH_PREFIX}_decisions.md
+
+# 4. Histórico completo (últimas 30 linhas)
+tail -30 .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### 0.3. Validação Context Loaded
+
+**Checklist**:
+- [ ] Li INDEX.md?
+- [ ] Li workflow-progress.md (onde estou)?
+- [ ] Li temp-memory.md (estado atual)?
+- [ ] Li decisions.md (decisões já tomadas)?
+- [ ] Li últimas 30 linhas de attempts.log?
+
+**Se NÃO leu**: ⛔ PARAR e ler AGORA.
+
+### 0.4. Log Início Workflow
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 7b (RCA & Security Analysis) - START" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+---
+
 # Workflow 7b/11: RCA e Security Analysis
 
 ---
@@ -366,6 +420,150 @@ wc -c .windsurf/workflows/add-feature-7b-rca-security.md
 - ✅ Métricas técnicas (latência, throughput, memory usage)
 
 **Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
+
+---
+
+## 🧠 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 7b: RCA & Security Analysis ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - RCA executado (se Quality Gates falharam)
+  - 5 Whys para causa raiz de falhas
+  - Resolução em Teia (mapeamento completo)
+  - Troubleshooting de segurança completo
+  - Documentação atualizada
+- **Outputs**:
+  - Causa raiz identificada (se aplicável)
+  - Workflows atualizados (prevenção)
+  - ADR criado (se decisão arquitetural)
+  - Quality score final aprovado
+- **Next**: Workflow 8 (Meta-Learning)
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+# Atualizar seção "Estado Atual"
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+Workflow 7b (RCA & Security Analysis) concluído com sucesso.
+
+**RCA executado**: [SIM/NÃO - se SIM, descrever causa raiz]
+
+**Próximo passo**: Executar Workflow 8 (Meta-Learning) para consolidar aprendizados.
+
+---
+
+## Próximos Passos
+
+- [ ] Executar Workflow 8 (Meta-Learning)
+- [ ] Consolidar learnings sistêmicos
+- [ ] Prosseguir para commit/push
+
+---
+
+## Decisões Pendentes
+
+Nenhuma.
+
+EOF
+
+# Substituir seção no arquivo original (preservar "Última Atualização")
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Decisões Tomadas)
+
+**⚠️ Só atualizar se DECISÃO foi tomada no workflow.**
+
+```bash
+# Exemplo: Se decidimos atualizar workflow permanentemente
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<EOF
+
+## Workflow 7b - RCA & Security Analysis
+- **Decisão**: [Descrever decisão - ex: "Adicionar validação tsconfig no Workflow 4"]
+- **Por quê**: [Motivo - ex: "RCA identificou gap sistêmico"]
+- **Trade-off**: [Ex: "+2min por feature, previne 1h debugging"]
+- **Alternativas consideradas**: [Listar opções rejeitadas]
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 7b (RCA & Security Analysis) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] RCA: [Executado/Não aplicável] - [Causa raiz se executado]" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] QUALITY SCORE: [Score final 0-10]" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md?
+- [ ] Atualizei temp-memory.md (Estado Atual + Próximos Passos)?
+- [ ] Atualizei decisions.md (se decisão tomada)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + RCA + Quality Score)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
+
+---
+
+## 🔄 VALIDATION LOOP (OBRIGATÓRIO - Workflows Iterativos)
+
+**APLICÁVEL**: Se workflow envolve RCA iterativo ou troubleshooting de segurança.
+
+**Sistema**: Registrar iterações em `.context/{branch}_validation-loop.md`.
+
+### Quando Usar
+
+**Usar SE**:
+- [ ] RCA executado (5 Whys iterativos)
+- [ ] Security issues encontrados (troubleshooting iterativo)
+- [ ] Vulnerabilidades corrigidas (validação pós-fix)
+
+**Criar Validation Loop** (SE aplicável):
+
+```bash
+BRANCH=$(git branch --show-current | sed 's/\//-/g')
+
+cat > .context/${BRANCH}_validation-loop.md <<'EOF'
+# Validation Loop - Workflow 7b (RCA & Security)
+
+**Data Início**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+**Status**: 🔄 Em Progresso
+
+## Iteração 1
+
+**Problema**: [Descrição]
+**RCA (5 Whys)**:
+1. Por quê X? → Y
+2. ...
+5. **Causa Raiz**: [Sistêmica]
+
+**Fix**: [Aplicado]
+**Resultado**: ✅ | ❌
+
+EOF
+```
+
+**Benefícios**: RCA rastreável, padrões sistêmicos visíveis, meta-learnings ricos.
+
+**Ref**: Workflow 6a aprovado, Meta-Learning #3
 
 ---
 

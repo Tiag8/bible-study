@@ -38,6 +38,60 @@ Este é o **segundo workflow de pós-deploy** para análise de problemas, coleta
 
 ---
 
+## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
+
+### 0.1. Ler INDEX.md (Guia de Leitura)
+
+```bash
+cat .context/INDEX.md
+```
+
+**Entender**:
+- Ordem de leitura dos arquivos
+- O que cada arquivo faz
+- Checklists obrigatórios
+
+### 0.2. Ler Context Files (Ordem Definida em INDEX.md)
+
+```bash
+# Prefixo da branch (ex: feat-members)
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+# 1. Onde estou agora?
+cat .context/${BRANCH_PREFIX}_workflow-progress.md
+
+# 2. Estado atual resumido
+cat .context/${BRANCH_PREFIX}_temp-memory.md
+
+# 3. Decisões já tomadas
+cat .context/${BRANCH_PREFIX}_decisions.md
+
+# 4. Histórico completo (últimas 30 linhas)
+tail -30 .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### 0.3. Validação Context Loaded
+
+**Checklist**:
+- [ ] Li INDEX.md?
+- [ ] Li workflow-progress.md (onde estou)?
+- [ ] Li temp-memory.md (estado atual)?
+- [ ] Li decisions.md (decisões já tomadas)?
+- [ ] Li últimas 30 linhas de attempts.log?
+
+**Se NÃO leu**: ⛔ PARAR e ler AGORA.
+
+### 0.4. Log Início Workflow
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 13b (Post-Deploy Pt2 - RCA/Metrics) - START" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+---
+
 ## 🔍 Fase 5: Root Cause Analysis (Se Smoke Tests Falharem)
 
 ### 5.1 Quando Usar RCA
@@ -348,6 +402,131 @@ Se **QUALQUER** dos seguintes ocorrer:
 - ✅ Rollback plan pronto
 
 **Próxima etapa:** Comunicar sucesso ao time e encerrar sprint.
+
+---
+
+## 🧠 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+**🎉 WORKFLOW FINAL**: Este é o último workflow do ciclo - feature COMPLETA!
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 13b: RCA, Metrics e Documentação (Parte 2) ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - Root Cause Analysis (se problemas identificados)
+  - Resolução em Teia (mapeamento holístico)
+  - Monitoramento tempo real (10min - 4 agentes)
+  - Coleta métricas/KPIs (técnicos e produto)
+  - Documentação final (TASK.md, DEPLOYMENT_LOG.md)
+  - Rollback planning (preparado para emergências)
+- **Outputs**:
+  - RCA completo com 5 Whys e resolução em teia
+  - Monitoramento 10min OK (CPU, Memory, Logs, UX)
+  - KPIs coletados (performance, resources, engagement)
+  - Documentação atualizada e release notes criados
+  - Rollback plan pronto (< 5min se necessário)
+- **Next**: NENHUM (ciclo completo - feature deployada e validada!)
+
+---
+
+🎊 **FEATURE COMPLETA**: Todos workflows (1-13b) executados com sucesso!
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+# Atualizar seção "Estado Atual"
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+🎉 **FEATURE COMPLETA E DEPLOYADA COM SUCESSO!**
+
+Workflow 13b (RCA, Metrics e Documentação) concluído - último workflow do ciclo.
+
+**Status Final**:
+- ✅ Planning (Workflow 1)
+- ✅ Solutions Design (Workflow 2a/2b)
+- ✅ Technical Design (Workflow 3)
+- ✅ Quality Gates (Workflow 4a/4b)
+- ✅ Implementation (Workflow 5a/5b)
+- ✅ User Validation (Workflow 6a/6b)
+- ✅ Quality Gates Final (Workflow 7a/7b)
+- ✅ Merge & Release (Workflow 8a/8b)
+- ✅ Rollout (Workflow 9/10)
+- ✅ Deploy (Workflow 11a/11b/12)
+- ✅ Post-Deploy Validation (Workflow 13/13a)
+- ✅ RCA, Metrics, Docs (Workflow 13b) ← **FINAL**
+
+**Deploy Status**: ✅ PRODUÇÃO (monitoramento OK, métricas coletadas)
+
+**Próximo passo**: Nova feature ou manutenção (ciclo recomeça do Workflow 1).
+
+---
+
+## Próximos Passos
+
+- [ ] Comunicar time sobre deploy bem-sucedido
+- [ ] Criar post-mortem (se houver incidentes menores)
+- [ ] Planejar próxima feature
+- [ ] Arquivar .context/ desta branch (opcional)
+
+---
+
+## Decisões Pendentes
+
+- Nenhuma (ciclo completo)
+
+EOF
+
+# Substituir seção no arquivo original (preservar "Última Atualização")
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Decisões Tomadas)
+
+**⚠️ Só atualizar se DECISÃO foi tomada no workflow.**
+
+```bash
+# Exemplo: Se decisão sobre rollback ou KPIs coletados
+# cat >> .context/${BRANCH_PREFIX}_decisions.md <<EOF
+#
+# ## Workflow 13b - RCA, Metrics e Documentação (Parte 2)
+# - **Decisão**: Feature deployada com sucesso, sem necessidade de rollback
+# - **Por quê**: Todos KPIs dentro dos targets (latência, throughput, error rate)
+# - **Trade-off**: N/A
+# - **Alternativas consideradas**: Rollback (rejeitado - métricas OK)
+# - **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+# EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 13b (Post-Deploy Pt2 - RCA/Metrics) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] 🎊 FEATURE COMPLETA: Deploy validado, métricas OK, docs atualizadas" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] CICLO WORKFLOW: 1-13b FINALIZADO COM SUCESSO" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md?
+- [ ] Atualizei temp-memory.md (Estado Atual + Próximos Passos)?
+- [ ] Atualizei decisions.md (se decisão tomada)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + feature completa)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
 
 ---
 

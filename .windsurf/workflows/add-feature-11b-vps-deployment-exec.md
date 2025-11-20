@@ -15,6 +15,82 @@ description: Workflow 11b - VPS Deployment Execution (Build, Deploy, Validação
 
 ---
 
+## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
+
+### 0.1. Ler Context Files
+
+```bash
+BRANCH_PREFIX=$(git symbolic-ref --short HEAD 2>/dev/null | sed 's/\//-/g' || echo "main")
+
+# 1. Guia
+cat .context/INDEX.md
+
+# 2. Progresso (verificar Workflow 11a completo)
+cat .context/${BRANCH_PREFIX}_workflow-progress.md
+
+# 3. Estado (verificar deployment prep OK)
+cat .context/${BRANCH_PREFIX}_temp-memory.md
+
+# 4. Decisões (revisar deployment strategy)
+cat .context/${BRANCH_PREFIX}_decisions.md
+
+# 5. Histórico (últimas 30 linhas)
+tail -30 .context/${BRANCH_PREFIX}_attempts.log
+```
+
+**Checklist Pré-Deployment Exec**:
+- [ ] Li INDEX.md?
+- [ ] Workflow 11a marcado como ✅ COMPLETO em workflow-progress.md?
+- [ ] temp-memory.md indica "DEPLOYMENT PREP COMPLETO"?
+- [ ] Deployment strategy em decisions.md validada?
+- [ ] Nenhum bloqueador em attempts.log?
+
+**Se NÃO leu ou tem bloqueadores**: ⛔ PARAR e resolver ANTES de deployment exec.
+
+### 0.2. Log Início Workflow
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 11b (VPS Deployment Exec) - START" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+---
+
+## 🚫 Fase 0.5: Deploy Approval Checkpoint (Pre-Deploy)
+
+**ZERO deploys production sem aprovação explícita**
+
+**Validação OBRIGATÓRIA:**
+- [ ] Environment correto? (production/staging)
+- [ ] Pre-deploy checklist executado? (./scripts/pre-deploy-check.sh)
+- [ ] Backup database recente? (< 24h)
+- [ ] Rollback plan documentado?
+- [ ] Smoke tests preparados?
+
+**Template Checkpoint:**
+```
+🔴 DEPLOY TO VPS:
+Environment: [production/staging]
+VPS: 31.97.22.151
+Changes: [listar features/fixes a deployar]
+
+Pre-Deploy Checklist:
+[✅/❌] Pre-deploy script passed
+[✅/❌] Database backup exists
+[✅/❌] Rollback plan ready
+
+⚠️ OPERAÇÃO IRREVERSÍVEL (afeta usuários)
+⏸️ APROVAR deploy to VPS? (yes/no)
+```
+
+**SE APROVADO**: Executar `./scripts/deploy-vps.sh`
+**SE REJEITADO**: Corrigir issues e repetir checklist
+
+**REGRA CRÍTICA**: Se qualquer item checklist falhou, BLOQUEAR deploy
+
+---
+
 ## 🏗️ Fase 25: Build e Validação Local
 
 **Objetivo**: Build Docker local + testes básicos.
@@ -207,6 +283,161 @@ cat .windsurf/workflows/debug-complex-problem.md
 - [ ] Assets servindo
 - [ ] SSL válido
 - [ ] Teste manual no browser OK
+
+---
+
+## ⏸️ Fase 27.5: Git Approval Checkpoint (Git Tag)
+
+**Git tags são imutáveis (versionamento semântico)**
+
+**Validação:**
+- [ ] Deploy 100% sucesso?
+- [ ] Smoke tests passaram?
+- [ ] Versão semântica correta? (vX.Y.Z)
+- [ ] Tag message descritiva?
+- [ ] CHANGELOG.md atualizado?
+
+**Template Checkpoint:**
+```
+✅ DEPLOY SUCCESS - Criar Git Tag:
+Tag: v[X.Y.Z]
+Message: [deployment summary]
+
+Deployment Status:
+[✅] Deploy completed
+[✅] Health checks OK
+[✅] Smoke tests passed
+
+⏸️ APROVAR git tag? (yes/no)
+```
+
+**SE APROVADO**: Executar `git tag -a v[X.Y.Z]` + push tag
+**SE REJEITADO**: Investigar issues antes de tagear
+
+**REGRA**: Tag APENAS após deploy 100% validado
+
+---
+
+## 📊 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 11b: VPS Deployment Exec ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - Build Docker local (multi-stage, Alpine)
+  - Push image para VPS (rsync/scp)
+  - Deploy Docker Swarm (docker stack deploy)
+  - Health checks (curl HTTPS, service status)
+  - Smoke tests (HTML válido, assets OK, SSL OK)
+- **Outputs**:
+  - Image: life-tracker:$(date +%Y%m%d-%H%M%S)
+  - Service: lifetracker_app (1/1 replicas Running)
+  - URL: https://life-tracker.stackia.com.br ✅ HTTPS OK
+  - SSL: ✅ VALID
+  - Smoke tests: ✅ PASSING
+- **Deploy Time**: [timestamp deploy completo]
+- **Next**: Workflow 11c1a (VPS Monitoring 10-15min)
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+✅ **DEPLOYED TO PRODUCTION**
+
+Workflow 11b (VPS Deployment Exec) concluído.
+
+**Status Deployment Pipeline**:
+- ✅ Workflows 1-10 (Feature completa)
+- ✅ Deployment Prep (Workflow 11a)
+- ✅ **Deployment Exec (Workflow 11b)** ← **DEPLOYED**
+
+**Production Status**:
+- ✅ Service: lifetracker_app (1/1 replicas Running)
+- ✅ URL: https://life-tracker.stackia.com.br (HTTPS OK)
+- ✅ SSL: VALID
+- ✅ Health checks: PASSING
+- ✅ Smoke tests: OK (HTML, assets, SSL)
+
+**Deploy Info**:
+- Image: life-tracker:[timestamp]
+- Deploy time: [timestamp]
+- Service replicas: 1/1 Running
+
+**Próximo passo**: Workflow 11c1a (VPS Monitoring) - Monitorar 10-15min
+
+## Bloqueios/Questões
+
+- Nenhum bloqueador - monitoramento necessário (10-15min)
+EOF
+
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Decisão Tomada)
+
+**SE houve decisão crítica durante deploy**:
+
+```bash
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<'EOF'
+
+---
+
+## Decisão: Deploy Execution Strategy
+
+**Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+**Contexto**: Workflow 11b - Deploy Docker Swarm em produção
+**Decisão**: [Rolling update / Blue-Green / Recreate]
+
+**Configurações Aplicadas**:
+- Update parallelism: [1 / 2 / 3]
+- Update delay: [10s / 30s / 60s]
+- Rollback on failure: [SIM / NÃO]
+- Health check grace period: [30s / 60s / 90s]
+
+**Resultado**:
+- Deploy time total: [X minutos]
+- Downtime: [ZERO / X segundos]
+- Replicas afetadas: [1/1 / 2/2]
+
+**Issues Durante Deploy** (se aplicável):
+- [Issue 1]: [Como resolvido]
+- [Issue 2]: [Como resolvido]
+
+**Referências**: ADR-003 (Docker Swarm), docs/ops/deploy-history.md
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 11b (VPS Deployment Exec) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] ✅ DEPLOY: Service lifetracker_app 1/1 Running, HTTPS OK, SSL OK" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] PRÓXIMO PASSO: Workflow 11c1a (VPS Monitoring - 10-15min obrigatório)" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md com deploy timestamp e service status?
+- [ ] Atualizei temp-memory.md (Estado Atual + Production Status)?
+- [ ] Atualizei decisions.md (se deploy strategy decidida ou issues encontrados)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + service status)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
 
 ---
 

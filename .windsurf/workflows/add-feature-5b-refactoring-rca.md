@@ -13,12 +13,6 @@ auto_execution_mode: 1
 
 ---
 
-## ⚠️ REGRA CRÍTICA: USO MÁXIMO DE AGENTES
-
-**SEMPRE usar máximo de agentes em paralelo** (Fase 12: por tipo de erro).
-
----
-
 ## 📚 Pré-requisito: Consultar Documentação Base
 
 Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
@@ -28,6 +22,66 @@ Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
 
 > **💡 MCPs Úteis**: `supabase_lifetracker` (EXPLAIN ANALYZE queries lentas), `gemini-cli` (RCA profundo)
 > Ver: `docs/integrations/MCP.md`
+
+---
+
+## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
+
+### 0.1. Ler INDEX.md (Guia de Leitura)
+
+```bash
+cat .context/INDEX.md
+```
+
+**Entender**:
+- Ordem de leitura dos arquivos
+- O que cada arquivo faz
+- Checklists obrigatórios
+
+### 0.2. Ler Context Files (Ordem Definida em INDEX.md)
+
+```bash
+# Prefixo da branch (ex: feat-members)
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+# 1. Onde estou agora?
+cat .context/${BRANCH_PREFIX}_workflow-progress.md
+
+# 2. Estado atual resumido
+cat .context/${BRANCH_PREFIX}_temp-memory.md
+
+# 3. Decisões já tomadas
+cat .context/${BRANCH_PREFIX}_decisions.md
+
+# 4. Histórico completo (últimas 30 linhas)
+tail -30 .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### 0.3. Validação Context Loaded
+
+**Checklist**:
+- [ ] Li INDEX.md?
+- [ ] Li workflow-progress.md (onde estou)?
+- [ ] Li temp-memory.md (estado atual)?
+- [ ] Li decisions.md (decisões já tomadas)?
+- [ ] Li últimas 30 linhas de attempts.log?
+
+**Se NÃO leu**: ⛔ PARAR e ler AGORA.
+
+### 0.4. Log Início Workflow
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 5b (Refactoring & RCA) - START" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+---
+
+## ⚠️ REGRA CRÍTICA: USO MÁXIMO DE AGENTES
+
+**SEMPRE usar máximo de agentes em paralelo** (Fase 12: por tipo de erro).
 
 ---
 
@@ -73,6 +127,154 @@ chmod +x .git/hooks/pre-commit
 3. **Se falhar 2x**: Pedir ajuda com logs
 
 **Bugs Complexos**: Ver `/debug-complex-problem` workflow (5 agentes paralelos)
+
+---
+
+## 🔍 Duplication Debt Check (OBRIGATÓRIO)
+
+**CRÍTICO**: Durante refactoring, SEMPRE verificar se código já implementado duplica funcionalidades nativas ou bibliotecas instaladas.
+
+**Objetivo**: Detectar e remover over-engineering EXISTENTE (débito técnico), não apenas prevenir futuro.
+
+### Checklist Detecção de Duplicação (OBRIGATÓRIO)
+
+**1. Funcionalidades Nativas Duplicadas**
+
+**Gemini AI** (tool calling, parsing):
+```bash
+# Buscar parsers/extractors que deveriam ser tool calling
+grep -r "parse.*function\|extract.*function" supabase/functions/_shared/ | grep -v "test\|README"
+```
+
+**Sinais de duplicação**:
+- ❌ Funções `parseX()` que convertem texto → estrutura (Gemini JÁ faz via tool declarations)
+- ❌ Regex patterns para parsing conversacional (descriptions ricas > regex)
+- ❌ Validações que deveriam estar em Zod schemas dos tools
+
+**React Query** (cache, stale, invalidation):
+```bash
+# Buscar cache custom
+grep -r "cache\|memoize\|store" src/hooks/ src/lib/ | grep -v "node_modules\|test"
+```
+
+**Sinais de duplicação**:
+- ❌ Custom cache layer (React Query JÁ tem staleTime/cacheTime)
+- ❌ Manual invalidation (queryClient.invalidateQueries JÁ existe)
+- ❌ LocalStorage para cache (React Query persister JÁ cobre)
+
+**Supabase** (auth, RLS, realtime):
+```bash
+# Buscar auth/validation custom
+grep -r "validateUser\|checkAuth\|verifyToken" supabase/functions/_shared/ | grep -v "test"
+```
+
+**Sinais de duplicação**:
+- ❌ Auth custom (Supabase Auth JÁ tem passwordless/OTP/social)
+- ❌ Validation layer (RLS policies + Zod JÁ validam)
+- ❌ Manual subscriptions (Supabase Realtime JÁ tem)
+
+**2. Bibliotecas Instaladas**
+
+```bash
+# Listar todas as bibliotecas
+cat package.json | grep '"' | grep -v "//"
+```
+
+**Verificar se código reimplementa**:
+- Zod → Validation schemas
+- Lucide-react → Ícones
+- Recharts → Charts/graphs
+- date-fns → Date manipulation
+- React Hook Form → Form handling
+
+**3. Patterns Over-Engineered**
+
+```bash
+# Buscar abstrações excessivas
+grep -r "abstract\|factory\|builder\|singleton" src/ supabase/functions/ | grep -v "node_modules\|test"
+```
+
+**Sinais**:
+- ❌ Mais de 3 camadas de abstração para problema simples
+- ❌ Design patterns sem ROI (Singleton, Factory, Builder sem necessidade)
+- ❌ HOCs/Context quando props diretas funcionam
+
+### Exemplos Reais de Duplicação Detectada
+
+**1. ❌ habit-field-parser.ts (680 linhas) → Gemini Tool Calling**
+
+**Detectado em**: Workflow 5a (durante implementação)
+
+**Duplicação**:
+- Parser: `parseFrequency("3x por semana") → { target_frequency: 3, frequency_type: "weekly" }`
+- Gemini: Tool declaration com `description: "PARSING BRASILEIRO: '3x por semana' → 3"` JÁ faz o mesmo
+
+**Overhead**:
+- 680 linhas código + testes + docs
+- Regex frágil (vs AI robusta)
+- Manutenção contínua (vs adicionar exemplo)
+
+**Ação Tomada**:
+- ⛔ REMOVIDO parser (commit e380c00)
+- ✅ Criado tools com parsing inline (commit 836f4bb)
+- ✅ Redução: -365 linhas (-54%)
+
+**Documentação**: `docs/META_LEARNING_ML-006_parser_over_engineering.md`
+
+**2. ❌ Sentry MCP → Curl + API Direta**
+
+**Detectado em**: Code review externo
+
+**Duplicação**:
+- MCP Sentry: Abstração para acessar Sentry API via MCP
+- Curl: `curl -H "Authorization: Bearer $TOKEN" https://sentry.io/api/issues/` faz o mesmo
+
+**Overhead**:
+- Configuração MCP (.mcp.json, tokens)
+- Manutenção de server adicional
+- Documentação específica
+
+**Ação Tomada**:
+- ⛔ REMOVIDO Sentry MCP
+- ✅ Uso direto de curl/fetch quando necessário
+
+### Ações ao Detectar Duplicação
+
+**SE duplicação detectada**:
+1. ⛔ **BLOQUEAR refactoring** temporariamente
+2. 🔍 **RCA (5 Whys)** → Por quê duplicação existe?
+3. 📝 **Documentar** no formato:
+   ```markdown
+   ## Duplicação Detectada: [Nome]
+   - Funcionalidade nativa: [Gemini/React/Supabase/Lib]
+   - Overhead: [Linhas código, manutenção, complexidade]
+   - Ação: REMOVER / SIMPLIFICAR / MIGRAR
+   ```
+4. 🗑️ **Remover duplicação** (commit separado)
+5. ✅ **Validar** não quebrou funcionalidade
+6. 📚 **Meta-Learning** (se sistêmico)
+
+**SE nenhuma duplicação**:
+- ✅ Continuar refactoring normalmente
+
+### Red Flags Críticos (Bloqueio Imediato)
+
+- ❌ Parser/Extractor → Verificar se Gemini tool calling resolve
+- ❌ Cache custom → Verificar se React Query staleTime/cacheTime resolve
+- ❌ Validation layer → Verificar se Zod + RLS resolve
+- ❌ Auth custom → Verificar se Supabase Auth resolve
+- ❌ Utils genéricos → Verificar se lib instalada (date-fns, lodash) resolve
+
+### Benefícios
+
+- ✅ Reduz débito técnico (código duplicado removido)
+- ✅ Mantém codebase enxuto (menos linhas = menos bugs)
+- ✅ Aproveita ferramentas nativas (melhor performance, menos manutenção)
+- ✅ Documenta aprendizados (previne recorrência)
+
+### Regra de Ouro
+
+> "Se código pode ser substituído por tool calling, config, ou lib instalada, é débito técnico."
 
 ---
 
@@ -436,6 +638,110 @@ wc -c .windsurf/workflows/NOME_DESTE_WORKFLOW.md
 - ✅ Métricas técnicas (latência, throughput, memory usage)
 
 **Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
+
+---
+
+## 🧠 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 5b: Refactoring & RCA ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - Git hooks instalados (pre-commit validation)
+  - Refactoring aplicado (código duplicado, funções longas, nomes ruins)
+  - Duplication Debt Check executado (Gemini/React/Supabase)
+  - RCA aplicado se bugs recorrentes (5 Whys)
+  - Resolução em Teia se RCA aplicado (mapeamento completo)
+- **Outputs**:
+  - Git hooks ativos (.git/hooks/pre-commit)
+  - Código refatorado (limpo, modular)
+  - Duplicações removidas (parsers, cache custom, validation layers)
+  - RCA documentado (se aplicável)
+  - Resolução em Teia completa (todos arquivos conectados)
+- **Next**: Workflow 6 (User Validation)
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+# Atualizar seção "Estado Atual"
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+Workflow 5b (Refactoring & RCA) concluído com sucesso.
+
+**Código finalizado**:
+- Refactoring: ✅ Código limpo e modular
+- Duplicações: ✅ Removidas (débito técnico zero)
+- RCA: [SE aplicável: causa raiz identificada e prevenção implementada]
+
+**Próximo passo**: Executar Workflow 6 (User Validation) para validação manual CRÍTICA antes de commitar.
+
+---
+
+## Próximos Passos
+
+- [ ] Executar Workflow 6 (User Validation)
+- [ ] Teste manual completo (funcionalidade + UI/UX)
+- [ ] Screenshots ANTES vs DEPOIS
+- [ ] Validar não quebrou features existentes
+
+---
+
+## Decisões Pendentes
+
+- [ ] Aprovação usuário para commit/push (GATE crítico)
+
+EOF
+
+# Substituir seção no arquivo original (preservar "Última Atualização")
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Decisões Tomadas)
+
+**⚠️ Só atualizar se DECISÃO foi tomada no workflow.**
+
+```bash
+# Exemplo: Se RCA identificou causa raiz sistêmica
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<EOF
+
+## Workflow 5b - Refactoring & RCA
+- **Decisão**: [RCA aplicado / Duplicação removida / Refactoring padrão]
+- **Por quê**: [Bug recorrente / Débito técnico / Código complexo]
+- **Trade-off**: [Manutenibilidade vs Tempo refactoring]
+- **Alternativas consideradas**: [Deixar como está / Refactor parcial]
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 5b (Refactoring & RCA) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] DECISION: Refactoring concluído - [resumo mudanças]" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md?
+- [ ] Atualizei temp-memory.md (Estado Atual + Próximos Passos)?
+- [ ] Atualizei decisions.md (se decisão tomada)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + decisões)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
 
 ---
 

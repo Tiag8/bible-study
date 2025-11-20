@@ -159,14 +159,27 @@ Este workflow foi dividido em **10 etapas modulares** que se chamam automaticame
 ---
 
 ### **1️⃣1️⃣ VPS Deployment** (Deploy para Produção) ⭐ NOVO!
-📄 `.windsurf/workflows/add-feature-11-vps-deployment.md`
+📄 `.windsurf/workflows/add-feature-11a-vps-deployment-prep.md`
+📄 `.windsurf/workflows/add-feature-11b-vps-deployment-exec.md`
+📄 `.windsurf/workflows/add-feature-11c1-vps-monitoring.md`
+📄 `.windsurf/workflows/add-feature-11c2-vps-rollback-docs.md`
 
-**O que acontece neste workflow:**
+**O que acontece nestes workflows (4 partes)**:
+
+**Parte A (Prep)**:
 - Fase 24: Pré-Deploy Checklist (merge OK, build OK, security OK)
 - Fase 25: Build e Validação Local (testar imagem antes de deploy)
+
+**Parte B (Exec)**:
 - Fase 26: Deploy para VPS (automático via script ou manual SSH)
 - Fase 27: Validação Pós-Deploy (smoke tests, health checks)
+
+**Parte 3a (Monitoring)**:
 - Fase 28: Monitoramento (10min observando logs/métricas)
+- Testes de carga paralelos
+- Teste manual no browser
+
+**Parte 3b (Rollback & Docs)**:
 - Fase 29: Rollback (se necessário, script automático em 2-3min)
 - Fase 30: Documentação do Deploy (atualizar deploy-history.md)
 
