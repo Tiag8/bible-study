@@ -19,6 +19,21 @@ SEMPRE ler: `docs/PLAN.md`, `docs/TASK.md`, `.windsurf/workflows/`
 
 ---
 
+## 🧠 FASE 0: LOAD CONTEXT (Script Unificado)
+
+**⚠️ USAR SCRIPT** (não Read manual):
+
+```bash
+./scripts/context-load-all.sh feat-nome-feature
+```
+
+**Output**: Resumo 6 arquivos .context/ (INDEX, workflow-progress, temp-memory, decisions, attempts.log, validation-loop).
+
+**SE script falhar**: Fallback manual (Read 6 arquivos).
+
+**Benefício**: Consolidated context loading vs manual Fase 0 (redução tempo).
+---
+
 # Workflow 8b/11: PLAN.md + Pareto 80/20 - Parte 2
 
 Este é o **oitavo workflow (Parte 2)** de 11 etapas modulares.
@@ -193,6 +208,103 @@ wc -c .windsurf/workflows/NOME_DESTE_WORKFLOW.md
 - ✅ Métricas técnicas (latência, throughput, memory usage)
 
 **Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
+
+---
+
+## 🧠 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 8b: PLAN.md + Pareto ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - PLAN.md atualizado com feature e learnings
+  - Análise Pareto 80/20 executada (5 agentes paralelos)
+  - RCA aplicado (ROI > 10x para cada melhoria)
+  - Top 5-7 melhorias identificadas e apresentadas
+  - Aprovação recebida (ou não) do usuário
+- **Outputs**:
+  - Tabela consolidada Top 5-7 melhorias
+  - Score projetado e justificativas
+  - Ordem de execução definida
+- **Next**: Workflow 9a (Finalization) ou implementação melhorias aprovadas
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+Workflow 8b (PLAN.md + Pareto) concluído com sucesso.
+
+**Pareto 80/20**: Top 5-7 melhorias identificadas com ROI > 10x.
+
+**Próximo passo**: Executar Workflow 9a (Finalization) para documentar, commitar e finalizar feature.
+
+---
+
+## Próximos Passos
+
+- [ ] Executar Workflow 9a (Finalization)
+- [ ] Atualizar documentação final
+- [ ] Commit e push
+- [ ] RCA retrospectivo (9b)
+
+---
+
+## Decisões Pendentes
+
+- [ ] Nenhuma (melhorias Pareto já aprovadas/rejeitadas)
+
+EOF
+
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Decisões Tomadas)
+
+**⚠️ Só atualizar se DECISÃO foi tomada no workflow.**
+
+```bash
+# Exemplo: Se aprovamos implementar melhorias Pareto
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<EOF
+
+## Workflow 8b - PLAN.md + Pareto
+- **Decisão**: Implementar [quantidade] melhorias Pareto (ou Não implementar)
+- **Por quê**: [Justificativa - ex: ROI > 10x cada, esforço < 4h total]
+- **Trade-off**: [Ex: +4h implementação, mas ganho 82%+ score]
+- **Alternativas consideradas**: [Ex: Não implementar (rejeitado - perder ganho)]
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 8b (PLAN.md + Pareto) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] PARETO: Top [quantidade] melhorias identificadas, [aprovadas/rejeitadas]" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md?
+- [ ] Atualizei temp-memory.md (Estado Atual + Próximos Passos)?
+- [ ] Atualizei decisions.md (se decisão tomada)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + decisão Pareto)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
 
 ---
 

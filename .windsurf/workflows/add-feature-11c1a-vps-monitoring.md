@@ -21,6 +21,48 @@ description: Workflow Add-Feature (11/11) - VPS Deployment - Parte 3a/3 (Monitor
 
 ---
 
+## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
+
+### 0.1. Ler Context Files
+
+```bash
+BRANCH_PREFIX=$(git symbolic-ref --short HEAD 2>/dev/null | sed 's/\//-/g' || echo "main")
+
+# 1. Guia
+cat .context/INDEX.md
+
+# 2. Progresso (verificar Workflow 11b completo)
+cat .context/${BRANCH_PREFIX}_workflow-progress.md
+
+# 3. Estado (verificar deploy OK)
+cat .context/${BRANCH_PREFIX}_temp-memory.md
+
+# 4. Decisões (revisar deploy decisions)
+cat .context/${BRANCH_PREFIX}_decisions.md
+
+# 5. Histórico (últimas 30 linhas)
+tail -30 .context/${BRANCH_PREFIX}_attempts.log
+```
+
+**Checklist Pré-Monitoring**:
+- [ ] Li INDEX.md?
+- [ ] Workflow 11b marcado como ✅ COMPLETO em workflow-progress.md?
+- [ ] temp-memory.md indica "DEPLOYED TO PRODUCTION"?
+- [ ] Service status em temp-memory.md = 1/1 Running?
+- [ ] Nenhum bloqueador crítico em attempts.log?
+
+**Se NÃO leu ou deploy falhou**: ⛔ PARAR e resolver ANTES de monitoring.
+
+### 0.2. Log Início Workflow
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 11c1a (VPS Monitoring) - START" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+---
+
 ## 🎯 Objetivo
 
 Monitorar saúde da aplicação após deploy, executar testes de carga, validar funcionalidades, e garantir estabilidade.
@@ -191,6 +233,123 @@ wc -c .windsurf/workflows/add-feature-11c1a-vps-monitoring.md
 
 ---
 
+## 📊 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 11c1a: VPS Monitoring ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - Monitoramento logs 10min (tempo real, sem erros críticos)
+  - Monitoramento service status (1/1 Running, restart ≤ 1)
+  - Teste de carga (100 requisições, 90%+ status 200)
+  - Teste manual browser (HTTPS, assets, funcionalidades)
+  - Validação métricas (CPU, memória, disk, network)
+- **Outputs**:
+  - Logs: ✅ SEM ERROS (10min)
+  - Service: 1/1 Running (restart count: [X])
+  - Load test: [Y]% status 200 (90%+ ✅)
+  - Manual test: ✅ PASSING
+  - Uptime: 10min+ ✅
+- **Decisão**: [TUDO OK / WARNINGS / PROBLEMAS]
+- **Next**: [Workflow 11c2 (Docs) SE OK / Workflow 11c1b (RCA/Rollback) SE PROBLEMAS]
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+✅ **MONITORING COMPLETO**
+
+Workflow 11c1a (VPS Monitoring) concluído - [TUDO OK / WARNINGS / PROBLEMAS].
+
+**Status Deployment Pipeline**:
+- ✅ Workflows 1-10 (Feature completa)
+- ✅ Deployment Prep (Workflow 11a)
+- ✅ Deployment Exec (Workflow 11b)
+- ✅ **Monitoring (Workflow 11c1a)** ← **[STATUS]**
+
+**Monitoring Results** (10min):
+- Logs: [SEM ERROS / WARNINGS / ERROS]
+- Service: 1/1 Running (restart: [X])
+- Load test: [Y]% status 200
+- Manual test: [OK / ISSUES]
+- Uptime: 10min+ ✅
+
+**Próximo passo**: [Workflow 11c2 (Docs) SE OK / Workflow 11c1b (RCA/Rollback) SE PROBLEMAS]
+
+## Bloqueios/Questões
+
+- [Nenhum / WARNINGS: X / BLOQUEADOR: Y]
+EOF
+
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Problemas Detectados)
+
+**SE houve problemas ou decisão de rollback**:
+
+```bash
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<'EOF'
+
+---
+
+## Decisão: Monitoring Outcome & Next Steps
+
+**Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+**Contexto**: Workflow 11c1a - Monitoramento 10min pós-deploy
+**Decisão**: [PROSSEGUIR COM DEPLOY / ROLLBACK NECESSÁRIO]
+
+**Issues Detectados** (se aplicável):
+- [Issue 1]: [Descrição + gravidade]
+- [Issue 2]: [Descrição + gravidade]
+
+**Métricas**:
+- Error rate: [X]% (threshold: < 5%)
+- Restart count: [Y] (threshold: ≤ 1)
+- Response time p95: [Z]ms (threshold: < 1000ms)
+- Load test success: [W]% (threshold: > 90%)
+
+**Ação Tomada**:
+- [PROSSEGUIR: Deploy estável, documentar / ROLLBACK: Acionar Workflow 11c1b]
+
+**Referências**: [Logs snippet, screenshots, métricas capturadas]
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 11c1a (VPS Monitoring) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] ✅ MONITORING: [STATUS] - Service 1/1 Running, Load test [Y]%, Manual OK" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] PRÓXIMO PASSO: [Workflow 11c2 (Docs) / Workflow 11c1b (RCA/Rollback)]" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md com monitoring results e decisão?
+- [ ] Atualizei temp-memory.md (Estado Atual + Monitoring Results)?
+- [ ] Atualizei decisions.md (se problemas detectados ou decisão rollback)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + status + próximo passo)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
+
+---
+
 ## 🔄 Próximo Workflow (Condicional)
 
 **Checkpoint**: Decisão baseada em métricas da Seção 28.5.
@@ -233,7 +392,46 @@ wc -c .windsurf/workflows/add-feature-11c1a-vps-monitoring.md
 
 **Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
 
+---
 
+## 🔄 VALIDATION LOOP (OBRIGATÓRIO - Workflows Iterativos)
+
+**APLICÁVEL**: Se monitoring detectou issues ou iterações de validação necessárias.
+
+**Sistema**: Registrar monitoramento em `.context/{branch}_validation-loop.md`.
+
+### Quando Usar
+
+**Usar SE**:
+- [ ] Monitoramento detectou erros (logs, métricas, testes)
+- [ ] Service status problemático (restarts, falhas)
+- [ ] Validação manual encontrou issues
+
+**Criar Validation Loop** (SE aplicável):
+
+```bash
+BRANCH=$(git branch --show-current | sed 's/\//-/g')
+
+cat > .context/${BRANCH}_validation-loop.md <<'EOF'
+# Validation Loop - Workflow 11c1a (VPS Monitoring)
+
+**Data Início**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+**Status**: 🔄 Em Progresso
+
+## Iteração 1
+
+**Monitoring**: [Logs / Service Status / Load Test / Manual]
+**Issue**: [Erro detectado - ex: 502 errors, restarts > 3]
+**Investigation**: [Causa analisada]
+**Action**: [Fix ou rollback]
+**Resultado**: ✅ | ❌
+
+EOF
+```
+
+**Benefícios**: Troubleshooting rastreável, decisões de rollback documentadas, meta-learnings de deploy.
+
+**Ref**: Workflow 6a aprovado
 
 ---
 

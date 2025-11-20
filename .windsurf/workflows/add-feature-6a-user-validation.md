@@ -17,61 +17,74 @@ Ler: `docs/PLAN.md`, `docs/TASK.md`, `.windsurf/workflows/`, `docs/`
 
 ---
 
-## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+## 🧠 FASE 0: LOAD CONTEXT (Script Unificado)
 
-**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
-
-### 0.1. Ler INDEX.md (Guia de Leitura)
+**⚠️ USAR SCRIPT** (não Read manual):
 
 ```bash
-cat .context/INDEX.md
+./scripts/context-load-all.sh feat-nome-feature
 ```
 
-**Entender**:
-- Ordem de leitura dos arquivos
-- O que cada arquivo faz
-- Checklists obrigatórios
+**Output**: Resumo 6 arquivos .context/ (INDEX, workflow-progress, temp-memory, decisions, attempts.log, validation-loop).
 
-### 0.2. Ler Context Files (Ordem Definida em INDEX.md)
+**SE script falhar**: Fallback manual (Read 6 arquivos).
+
+**Benefício**: Consolidated context loading vs manual Fase 0 (redução tempo).
+---
+
+## 📋 Fase 0.5: Usar Template Checklist (OBRIGATÓRIO)
+
+**CRÍTICO**: TODAS validações DEVEM usar formato padronizado.
+
+### 0.5.1. Template Validation Checklist
+
+**Localização**: `.windsurf/templates/validation-checklist-template.md`
+
+**5 Elementos Obrigatórios**:
+1. **Título numerado** (ex: "✅ 1. Login Magic Link funcional")
+2. **Cenário** (contexto específico)
+3. **Steps** (lista executável, não genérica)
+4. **Validação** (critérios objetivos, mensuráveis)
+5. **Screenshots** (OPCIONAL mas recomendado)
+
+### 0.5.2. Como Usar
 
 ```bash
-# Prefixo da branch (ex: feat-members)
+# 1. Abrir template
+cat .windsurf/templates/validation-checklist-template.md
+
+# 2. Copiar exemplo relevante para Workflow 6a (User Validation)
+
+# 3. Adaptar para caso específico da feature atual
+
+# 4. Colar em validation-loop.md
 BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-
-# 1. Onde estou agora?
-cat .context/${BRANCH_PREFIX}_workflow-progress.md
-
-# 2. Estado atual resumido
-cat .context/${BRANCH_PREFIX}_temp-memory.md
-
-# 3. Decisões já tomadas
-cat .context/${BRANCH_PREFIX}_decisions.md
-
-# 4. Histórico completo (últimas 30 linhas)
-tail -30 .context/${BRANCH_PREFIX}_attempts.log
-
-# 5. Loop de validação (CRÍTICO para Workflow 6)
-cat .context/${BRANCH_PREFIX}_validation-loop.md
+# Editar .context/${BRANCH_PREFIX}_validation-loop.md
 ```
 
-### 0.3. Validação Context Loaded
+### 0.5.3. Exemplo Workflow 6a
 
-**Checklist**:
-- [ ] Li INDEX.md?
-- [ ] Li workflow-progress.md (onde estou)?
-- [ ] Li temp-memory.md (estado atual)?
-- [ ] Li decisions.md (decisões já tomadas)?
-- [ ] Li últimas 30 linhas de attempts.log?
-- [ ] Li validation-loop.md (tentativas anteriores)?
+**Ver no template**: Seção "Workflow 6a (User Validation)" com 3 exemplos:
+- Login Magic Link funcional
+- Sistema reconhece usuário existente
+- Erro de network timeout (edge case)
 
-**Se NÃO leu**: ⛔ PARAR e ler AGORA.
+### 0.5.4. Anti-Patterns (EVITAR)
 
-### 0.4. Log Início Workflow
+❌ **Título vago**: "Teste de login"
+✅ **Título específico**: "Login Magic Link funcional (Web → WhatsApp)"
 
-```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 6a (User Validation) - START" >> .context/${BRANCH_PREFIX}_attempts.log
-```
+❌ **Steps genéricos**: "Testar funcionalidade"
+✅ **Steps executáveis**: "1. Acessar /magic-login 2. Inserir telefone..."
+
+❌ **Validação ambígua**: "Sistema funciona"
+✅ **Validação objetiva**: "Dashboard carrega em < 2s + dados corretos"
+
+### 0.5.5. Benefícios
+
+- **-50% ambiguidade** (evidência: Meta-Learning #3, #4)
+- **100% reprodutível** (qualquer pessoa pode executar)
+- **Zero perda contexto** (validation-loop.md preserva tudo)
 
 ---
 
@@ -82,6 +95,58 @@ echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 6a (User Vali
 - GATE 3: Usuário confirma "funciona perfeitamente!"
 
 **⚠️ NENHUM commit foi feito ainda!** Código está na branch local esperando SUA aprovação.
+
+---
+
+## 📸 Fase 12: Screenshot DEPOIS (Visual Comparison)
+
+**⚠️ CRÍTICO**: Capturar estado DEPOIS implementação (ADR-029).
+
+### Executar Validação
+
+```bash
+./scripts/validate-screenshot-gate.sh 6a
+```
+
+**SE APROVADO** (exit 0):
+- ✅ Screenshots ANTES + DEPOIS existem
+- 🎯 Prosseguir Fase 12.5 (Reframing)
+
+**SE REJEITADO** (exit 1):
+- ❌ Screenshot DEPOIS faltando
+- 🎯 AÇÃO: Capturar screenshot → Salvar `screenshots/after/feature-after.png`
+- ⛔ BLOQUEIO: Fase 12.5 requer comparação visual
+
+---
+
+### Como Capturar
+
+1. **Build + Preview**: `npm run build && npm run preview` → http://localhost:4173
+2. **Navegar**: Mesma página/componente do screenshot ANTES
+3. **Screenshot**: Mesma área (comparação consistente)
+4. **Salvar**: `screenshots/after/[feature]-after-[timestamp].png`
+
+**Exemplo**: `screenshots/after/landing-page-after-20251120.png`
+
+---
+
+### Comparação Visual (Fase 12.5 Input)
+
+**Apresentar ao usuário**:
+```markdown
+🔄 **Reframing: Problema CERTO Resolvido?**
+
+**ANTES**:
+![Screenshot Before](screenshots/before/feature-before.png)
+
+**DEPOIS**:
+![Screenshot After](screenshots/after/feature-after.png)
+
+**Pergunta**: A implementação resolve o problema CERTO identificado no GATE 1?
+- [ ] SIM: Problema original resolvido
+- [ ] PARCIAL: Resolve mas expõe gaps
+- [ ] NÃO: Problema diferente (pivot necessário)
+```
 
 ---
 
@@ -118,7 +183,195 @@ echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 6a (User Vali
 npm run dev  # http://localhost:5173/
 ```
 
-### 6.1 Batch Validation Pattern (RECOMENDADO) 🚀
+### 13.1 Checklist de Validação (Batch 6 Cenários)
+
+**Objetivo**: Validar feature em 6 dimensões antes considerar "pronta".
+
+**⚠️ CRÍTICO**: NUNCA validar 1 cenário por vez. Executar em BATCH (6 cenários paralelos).
+
+---
+
+**Template Checklist (Copiar para attempts.log)**:
+
+```markdown
+## 🧪 VALIDAÇÃO BATCH - [Nome Feature]
+
+**Data**: [YYYY-MM-DD HH:MM -03]
+**Branch**: [nome]
+**Ambiente**: [local/staging/prod]
+
+---
+
+### ✅ CENÁRIO F1: Funcionalidade Core
+
+**Descrição**: Happy path da feature principal funciona end-to-end.
+
+**Steps**:
+1. [ ] Ação 1: [descrever]
+2. [ ] Ação 2: [descrever]
+3. [ ] Ação 3: [descrever]
+
+**Expected**: [comportamento esperado]
+**Actual**: [resultado obtido]
+**Status**: ⏸️ PENDING / ✅ PASS / ❌ FAIL
+
+**Evidência**: [screenshot path OU log snippet]
+
+---
+
+### ✅ CENÁRIO F2: Integrações
+
+**Descrição**: Feature se integra corretamente com sistemas existentes.
+
+**Validações**:
+- [ ] checkAuth preservado (SE aplicável)
+- [ ] RLS funciona (query com user_id diferente retorna vazio)
+- [ ] Edge Functions respondem 200 (SE aplicável)
+- [ ] Frontend recebe dados corretos
+
+**Status**: ⏸️ PENDING / ✅ PASS / ❌ FAIL
+
+**Evidência**: [curl output OU network tab screenshot]
+
+---
+
+### ✅ CENÁRIO R1: Responsividade
+
+**Descrição**: UI funciona em mobile, tablet, desktop.
+
+**Devices Testados**:
+- [ ] Mobile (375px): [Chrome DevTools]
+- [ ] Tablet (768px): [Chrome DevTools]
+- [ ] Desktop (1920px): [Browser]
+
+**Validações**:
+- [ ] Sem scroll horizontal
+- [ ] Botões clicáveis (não sobrepostos)
+- [ ] Texto legível (font-size >= 14px mobile)
+
+**Status**: ⏸️ PENDING / ✅ PASS / ❌ FAIL
+
+**Evidência**: [screenshots 3 viewports]
+
+---
+
+### ✅ CENÁRIO C1: Cross-Browser/Platform
+
+**Descrição**: Feature funciona em navegadores principais.
+
+**Browsers Testados**:
+- [ ] Chrome/Edge (Chromium): [versão]
+- [ ] Safari (Webkit): [SE disponível]
+- [ ] Firefox (Gecko): [SE disponível]
+
+**Validações**:
+- [ ] CSS fallback para features não suportadas
+- [ ] JavaScript funciona (sem console errors)
+- [ ] Performance aceitável (< 3s load)
+
+**Status**: ⏸️ PENDING / ✅ PASS / ❌ FAIL
+
+**Evidência**: [console screenshots ZERO errors]
+
+---
+
+### ✅ CENÁRIO P1: Performance
+
+**Descrição**: Feature atende targets de performance.
+
+**Métricas**:
+- [ ] Bundle size: [X KB gzipped] < [target KB]
+- [ ] Initial load: [X s] < 3s
+- [ ] Interaction latency: [X ms] < 500ms
+- [ ] Lazy loading: [X chunks] (SE aplicável)
+
+**Tools**: `npm run build` + Chrome DevTools Network
+
+**Status**: ⏸️ PENDING / ✅ PASS / ❌ FAIL
+
+**Evidência**: [build output + network waterfall screenshot]
+
+---
+
+### ✅ CENÁRIO E1: Edge Cases
+
+**Descrição**: Feature lida com inputs inválidos, estados edge.
+
+**Casos Testados**:
+1. [ ] Input vazio: [comportamento]
+2. [ ] Input muito longo (1000+ chars): [comportamento]
+3. [ ] Caracteres especiais: [comportamento]
+4. [ ] Concurrent actions: [comportamento]
+5. [ ] Network offline: [comportamento]
+
+**Validações**:
+- [ ] ZERO crashes
+- [ ] Errors descritivos (usuário entende)
+- [ ] Graceful degradation
+
+**Status**: ⏸️ PENDING / ✅ PASS / ❌ FAIL
+
+**Evidência**: [error messages screenshots]
+
+---
+
+## 📊 RESULTADO BATCH
+
+**Total Cenários**: 6
+**Passed**: [X] ✅
+**Failed**: [Y] ❌
+**Pending**: [Z] ⏸️
+
+**Decisão**:
+- **SE 6/6 PASS**: ✅ Workflow 6a COMPLETO → Workflow 7a (Quality Gates)
+- **SE 1+ FAIL**: ❌ BLOQUEIO → Corrigir falhas → Re-executar batch
+- **SE 1+ PENDING**: ⏸️ AGUARDANDO → Completar pendentes → Re-avaliar
+
+**Evidências Consolidadas**: [pasta screenshots/ OU arquivo evidences.md]
+```
+
+---
+
+**Uso do Template**:
+1. Copiar template para attempts.log no início Fase 13
+2. Executar 6 cenários em BATCH (não sequencial)
+3. Atualizar Status de cada cenário
+4. Consolidar resultado final
+5. Decidir: APROVAR / BLOQUEAR / AGUARDAR
+
+---
+
+### 13.2 Formato de Checklist Estruturado (PADRÃO OBRIGATÓRIO) ⭐
+
+**Formato Aprovado pelo Usuário** (baseado em feat-modal-primeiro-acesso-web):
+
+```markdown
+## Edge Case E2: Re-login
+**Cenário**: Usuário volta ao app depois de escolher onboarding
+
+**Steps**:
+1. Login com test-onboarding-2@example.com (que escolheu Opção 2)
+2. Verificar redirect NÃO vai para /onboarding-choice
+3. Deve ir direto para /dashboard (metadata persiste)
+4. Screenshot 16: Dashboard com hábito "Meditar"
+
+**Validação**:
+- [ ] metadata onboarding_choice persistiu
+- [ ] Não vê onboarding choice novamente
+- [ ] Redirect correto para /dashboard
+- [ ] Dados do usuário preservados
+```
+
+**Características do Formato**:
+- ✅ **Título numerado** (Edge Case E2, Cenário E2E-1, etc.)
+- ✅ **Cenário** em negrito com descrição clara
+- ✅ **Steps** numerados e sequenciais
+- ✅ **Validação** com checkboxes específicos
+- ✅ **Screenshots** referenciados nos steps
+
+---
+
+### 13.2 Batch Validation Pattern (RECOMENDADO) 🚀
 
 **Objetivo**: Executar TODOS cenários → Coletar screenshots → Aprovar em BATCH (1 pausa vs 4 pausas).
 
@@ -130,27 +383,55 @@ npm run dev  # http://localhost:5173/
 
 #### Metodologia Batch
 
-**1. Executar Cenários Sequencialmente (SEM pausas)**:
+**1. Executar Cenários Sequencialmente (SEM pausas)** usando formato estruturado:
 ```markdown
-**Cenário 1: Signup Web** ✅
-- [ ] Executado
-- [ ] Screenshot capturado (`screenshots/scenario-1-signup-web.png`)
-- [ ] Resultado documentado
+## Cenário E2E-1: Signup Web
+**Cenário**: Novo usuário se cadastra via formulário web
 
-**Cenário 2: Signup WhatsApp** ✅
-- [ ] Executado
-- [ ] Screenshot capturado (`screenshots/scenario-2-signup-whatsapp.png`)
-- [ ] Resultado documentado
+**Steps**:
+1. Navegar para /signup
+2. Preencher email, senha, nome completo
+3. Submit formulário
+4. Screenshot 1: Redirect para /dashboard
 
-**Cenário 3: Validação Cross-Channel** ✅
-- [ ] Executado
-- [ ] Screenshot capturado (`screenshots/scenario-3-cross-channel.png`)
-- [ ] Resultado documentado
+**Validação**:
+- [ ] Signup completou sem erros
+- [ ] DB atualizado (lifetracker_profiles row criada)
+- [ ] Redirect /dashboard funcionou
+- [ ] Toast de sucesso exibido
 
-**Cenário 4: Constraint UNIQUE** ✅
-- [ ] Executado
-- [ ] Screenshot capturado (`screenshots/scenario-4-unique-constraint.png`)
-- [ ] Resultado documentado
+---
+
+## Cenário E2E-2: Signup WhatsApp
+**Cenário**: Usuário inicia onboarding via WhatsApp
+
+**Steps**:
+1. Enviar mensagem "Oi" para bot WhatsApp
+2. Bot responde com menu inicial
+3. Usuário escolhe "Cadastrar"
+4. Screenshot 2: Confirmação de cadastro
+
+**Validação**:
+- [ ] Phone validado corretamente
+- [ ] Edge Function sucesso (200 OK)
+- [ ] Profile criado no DB
+- [ ] Bot responde confirmação
+
+---
+
+## Cenário E2E-3: Validação Cross-Channel
+**Cenário**: Usuário cadastrado no WhatsApp faz login na web
+
+**Steps**:
+1. Login na web com phone cadastrado no WhatsApp
+2. Verificar dados sincronizados
+3. Screenshot 3: Dashboard com dados do WhatsApp
+
+**Validação**:
+- [ ] Login sucesso com phone
+- [ ] Dados sincronizados (nome, preferências)
+- [ ] Trigger disparou corretamente
+- [ ] Log PostgreSQL confirmado
 ```
 
 **2. Apresentar Batch Consolidado**:
@@ -213,6 +494,109 @@ npm run dev  # http://localhost:5173/
 - [ ] Performance < 500ms, sem travamentos
 - [ ] Console limpo (F12 → sem erros)
 - [ ] TypeScript OK (terminal)
+
+### 13.3 Sistema de Loop de Validação (.context/validation-loop.md) 🔄⭐
+
+**CRÍTICO**: Sistema aprovado pelo usuário - **"funcionou muitíssimo bem"**
+
+**O que é**: Arquivo `.context/{branch}_validation-loop.md` que registra CADA iteração de teste/fix.
+
+**Benefícios Comprovados**:
+- ✅ **Zero perda de contexto** entre iterações
+- ✅ **Rastreabilidade completa** (24 iterações documentadas)
+- ✅ **Aprendizado incremental** (cada bug documentado)
+- ✅ **Meta-learnings ricos** (3 bugs → 3 prevenções)
+- ✅ **Histórico auditável** (RCA de cada problema)
+
+**⚠️ Meta-Learning (ADR-027)**: **Timing Coincidence Trap** - Se fix + test pass dentro de 5min, SEMPRE validar:
+1. Test negative case (reproduzir sintoma SEM o fix)
+2. Revert fix (remover temporariamente)
+3. Re-test (confirmar sintoma retorna)
+**Regra**: Timing coincidence ≠ causation (60% false positives sem validação)
+
+---
+
+#### Template de Iteração (Padrão Obrigatório)
+
+```markdown
+### Iteração X (STATUS - Título Descritivo)
+- **Data**: 2025-11-15 18:35
+- **Tentativa**: [O que está sendo testado]
+- **Cenário/Steps**: [Se aplicável, usar formato estruturado]
+  - Cenário: [descrição]
+  - Steps: [lista numerada]
+  - Validação: [checkboxes]
+- **Problema Reportado**: [Se falhou, descrever sintomas]
+- **Sintomas**: [Lista de evidências - console, UI, DB]
+- **Resultado**: ✅ SUCESSO | ❌ FALHA | 🔍 INVESTIGAÇÃO
+- **RCA (5 Whys)**: [Se falhou, identificar causa raiz]
+  1. Por quê X? → Y
+  2. Por quê Y? → Z
+  3. Por quê Z? → W
+  4. Por quê W? → V
+  5. **Causa Raiz**: [Causa sistêmica, não sintoma]
+- **Fix Aplicado**: [Mudanças específicas]
+- **Evidências**: [Código, logs, screenshots]
+- **Meta-Learning**: [O que aprendeu? Como prevenir?]
+- **Próxima**: [Próximo passo]
+```
+
+**Exemplo Real (feat-modal-primeiro-acesso-web)**:
+
+```markdown
+### Iteração 23 (✅ SUCESSO TOTAL - Assessment Suggestions Geradas!)
+- **Data**: 2025-11-15 19:10
+- **Tentativa**: Reteste completo após fix frontend
+- **Testes Executados**:
+  - ✅ Completar Assessment (8 áreas)
+  - ✅ Toast exibido: "Aguarde enquanto a IA analisa suas respostas..."
+  - ✅ Console: `[Assessment] Analysis success: {success: true, suggestionsCount: 24}`
+  - ✅ Redirect /results com 24 sugestões personalizadas
+  - ✅ Dashboard: Botão "Sugestões" habilitado (suggestionsCount === 24)
+- **Resultado**: ✅ **ASSESSMENT SUGGESTIONS 100% VALIDADAS!**
+- **Meta-Learning (3 Bugs Resolvidos)**:
+  1. **Bug #1**: Edge Function usava tabelas sem prefixo `lifetracker_`
+     - Root Cause: Migration adicionou prefixo mas função não atualizada
+     - Fix: Atualizar 3 nomes de tabelas
+     - Prevenção: Checklist "Schema-First Validation" (REGRA #8)
+  2. **Bug #2**: Edge Function usava Lovable API (obsoleto)
+     - Root Cause: Migração para Gemini foi apenas em `generate-dynamic-question`
+     - Fix: Migrar `analyze-assessment` para Gemini API direto
+     - Prevenção: Documentar padrões de API (ADR)
+  3. **Bug #3**: Frontend não validava retorno de Edge Function
+     - Root Cause: `supabase.functions.invoke()` sem destructure `{ error }`
+     - Fix: Adicionar error handling + logs
+     - Prevenção: Pattern "SEMPRE validar retorno de async calls"
+- **Arquivos Modificados**:
+  - `supabase/functions/analyze-assessment/index.ts` (3 tabelas + Gemini API)
+  - `src/pages/Assessment.tsx` (error handling linha 278-287)
+- **Próxima**: Edge Case E1 (Assessment Prévio)
+```
+
+---
+
+#### Quando Registrar Iteração
+
+**SEMPRE registrar**:
+- ✅ **Antes de testar**: Iteração iniciada com "Tentativa"
+- ✅ **Após teste**: Resultado (sucesso/falha)
+- ✅ **Se falhou**: RCA completo (5 Whys)
+- ✅ **Após fix**: Fix aplicado + evidências
+- ✅ **Meta-learning**: O que aprendeu
+
+**Frequência**: **A CADA interação** usuário-LLM durante validação.
+
+---
+
+#### Checklist Iteração
+- [ ] Registrei tentativa ANTES de testar?
+- [ ] Documentei resultado (✅ | ❌ | 🔍)?
+- [ ] Se falhou: Executei RCA (5 Whys)?
+- [ ] Documentei fix aplicado?
+- [ ] Adicionei meta-learning?
+- [ ] Defini próxima ação?
+
+---
 
 ### Edge Cases
 - [ ] **Dados vazios**: Exibir mensagem amigável (não quebrar UI)
@@ -362,6 +746,47 @@ wc -c .windsurf/workflows/add-feature-6a-user-validation.md  # ✅ < 12000
 ```
 
 **Se > 11k**: Remover exemplos, consolidar checklists, extrair para docs/
+
+---
+
+## 🧠 MEMORY UPDATE (Pós-Workflow - OPCIONAL)
+
+**APLICÁVEL**: Se validação revelou padrões UX sistêmicos (recorrentes em 2+ features).
+
+**Checklist**:
+- [ ] Executou RCA 5 Whys? → Learning para memory/debugging.md
+- [ ] Bug UX recorrente (2+ features)? → Pattern para memory/validation.md
+- [ ] Edge case não coberto (2+ features)? → Checklist para memory
+- [ ] Iterações > 5 (2+ features)? → Meta-learning sobre processo
+
+**Ação (SE aplicável)**:
+1. Identificar memory file relevante (debugging.md, validation.md, workflows.md)
+2. **SUGERIR ao usuário** com template completo + aguardar aprovação
+
+**Template Sugestão**:
+```
+🧠 SUGESTÃO MEMÓRIA GLOBAL:
+Arquivo: ~/.claude/memory/[arquivo].md
+Seção: [Life Track Growth ou Geral]
+
+Adicionar:
+---
+### [Título Padrão UX] (Workflow 6a - feat/branch)
+**Problema**: [Comportamento não esperado detectado em validação]
+**Root Cause**: [5 Whys]
+**Solução**: [Como resolver]
+**Prevenção**: [Checklist validação / test case]
+**Exemplo**: [Cenário + steps + validação]
+**Evidências**: [validation-loop.md, screenshots]
+**Features Afetadas**: [feat-1, feat-2]
+---
+
+⏸️ APROVAR adição? (yes/no/edit)
+```
+
+**Por quê**: Validação manual frequentemente revela padrões UX sistêmicos. Se mesmo bug/edge case aparece em 2+ features, é candidato a memory global (previne recorrência).
+
+**Ver**: `~/.claude/CLAUDE.md` REGRA #20 (Sistema de Memória Global)
 
 ---
 
@@ -640,6 +1065,11 @@ echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] VALIDATION: [N iteraç�
 
 ---
 
-**Workflow criado**: 2025-10-27 | **Dividido**: 2025-11-04
+**Workflow criado**: 2025-10-27 | **Dividido**: 2025-11-04 | **Atualizado**: 2025-11-20
 **Parte**: 6a de 11 (Parte 1 de 2)
 **Próximo**: Workflow 6b
+
+**v2.1** (2025-11-20):
+- 🆕 Fase 13: Template Checklist 6 Cenários Batch
+- 🔧 Validação estruturada (F1, F2, R1, C1, P1, E1)
+- ✅ Evidências obrigatórias por cenário

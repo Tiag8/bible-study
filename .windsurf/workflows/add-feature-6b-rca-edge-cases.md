@@ -37,6 +37,21 @@ Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
 
 ---
 
+## 🧠 FASE 0: LOAD CONTEXT (Script Unificado)
+
+**⚠️ USAR SCRIPT** (não Read manual):
+
+```bash
+./scripts/context-load-all.sh feat-nome-feature
+```
+
+**Output**: Resumo 6 arquivos .context/ (INDEX, workflow-progress, temp-memory, decisions, attempts.log, validation-loop).
+
+**SE script falhar**: Fallback manual (Read 6 arquivos).
+
+**Benefício**: Consolidated context loading vs manual Fase 0 (redução tempo).
+---
+
 ## 🔍 Root Cause Analysis (RCA) - QUANDO APLICÁVEL
 
 **⚠️ USAR APENAS SE**: Você encontrou bugs durante validação manual ou problemas reportados por usuário.
@@ -354,6 +369,217 @@ wc -c .windsurf/workflows/NOME_DESTE_WORKFLOW.md
 - ✅ Métricas técnicas (latência, throughput, memory usage)
 
 **Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
+
+---
+
+## 🧠 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 6b: RCA & Edge Cases ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - RCA realizado (se bugs encontrados)
+  - 5 Whys executados para causa raiz
+  - Resolução em Teia (mapeamento completo)
+  - Edge cases validados
+- **Outputs**:
+  - Causa raiz identificada e corrigida (se aplicável)
+  - Documentação atualizada
+  - Testes adicionados para prevenir recorrência
+- **Next**: Workflow 7a (Quality Gates)
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+# Atualizar seção "Estado Atual"
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+Workflow 6b (RCA & Edge Cases) concluído com sucesso.
+
+**RCA executado**: [SIM/NÃO - se SIM, descrever causa raiz]
+
+**Próximo passo**: Executar Workflow 7a (Quality Gates) para code review e security scan.
+
+---
+
+## Próximos Passos
+
+- [ ] Executar Workflow 7a (Quality Gates)
+- [ ] Code review automatizado
+- [ ] Security scan
+
+---
+
+## Decisões Pendentes
+
+Nenhuma.
+
+EOF
+
+# Substituir seção no arquivo original (preservar "Última Atualização")
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Decisões Tomadas)
+
+**⚠️ Só atualizar se DECISÃO foi tomada no workflow.**
+
+```bash
+# Exemplo: Se identificamos necessidade de atualizar workflow
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<EOF
+
+## Workflow 6b - RCA & Edge Cases
+- **Decisão**: [Descrever decisão - ex: "Adicionar teste automatizado para edge case"]
+- **Por quê**: [Motivo - ex: "RCA identificou gap no Workflow 5"]
+- **Trade-off**: [Ex: "+30min implementação, previne bugs futuros"]
+- **Alternativas consideradas**: [Listar opções rejeitadas]
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 6b (RCA & Edge Cases) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] RCA: [Executado/Não aplicável] - [Causa raiz se executado]" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md?
+- [ ] Atualizei temp-memory.md (Estado Atual + Próximos Passos)?
+- [ ] Atualizei decisions.md (se decisão tomada)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + RCA)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
+
+---
+
+## 🔄 VALIDATION LOOP (OBRIGATÓRIO - Workflows Iterativos)
+
+**APLICÁVEL**: Se este workflow envolve validação manual/iterativa (RCA, edge cases, debugging).
+
+**Sistema**: Registrar TODAS interações em `.context/{branch}_validation-loop.md`.
+
+### Quando Usar Validation Loop
+
+**Usar SE**:
+- [ ] RCA executado (bugs encontrados durante validação)
+- [ ] Iterações esperadas (edge cases, ajustes descobertos)
+- [ ] Feedback qualitativo (causa raiz, padrões sistêmicos)
+
+**NÃO usar SE**:
+- Workflow 100% automatizado
+- Zero interação usuário/tester
+- Output determinístico
+
+### Criar Validation Loop File (SE aplicável)
+
+```bash
+BRANCH=$(git branch --show-current | sed 's/\//-/g')
+
+cat > .context/${BRANCH}_validation-loop.md <<'EOF'
+# Validation Loop - Workflow 6b (RCA & Edge Cases)
+
+**Data Início**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+**Status**: 🔄 Em Progresso
+
+---
+
+## Iteração 1 - $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+
+### ✅ 1. [TÍTULO VALIDAÇÃO]
+
+**Cenário**: [Contexto específico - ex: Edge case dados vazios]
+
+**Steps**:
+1. [Reproduzir bug]
+2. [Executar 5 Whys]
+3. [Aplicar fix]
+
+**Validação**:
+- [ ] [Critério 1 - ex: Bug reproduzido]
+- [ ] [Critério 2 - ex: Causa raiz identificada]
+
+**Resultado**: ✅ SUCESSO | ❌ FALHA
+
+**RCA (se falha)**:
+1. Por quê X? → Y
+2. Por quê Y? → Z
+...
+5. **Causa Raiz**: [Sistêmica]
+
+**Fix Aplicado**: [Descrição]
+
+**Meta-Learning**: [Se sistêmico - adicionar ao Workflow 8]
+
+---
+
+EOF
+
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] VALIDATION LOOP: Created ${BRANCH}_validation-loop.md" >> .context/${BRANCH}_attempts.log
+```
+
+### Atualizar a Cada Iteração
+
+```bash
+cat >> .context/${BRANCH}_validation-loop.md <<'EOF'
+
+## Iteração [N] - [DATA HORA ATUAL]
+
+[Preencher template acima]
+
+EOF
+```
+
+### Consolidar ao Final
+
+```bash
+# Atualizar status
+sed -i 's/Status\*\*: 🔄 Em Progresso/Status**: ✅ Completo/' .context/${BRANCH}_validation-loop.md
+
+# Adicionar resumo
+cat >> .context/${BRANCH}_validation-loop.md <<'EOF'
+
+---
+
+## 📊 Resumo Final
+
+- **Total Iterações**: [NÚMERO]
+- **Bugs Encontrados**: [NÚMERO]
+- **RCAs Executados**: [NÚMERO]
+- **Meta-Learnings**: [NÚMERO sistêmicos]
+- **Taxa Sucesso**: [%]
+
+EOF
+```
+
+### Benefícios
+
+**Evidência** (Meta-Learning #3 - Workflow 6a aprovado):
+- Zero perda contexto (LLMs não perdem estado)
+- 100% rastreabilidade (debugging cases futuros)
+- Meta-learnings emergem (padrões visíveis)
+- Sistema de loop "foi sensacional" (aprovação usuário)
+
+**Referências**:
+- Template: `.windsurf/templates/validation-checklist-template.md`
+- Exemplo: `.context/feat-modal-primeiro-acesso-web_validation-loop.md` (24 iterações)
+- Meta-Learning #3: Validation Loop Pattern
 
 ---
 

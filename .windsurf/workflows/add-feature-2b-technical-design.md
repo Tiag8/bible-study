@@ -26,58 +26,51 @@ Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
 
 ---
 
-## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+## 🚨 PRE-REQUISITO: GATE 1 Reframing (CSF Validation)
 
-**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
+**⚠️ CRÍTICO**: GATE 1 é Critical Success Factor (ADR-031) - NUNCA SKIP.
 
-### 0.1. Ler INDEX.md (Guia de Leitura)
-
-```bash
-cat .context/INDEX.md
-```
-
-**Entender**:
-- Ordem de leitura dos arquivos
-- O que cada arquivo faz
-- Checklists obrigatórios
-
-### 0.2. Ler Context Files (Ordem Definida em INDEX.md)
+### Executar Validação
 
 ```bash
-# Prefixo da branch (ex: feat-members)
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-
-# 1. Onde estou agora?
-cat .context/${BRANCH_PREFIX}_workflow-progress.md
-
-# 2. Estado atual resumido
-cat .context/${BRANCH_PREFIX}_temp-memory.md
-
-# 3. Decisões já tomadas
-cat .context/${BRANCH_PREFIX}_decisions.md
-
-# 4. Histórico completo (últimas 30 linhas)
-tail -30 .context/${BRANCH_PREFIX}_attempts.log
+./scripts/validate-gate-1-executed.sh
 ```
 
-### 0.3. Validação Context Loaded
+**SE APROVADO** (exit 0):
+- ✅ GATE 1 executado em Workflow 1 Fase 1.5
+- ✅ Perspectiva validada com usuário
+- ✅ Documentado em decisions.md
+- 🎯 Prosseguir Workflow 2b Fase 0
 
-**Checklist**:
-- [ ] Li INDEX.md?
-- [ ] Li workflow-progress.md (onde estou)?
-- [ ] Li temp-memory.md (estado atual)?
-- [ ] Li decisions.md (decisões já tomadas)?
-- [ ] Li últimas 30 linhas de attempts.log?
+**SE REJEITADO** (exit 1):
+- ❌ GATE 1 não executado
+- ⛔ BLOQUEIO: Workflow 2b NÃO pode iniciar
+- 🎯 AÇÃO: Retornar Workflow 1 → Executar Fase 1.5
 
-**Se NÃO leu**: ⛔ PARAR e ler AGORA.
+---
 
-### 0.4. Log Início Workflow
+**Por quê CSF?**
+- Taxa sucesso 100% (3/3 features ZERO pivots)
+- Previne 70-90% overhead (evidência ADR-031)
+- ROI 10x+ (15min reframing vs 5-50h pivots)
+
+**Exceção**: NENHUMA (non-negotiable)
+
+---
+
+## 🧠 FASE 0: LOAD CONTEXT (Script Unificado)
+
+**⚠️ USAR SCRIPT** (não Read manual):
 
 ```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 2b (Technical Design) - START" >> .context/${BRANCH_PREFIX}_attempts.log
+./scripts/context-load-all.sh feat-nome-feature
 ```
 
+**Output**: Resumo 6 arquivos .context/ (INDEX, workflow-progress, temp-memory, decisions, attempts.log, validation-loop).
+
+**SE script falhar**: Fallback manual (Read 6 arquivos).
+
+**Benefício**: Consolidated context loading vs manual Fase 0 (redução tempo).
 ---
 
 ## ⚠️ REGRA: 5 AGENTES OBRIGATÓRIOS (100% Features)
@@ -417,6 +410,71 @@ diff file1.ts file2.ts
    | ★ | ⭐ | - | ⭐⭐ |
 
 **Justificativa**: Por que esta opção vs. alternativas?
+
+---
+
+## 🚨 Fase 3.5: GATE Anti-Over-Engineering (Script Validação)
+
+**⚠️ CRÍTICO**: Executar script ANTES aprovar solução custom.
+
+### Quando Executar?
+
+**SE** solução envolve:
+- Criar componente custom (não shadcn/ui)
+- Nova biblioteca/dependência
+- Utility/helper/parser custom
+- Abstração/pattern novo
+- Qualquer código > 100 LOC não reuso
+
+**ENTÃO**: Executar validação YAGNI
+
+---
+
+### Executar Script
+
+```bash
+./scripts/validate-yagni.sh "Feature X" "Solução proposta Y"
+```
+
+**Exemplo**:
+```bash
+./scripts/validate-yagni.sh "Landing Page Hero" "Criar AnimatedBackground component"
+```
+
+**5 Perguntas Interativas** (script pergunta):
+1. Framework já tem? → Responder s/n
+2. Biblioteca cobre? → Responder s/n
+3. Testou nativo e falhou? → Responder s/n + evidência
+4. Gap sistêmico (3+ casos)? → Responder s/n + listar casos
+5. Config/prompt resolve? → Responder s/n
+
+---
+
+### Resultados Possíveis
+
+**✅ APROVADO** (exit 0):
+- 5 checks passaram
+- Implementação custom justificada
+- Prosseguir Workflow 2b Fase 4
+
+**❌ REJEITADO** (exit 1):
+- 1+ check falhou
+- Usar alternativa sugerida (framework/lib/config)
+- Retornar Workflow 2b Fase 2 → Reprojetar solução
+
+---
+
+### Exceções (NÃO executar script)
+
+1. **100% Reuso**: Apenas shadcn/ui + Tailwind (ZERO custom)
+2. **Segurança/Compliance**: RLS, LGPD, autenticação (obrigatórios)
+3. **Infra**: Migrations, Edge Functions (necessários stack)
+
+**SE exceção**: Documentar motivo em decisions.md
+
+---
+
+**Enforcement**: Script será hook pre-commit Workflow 5a (futuro)
 
 ---
 
@@ -859,7 +917,23 @@ Acionar workflow: .windsurf/workflows/add-feature-3-risk-analysis.md
 ---
 
 **Workflow criado em**: 2025-10-27
-**Workflow atualizado em**: 2025-11-04
+**Workflow atualizado em**: 2025-11-20
 **Parte**: 2b de 11
 **Próximo**: Risk Analysis (Análise de Riscos)
+
+---
+
+## 📝 CHANGELOG
+
+**v2.1** (2025-11-20):
+- 🆕 PRE-REQUISITO: GATE 1 Reframing Validation (script validate-gate-1-executed.sh)
+- 🆕 Fase 3.5: GATE Anti-Over-Engineering (script validate-yagni.sh)
+- 🔧 Bloqueio Workflow 2b SE GATE 1 ausente (CSF enforcement ADR-031)
+- 🔧 5 checks objetivos YAGNI antes aprovar custom code
+- ✅ ZERO over-engineering custom code
+- ✅ CSF enforcement (ADR-031)
+
+**v2.0** (2025-11-04):
+- Estrutura base workflow
+
 ---

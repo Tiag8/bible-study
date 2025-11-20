@@ -1,5 +1,5 @@
 ---
-description: Workflow Add-Feature (3/9) - Risk Analysis (Análise de Riscos)
+description: Workflow Add-Feature (3/11) - Risk Analysis (Análise de Riscos)
 auto_execution_mode: 1
 ---
 
@@ -7,6 +7,21 @@ auto_execution_mode: 1
 
 Ler ANTES: `docs/PLAN.md`, `docs/TASK.md`, `README.md`, `AGENTS.md`
 
+---
+
+## 🧠 FASE 0: LOAD CONTEXT (Script Unificado)
+
+**⚠️ USAR SCRIPT** (não Read manual):
+
+```bash
+./scripts/context-load-all.sh feat-nome-feature
+```
+
+**Output**: Resumo 6 arquivos .context/ (INDEX, workflow-progress, temp-memory, decisions, attempts.log, validation-loop).
+
+**SE script falhar**: Fallback manual (Read 6 arquivos).
+
+**Benefício**: Consolidated context loading vs manual Fase 0 (redução tempo).
 ---
 
 # Workflow 3/11: Risk Analysis (Análise de Riscos e Mitigações)
@@ -29,6 +44,42 @@ Ler ANTES: `docs/PLAN.md`, `docs/TASK.md`, `README.md`, `AGENTS.md`
 
 **SEMPRE paralelo**: 3-5 agentes (análise técnica + segurança + negócio + mitigações)
 **Benefício**: 20-30min vs 2-3h
+
+---
+
+## 🚨 PRÉ-REQUISITO: Validar 5 Agentes Executados (Workflow 2b)
+
+**CRÍTICO**: Workflow 2b DEVE ter executado 5 agentes paralelos ANTES de iniciar Risk Analysis.
+
+**Root Cause**: LLM pode esquecer (10-20% risco) - Enforcement obrigatório.
+
+### Validação Automatizada
+
+**Executar ANTES de Fase 5**:
+
+```bash
+./scripts/validate-5-agents-executed.sh
+```
+
+**O que valida**:
+- ✅ Agent 1 (Schema Design)
+- ✅ Agent 2 (Trigger Events)
+- ✅ Agent 3 (Backend Logic)
+- ✅ Agent 4 (Frontend Integration)
+- ✅ Agent 5 (Testing + RCA)
+
+**Se FALHAR**:
+- ⛔ **PARAR Workflow 3**
+- Voltar para Workflow 2b (`.windsurf/workflows/add-feature-2b-technical-design.md`)
+- Executar agents faltantes em paralelo
+- Validar novamente (`./scripts/validate-5-agents-executed.sh`)
+
+**Se PASSAR**:
+- ✅ Prosseguir para FASE 5 (Análise de Riscos)
+
+**Benefício**: 5 agentes paralelos = -30-40min vs 2-3h (Workflow 8b Pareto #6)
+
+**Referência**: `.claude/CLAUDE.md` → REGRA #1 (Uso Máximo de Agentes)
 
 ---
 
@@ -90,6 +141,80 @@ Ler ANTES: `docs/PLAN.md`, `docs/TASK.md`, `README.md`, `AGENTS.md`
 ---
 
 ## 🔧 Fase 6: Estratégias de Mitigação
+
+### 🔍 GATE 6.1: Validação de Evidências (OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: TODAS mitigações DEVEM ter evidências (não intuição).
+
+**Critérios Evidências**:
+1. **Fonte Primária**: Docs oficiais, papers, codebase
+2. **Atualidade**: < 2 anos (tecnologia) OU < 5 anos (teoria)
+3. **Múltiplas Fontes**: 2+ fontes independentes (para riscos críticos 🔴)
+4. **Contexto Aplicável**: Evidência do MESMO domínio/stack
+
+---
+
+**Checklist por Mitigação**:
+
+```markdown
+**Mitigação X: [Título]**
+
+**Evidências**:
+1. [Fonte 1] - [URL] - [Ano] - [Resumo 1 linha]
+2. [Fonte 2] - [URL] - [Ano] - [Resumo 1 linha]
+3. [SE crítico] [Fonte 3] - [URL] - [Ano]
+
+**Validação**:
+- [ ] Fonte primária? (docs oficiais/papers/codebase)
+- [ ] Atualidade? (< 2 anos tech OU < 5 anos teoria)
+- [ ] 2+ fontes? (SE risco crítico 🔴)
+- [ ] Contexto aplicável? (mesmo stack/domínio)
+
+**⛔ SE FALHOU**: Buscar evidências adicionais OU rejeitar mitigação
+```
+
+---
+
+**Ferramentas Busca**:
+- WebSearch: Docs oficiais, GitHub issues, Stack Overflow (2023+)
+- WebFetch: Ler docs completos
+- context7: Docs bibliotecas específicas
+- Grep/Read: Codebase existente (patterns comprovados)
+
+---
+
+**Exemplos APROVADOS**:
+
+✅ **Mitigação: Bundle size monitoring**
+- Evidência 1: Vite docs (bundlesize plugin) - 2024
+- Evidência 2: Google Web Vitals (< 500KB gzipped) - 2023
+- Validação: ✅ Oficial, ✅ Recente, ✅ Stack aplicável
+
+✅ **Mitigação: React Query cache 5min**
+- Evidência 1: React Query docs (staleTime) - 2024
+- Evidência 2: Codebase (patterns/QueryProvider.tsx linha 45)
+- Validação: ✅ Oficial + Interno, ✅ Recente, ✅ Usado projeto
+
+---
+
+**Exemplos REJEITADOS**:
+
+❌ **Mitigação: "Use Redux for state"**
+- Evidência: "Best practice" (sem fonte)
+- Motivo Rejeição: Intuição, sem evidência, over-engineering
+
+❌ **Mitigação: "Cache 1h é ideal"**
+- Evidência: Blog post 2018
+- Motivo Rejeição: Desatualizado (> 2 anos), contexto diferente
+
+---
+
+**Enforcement**:
+- Agent 4 (Mitigações) DEVE incluir seção "Evidências" (2-3 fontes)
+- Workflow 3 Fase 6 valida evidências ANTES apresentar usuário
+- SE evidências insuficientes: Buscar mais OU rejeitar mitigação
+
+---
 
 ### 6.1 Mitigações Técnicas
 
@@ -419,6 +544,214 @@ Para CADA mitigação proposta, documentar:
 
 ---
 
+## ✅ FASE 3: CHECKPOINTS (REGRA #13 - Uma Ação Por Vez)
+
+**CRÍTICO**: Durante todo este workflow, SEMPRE executar checkpoint após CADA ação atômica.
+
+### 3.1. O que é uma Ação Atômica?
+
+**Ação atômica** = Menor unidade testável e reversível.
+
+**Exemplos deste workflow (Risk Analysis)**:
+- ✅ "Identificar riscos de segurança (RLS, auth, validação)"
+- ✅ "Avaliar impacto de performance em query X"
+- ✅ "Analisar risco de escalabilidade em tabela Y"
+- ✅ "Documentar mitigação para risco Z"
+- ✅ "Executar pre-mortem para decisão arquitetural"
+- ❌ "Analisar todos riscos simultaneamente" (NÃO atômico - múltiplas ações)
+
+### 3.2. Checkpoint Obrigatório (Após Cada Ação)
+
+**Usar script automatizado**:
+```bash
+./scripts/checkpoint.sh "descrição da ação executada"
+```
+
+**Ou manualmente**:
+
+**Template de Checkpoint**:
+```
+✅ AÇÃO COMPLETA: [descrição da ação]
+
+📸 EVIDÊNCIA:
+[riscos identificados, análise de impacto, mitigações propostas]
+
+🔍 VALIDAÇÃO:
+- [x] Ação executada com sucesso
+- [x] Riscos documentados com severidade
+- [x] Mitigações viáveis propostas
+- [x] Próxima ação identificada
+
+🎯 PRÓXIMA AÇÃO PROPOSTA:
+[descrição da próxima ação]
+
+⏸️ AGUARDANDO APROVAÇÃO do usuário para continuar.
+```
+
+### 3.3. Checklist Checkpoint (Executar a Cada Ação)
+
+- [ ] **Executei apenas 1 ação?**
+- [ ] **Mostrei evidência ao usuário?** (riscos, impacto, mitigações)
+- [ ] **Usuário validou?** (aprovação explícita)
+- [ ] **Documentei em `.context/`?** (attempts.log)
+- [ ] **Identifiquei próxima ação?** (próximo risco a avaliar)
+
+### 3.4. Exemplo de Aplicação (Risk Analysis)
+
+**Fluxo com Checkpoints**:
+
+```
+1. AÇÃO: "Identificar riscos de segurança (RLS missing, SQL injection)"
+   → Executar → Checkpoint → Aprovação
+
+2. AÇÃO: "Avaliar impacto de performance (queries N+1, índices)"
+   → Executar → Checkpoint → Aprovação
+
+3. AÇÃO: "Analisar escalabilidade (volume de dados, concorrência)"
+   → Executar → Checkpoint → Aprovação
+
+4. AÇÃO: "Documentar mitigação para risco CRÍTICO identificado"
+   → Executar → Checkpoint → Aprovação
+
+5. AÇÃO: "Executar pre-mortem: O que pode dar errado?"
+   → Executar → Checkpoint → Aprovação
+```
+
+### 3.5. Quando NÃO Aplicar Checkpoint
+
+**Exceções** (ações podem ser agrupadas):
+- ✅ **Checklist múltiplo**: Validar 5 checklists de segurança (se rápidos)
+- ✅ **Análise paralela**: 3 agentes analisando riscos diferentes
+
+**MAS**: Mesmo nas exceções, mostrar resultado ANTES de próxima ação.
+
+### 3.6. Benefícios no Risk Analysis
+
+**Eficiência**:
+- ✅ Risco CRÍTICO identificado e mitigado ANTES de implementação
+- ✅ Performance validada ANTES de deploy
+- ✅ Zero retrabalho (cada risco avaliado incrementalmente)
+
+**Colaboração**:
+- ✅ Usuário prioriza mitigações com visibilidade completa
+- ✅ Feedback loop rápido (30seg por risco)
+- ✅ Ajuste de prioridade imediato (se risco inaceitável)
+
+### 3.7. Documentação Automática
+
+Cada checkpoint DEVE logar em `.context/attempts.log`:
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] CHECKPOINT: [ação] - SUCCESS" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+**Ver**: REGRA #13 em `.claude/CLAUDE.md` para detalhes completos.
+
+---
+
+## 🧠 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 3: Risk Analysis ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - Análise de riscos detalhada (técnicos, segurança, negócio)
+  - Estratégias de mitigação baseadas em evidências
+  - Plano de rollback definido
+  - Backup e contingência configurados
+  - Advogado do Diabo para validação de riscos
+- **Outputs**:
+  - Matriz de riscos (probabilidade/impacto/severidade)
+  - Mitigações com fontes documentadas
+  - Plano de rollback (tempo estimado)
+  - Estratégia de backup (Dump Lógico / Preview Branch)
+  - Checklist de testes de segurança
+- **Next**: Workflow 4 (Setup)
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+# Atualizar seção "Estado Atual"
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+Workflow 3 (Risk Analysis) concluído com sucesso.
+
+**Riscos identificados**: [Listar riscos 🔴/🟡/🟢]
+
+**Mitigações aprovadas**: [Listar estratégias principais]
+
+**Próximo passo**: Executar Workflow 4 (Setup) para preparar ambiente (backup, sync, branch).
+
+---
+
+## Próximos Passos
+
+- [ ] Executar Workflow 4 (Setup)
+- [ ] Criar backup antes de implementar
+- [ ] Sincronizar com main
+- [ ] Criar branch git isolada
+
+---
+
+## Decisões Pendentes
+
+- [ ] Executar Dump Lógico ou Preview Branch (escolhido no Workflow 3)
+
+EOF
+
+# Substituir seção no arquivo original (preservar "Última Atualização")
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Decisões Tomadas)
+
+**⚠️ Só atualizar se DECISÃO foi tomada no workflow.**
+
+```bash
+# Exemplo: Se escolhemos estratégia de backup específica
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<EOF
+
+## Workflow 3 - Risk Analysis
+- **Decisão**: [Dump Lógico / Preview Branch]
+- **Por quê**: [Justificativa baseada em complexidade/risco]
+- **Trade-off**: [Tempo vs Segurança]
+- **Alternativas consideradas**: [Opção rejeitada e por quê]
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 3 (Risk Analysis) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] DECISION: Riscos analisados - [resumo principais riscos]" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md?
+- [ ] Atualizei temp-memory.md (Estado Atual + Próximos Passos)?
+- [ ] Atualizei decisions.md (se decisão tomada)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + decisões)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
+
+---
+
 ## 🔄 Próximo Workflow
 
 ```
@@ -429,7 +762,12 @@ Acionar: .windsurf/workflows/add-feature-4-setup.md
 
 ---
 
-**Criado**: 2025-10-27 | **Atualizado**: 2025-11-08 | **Parte**: 3/11 | **Próximo**: Setup
+**Criado**: 2025-10-27 | **Atualizado**: 2025-11-20 | **Parte**: 3/11 | **Próximo**: Setup
+
+**v2.1** (2025-11-20):
+- 🆕 GATE 6.1: Validação Evidências Obrigatória
+- 🔧 Mitigações DEVEM ter 2-3 fontes (< 2 anos)
+- ✅ ZERO mitigações baseadas em intuição
 
 ---
 

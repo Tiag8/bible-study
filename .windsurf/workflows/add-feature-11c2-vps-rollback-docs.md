@@ -14,6 +14,48 @@ description: Workflow 11/11 - VPS Deployment - Parte 3b/3 (Rollback & Docs)
 
 ---
 
+## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
+
+### 0.1. Ler Context Files
+
+```bash
+BRANCH_PREFIX=$(git symbolic-ref --short HEAD 2>/dev/null | sed 's/\//-/g' || echo "main")
+
+# 1. Guia
+cat .context/INDEX.md
+
+# 2. Progresso (verificar Workflow 11c1a completo)
+cat .context/${BRANCH_PREFIX}_workflow-progress.md
+
+# 3. Estado (verificar monitoring results)
+cat .context/${BRANCH_PREFIX}_temp-memory.md
+
+# 4. Decisões (verificar deploy outcome)
+cat .context/${BRANCH_PREFIX}_decisions.md
+
+# 5. Histórico (últimas 30 linhas)
+tail -30 .context/${BRANCH_PREFIX}_attempts.log
+```
+
+**Checklist Pré-Rollback/Docs**:
+- [ ] Li INDEX.md?
+- [ ] Workflow 11c1a marcado como ✅ COMPLETO em workflow-progress.md?
+- [ ] temp-memory.md indica monitoring status (OK/WARNINGS/PROBLEMAS)?
+- [ ] decisions.md indica próximo passo (11c2 Docs OU 11c1b Rollback)?
+- [ ] Nenhum bloqueador crítico em attempts.log?
+
+**Se NÃO leu ou status unclear**: ⛔ PARAR e resolver ANTES de prosseguir.
+
+### 0.2. Log Início Workflow
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 11c2 (VPS Rollback & Docs) - START" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+---
+
 ## 🎯 Como Chegou Aqui?
 
 Você chegou aqui após concluir o **Workflow 11c1 (Monitoramento)**. Dependendo dos resultados, siga um dos dois caminhos:
@@ -230,6 +272,138 @@ Aplicação em produção: **https://life-tracker.stackia.com.br**
 
 Após finalizar:
 - [ ] Atualizar `docs/TASK.md`
+
+---
+
+## 📊 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+# Determinar se rollback foi executado ou apenas documentação
+ROLLBACK_EXECUTED=$(grep -q "FASE 29" .context/${BRANCH_PREFIX}_attempts.log && echo "SIM" || echo "NÃO")
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 11c2: VPS Rollback & Docs ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Rollback Executado**: ${ROLLBACK_EXECUTED}
+- **Actions**:
+  - [SE ROLLBACK=SIM]: Rollback script executado (./scripts/vps-rollback.sh)
+  - [SE ROLLBACK=SIM]: Service anterior restaurado, validação OK
+  - Documentação em deploy-history.md (timestamp, image, status)
+  - [SEMPRE]: Meta-learning capturado (issues, learnings)
+  - docs/TASK.md atualizado
+- **Outputs**:
+  - Deploy status: [SUCESSO / ROLLBACK / FALHOU]
+  - [SE ROLLBACK]: Service anterior: [image tag]
+  - deploy-history.md: Entry adicionado
+  - Meta-learnings: [count] documentados
+- **Next**: Workflow 12 (Merge to Main) ou Workflow 1 (próxima feature)
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+# Determinar status final
+DEPLOY_STATUS=$(grep -q "ROLLBACK OK" .context/${BRANCH_PREFIX}_attempts.log && echo "ROLLBACK" || echo "SUCESSO")
+
+cat > /tmp/temp-memory-update.md <<EOF
+## Estado Atual
+
+✅ **DEPLOYMENT PIPELINE COMPLETO**
+
+Workflow 11c2 (VPS Rollback & Docs) concluído - Deploy ${DEPLOY_STATUS}.
+
+**Status Final Deployment**:
+- ✅ Workflows 1-10 (Feature completa)
+- ✅ Deployment Prep (Workflow 11a)
+- ✅ Deployment Exec (Workflow 11b)
+- ✅ Monitoring (Workflow 11c1a)
+- ✅ **Rollback & Docs (Workflow 11c2)** ← **${DEPLOY_STATUS}**
+
+**Production Final State**:
+- Deploy outcome: ${DEPLOY_STATUS}
+- [SE SUCESSO]: Service: lifetracker_app (1/1 Running)
+- [SE ROLLBACK]: Service: rollback anterior restaurado
+- Documentação: deploy-history.md atualizado
+- Meta-learnings: Capturados
+
+**Próximo passo**: Workflow 12 (Merge to Main) ou Workflow 1 (próxima feature)
+
+## Bloqueios/Questões
+
+- Nenhum bloqueador - deployment pipeline completo
+EOF
+
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Rollback Executado)
+
+**SE houve rollback (Fase 29 executada)**:
+
+```bash
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<'EOF'
+
+---
+
+## Decisão: Rollback Execution
+
+**Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+**Contexto**: Workflow 11c2 - Problemas detectados no monitoring (Workflow 11c1a)
+**Decisão**: ROLLBACK EXECUTADO
+
+**Motivo do Rollback**:
+- [Descrição do problema que causou rollback]
+- [Gravidade: CRÍTICO / ALTO / MÉDIO]
+- [Impacto: usuários afetados, funcionalidade quebrada]
+
+**Rollback Execution**:
+- Script: ./scripts/vps-rollback.sh production
+- Service anterior: [image tag rollback]
+- Rollback time: [X minutos]
+- Validação pós-rollback: [OK / ISSUES]
+
+**Root Cause** (RCA preliminar):
+- [Causa raiz identificada ou "RCA completo em Workflow 7b"]
+
+**Ações de Prevenção**:
+- [Ação 1]: [Como prevenir recorrência]
+- [Ação 2]: [Adicionar validação/teste]
+
+**Referências**: WR-XXX (debugging case), ADR-XXX (se aplicável)
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+ROLLBACK_STATUS=$(grep -q "FASE 29" .context/${BRANCH_PREFIX}_attempts.log && echo "ROLLBACK EXECUTADO" || echo "DOCUMENTAÇÃO APENAS")
+
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 11c2 (VPS Rollback & Docs) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] ✅ DEPLOY PIPELINE: ${ROLLBACK_STATUS}" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] DOCUMENTAÇÃO: deploy-history.md atualizado, meta-learnings capturados" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] PRÓXIMO PASSO: Workflow 12 (Merge to Main)" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md com rollback status e deploy outcome?
+- [ ] Atualizei temp-memory.md (Estado Atual + Production Final State)?
+- [ ] Atualizei decisions.md (SE rollback foi executado)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + deploy status)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
+
 ---
 
 ## 🚨 REGRA CRÍTICA: ANTI-ROI

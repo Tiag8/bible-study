@@ -9,58 +9,19 @@ Antes de iniciar, SEMPRE ler: `docs/PLAN.md`, `docs/TASK.md`, README.md, AGENTS.
 
 ---
 
-## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+## 🧠 FASE 0: LOAD CONTEXT (Script Unificado)
 
-**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
-
-### 0.1. Ler INDEX.md (Guia de Leitura)
+**⚠️ USAR SCRIPT** (não Read manual):
 
 ```bash
-cat .context/INDEX.md
+./scripts/context-load-all.sh feat-nome-feature
 ```
 
-**Entender**:
-- Ordem de leitura dos arquivos
-- O que cada arquivo faz
-- Checklists obrigatórios
+**Output**: Resumo 6 arquivos .context/ (INDEX, workflow-progress, temp-memory, decisions, attempts.log, validation-loop).
 
-### 0.2. Ler Context Files (Ordem Definida em INDEX.md)
+**SE script falhar**: Fallback manual (Read 6 arquivos).
 
-```bash
-# Prefixo da branch (ex: feat-members)
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-
-# 1. Onde estou agora?
-cat .context/${BRANCH_PREFIX}_workflow-progress.md
-
-# 2. Estado atual resumido
-cat .context/${BRANCH_PREFIX}_temp-memory.md
-
-# 3. Decisões já tomadas
-cat .context/${BRANCH_PREFIX}_decisions.md
-
-# 4. Histórico completo (últimas 30 linhas)
-tail -30 .context/${BRANCH_PREFIX}_attempts.log
-```
-
-### 0.3. Validação Context Loaded
-
-**Checklist**:
-- [ ] Li INDEX.md?
-- [ ] Li workflow-progress.md (onde estou)?
-- [ ] Li temp-memory.md (estado atual)?
-- [ ] Li decisions.md (decisões já tomadas)?
-- [ ] Li últimas 30 linhas de attempts.log?
-
-**Se NÃO leu**: ⛔ PARAR e ler AGORA.
-
-### 0.4. Log Início Workflow
-
-```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 4 (Setup) - START" >> .context/${BRANCH_PREFIX}_attempts.log
-```
-
+**Benefício**: Consolidated context loading vs manual Fase 0 (redução tempo).
 ---
 
 ## 🤖 REGRA CRÍTICA: Uso Máximo de Agentes em Paralelo

@@ -8,82 +8,19 @@ SEMPRE ler: `docs/PLAN.md`, `docs/TASK.md`, `docs/INDEX.md`, `README.md`, `AGENT
 
 ---
 
-## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+## 🧠 FASE 0: LOAD CONTEXT (Script Unificado)
 
-**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
-
-### 0.1. Ler INDEX.md (Guia de Leitura)
+**⚠️ USAR SCRIPT** (não Read manual):
 
 ```bash
-cat .context/INDEX.md
+./scripts/context-load-all.sh feat-nome-feature
 ```
 
-**Entender**:
-- Ordem de leitura dos arquivos
-- O que cada arquivo faz
-- Checklists obrigatórios
+**Output**: Resumo 6 arquivos .context/ (INDEX, workflow-progress, temp-memory, decisions, attempts.log, validation-loop).
 
-### 0.2. Ler Context Files (Ordem Definida em INDEX.md)
+**SE script falhar**: Fallback manual (Read 6 arquivos).
 
-```bash
-# Prefixo da branch (ex: feat-members)
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-
-# 1. Onde estou agora?
-cat .context/${BRANCH_PREFIX}_workflow-progress.md
-
-# 2. Estado atual resumido
-cat .context/${BRANCH_PREFIX}_temp-memory.md
-
-# 3. Decisões já tomadas
-cat .context/${BRANCH_PREFIX}_decisions.md
-
-# 4. Histórico completo (TODAS linhas - OBRIGATÓRIO para meta-learning)
-cat .context/${BRANCH_PREFIX}_attempts.log
-
-# 5. Loop de validação (TODOS iterações - análise meta-learning)
-cat .context/${BRANCH_PREFIX}_validation-loop.md 2>/dev/null || echo "N/A"
-
-# 6. TODOS arquivos .context/ adicionais (fonte primária meta-learning) 🚨 CRÍTICO
-# Este script lê TODOS os 20+ arquivos .context/ da branch (zero perda de conhecimento)
-# Inclui: debugging cases, quality gates, RCA retrospectives, web resolutions,
-# technical design agents, implementation summaries, user validation checklists
-./scripts/context-read-all.sh
-```
-
-### 0.3. Validação Context Loaded
-
-**Checklist**:
-- [ ] Li INDEX.md?
-- [ ] Li workflow-progress.md (onde estou)?
-- [ ] Li temp-memory.md (estado atual)?
-- [ ] Li decisions.md (decisões já tomadas)?
-- [ ] Li attempts.log COMPLETO (todo histórico, não apenas últimas 30)?
-- [ ] Li validation-loop.md COMPLETO (todas iterações)?
-- [ ] 🚨 Executei `./scripts/context-read-all.sh` e li TODOS os 20+ arquivos .context/?
-
-**⚠️ CRÍTICO**: `.context/` é a **FONTE PRIMÁRIA** de aprendizado. Arquivos adicionais contêm:
-- **Debugging Cases**: Erros críticos + soluções (ex: whatsapp-validation)
-- **Quality Gates**: Validações preventivas (ex: quality-gates-4.5)
-- **RCA Retrospectives**: Causas raiz sistêmicas (ex: rca-retrospective-summary, refactoring-rca)
-- **Web Resolutions**: Resolução holística cenários complexos (ex: magic-link-login, cenario-2)
-- **Technical Design Agents**: Decisões arquiteturais por agente (ex: agent-1-schema, agent-2-trigger)
-- **Implementation Summaries**: Decisões técnicas completas
-- **User Validation Checklists**: Validação manual E2E
-
-**Perda de Contexto**: Se ler apenas 5 arquivos core (workflow-progress, temp-memory, decisions, attempts.log, validation-loop), você perde **76% do contexto** (16/21 arquivos). Meta-learnings ficam rasos, incompletos e não capturam padrões sistêmicos.
-
-**Paper GCC (Oxford 2025)**: Working Memory +48% SOTA → só funciona se COMPLETO (zero perda).
-
-**Se NÃO leu TODOS**: ⛔ PARAR e executar `./scripts/context-read-all.sh` AGORA.
-
-### 0.4. Log Início Workflow
-
-```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 8a (Meta-Learning) - START" >> .context/${BRANCH_PREFIX}_attempts.log
-```
-
+**Benefício**: Consolidated context loading vs manual Fase 0 (redução tempo).
 ---
 
 # Workflow 8a/11: Meta-Learning - Parte 1
@@ -170,6 +107,98 @@ echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 8a (Meta-Lear
 - [ ] `./scripts/validate-workflow-size.sh`
 - [ ] <= 12k chars (split se > 12k)
 - [ ] INDEX.md atualizado
+
+### 17.10 Memória Global (Sugestões) 🧠 OPCIONAL
+
+**SE há learnings sistêmicos** (recorrentes 2+ projetos, evidências fortes):
+
+**5 Perguntas de Validação**:
+1. Específico desta feature OU genérico? → Genérico? Continuar
+2. Previne recorrência? → SIM? Continuar
+3. Qual evidência? (ADR-X, WR-Y, paper) → Tem? Continuar
+4. Em quantos workflows/features aplica? → 2+? Continuar
+5. Requer mudança CLAUDE.md/docs? → Avaliar impacto
+
+**SE TODAS 5 respondidas positivamente**:
+
+- [ ] Formatar learning (template `~/.claude/MEMORY.md` seção "Template Padrão")
+- [ ] Identificar memory file (gemini.md, supabase.md, deployment.md, debugging.md, validation.md, workflows.md)
+- [ ] **SUGERIR ao usuário** com template completo + aguardar aprovação ⭐
+- [ ] **SE APROVADO**: Commitar em `~/.claude/memory/[arquivo].md`
+
+**Template Sugestão**:
+```
+🧠 SUGESTÃO MEMÓRIA GLOBAL:
+Arquivo: ~/.claude/memory/[arquivo].md
+Seção: [Geral ou Life Track Growth]
+
+Adicionar:
+---
+### [Título] ([Fonte ADR/WR])
+**Problema**: [gap/erro]
+**Root Cause**: [5 Whys]
+**Solução**: [definitiva]
+**Prevenção**: [checklist/script]
+**Exemplo**: [code snippet]
+**Evidências**: [ADR-X, WR-Y]
+---
+
+⏸️ APROVAR adição? (yes/no/edit)
+```
+
+**Por quê**: Memória global = zero re-aprendizado entre projetos. Learnings sistêmicos DEVEM persistir em `~/.claude/memory/` (não apenas `.context/` local). **Ver**: `~/.claude/MEMORY.md` para workflow completo.
+
+---
+
+### 17.11 Validação Compliance Workflows 1-7 🚨 OBRIGATÓRIO
+
+**CRÍTICO**: Garantir que Workflows 1-7 seguem padrões de documentação e meta-learning.
+
+**Por quê**: Sem compliance → próximo workflow perde 40-60% contexto → retrabalho 10x.
+
+**Execute**:
+```bash
+./scripts/validate-workflow-compliance.sh
+```
+
+**Manual (Se sem script)**:
+```bash
+for WF in {1..7}; do
+  FILE=".windsurf/workflows/add-feature-${WF}*.md"
+  echo "Workflow ${WF}:"
+  echo "  ✅/❌ Fase 0 (Load .context/) presente?"
+  grep -q "## 🧠 FASE 0:" ${FILE} && echo "    ✅" || echo "    ❌"
+
+  echo "  ✅/❌ Fase Final (Update .context/) presente?"
+  grep -q "## 🧠 FASE FINAL:" ${FILE} && echo "    ✅" || echo "    ❌"
+
+  echo "  ✅/❌ workflow-progress.md atualizado?"
+  grep -q "workflow-progress.md" ${FILE} && echo "    ✅" || echo "    ❌"
+
+  echo "  ✅/❌ temp-memory.md atualizado?"
+  grep -q "temp-memory.md" ${FILE} && echo "    ✅" || echo "    ❌"
+
+  echo "  ✅/❌ attempts.log logado?"
+  grep -q "attempts.log" ${FILE} && echo "    ✅" || echo "    ❌"
+
+  SIZE=$(wc -c < ${FILE})
+  echo "  ✅/❌ Workflow size (${SIZE} < 12000)?"
+  [ ${SIZE} -lt 12000 ] && echo "    ✅" || echo "    ❌"
+done
+```
+
+**Resultado esperado**: ✅ Todos workflows 6/6 checks OK
+
+**Se FALHOU 1+ checks**:
+1. Identificar workflow não-compliant
+2. Abrir issue em `docs/TASK.md`
+3. Priorizar correção (Workflow 10 ou próximo ciclo)
+
+**Log Resultado**:
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] VALIDATION: Workflows 1-7 Compliance - [PASSED/FAILED]" >> .context/${BRANCH_PREFIX}_attempts.log
+```
 
 ---
 

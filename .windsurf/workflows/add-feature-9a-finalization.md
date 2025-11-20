@@ -11,6 +11,74 @@ Antes de iniciar, SEMPRE ler:
 
 ---
 
+## 🧠 FASE 0: LOAD CONTEXT (Script Unificado)
+
+**⚠️ USAR SCRIPT** (não Read manual):
+
+```bash
+./scripts/context-load-all.sh feat-nome-feature
+```
+
+**Output**: Resumo 6 arquivos .context/ (INDEX, workflow-progress, temp-memory, decisions, attempts.log, validation-loop).
+
+**SE script falhar**: Fallback manual (Read 6 arquivos).
+
+**Benefício**: Consolidated context loading vs manual Fase 0 (redução tempo).
+---
+
+## 📋 Fase 0.5: Usar Template Checklist (OBRIGATÓRIO)
+
+**CRÍTICO**: Validação de documentação, commit e cleanup DEVEM usar formato padronizado.
+
+### 0.5.1. Template Validation Checklist
+
+**Localização**: `.windsurf/templates/validation-checklist-template.md`
+
+**5 Elementos Obrigatórios**:
+1. **Título numerado** (ex: "✅ 1. Docs atualizados")
+2. **Cenário** (contexto - ex: "Validar docs refletem mudanças")
+3. **Steps** (lista executável, verificações exatas)
+4. **Validação** (checklist compliance, não subjetivo)
+5. **Screenshots** (diffs, git log - OPCIONAL)
+
+### 0.5.2. Como Usar
+
+```bash
+# 1. Abrir template
+cat .windsurf/templates/validation-checklist-template.md
+
+# 2. Copiar exemplo relevante para Workflow 9a (Finalization)
+
+# 3. Adaptar para checklist de finalization
+
+# 4. Executar ANTES de commit
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+# Validar cada item antes de marcar completo
+```
+
+### 0.5.3. Exemplo Workflow 9a
+
+**Ver no template**: Seção "Workflow 9a (Finalization)" com 3 exemplos:
+- Docs atualizados (PLAN, TASK, ADR, INDEX)
+- Code Hygiene (limpeza pré-commit)
+- Git commit compliance (Conventional Commits)
+
+### 0.5.4. Anti-Patterns (EVITAR)
+
+❌ **Validação vaga**: "Docs OK"
+✅ **Validação específica**: "PLAN.md: Feature ✅ COMPLETO + TASK.md: todas checked + ADR criado"
+
+❌ **Steps subjetivos**: "Revisar código"
+✅ **Steps objetivos**: "./scripts/code-hygiene-scan.sh && verificar 0 temporários"
+
+### 0.5.5. Benefícios
+
+- **Zero débito técnico** (cleanup sistemático)
+- **Rastreabilidade completa** (docs + commits alinhados)
+- **Compliance garantido** (checklists previnem esquecimentos)
+
+---
+
 # Workflow 9a/10: Finalization Part A (Finalização - Parte A)
 
 **Nono workflow** de 10 etapas modulares para adicionar funcionalidade.
@@ -33,6 +101,124 @@ Antes de iniciar, SEMPRE ler:
 - Documentação + Commits: 2+ agentes paralelos
 - Validação final: 3+ agentes (docs, código, build)
 - Merge preparation: 2+ agentes (branch status, changelog)
+
+---
+
+## 🧹 Fase 18: Code Hygiene Check (PRÉ-COMMIT)
+
+**OBRIGATÓRIO**: Executar limpeza de código antes de commit.
+
+### 18.1 Executar Script Automático
+
+```bash
+./scripts/code-hygiene-scan.sh
+```
+
+**Se FALHAR** (exit code 1):
+- [ ] Revisar relatório `hygiene-report.txt`
+- [ ] Corrigir issues críticos (ver seção abaixo)
+- [ ] Re-executar até PASSAR
+
+### 18.2 Checklist Manual (após script passar)
+
+**Importações**:
+- [ ] Removeu imports não usados?
+- [ ] Importações duplicadas eliminadas?
+- [ ] Importações organizadas (terceiros → locais)?
+
+**Código**:
+- [ ] Removeu funções/variáveis não usadas?
+- [ ] Removeu código comentado antigo?
+- [ ] Removeu console.log/debug prints?
+- [ ] Removeu TODOs resolvidos?
+
+**Arquivos Temporários**:
+- [ ] Arquivos `test-*.js` removidos?
+- [ ] READMEs temporários (`README-test-*.md`) removidos?
+- [ ] Screenshots de debug removidos?
+
+**Formatação**:
+- [ ] Código formatado (Prettier)?
+```bash
+npx prettier --write "src/**/*.{ts,tsx}"
+npx eslint --fix "src/**/*.{ts,tsx}"
+```
+
+**Evidências Visuais (Opcional)**:
+```bash
+./scripts/validate-screenshot-gate.sh 9a
+```
+
+**Output**:
+- ✅ Screenshots ANTES + DEPOIS → Adicionar PR description
+- ⚠️ Screenshots faltando → Não bloqueante (recomendado para docs)
+
+**Benefício**: PR reviewers veem mudanças visuais (não apenas código)
+
+---
+
+### 18.3 Correções Comuns
+
+**Se script reportar issues**:
+
+1. **Temp files**: Remover manualmente
+```bash
+find . -name "*.tmp" -o -name "*.bak" -o -name ".DS_Store" -delete
+find scripts/ -name "test-*.js" -mtime +7 -delete
+```
+
+2. **Console.logs**: Buscar e remover
+```bash
+grep -rn "console\.\(log\|debug\)" src/ --exclude-dir=node_modules
+```
+
+3. **TODOs antigos**: Resolver ou criar issues
+```bash
+grep -rn "TODO\|FIXME" src/ | head -20
+```
+
+4. **Duplicação > 5%**: Refatorar código duplicado
+```bash
+npx jscpd src/ --threshold 5
+```
+
+### 18.4 Validação Final
+
+**Checklist**:
+- [ ] Script passou (exit code 0)
+- [ ] Relatório sem ⚠️ críticos
+- [ ] Build sem warnings (`npm run build`)
+- [ ] Testes passando (`npm run test`)
+
+**Regra**: "Limpar enquanto cozinha, não depois do jantar."
+
+---
+
+## ⏸️ Fase 18.5: Git Approval Checkpoint (Code Hygiene Commit)
+
+**Code hygiene commit separado da feature**
+
+### 18.5.1 Validação
+
+- [ ] Apenas mudanças de limpeza? (imports, console.log, formatação)
+- [ ] NENHUMA mudança de lógica?
+- [ ] Mensagem: "chore(hygiene): ..." ou "style: ..."?
+
+### 18.5.2 Template Checkpoint
+
+```
+✅ CODE HYGIENE COMMIT:
+Arquivos: [listar apenas hygiene fixes]
+Tipo: [imports removidos, console.logs, formatação]
+Mensagem: chore(hygiene): remove unused imports and console.logs
+
+⏸️ APROVAR commit code hygiene? (yes/no)
+```
+
+### 18.5.3 Decisão
+
+**SE APROVADO**: Prosseguir Fase 19
+**SE REJEITADO**: Separar melhor hygiene vs feature
 
 ---
 
@@ -82,6 +268,36 @@ Antes de iniciar, SEMPRE ler:
 
 ---
 
+## 🚫 Fase 19.5: Git Approval Checkpoint (Push Feature Branch)
+
+**Push de feature branch (pre-PR)**
+
+### 19.5.1 Validação
+
+- [ ] Todos commits locais incluídos?
+- [ ] Quality gates passaram? (./scripts/run-tests.sh)
+- [ ] Build sucesso? (npm run build)
+- [ ] Nenhum TODO/FIXME crítico?
+
+### 19.5.2 Template Checkpoint
+
+```
+🔴 PUSH FEATURE BRANCH:
+Branch: feat/[feature-name]
+Commits: [listar todos commits]
+Quality Gates: [✅ tests, ✅ build, ✅ lint]
+
+⚠️ Após push, PR poderá ser criada
+⏸️ APROVAR push feature branch? (yes/no)
+```
+
+### 19.5.3 Decisão
+
+**SE APROVADO**: Prosseguir Fase 20
+**SE REJEITADO**: Corrigir issues localmente
+
+---
+
 ## 💾 Fase 20: Commit e Push
 
 ```bash
@@ -89,6 +305,40 @@ Antes de iniciar, SEMPRE ler:
 ```
 
 Script cria múltiplos commits (tests → implementation → styles → docs). Push realizado! ✅
+
+---
+
+## 🚫 Fase 20.5: Git Approval Checkpoint (PR Creation)
+
+**PR é operação pública (visibilidade externa)**
+
+### 20.5.1 Validação
+
+- [ ] Título PR descritivo?
+- [ ] Body com Summary + Test Plan?
+- [ ] Base branch correta? (main)
+- [ ] Reviewers necessários identificados?
+
+### 20.5.2 Template Checkpoint
+
+```
+🔴 CREATE PULL REQUEST:
+Título: [PR title]
+Base: main ← feat/[feature-name]
+Commits: [X commits]
+Files changed: [Y files]
+
+Summary:
+[mostrar summary gerado]
+
+⚠️ PR será pública e notificará stakeholders
+⏸️ APROVAR criação PR? (yes/no)
+```
+
+### 20.5.3 Decisão
+
+**SE APROVADO**: Executar `gh pr create`
+**SE REJEITADO**: Revisar título/descrição
 
 ---
 
@@ -209,16 +459,185 @@ wc -c .windsurf/workflows/add-feature-9a-finalization.md
 
 **Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
 
+---
+
+## 🧠 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 9a: Finalization Part A ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - Documentação atualizada (features, ADRs, README, regras negócio)
+  - Commits e push realizados (script commit-and-push.sh)
+  - Resumo e métricas finalizadas
+  - Meta-learning capturado
+- **Outputs**:
+  - Documentação sincronizada
+  - Código commitado e pushed para branch
+  - Resumo completo do que foi feito
+- **Next**: Workflow 9b (RCA Retrospective)
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+Workflow 9a (Finalization Part A) concluído com sucesso.
+
+**Documentação e commits finalizados**. Feature implementada e pushed para branch.
+
+**Próximo passo**: Executar Workflow 9b (RCA Retrospective) para análise retrospectiva e identificação de melhorias sistêmicas.
+
+---
+
+## Próximos Passos
+
+- [ ] Executar Workflow 9b (RCA Retrospective)
+- [ ] RCA retrospectivo (5 Whys para tempo, qualidade, iterações, workflow)
+- [ ] Consolidação de melhorias sistêmicas
+
+---
+
+## Decisões Pendentes
+
+- [ ] Nenhuma (aguardando RCA 9b)
+
+EOF
+
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Decisões Tomadas)
+
+**⚠️ Só atualizar se DECISÃO foi tomada no workflow.**
+
+```bash
+# Exemplo: Se decisão arquitetural documentada em ADR
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<EOF
+
+## Workflow 9a - Finalization Part A
+- **Decisão**: [Descrever decisão - ex: ADR criado para padrão X]
+- **Por quê**: [Justificativa - ex: Decisão arquitetural importante]
+- **Trade-off**: [Ex: +30min documentação, mas previne confusão futura]
+- **Alternativas consideradas**: [Ex: Não documentar (rejeitado - perda conhecimento)]
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 9a (Finalization Part A) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] FINALIZATION: Documentação + commits + push realizados" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md?
+- [ ] Atualizei temp-memory.md (Estado Atual + Próximos Passos)?
+- [ ] Atualizei decisions.md (se decisão tomada)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + ações)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
+
+### F.6. Cleanup .context/ (Opcional - Arquivar)
+
+**⚠️ APENAS se feature está 100% completa e mergeada**:
+
+```bash
+# Se feature está 100% completa e mergeada
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+BACKUP_DIR=".context/.archive/$(TZ='America/Sao_Paulo' date '+%Y%m%d-%H%M%S')-${BRANCH_PREFIX}"
+
+mkdir -p "$BACKUP_DIR"
+mv .context/${BRANCH_PREFIX}_* "$BACKUP_DIR/"
+
+echo "✅ Context arquivado em $BACKUP_DIR"
+```
+
+**Quando arquivar**:
+- ✅ Feature mergeada em main
+- ✅ Deploy realizado (se necessário)
+- ✅ Validação produção OK
+- ✅ Documentação completa
+
+**Quando NÃO arquivar**:
+- ❌ Feature ainda em branch (não mergeada)
+- ❌ Aguardando validação
+- ❌ Pode haver revisões/ajustes
+
+---
+
+## 🔄 VALIDATION LOOP (OBRIGATÓRIO - Workflows Iterativos)
+
+**APLICÁVEL**: Se finalization envolve validação manual final ou ajustes pré-commit.
+
+**Sistema**: Registrar iterações finais em `.context/{branch}_validation-loop.md`.
+
+### Quando Usar
+
+**Usar SE**:
+- [ ] Code hygiene check falhou (iterações de limpeza)
+- [ ] Documentação incompleta (ajustes iterativos)
+- [ ] Commit/push com erros (re-tentativas)
+
+**Criar Validation Loop** (SE aplicável):
+
+```bash
+BRANCH=$(git branch --show-current | sed 's/\//-/g')
+
+cat > .context/${BRANCH}_validation-loop.md <<'EOF'
+# Validation Loop - Workflow 9a (Finalization)
+
+**Data Início**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+**Status**: 🔄 Em Progresso
+
+## Iteração 1
+
+**Fase**: [Code Hygiene / Docs / Commit]
+**Issue**: [Descrição]
+**Fix**: [Correção]
+**Resultado**: ✅ | ❌
+
+EOF
+```
+
+**Benefícios**: Finalization rastreável, zero erros de commit, validação completa.
+
+**Ref**: Workflow 6a (aprovado), Paper GCC Oxford 2025
 
 ---
 
 **Workflow criado em**: 2025-11-04
-**Versão**: 3.1 (Otimizado < 12k chars)
+**Versão**: 3.2 (Git Approval Checkpoints)
 **Autor**: Windsurf AI Workflow + Claude Code
 
 ---
 
 ## 📝 Changelog
+
+**v3.2 (2025-11-18)**:
+- ✅ Adicionadas 3 Git Approval Checkpoints (REGRA #23)
+  - Fase 18.5: Code Hygiene Commit ⏸️
+  - Fase 19.5: Push Feature Branch 🚫
+  - Fase 20.5: PR Creation 🚫
+- ✅ Renumeração de fases subsequentes
+- ✅ Alinhamento com `~/.claude/CLAUDE.md` REGRA #23
+- ✅ Alinhamento com `~/.claude/memory/git.md`
 
 **v3.1 (2025-11-08)**:
 - ✅ Otimização -47% (8.6k chars vs 14.9k anterior)

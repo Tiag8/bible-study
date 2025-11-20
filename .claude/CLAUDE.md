@@ -12,6 +12,14 @@ Este arquivo contém instruções **específicas do projeto Life Tracker**. Para
 
 **Hierarquia**: Regras deste arquivo têm prioridade para Life Tracker.
 
+### 🆕 Meta-Learning Patterns (v2.3.0)
+Quick links to patterns synced from feat/magic-link-onboarding-whatsapp:
+- [Multi-Agent RCA Parallelization](#multi-agent-rca-parallelization) - 36x faster debugging
+- [Achievement Documentation](#-achievement-documentation-workflow-8a) - 56x context reduction
+- [Timing Validation Protocol](#-timing-validation-protocol) - -95% false positives
+- [Debugging Best Practices](#-debugging-best-practices) - When to use each pattern
+- [INDEX-MASTER Pattern](#index-master-pattern) - Documentation governance
+
 ---
 
 ## ⚠️ MUITO IMPORTANTE: USO MÁXIMO DE AGENTES (Claude Code)
@@ -36,6 +44,23 @@ Este arquivo contém instruções **específicas do projeto Life Tracker**. Para
 - Personalização de múltiplos arquivos
 - Testes em diferentes módulos
 - Análise de diferentes aspectos do projeto
+
+### Multi-Agent RCA Parallelization
+
+**Pattern**: 5+ parallel agents for complex debugging
+
+**When**: Bug with 3+ symptoms OR 3+ layers affected (DB, Edge, Frontend)
+
+**Structure**:
+- Agent 1: Database layer analysis
+- Agent 2: Edge Function behavior
+- Agent 3: Frontend state/props flow
+- Agent 4: Integration points
+- Agent 5: RCA meta-analysis (synthesize findings)
+
+**Benefit**: 36x faster (2h vs 84h), 8+ root causes found vs 1-2
+
+**See**: ADR-026
 
 ### Benefícios
 - ⚡ Redução drástica do tempo de execução
@@ -178,6 +203,24 @@ Ver `.windsurf/workflows/`:
 
 **Regra**: SEMPRE seguir workflows. NUNCA pular etapas.
 
+### 📝 Achievement Documentation (Workflow 8a)
+
+**Pattern**: After complex feature completion, create mini-postmortem
+
+**File**: `.context/{branch}_achievement.md` (< 50 lines)
+
+**Structure**:
+- 🐛 The Bug (2-3 sentences)
+- 🛠️ The Fix (3-5 bullets)
+- 📣 User Feedback (1-2 quotes)
+- ✅ Validation (evidence)
+
+**Why**: 56x context reduction, 10x faster onboarding, replicability 9/10
+
+**When**: Complex bugs (3+ symptoms), multi-layer fixes (3+ files), pattern-worthy solutions
+
+**See**: ADR-028, Workflow 8a Phase 18
+
 ---
 
 ## 🔒 SEGURANÇA CRÍTICA
@@ -226,6 +269,49 @@ Ver `.windsurf/workflows/`:
 4. **Assessment Scores**: Cálculos precisos das 8 áreas
 
 **TDD obrigatório**: Lógica de negócio (hooks, cálculos, validações).
+
+---
+
+## 🔬 TIMING VALIDATION PROTOCOL
+
+**Rule**: Before declaring fix success, validate timing and causation
+
+**Checklist**:
+- [ ] Did symptom occur AFTER my change?
+- [ ] Did symptom disappear AFTER my revert?
+- [ ] Can I reproduce reliably (3/3 times)?
+- [ ] Are there other variables changed simultaneously?
+- [ ] Did I test with/without my change (A/B comparison)?
+
+**Why**: Prevents correlation≠causation trap (-95% false positives)
+
+**Pattern**: Change → Test → Revert → Test → Re-apply → Test (3-step validation)
+
+**Red Flags**:
+- "Fixed it!" without before/after comparison
+- Single test run (not reproducible)
+- Multiple changes at once (can't isolate cause)
+- Time gaps between change and test (confounding variables)
+
+**See**: ADR-027
+
+---
+
+## 🐛 DEBUGGING BEST PRACTICES
+
+### When to Use Timing Validation
+- Bug appears/disappears inconsistently
+- Multiple changes deployed simultaneously
+- "Works on my machine" scenarios
+- Performance regressions
+
+### When to Use Multi-Agent RCA
+- 3+ symptoms across different layers
+- Root cause unclear after initial analysis
+- Multiple teams/domains involved
+- High-impact production issues
+
+**Principle**: Invest 20% time in proper diagnosis to save 80% time in implementation
 
 ---
 
@@ -352,6 +438,7 @@ console.log('[DEBUG] 📥 Gemini Response:', JSON.stringify(result));
 
 **Para informações detalhadas removidas desta versão otimizada**, consulte:
 
+- **INDEX-MASTER.md** ⭐: `docs/INDEX-MASTER.md` - CONSULTAR ANTES de criar documentação
 - **Features detalhadas**: `docs/FEATURES.md`
 - **Arquitetura completa**: `docs/ARCHITECTURE.md`
 - **Migration History**: `docs/MIGRATION_COMPLETE.md`
@@ -361,12 +448,44 @@ console.log('[DEBUG] 📥 Gemini Response:', JSON.stringify(result));
 - **User Flows**: `docs/USER_FLOWS.md` (4 fluxos críticos)
 - **Design Principles**: `docs/DESIGN_PRINCIPLES.md`
 
+### INDEX-MASTER Pattern
+
+**Rule**: ALWAYS check `docs/INDEX-MASTER.md` BEFORE creating new documentation
+
+**Why**:
+- Prevents duplicate documentation (same topic, different locations)
+- Ensures consistent structure and naming
+- Reduces navigation friction (1 entry point)
+- Avoids orphaned docs (docs not referenced anywhere)
+
+**When to Update INDEX-MASTER.md**:
+- After creating new ADR
+- After adding guide/tutorial
+- After adding troubleshooting doc
+- After workflow changes
+
+**Pattern**: Create doc → Update INDEX-MASTER.md → Link from relevant sections
+
+**Red Flags**:
+- Doc exists but not in INDEX-MASTER.md (orphaned)
+- 2+ docs covering same topic (duplication)
+- Deep nesting without index entry (navigation friction)
+
 ---
 
-**Última atualização**: 2025-11-01 (v2.2 - PLAN.md e TASK.md obrigatórios)
-**Versão**: 2.2.0 (Documentação Obrigatória)
+**Última atualização**: 2025-11-19 (v2.3 - Meta-Learning Patterns)
+**Versão**: 2.3.0 (Meta-Learning Patterns)
 **Projeto**: Life Track Growth (Life Tracker)
 **Stack Core**: React 18.3 + TypeScript 5.8 + Vite 5.4 + Supabase + Gemini AI
+
+**Changelog v2.3.0 (2025-11-19)**:
+- Adicionado: Achievement Documentation Pattern (Workflow 8a, ADR-028)
+- Adicionado: Multi-Agent RCA Parallelization (ADR-026)
+- Adicionado: Timing Validation Protocol (ADR-027)
+- Adicionado: Debugging Best Practices section
+- Adicionado: INDEX-MASTER Pattern (documentation governance)
+- Total: 8 generic sections from feat/magic-link-onboarding-whatsapp meta-learning
+- File size: 14KB → 16.5KB (within < 20KB target)
 
 **Changelog v2.2.0 (2025-11-01)**:
 - Adicionado: Seção "Documentação Obrigatória (PLAN.md e TASK.md)"

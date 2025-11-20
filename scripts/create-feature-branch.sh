@@ -163,17 +163,22 @@ fi
 echo -e "${YELLOW}🔨 Criando branch '${BRANCH_NAME}'...${NC}"
 git checkout -b "${BRANCH_NAME}" "${BASE_BRANCH}"
 
+# Local branch creation (no approval needed - REGRA #23)
+# Este script cria branch APENAS localmente, sem push to remote
+# Push manual via: git push -u origin <branch-name>
+
 # Registrar criação em histórico
 BRANCH_HISTORY_FILE=".git/branch-history.log"
 echo "$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M:%S %Z') | ${BRANCH_NAME} | criada a partir de: ${BASE_BRANCH} (estava em: ${CURRENT_BRANCH})" >> "$BRANCH_HISTORY_FILE"
 
 echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}✅ Branch criada com sucesso!${NC}"
+echo -e "${GREEN}✅ Branch criada com sucesso! (LOCAL ONLY)${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 echo -e "🌿 Branch: ${BRANCH_NAME}"
 echo -e "📍 Base: ${BASE_BRANCH} ($(git rev-parse --short HEAD))"
+echo -e "💻 Localização: Local (não enviada para remote)"
 [ "$BASE_BRANCH" != "$CURRENT_BRANCH" ] && echo -e "⚠️  Branch anterior: ${CURRENT_BRANCH}"
 echo ""
 

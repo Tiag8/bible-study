@@ -26,6 +26,108 @@ Antes de iniciar, SEMPRE ler:
 
 ---
 
+## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
+
+### 0.1. Ler INDEX.md (Guia de Leitura)
+
+```bash
+cat .context/INDEX.md
+```
+
+**Entender**:
+- Ordem de leitura dos arquivos
+- O que cada arquivo faz
+- Checklists obrigatórios
+
+### 0.2. Ler Context Files (Ordem Definida em INDEX.md)
+
+```bash
+# Prefixo da branch (ex: feat-members)
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+# 1. Onde estou agora?
+cat .context/${BRANCH_PREFIX}_workflow-progress.md
+
+# 2. Estado atual resumido
+cat .context/${BRANCH_PREFIX}_temp-memory.md
+
+# 3. Decisões já tomadas
+cat .context/${BRANCH_PREFIX}_decisions.md
+
+# 4. Histórico completo (últimas 30 linhas)
+tail -30 .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### 0.3. Validação Context Loaded
+
+**Checklist**:
+- [ ] Li INDEX.md?
+- [ ] Li workflow-progress.md (onde estou)?
+- [ ] Li temp-memory.md (estado atual)?
+- [ ] Li decisions.md (decisões já tomadas)?
+- [ ] Li últimas 30 linhas de attempts.log?
+
+**Se NÃO leu**: ⛔ PARAR e ler AGORA.
+
+### 0.4. Log Início Workflow
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 1 (Planning) - START" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+---
+
+## 🚨 Fase 0.5: Validação Pre-Requisitos Críticos (CSF)
+
+**⚠️ CRITICAL SUCCESS FACTORS - NUNCA PULAR**
+
+**Objetivo**: Validar que workflows críticos foram executados ANTES de prosseguir.
+
+### Checklist CSF (3 validações OBRIGATÓRIAS):
+
+**1. GATE 1 Reframing Executado? (ADR-031)**
+- [ ] attempts.log contém "GATE 1.*Reframing"?
+- [ ] Perspectiva validada com usuário?
+- [ ] Problema CERTO confirmado (não sintoma)?
+
+**⛔ SE NÃO**: PARAR → Retornar Workflow 1 Fase 1.5 → Re-executar GATE 1
+
+---
+
+**2. Workflow 4.5 (Pre-Implementation Gates) Planejado? (ADR-021)**
+- [ ] Feature envolve DB changes OU Edge Functions OU Tools?
+- [ ] Workflow 4.5 agendado ANTES de Workflow 5a?
+- [ ] 6 gates identificados (Tool, Runtime, FK, File Size, Anti-Over-Engineering, Schema-First)?
+
+**⛔ SE SIM + NÃO PLANEJADO**: PARAR → Agendar Workflow 4.5 ANTES 5a
+
+**ℹ️ SE NÃO** (feature apenas frontend estático): SKIP Workflow 4.5 → Documentar motivo em decisions.md
+
+---
+
+**3. Schema-First Validation Executada? (REGRA #9)**
+- [ ] SE feature envolve DB: `./scripts/validate-schema-first.sh` executado?
+- [ ] Source of truth validado (DB real > migrations > types)?
+- [ ] Prefixo `lifetracker_` validado?
+
+**⛔ SE NÃO**: PARAR → Executar validation → Corrigir divergências
+
+---
+
+### ✅ GATE 0.5 APROVADO
+
+**Evidências**:
+- [ ] GATE 1: attempts.log linha [número]
+- [ ] Workflow 4.5: [AGENDADO para Workflow X] OU [SKIP - motivo: Y]
+- [ ] Schema-First: [VALIDADO] OU [N/A - sem DB changes]
+
+**Próximo**: Workflow 1 (Planning) → Fase 1 (Contexto)
+
+---
+
 ## 📋 Fase 1: Entendimento e Contexto
 
 ### 🔍 Análise Dinâmica da Requisição
@@ -121,6 +223,35 @@ Responda às perguntas acima. **Só continuarei após suas respostas**.
 - [ ] Abre soluções antes invisíveis?
 - [ ] Resolve múltiplos sintomas?
 - [ ] Mais sistêmico que original?
+
+---
+
+## 🛡️ GATE 1: Reframing Validation (OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: GATE de aprovação ANTES de prosseguir.
+
+**Checklist Obrigatório**:
+- [ ] Executei 3 Passos Reframing acima?
+- [ ] Pergunta Forte foi aplicada? ("Qual problema elimina múltiplos sintomas?")
+- [ ] Problema reframado abre 3+ soluções possíveis?
+- [ ] Usuário validou problema REFRAMADO (não original)?
+
+**SE 1+ check FALHOU**: ⛔ PARAR workflow. Re-executar Reframing.
+
+**Meta-Learning** (ML-CONTEXT-06):
+- Reframing GATE elimina 90% backtracking
+- feat-sync-crud: 4 fases retrabalho (sem GATE)
+- feat-payment-gateway: 0 fases retrabalho (com GATE preventivo)
+
+**Documentação**: ADR-021, CLAUDE.md REGRA #3
+
+**Log Decisão**:
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 1: Reframing - [APROVADO/BLOQUEADO]" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+**✅ SE APROVADO**: Prosseguir para Análise de Impacto abaixo.
 
 ---
 
@@ -333,6 +464,210 @@ wc -c .windsurf/workflows/add-feature-1-planning.md
 
 ---
 
+## ✅ FASE 4: CHECKPOINTS (REGRA #13 - Uma Ação Por Vez)
+
+**CRÍTICO**: Durante todo este workflow, SEMPRE executar checkpoint após CADA ação atômica.
+
+### 4.1. O que é uma Ação Atômica?
+
+**Ação atômica** = Menor unidade testável e reversível.
+
+**Exemplos deste workflow**:
+- ✅ "Ler e analisar docs/PLAN.md"
+- ✅ "Executar Reframing do problema"
+- ✅ "Identificar arquivos afetados no database"
+- ✅ "Executar Ultra Think para decisão arquitetural"
+- ❌ "Fazer todo planejamento" (NÃO atômico - múltiplas ações)
+
+### 4.2. Checkpoint Obrigatório (Após Cada Ação)
+
+**Usar script automatizado**:
+```bash
+./scripts/checkpoint.sh "descrição da ação executada"
+```
+
+**Ou manualmente**:
+
+**Template de Checkpoint**:
+```
+✅ AÇÃO COMPLETA: [descrição da ação]
+
+📸 EVIDÊNCIA:
+[screenshot, log, diff, análise feita]
+
+🔍 VALIDAÇÃO:
+- [x] Ação executada com sucesso
+- [x] Sem erros/warnings
+- [x] Output documentado
+- [x] Próxima ação identificada
+
+🎯 PRÓXIMA AÇÃO PROPOSTA:
+[descrição da próxima ação]
+
+⏸️ AGUARDANDO APROVAÇÃO do usuário para continuar.
+```
+
+### 4.3. Checklist Checkpoint (Executar a Cada Ação)
+
+- [ ] **Executei apenas 1 ação?**
+- [ ] **Mostrei evidência ao usuário?** (análise, documentos lidos, output)
+- [ ] **Usuário validou?** (aprovação explícita)
+- [ ] **Documentei em `.context/`?** (attempts.log)
+- [ ] **Identifiquei próxima ação?** (planejamento incremental)
+
+### 4.4. Exemplo de Aplicação (Workflow 1)
+
+**Fluxo com Checkpoints**:
+
+```
+1. AÇÃO: "Ler docs/PLAN.md"
+   → Executar → Checkpoint → Aprovação
+
+2. AÇÃO: "Executar Reframing do problema"
+   → Executar → Checkpoint → Aprovação
+
+3. AÇÃO: "Identificar features similares em docs/features/"
+   → Executar → Checkpoint → Aprovação
+
+4. AÇÃO: "Analisar impacto no database"
+   → Executar → Checkpoint → Aprovação
+
+5. AÇÃO: "Executar Ultra Think (se aplicável)"
+   → Executar → Checkpoint → Aprovação
+```
+
+### 4.5. Quando NÃO Aplicar Checkpoint
+
+**Exceções** (ações podem ser agrupadas):
+- ✅ **Leitura múltipla**: Ler 3 docs em sequência (não muda estado)
+- ✅ **Análise agregada**: Grep + Find + Análise (apenas busca)
+
+**MAS**: Mesmo nas exceções, mostrar resultado ANTES de próxima ação.
+
+### 4.6. Benefícios no Workflow 1
+
+**Eficiência**:
+- ✅ Reframing validado ANTES de análise profunda
+- ✅ Documentação encontrada ANTES de Ultra Think
+- ✅ Zero retrabalho (cada etapa validada)
+
+**Colaboração**:
+- ✅ Usuário vê progresso incremental
+- ✅ Feedback loop rápido (30seg por checkpoint)
+- ✅ Correção de rota imediata (se necessário)
+
+### 4.7. Documentação Automática
+
+Cada checkpoint DEVE logar em `.context/attempts.log`:
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] CHECKPOINT: [ação] - SUCCESS" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+**Ver**: REGRA #13 em `.claude/CLAUDE.md` para detalhes completos.
+
+---
+
+## 🧠 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 1: Planning ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - Análise dinâmica da requisição
+  - Reframing do problema (problema CERTO identificado)
+  - Análise de impacto (UI, hooks, database, performance, segurança)
+  - Análise de documentação existente
+  - Planejamento profundo (Ultra Think se aplicável)
+  - RCA (se problema/bug identificado)
+- **Outputs**:
+  - Contexto completo
+  - Problema reframado validado
+  - Documentação/código reutilizável identificado
+  - Plano de implementação (se Ultra Think usado)
+- **Next**: Workflow 2a (Solutions)
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+# Atualizar seção "Estado Atual"
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+Workflow 1 (Planning) concluído com sucesso.
+
+**Problema identificado**: [Descrever problema REFRAMADO]
+
+**Próximo passo**: Executar Workflow 2a (Solutions) para propor 3 soluções viáveis.
+
+---
+
+## Próximos Passos
+
+- [ ] Executar Workflow 2a (Solutions)
+- [ ] Propor 3 soluções com matriz de decisão
+- [ ] Selecionar solução com usuário
+
+---
+
+## Decisões Pendentes
+
+- [ ] Escolher solução (entre 3 opções do Workflow 2a)
+
+EOF
+
+# Substituir seção no arquivo original (preservar "Última Atualização")
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Decisões Tomadas)
+
+**⚠️ Só atualizar se DECISÃO foi tomada no workflow.**
+
+```bash
+# Exemplo: Se escolhemos usar Ultra Think
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<EOF
+
+## Workflow 1 - Planning
+- **Decisão**: Usar Ultra Think para planejamento profundo
+- **Por quê**: Feature complexa com múltiplas abordagens possíveis
+- **Trade-off**: +30min planejamento, mas previne retrabalho
+- **Alternativas consideradas**: Planning simples (rejeitado - risco alto)
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 1 (Planning) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] DECISION: Problema reframado - [descrever]" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md?
+- [ ] Atualizei temp-memory.md (Estado Atual + Próximos Passos)?
+- [ ] Atualizei decisions.md (se decisão tomada)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + decisões)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
+
+---
+
 ## 🔄 Próximo Workflow
 
 ```
@@ -343,4 +678,9 @@ Ou manualmente: `/add-feature-2-solutions`
 
 ---
 
-**Criado**: 2025-10-27 | **Atualizado**: 2025-11-08 | **Parte**: 1/11 | **Próximo**: Solution Design (3 Soluções)
+**Criado**: 2025-10-27 | **Atualizado**: 2025-11-20 | **Parte**: 1/11 | **Próximo**: Solution Design (3 Soluções)
+
+**v2.1** (2025-11-20):
+- 🆕 Fase 0.5: CSF Validation (GATE 1, Workflow 4.5, Schema-First)
+- 🔧 Enforcement: Pre-requisitos críticos obrigatórios
+- ✅ ADR-031, ADR-021, REGRA #9

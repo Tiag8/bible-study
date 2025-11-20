@@ -67,6 +67,48 @@ Execute antes de iniciar Fase 24:
 
 ---
 
+## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
+
+### 0.1. Ler Context Files
+
+```bash
+BRANCH_PREFIX=$(git symbolic-ref --short HEAD 2>/dev/null | sed 's/\//-/g' || echo "main")
+
+# 1. Guia
+cat .context/INDEX.md
+
+# 2. Progresso (verificar workflows 1-10 completos)
+cat .context/${BRANCH_PREFIX}_workflow-progress.md
+
+# 3. Estado (verificar branch ready for deployment)
+cat .context/${BRANCH_PREFIX}_temp-memory.md
+
+# 4. Decisões (revisar decisões de deployment)
+cat .context/${BRANCH_PREFIX}_decisions.md
+
+# 5. Histórico (últimas 30 linhas)
+tail -30 .context/${BRANCH_PREFIX}_attempts.log
+```
+
+**Checklist Pré-Deployment Prep**:
+- [ ] Li INDEX.md?
+- [ ] Workflows 1-10 marcados como ✅ COMPLETO em workflow-progress.md?
+- [ ] temp-memory.md indica "pronto para deployment prep"?
+- [ ] Decisões críticas de deployment em decisions.md validadas?
+- [ ] Nenhum bloqueador em attempts.log?
+
+**Se NÃO leu ou tem bloqueadores**: ⛔ PARAR e resolver ANTES de deployment prep.
+
+### 0.2. Log Início Workflow
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 11a (VPS Deployment Prep) - START" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+---
+
 ## 🎯 Objetivo
 
 Preparar ambiente/código para deploy seguro em VPS Docker Swarm + Traefik:
@@ -282,6 +324,123 @@ wc -c .windsurf/workflows/NOME_DESTE_WORKFLOW.md
 - [ ] Consolidar checklists
 - [ ] Extrair detalhes para docs/
 - [ ] Dividir em 2 workflows
+
+---
+
+## 📊 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 11a: VPS Deployment Prep ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - Validação pré-deploy (env vars, secrets, migrations)
+  - Build produção (npm run build)
+  - Testes finais (./scripts/run-tests.sh)
+  - Dockerfile validado (multi-stage, Alpine, health checks)
+  - .env.production criado e validado
+  - Pre-deploy checklist completo (12 checks)
+- **Outputs**:
+  - Build size: [size] (< 50MB ✅)
+  - Testes: ✅ PASSING
+  - Dockerfile: ✅ VALIDATED
+  - .env.production: ✅ CREATED
+  - Migrations: [count] ready
+- **Next**: Workflow 11b (VPS Deployment Execution)
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+✅ **DEPLOYMENT PREP COMPLETO**
+
+Workflow 11a (VPS Deployment Prep) concluído.
+
+**Status Deployment Pipeline**:
+- ✅ Workflows 1-10 (Feature completa)
+- ✅ **Deployment Prep (Workflow 11a)** ← **PRONTO PARA DEPLOY**
+
+**Deployment Readiness**:
+- ✅ Build produção OK ([size] MB)
+- ✅ Testes passando (0 failures)
+- ✅ Dockerfile validado (multi-stage, health checks)
+- ✅ .env.production configurado
+- ✅ Migrations prontas para apply
+
+**Próximo passo**: Workflow 11b (VPS Deployment Execution) - Deploy Docker Swarm
+
+## Bloqueios/Questões
+
+- Nenhum bloqueador - pronto para deploy
+EOF
+
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Decisão Tomada)
+
+**SE houve decisão de deployment strategy**:
+
+```bash
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<'EOF'
+
+---
+
+## Decisão: Deployment Strategy (VPS)
+
+**Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+**Contexto**: Workflow 11a - Preparação para deploy em VPS Docker Swarm
+**Decisão**: [Docker Swarm / Docker Compose / Kubernetes]
+
+**Configurações**:
+- Registry: [local / DockerHub / GitHub Packages]
+- Image tag: [latest / version / commit-hash]
+- Rollback strategy: [manual / automated]
+- Health check timeout: [30s / 60s / 90s]
+
+**Impacto**:
+- Deploy time: [estimativa baseada em deploys anteriores]
+- Zero-downtime: [SIM / NÃO]
+- Rollback time: [2-3min manual / 30s automated]
+
+**Alternativas Consideradas**:
+- Docker Compose: Descartado (sem HA)
+- Kubernetes: Descartado (over-engineering para escala atual)
+
+**Referências**: ADR-003 (Docker Swarm + Traefik)
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 11a (VPS Deployment Prep) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] ✅ DEPLOYMENT PREP: Build OK, Testes OK, Dockerfile OK, .env OK" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] PRÓXIMO PASSO: Workflow 11b (VPS Deployment Execution)" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md com build size e status de validações?
+- [ ] Atualizei temp-memory.md (Estado Atual + Deployment Readiness)?
+- [ ] Atualizei decisions.md (se deployment strategy decidida)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + validações)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
 
 ---
 

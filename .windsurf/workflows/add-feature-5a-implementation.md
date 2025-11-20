@@ -12,89 +12,19 @@ Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
 
 ---
 
-## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+## 🧠 FASE 0: LOAD CONTEXT (Script Unificado)
 
-**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
-
-### 0.1. Ler INDEX.md (Guia de Leitura)
+**⚠️ USAR SCRIPT** (não Read manual):
 
 ```bash
-cat .context/INDEX.md
+./scripts/context-load-all.sh feat-nome-feature
 ```
 
-**Entender**:
-- Ordem de leitura dos arquivos
-- O que cada arquivo faz
-- Checklists obrigatórios
+**Output**: Resumo 6 arquivos .context/ (INDEX, workflow-progress, temp-memory, decisions, attempts.log, validation-loop).
 
-### 0.2. Ler Context Files (Ordem Definida em INDEX.md)
+**SE script falhar**: Fallback manual (Read 6 arquivos).
 
-```bash
-# Prefixo da branch (ex: feat-members)
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-
-# 1. Onde estou agora?
-cat .context/${BRANCH_PREFIX}_workflow-progress.md
-
-# 2. Estado atual resumido
-cat .context/${BRANCH_PREFIX}_temp-memory.md
-
-# 3. Decisões já tomadas
-cat .context/${BRANCH_PREFIX}_decisions.md
-
-# 4. Histórico completo (últimas 30 linhas)
-tail -30 .context/${BRANCH_PREFIX}_attempts.log
-```
-
-### 0.3. Validação Context Loaded
-
-**Checklist**:
-- [ ] Li INDEX.md?
-- [ ] Li workflow-progress.md (onde estou)?
-- [ ] Li temp-memory.md (estado atual)?
-- [ ] Li decisions.md (decisões já tomadas)?
-- [ ] Li últimas 30 linhas de attempts.log?
-- [ ] 🚨 Validei Pre-Implementation Gates (Workflow 4.5)?
-
-**Se NÃO leu**: ⛔ PARAR e ler AGORA.
-
-### 0.4. Log Início Workflow
-
-```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 5a (Implementation) - START" >> .context/${BRANCH_PREFIX}_attempts.log
-```
-
-### 0.5 Validate Pre-Implementation Gates 🚨 OBRIGATÓRIO
-
-**⚠️ BLOQUEIO AUTOMÁTICO**: Este script BLOQUEIA Workflow 5a se Workflow 4.5 não executado.
-
-```bash
-./scripts/validate-pre-implementation-gates.sh
-```
-
-**O que valida**:
-- ✅ Workflow 4.5 executado (verificação em attempts.log)
-- ✅ 6 gates aprovados (Tool Validation, Runtime, FK, File Size, Anti-Over-Engineering, Schema-First)
-- ⚠️ Bypass disponível (export SKIP_GATES=1) mas NÃO RECOMENDADO
-
-**Por quê obrigatório**:
-- Baseado em ML-CONTEXT-03 (Pre-Implementation Quality Gates)
-- Previne 70% bugs pós-código (evidência: feat-payment 5h vs feat-sync 52h)
-- Economia 10x (47h) com gates preventivos
-
-**SE BLOQUEADO**:
-1. Execute Workflow 4.5: `.windsurf/workflows/add-feature-4.5-pre-implementation-gates.md`
-2. Retorne para Workflow 5a
-
-**SE NÃO QUER GATES** (aceita risco):
-```bash
-export SKIP_GATES=1
-./scripts/validate-pre-implementation-gates.sh
-```
-
-⚠️ **IMPORTANTE**: Bypass aumenta risco bugs 10x. Use APENAS se feature é trivial (< 3 arquivos).
-
+**Benefício**: Consolidated context loading vs manual Fase 0 (redução tempo).
 ---
 
 ## ⚠️ REGRA CRÍTICA: USO MÁXIMO DE AGENTES
@@ -117,6 +47,47 @@ export SKIP_GATES=1
 - ⚠️ NUNCA commite código não relacionado nesta branch!
 - ✅ Todos commits incrementais devem estar NESTA branch
 - 🚨 Código não commitado em branch errada = problema sério!
+
+---
+
+## 📸 Fase 9.5: Screenshot ANTES (Baseline Visual)
+
+**⚠️ CRÍTICO**: Capturar estado ANTES de modificar código (ADR-029).
+
+### Executar Validação
+
+```bash
+./scripts/validate-screenshot-gate.sh 5a
+```
+
+**SE APROVADO** (exit 0):
+- ✅ Screenshot ANTES existe em `screenshots/before/`
+- 🎯 Prosseguir Fase 10 (Implementação)
+
+**SE REJEITADO** (exit 1):
+- ❌ Screenshot ANTES faltando
+- 🎯 AÇÃO: Capturar screenshot → Salvar `screenshots/before/feature-before.png`
+- ⛔ BLOQUEIO: Fase 10 NÃO pode iniciar sem baseline
+
+---
+
+### Como Capturar
+
+1. **Abrir aplicação**: `npm run dev` → http://localhost:8080
+2. **Navegar**: Página/componente que será modificado
+3. **Screenshot**: Cmd+Shift+4 (Mac) OU PrtScn (Windows)
+4. **Salvar**: `screenshots/before/[feature]-before-[timestamp].png`
+
+**Exemplo**: `screenshots/before/landing-page-before-20251120.png`
+
+---
+
+**Por quê Screenshot-First?**:
+- Previne regressões visuais (baseline comparação)
+- Validação usuário informada (vê estado atual)
+- Documentação visual (evidência mudanças)
+
+**Evidência**: ADR-029 (feat-landing-page-mvp 6 iterações visuais)
 
 ---
 
@@ -421,7 +392,120 @@ REFERENCES lifetracker_profiles(user_id)
 
 ---
 
-## 🧠 Meta-Learning: Captura de Aprendizados
+## 📝 Fase 15: Commit Implementation
+
+**Commit dos arquivos implementados (seguindo Conventional Commits)**:
+
+```bash
+git add .
+git commit -m "feat: [descrição da feature implementada]
+
+- Implementação de [componente/função/feature]
+- Testes adicionados para [casos cobertos]
+- Integrações com [backend/frontend/database]
+
+Refs: #[issue-number] (se aplicável)"
+```
+
+**Checklist Commit**:
+- [ ] Mensagem segue Conventional Commits (feat:, fix:, refactor:)?
+- [ ] Commit é atômico (1 feature/mudança)?
+- [ ] Arquivos corretos incluídos (sem arquivos temporários)?
+- [ ] Sem secrets/PII commitados?
+
+---
+
+## ⏸️ Fase 15.5: Git Approval Checkpoint (Commit Local)
+
+**OBRIGATÓRIO**: Aprovação explícita para commit local
+
+**Validação:**
+- [ ] Executei `git status` e `git diff`?
+- [ ] Mensagem commit segue Conventional Commits?
+- [ ] Commit é atômico (1 feature/mudança)?
+- [ ] Arquivos corretos incluídos?
+
+**Template Checkpoint:**
+```
+✅ COMMIT PREPARADO:
+Arquivos: [listar arquivos staged]
+Mensagem: [mostrar mensagem]
+
+⏸️ APROVAR commit local? (yes/no)
+```
+
+**SE APROVADO**: Prosseguir Fase 16
+**SE REJEITADO**: Corrigir e repetir Fase 15.5
+
+---
+
+## 📝 Fase 16: Documentation Update
+
+**Atualizar documentação do projeto (se aplicável)**:
+
+```bash
+# Atualizar TASK.md com status
+# Atualizar ADRs se decisões arquiteturais foram tomadas
+# Atualizar docs/ se features novas foram adicionadas
+```
+
+---
+
+## 📤 Fase 17: Prepare Remote Push
+
+**Validação pré-push**:
+
+```bash
+# Verificar branch
+git branch
+
+# Verificar remote
+git remote -v
+
+# Verificar commits a enviar
+git log origin/main..HEAD --oneline
+```
+
+---
+
+## 📤 Fase 18: Push to Remote
+
+**Push da branch para remote**:
+
+```bash
+git push -u origin [branch-name]
+```
+
+---
+
+## 🚫 Fase 18.5: Git Approval Checkpoint (Push Remote)
+
+**CRÍTICO**: Push é irreversível (operação pública)
+
+**Validação:**
+- [ ] Branch correta? (verificar `git branch`)
+- [ ] Remote correto? (verificar `git remote -v`)
+- [ ] Todos commits locais incluídos?
+- [ ] Nenhum secret/PII commitado?
+
+**Template Checkpoint:**
+```
+🔴 PUSH TO REMOTE:
+Branch: [branch-name]
+Remote: origin
+Commits: [listar commits a enviar]
+Destino: [remote/branch]
+
+⚠️ Operação irreversível!
+⏸️ APROVAR push to remote? (yes/no)
+```
+
+**SE APROVADO**: Prosseguir Fase 19
+**SE REJEITADO**: Corrigir localmente e repetir
+
+---
+
+## 🧠 Fase 19: Meta-Learning: Captura de Aprendizados
 
 **⚠️ CRÍTICO - NÃO PULE**: Fundamental para evolução contínua do sistema.
 
@@ -614,11 +698,11 @@ echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] CHECKPOINT: [ação] - 
 
 ---
 
-## 🧠 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+## 🧠 Fase 20: FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
 
 **⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
 
-### F.1. Atualizar workflow-progress.md
+### 20.1. Atualizar workflow-progress.md
 
 ```bash
 BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
@@ -633,17 +717,19 @@ cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
   - Integração de componentes (frontend + backend + database)
   - Validações de segurança durante implementação
   - GATE 2 aprovado (TypeScript, ESLint, Vitest, Build)
+  - Git approval checkpoints (commit local + push remote)
 - **Outputs**:
   - Código implementado (8+ commits locais)
   - Testes automatizados passando (0 errors)
   - Integrações conectadas e validadas
   - Segurança validada (RLS, sanitização, sem secrets)
   - Anti-Over-Engineering checklist validado
+  - Código commitado e pushed para remote
 - **Next**: Workflow 5b (Refactoring & RCA)
 EOF
 ```
 
-### F.2. Atualizar temp-memory.md
+### 20.2. Atualizar temp-memory.md
 
 ```bash
 # Atualizar seção "Estado Atual"
@@ -656,6 +742,7 @@ Workflow 5a (Implementation Core) concluído com sucesso.
 - Commits locais: [número de commits, ex: 10 commits]
 - Testes: ✅ Todos passando
 - Build: ✅ Sem erros
+- Git: ✅ Commitado e pushed para remote
 
 **Próximo passo**: Executar Workflow 5b (Refactoring & RCA) para refactoring, git hooks e análise de causas raiz (se aplicável).
 
@@ -682,7 +769,7 @@ cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
 rm /tmp/temp-memory-update.md
 ```
 
-### F.3. Atualizar decisions.md (Se Decisões Tomadas)
+### 20.3. Atualizar decisions.md (Se Decisões Tomadas)
 
 **⚠️ Só atualizar se DECISÃO foi tomada no workflow.**
 
@@ -699,14 +786,14 @@ cat >> .context/${BRANCH_PREFIX}_decisions.md <<EOF
 EOF
 ```
 
-### F.4. Log em attempts.log
+### 20.4. Log em attempts.log
 
 ```bash
 echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 5a (Implementation) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
 echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] DECISION: Código implementado - [resumo commits/testes]" >> .context/${BRANCH_PREFIX}_attempts.log
 ```
 
-### F.5. Validação Context Updated
+### 20.5. Validação Context Updated
 
 **Checklist Pós-Workflow**:
 - [ ] Atualizei workflow-progress.md?

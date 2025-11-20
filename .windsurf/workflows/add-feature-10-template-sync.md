@@ -34,6 +34,48 @@ Este é o **décimo e último workflow** de 11 etapas modulares para adicionar u
 
 ---
 
+## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
+
+### 0.1. Ler Context Files
+
+```bash
+BRANCH_PREFIX=$(git symbolic-ref --short HEAD 2>/dev/null | sed 's/\//-/g' || echo "main")
+
+# 1. Guia
+cat .context/INDEX.md
+
+# 2. Progresso (verificar workflows 1-9 completos)
+cat .context/${BRANCH_PREFIX}_workflow-progress.md
+
+# 3. Estado (verificar branch ready for template sync)
+cat .context/${BRANCH_PREFIX}_temp-memory.md
+
+# 4. Decisões (revisar decisões de sincronização)
+cat .context/${BRANCH_PREFIX}_decisions.md
+
+# 5. Histórico (últimas 30 linhas)
+tail -30 .context/${BRANCH_PREFIX}_attempts.log
+```
+
+**Checklist Pré-Template Sync**:
+- [ ] Li INDEX.md?
+- [ ] Workflows 1-9 marcados como ✅ COMPLETO em workflow-progress.md?
+- [ ] temp-memory.md indica "pronto para template sync"?
+- [ ] Decisões críticas em decisions.md validadas?
+- [ ] Nenhum bloqueador em attempts.log?
+
+**Se NÃO leu ou tem bloqueadores**: ⛔ PARAR e resolver ANTES de sync.
+
+### 0.2. Log Início Workflow
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 10 (Template Sync) - START" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+---
+
 ## 🎯 Objetivo
 
 Sincronizar melhorias genéricas aplicadas nesta feature com o `project-template`, garantindo que **futuros projetos herdem automaticamente os aprendizados** deste projeto.
@@ -71,7 +113,7 @@ git diff main...HEAD --name-only
 git log main..HEAD --oneline
 ```
 
-**Candidatos**: `scripts/*.sh` (sem lógica específica), `.windsurf/workflows/*.md`, `.claude/CLAUDE.md` (seções reutilizáveis), `AGENTS.md` (genéricas), `docs/adr/*.md`
+**Candidatos**: `scripts/*.sh` (sem lógica específica), `.windsurf/workflows/*.md`, `.claude/agents/*.md` (genéricas), `.claude/commands/*.md`, `.claude/CLAUDE.md` (seções reutilizáveis), `AGENTS.md`, `docs/adr/*.md`
 
 **Perguntar ao usuário:**
 
@@ -100,7 +142,7 @@ Sincronizar com project-template? (sim/não/escolher)
 ```
 
 **O script**:
-1. Detecta mudanças em `.windsurf/workflows/`, `.claude/`, `scripts/`, `AGENTS.md`
+1. Detecta mudanças em `.windsurf/workflows/`, `.claude/agents/`, `.claude/commands/`, `.claude/CLAUDE.md`, `scripts/`, `AGENTS.md`
 2. Apresenta lista com diff
 3. Permite seleção (a=todos, n=nenhum, s=individual)
 4. Copia para `/Users/tiago/Projects/project-template`
@@ -293,6 +335,124 @@ Lógica de negócio, schemas específicos, configurações, secrets/credenciais,
   - Meta: >40% do código base vem do template
 
 ---
+
+---
+
+## 📊 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 10: Template Sync ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - Análise de melhorias genéricas (diff main...HEAD)
+  - Identificação de candidatos (scripts, workflows, docs, ADRs)
+  - Sincronização com project-template (./scripts/sync-to-template.sh)
+  - Validação no template (sem secrets, paths relativos, código limpo)
+  - Documentação em TEMPLATE_EVOLUTION.md
+- **Outputs**:
+  - Melhorias sincronizadas: [Listar arquivos sincronizados ou "Nenhuma"]
+  - Template atualizado: $([ -d /Users/tiago/Projects/project-template ] && echo "✅ Sincronizado" || echo "⚠️ Template path não encontrado")
+  - TEMPLATE_EVOLUTION.md documentado
+- **Decisão**: [Sincronizou tudo/seleção individual/nenhuma melhoria genérica]
+- **Next**: Workflow 12 (Merge to Main) ou Workflow 11a-c (se deploy VPS)
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+✅ **TEMPLATE SYNCHRONIZED**
+
+Workflow 10 (Template Sync) concluído.
+
+**Status Final**:
+- ✅ Planning (Workflow 1)
+- ✅ Solutions Design (Workflow 2a/2b)
+- ✅ Risk Analysis (Workflow 3)
+- ✅ Pre-Implementation Gates (Workflow 4.5)
+- ✅ Implementation (Workflow 5a)
+- ✅ User Validation (Workflow 6a)
+- ✅ Quality Gates (Workflow 7a)
+- ✅ Meta-Learning (Workflow 8a)
+- ✅ Clean Commit (Workflow 9a)
+- ✅ **Template Sync (Workflow 10)** ← **SINCRONIZADO**
+
+**Template Sync Status**: [SINCRONIZADO / NENHUMA MELHORIA GENÉRICA]
+
+**Próximo passo**: Workflow 12 (Merge to Main) ou Workflow 11a (se deploy VPS necessário)
+
+## Bloqueios/Questões
+
+- Nenhum bloqueio após template sync
+EOF
+
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Decisão Tomada)
+
+**SE houve decisão de sincronização (tudo/seleção/nenhuma)**:
+
+```bash
+# Exemplo: Se decisão de sincronizar scripts específicos foi tomada
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<'EOF'
+
+---
+
+## Decisão: Template Sync Strategy
+
+**Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+**Contexto**: Workflow 10 - Identificadas melhorias genéricas em scripts/workflows/docs
+**Decisão**: [SINCRONIZAR TUDO / SELEÇÃO INDIVIDUAL / NENHUMA]
+
+**Arquivos Sincronizados** (se aplicável):
+- scripts/[arquivo].sh - [Motivo da melhoria]
+- .windsurf/workflows/[workflow].md - [Motivo da melhoria]
+- .claude/CLAUDE.md (seção [X]) - [Motivo da melhoria]
+
+**Impacto**:
+- Template project-template agora inclui [melhorias]
+- Futuros projetos herdarão automaticamente [benefícios]
+- Redução de [problema específico] em projetos novos
+
+**Alternativas Consideradas**:
+- Não sincronizar: Descartado (melhorias são genéricas)
+- Sincronizar apenas X: Descartado (Y também é reutilizável)
+
+**Referências**: TEMPLATE_EVOLUTION.md v[X.Y]
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 10 (Template Sync) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] ✅ TEMPLATE SYNC: [Status - sincronizado/nenhuma melhoria]" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] PRÓXIMO PASSO: Workflow 12 (Merge to Main)" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md com status de sincronização?
+- [ ] Atualizei temp-memory.md (Estado Atual + Próximos Passos)?
+- [ ] Atualizei decisions.md (se decisão de sync foi tomada)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + status sync)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
 
 ---
 

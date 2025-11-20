@@ -11,6 +11,22 @@ Antes de iniciar, SEMPRE ler:
 
 ---
 
+## 🧠 FASE 0: LOAD CONTEXT (Script Unificado)
+
+**⚠️ USAR SCRIPT** (não Read manual):
+
+```bash
+./scripts/context-load-all.sh feat-nome-feature
+```
+
+**Output**: Resumo 6 arquivos .context/ (INDEX, workflow-progress, temp-memory, decisions, attempts.log, validation-loop).
+
+**SE script falhar**: Fallback manual (Read 6 arquivos).
+
+**Benefício**: Consolidated context loading vs manual Fase 0 (redução tempo).
+
+---
+
 ## 🤖 CRÍTICO: Uso Máximo de Agentes (Claude Code)
 
 > **🚨 REGRA ABSOLUTA 🚨**
@@ -133,6 +149,87 @@ Antes de iniciar, SEMPRE ler:
 **Prós**: ✅ Performance máxima, escalável alto volume, preparado para crescimento
 **Contras**: ❌ Maior complexidade, mais difícil manter, maior tempo, risco bugs
 **Quando**: Performance crítica, volume muito alto, orçamento/tempo para investir
+
+---
+
+## 🚨 GATE 1.5: Necessity Validation (Anti-Duplicação)
+
+**CRÍTICO**: Validar se solução NÃO duplica funcionalidade existente.
+
+### Checklist Anti-Duplicação (OBRIGATÓRIO)
+
+**1. Funcionalidade Nativa Existente?**
+- [ ] **Gemini AI** JÁ faz isso nativamente? (parsing, extração, análise, tool calling)
+  - Verificar: function declarations, prompts atuais
+  - Se SIM → ⛔ BLOQUEAR, usar Gemini nativo
+- [ ] **React/Supabase** JÁ tem built-in? (cache, validation, auth, RLS)
+  - Verificar: docs oficiais + código atual
+  - Se SIM → ⛔ BLOQUEAR, usar built-in
+- [ ] **Biblioteca instalada** JÁ cobre? (verificar package.json + node_modules)
+  - Verificar: grep -r "funcionalidade" node_modules/
+  - Se SIM → ⛔ BLOQUEAR, documentar uso lib
+
+**2. Evidências de Gap Real**
+- [ ] **Testei solução atual** e FALHOU em caso real? (não hipotético)
+  - Evidência: [screenshot/log/código testado]
+  - Se NÃO testei → ⛔ PAUSAR, testar primeiro
+- [ ] **Tenho log/screenshot** provando inadequação?
+  - Anexar: [link ou caminho arquivo]
+  - Se NÃO tenho → ⛔ PAUSAR, criar evidência
+- [ ] Gap é **SISTÊMICO** (afeta 3+ casos) ou pontual (1 edge case)?
+  - Se pontual → ⚠️ Considerar workaround ao invés de feature
+  - Se sistêmico → ✅ Prosseguir
+
+**3. Alternativas Mais Simples**
+- [ ] **Ajustar prompt/config** resolve? (vs criar código novo)
+  - Exemplo: Melhorar system prompt Gemini, adicionar few-shot examples
+  - Se SIM → ⛔ BLOQUEAR, usar alternativa
+- [ ] **Parâmetro/flag** resolve? (vs criar abstração)
+  - Exemplo: staleTime no React Query, enable flag no Supabase
+  - Se SIM → ⛔ BLOQUEAR, usar parâmetro
+- [ ] **Documentar uso existente** resolve? (vs reimplementar)
+  - Exemplo: README de como usar feature X corretamente
+  - Se SIM → ⛔ BLOQUEAR, criar doc
+
+### Red Flags - Bloqueio Imediato
+
+**❌ Se QUALQUER item abaixo for verdade, REJEITAR solução**:
+- Parser/Extractor → Gemini JÁ faz via tool calling
+- Cache custom → React Query JÁ tem staleTime/cacheTime
+- Validation layer → Zod/TypeScript JÁ valida
+- Auth middleware → Supabase Auth + RLS JÁ protege
+- Wrapper/Adapter → Biblioteca já tem API direta
+
+### Exemplos Bloqueados (Over-Engineering Detectados)
+
+1. ❌ **`habit-field-parser.ts`**
+   - Prometia: Parsing texto → estruturado
+   - Realidade: Gemini JÁ extrai via function calling
+   - ROI: Negativo (680 linhas sem benefício)
+   - Ação: DELETADO (commit e380c00)
+
+2. ❌ **Sentry MCP**
+   - Prometia: Debug automático via MCP
+   - Realidade: Curl + API Sentry faz o mesmo
+   - ROI: Negativo (overhead config/manutenção)
+   - Ação: REMOVIDO (ADR-010)
+
+3. ❌ **Custom Auth**
+   - Prometia: Login avançado
+   - Realidade: Supabase Auth JÁ cobre 100%
+   - ROI: Negativo (reinventar roda)
+   - Ação: BLOQUEADO antes de implementar
+
+### Regra de Ouro
+
+> **"Se solução pode ser substituída por prompt melhor, config ou doc, é over-engineering."**
+
+### Ação se Gate 1.5 FALHAR
+
+- ⛔ **PAUSAR** Workflow 2a
+- 🔙 **VOLTAR** para Workflow 1 (Reframing)
+- 🔍 **PESQUISAR** alternativa nativa/existente
+- ✅ **VALIDAR** com usuário antes de prosseguir
 
 ---
 
@@ -344,6 +441,216 @@ wc -c .windsurf/workflows/add-feature-2a-solutions.md
 - ✅ Métricas técnicas (latência, throughput, memory usage)
 
 **Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
+
+---
+
+## ✅ FASE 4: CHECKPOINTS (REGRA #13 - Uma Ação Por Vez)
+
+**CRÍTICO**: Durante todo este workflow, SEMPRE executar checkpoint após CADA ação atômica.
+
+### 4.1. O que é uma Ação Atômica?
+
+**Ação atômica** = Menor unidade testável e reversível.
+
+**Exemplos deste workflow (Solutions)**:
+- ✅ "Pesquisar abordagem X em docs oficiais (MCP context7)"
+- ✅ "Executar brainstorm Gemini para gerar 5 soluções"
+- ✅ "Criar matriz de decisão comparando 3 soluções"
+- ✅ "Validar viabilidade técnica da solução A"
+- ✅ "Documentar trade-offs de cada solução"
+- ❌ "Criar todas 3 soluções completas" (NÃO atômico - múltiplas ações)
+
+### 4.2. Checkpoint Obrigatório (Após Cada Ação)
+
+**Usar script automatizado**:
+```bash
+./scripts/checkpoint.sh "descrição da ação executada"
+```
+
+**Ou manualmente**:
+
+**Template de Checkpoint**:
+```
+✅ AÇÃO COMPLETA: [descrição da ação]
+
+📸 EVIDÊNCIA:
+[pesquisa realizada, matriz criada, análise de viabilidade]
+
+🔍 VALIDAÇÃO:
+- [x] Ação executada com sucesso
+- [x] Sem erros/warnings
+- [x] Output documentado
+- [x] Próxima ação identificada
+
+🎯 PRÓXIMA AÇÃO PROPOSTA:
+[descrição da próxima ação]
+
+⏸️ AGUARDANDO APROVAÇÃO do usuário para continuar.
+```
+
+### 4.3. Checklist Checkpoint (Executar a Cada Ação)
+
+- [ ] **Executei apenas 1 ação?**
+- [ ] **Mostrei evidência ao usuário?** (pesquisa, matriz, análise)
+- [ ] **Usuário validou?** (aprovação explícita)
+- [ ] **Documentei em `.context/`?** (attempts.log)
+- [ ] **Identifiquei próxima ação?** (planejamento incremental)
+
+### 4.4. Exemplo de Aplicação (Solutions)
+
+**Fluxo com Checkpoints**:
+
+```
+1. AÇÃO: "Pesquisar libs para feature X (MCP context7 + firecrawl)"
+   → Executar → Checkpoint → Aprovação
+
+2. AÇÃO: "Brainstorm Gemini: gerar 5 soluções candidatas"
+   → Executar → Checkpoint → Aprovação
+
+3. AÇÃO: "Filtrar 5 → 3 soluções viáveis (Pareto 80/20)"
+   → Executar → Checkpoint → Aprovação
+
+4. AÇÃO: "Criar matriz de decisão (complexidade, risco, ROI)"
+   → Executar → Checkpoint → Aprovação
+
+5. AÇÃO: "Validar viabilidade técnica solução recomendada"
+   → Executar → Checkpoint → Aprovação
+```
+
+### 4.5. Quando NÃO Aplicar Checkpoint
+
+**Exceções** (ações podem ser agrupadas):
+- ✅ **Pesquisa paralela**: Buscar 3 libs simultaneamente (MCP)
+- ✅ **Análise agregada**: Ler docs oficiais + exemplos (leitura)
+
+**MAS**: Mesmo nas exceções, mostrar resultado ANTES de próxima ação.
+
+### 4.6. Benefícios no Solutions
+
+**Eficiência**:
+- ✅ Solução validada ANTES de design técnico detalhado
+- ✅ Trade-offs discutidos ANTES de implementação
+- ✅ Zero retrabalho (cada solução avaliada incrementalmente)
+
+**Colaboração**:
+- ✅ Usuário escolhe solução com visibilidade completa
+- ✅ Feedback loop rápido (30seg por checkpoint)
+- ✅ Ajuste de rota imediato (se solução inviável)
+
+### 4.7. Documentação Automática
+
+Cada checkpoint DEVE logar em `.context/attempts.log`:
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] CHECKPOINT: [ação] - SUCCESS" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+**Ver**: REGRA #13 em `.claude/CLAUDE.md` para detalhes completos.
+
+---
+
+## 🧠 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 2a: Solutions ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Actions**:
+  - Propostas 3 soluções (A: Simples, B: Balanceada, C: Avançada)
+  - Comparação matriz de decisão (prós/contras/trade-offs)
+  - Gate 1.5: Anti-duplicação validada (Gemini/React/Supabase nativo)
+  - Recomendação fundamentada apresentada
+  - Advogado do Diabo executado (10 perguntas críticas)
+  - Anti-over-engineering validado (YAGNI/KISS)
+- **Outputs**:
+  - Matriz de decisão completa (3 soluções comparadas)
+  - Solução recomendada com justificativa
+  - Trade-offs documentados
+  - Riscos iniciais identificados
+- **Next**: Workflow 2b (Technical Design)
+EOF
+```
+
+### F.2. Atualizar temp-memory.md
+
+```bash
+# Atualizar seção "Estado Atual"
+cat > /tmp/temp-memory-update.md <<'EOF'
+## Estado Atual
+
+Workflow 2a (Solutions) concluído com sucesso.
+
+**Solução escolhida**: [A / B / C / Customizada]
+
+**Justificativa**: [Resumo da decisão baseada em matriz]
+
+**Próximo passo**: Executar Workflow 2b (Technical Design) para detalhar arquitetura da solução escolhida.
+
+---
+
+## Próximos Passos
+
+- [ ] Executar Workflow 2b (Technical Design)
+- [ ] Arquitetura detalhada da solução
+- [ ] Validação viabilidade técnica
+- [ ] Criar ADR (se decisão arquitetural importante)
+
+---
+
+## Decisões Pendentes
+
+[Se houver decisões técnicas pendentes após escolha da solução]
+
+EOF
+
+# Substituir seção no arquivo original (preservar "Última Atualização")
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Decisões Tomadas)
+
+**⚠️ Só atualizar se DECISÃO foi tomada no workflow.**
+
+```bash
+# Exemplo: Se escolhemos Solução B (Balanceada)
+cat >> .context/${BRANCH_PREFIX}_decisions.md <<EOF
+
+## Workflow 2a - Solutions
+- **Decisão**: Solução B (Balanceada)
+- **Por quê**: Equilíbrio simplicidade/performance, escalável, risco controlado
+- **Trade-off**: Mais complexo que A, mas evita refatoração futura
+- **Alternativas consideradas**:
+  - A (Simples): Rejeitada - pode precisar refatorar depois
+  - C (Otimizada): Rejeitada - over-engineering para volume atual
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+EOF
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 2a (Solutions) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] DECISION: Solução escolhida - [A/B/C]" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md?
+- [ ] Atualizei temp-memory.md (Estado Atual + Próximos Passos)?
+- [ ] Atualizei decisions.md (se decisão tomada)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + decisão)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
 
 ---
 

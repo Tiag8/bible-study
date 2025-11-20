@@ -9,58 +9,19 @@ Ler ANTES: `docs/PLAN.md`, `docs/TASK.md`, `README.md`, `AGENTS.md`
 
 ---
 
-## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
+## 🧠 FASE 0: LOAD CONTEXT (Script Unificado)
 
-**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
-
-### 0.1. Ler INDEX.md (Guia de Leitura)
+**⚠️ USAR SCRIPT** (não Read manual):
 
 ```bash
-cat .context/INDEX.md
+./scripts/context-load-all.sh feat-nome-feature
 ```
 
-**Entender**:
-- Ordem de leitura dos arquivos
-- O que cada arquivo faz
-- Checklists obrigatórios
+**Output**: Resumo 6 arquivos .context/ (INDEX, workflow-progress, temp-memory, decisions, attempts.log, validation-loop).
 
-### 0.2. Ler Context Files (Ordem Definida em INDEX.md)
+**SE script falhar**: Fallback manual (Read 6 arquivos).
 
-```bash
-# Prefixo da branch (ex: feat-members)
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-
-# 1. Onde estou agora?
-cat .context/${BRANCH_PREFIX}_workflow-progress.md
-
-# 2. Estado atual resumido
-cat .context/${BRANCH_PREFIX}_temp-memory.md
-
-# 3. Decisões já tomadas
-cat .context/${BRANCH_PREFIX}_decisions.md
-
-# 4. Histórico completo (últimas 30 linhas)
-tail -30 .context/${BRANCH_PREFIX}_attempts.log
-```
-
-### 0.3. Validação Context Loaded
-
-**Checklist**:
-- [ ] Li INDEX.md?
-- [ ] Li workflow-progress.md (onde estou)?
-- [ ] Li temp-memory.md (estado atual)?
-- [ ] Li decisions.md (decisões já tomadas)?
-- [ ] Li últimas 30 linhas de attempts.log?
-
-**Se NÃO leu**: ⛔ PARAR e ler AGORA.
-
-### 0.4. Log Início Workflow
-
-```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 4.5 (Pre-Implementation Gates) - START" >> .context/${BRANCH_PREFIX}_attempts.log
-```
-
+**Benefício**: Consolidated context loading vs manual Fase 0 (redução tempo).
 ---
 
 # Workflow 4.5/11: Pre-Implementation Quality Gates
@@ -82,6 +43,8 @@ echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 4.5 (Pre-Impl
 - **ML-CONTEXT-03**: Quality Gates preventivos > reativos
 - **ML-CONTEXT-02**: Schema-First validation previne 60% bugs
 - **ADR-021**: Pre-Implementation Quality Gates
+- **ADR-026**: Multi-Agent RCA Parallelization (36x improvement)
+- **ADR-028**: Achievement Documentation Pattern
 
 ---
 
@@ -556,23 +519,179 @@ echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 8: Pre-Deploy - �
 
 ---
 
-## 📊 FASE FINAL: UPDATE CONTEXT
+## 🧠 MEMORY UPDATE (Pós-Workflow - OPCIONAL)
 
-### Log Workflow Completo
+**APLICÁVEL**: Se gates detectaram padrões sistêmicos (recorrentes em 2+ features).
+
+**Checklist**:
+- [ ] Gate bloqueado 3+ features? → Learning para memory
+- [ ] Identificou padrão reutilizável? → Meta-learning para memory
+- [ ] Gate revelou gap sistêmico? → Adicionar ao memory
+
+**Ação (SE aplicável)**:
+1. Identificar memory file relevante (gemini.md, supabase.md, deployment.md, debugging.md)
+2. **SUGERIR ao usuário** com template completo + aguardar aprovação
+
+**Template Sugestão**:
+```
+🧠 SUGESTÃO MEMÓRIA GLOBAL:
+Arquivo: ~/.claude/memory/[arquivo].md
+Seção: [Life Track Growth ou Geral]
+
+Adicionar:
+---
+### [Título Gate/Padrão] (Workflow 4.5 - ADR/evidência)
+**Problema**: [Gap detectado por gate]
+**Root Cause**: [5 Whys]
+**Solução**: [Gate/validação aplicada]
+**Prevenção**: [Script/checklist]
+**Exemplo**: [Code snippet ou comando]
+**Evidências**: [ADR-X, features afetadas]
+---
+
+⏸️ APROVAR adição? (yes/no/edit)
+```
+
+**Por quê**: Gates preventivos frequentemente revelam padrões sistêmicos. Se gate bloqueia 2+ features, é candidato a memory global (zero re-aprendizado).
+
+**Ver**: `~/.claude/CLAUDE.md` REGRA #20 (Sistema de Memória Global)
+
+---
+
+## 📊 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
+
+**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
+
+### F.1. Atualizar workflow-progress.md
 
 ```bash
 BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
 
-# Log attempts.log
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 4.5 (Pre-Implementation Gates) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] RESULTADO: 8 gates validados, [X] aprovados, [Y] bloqueados" >> .context/${BRANCH_PREFIX}_attempts.log
+# Contar gates aprovados/bloqueados/warnings (assumindo variáveis já setadas durante validação)
+APPROVED=${APPROVED_GATES:-0}
+BLOCKED=${BLOCKED_GATES:-0}
+WARNINGS=${WARNING_GATES:-0}
+TOTAL_GATES=$((APPROVED + BLOCKED + WARNINGS))
 
-# Atualizar workflow-progress.md
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 4.5: Pre-Implementation Gates ✅ COMPLETO
+- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+- **Gates Validados**: ${TOTAL_GATES}
+  - ✅ Aprovados: ${APPROVED}
+  - ⚠️ Warnings: ${WARNINGS}
+  - ❌ Bloqueados: ${BLOCKED}
+- **Actions**:
+  - GATE 1: Tool Validation (se aplicável)
+  - GATE 2: Runtime Compatibility (se aplicável)
+  - GATE 3: FK Reference Validation (se aplicável)
+  - GATE 4: File Size Limit (se aplicável)
+  - GATE 5: Anti-Over-Engineering (se aplicável)
+  - GATE 6: Schema-First Validation (SEMPRE)
+- **Outputs**:
+  - [Lista gates aprovados com ✅]
+  - [Lista gates bloqueados com ❌ e motivo]
+  - [Lista warnings com ⚠️]
+- **Decisão**: [PROSSEGUIR para Workflow 5a / BLOQUEADO: corrigir issues]
+- **Next**: [Workflow 5a (Implementation) SE todos aprovados / FIX SE 1+ bloqueado]
+EOF
 ```
 
-**Atualizar manualmente** (não automatizar):
-- `.context/${BRANCH_PREFIX}_workflow-progress.md` → Adicionar seção Workflow 4.5
-- `.context/${BRANCH_PREFIX}_temp-memory.md` → Atualizar "Próximos Passos"
+### F.2. Atualizar temp-memory.md
+
+```bash
+NEXT_STEP=$([ ${BLOCKED} -eq 0 ] && echo "Workflow 5a (Implementation)" || echo "FIX bloqueadores")
+
+cat > /tmp/temp-memory-update.md <<EOF
+## Estado Atual
+
+✅ **PRE-IMPLEMENTATION GATES VALIDADOS**
+
+Workflow 4.5 (Pre-Implementation Gates) concluído.
+
+**Status Gates** (${TOTAL_GATES} validados):
+- ✅ Aprovados: ${APPROVED}
+- ⚠️ Warnings: ${WARNINGS}
+- ❌ Bloqueados: ${BLOCKED}
+
+**Gates Executados**:
+- GATE 1: Tool Validation [STATUS]
+- GATE 2: Runtime Compatibility [STATUS]
+- GATE 3: FK Reference Validation [STATUS]
+- GATE 4: File Size Limit [STATUS]
+- GATE 5: Anti-Over-Engineering [STATUS]
+- GATE 6: Schema-First Validation [STATUS]
+
+**Próximo passo**: ${NEXT_STEP}
+
+## Bloqueios/Questões
+
+$([ ${BLOCKED} -gt 0 ] && echo "- ❌ BLOQUEADORES: ${BLOCKED} gates bloqueados - corrigir antes de implementar" || echo "- Nenhum bloqueador - pronto para implementação")
+EOF
+
+sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
+cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
+rm /tmp/temp-memory-update.md
+```
+
+### F.3. Atualizar decisions.md (Se Bloqueio ou Warning Crítico)
+
+**SE houve bloqueio ou warning crítico**:
+
+```bash
+# Só criar entry se há bloqueadores ou warnings
+if [ ${BLOCKED} -gt 0 ] || [ ${WARNINGS} -gt 0 ]; then
+  cat >> .context/${BRANCH_PREFIX}_decisions.md <<'EOF'
+
+---
+
+## Decisão: Pre-Implementation Gates - Issues Detectados
+
+**Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+**Contexto**: Workflow 4.5 - Validação pré-implementação
+**Decisão**: [CORRIGIR E RE-VALIDAR / ACEITAR WARNINGS E PROSSEGUIR]
+
+**Issues Detectados**:
+- [GATE X]: [Descrição issue + gravidade]
+- [GATE Y]: [Descrição issue + gravidade]
+
+**Ação Tomada**:
+- [SE BLOQUEADO]: ⛔ PARAR implementação, corrigir [issue], re-executar Workflow 4.5
+- [SE WARNING]: ⚠️ Documentar warning, adicionar TODO, prosseguir com cautela
+
+**Impacto**:
+- Tempo adicional: [estimativa SE bloqueado]
+- Risco: [ALTO / MÉDIO / BAIXO]
+
+**Referências**: [Gate checklist, evidências]
+EOF
+fi
+```
+
+### F.4. Log em attempts.log
+
+```bash
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 4.5 (Pre-Implementation Gates) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] ✅ GATES: ${APPROVED} aprovados, ${WARNINGS} warnings, ${BLOCKED} bloqueados" >> .context/${BRANCH_PREFIX}_attempts.log
+
+if [ ${BLOCKED} -gt 0 ]; then
+  echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] ⛔ BLOQUEADO: Corrigir issues ANTES de Workflow 5a" >> .context/${BRANCH_PREFIX}_attempts.log
+else
+  echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] PRÓXIMO PASSO: Workflow 5a (Implementation)" >> .context/${BRANCH_PREFIX}_attempts.log
+fi
+```
+
+### F.5. Validação Context Updated
+
+**Checklist Pós-Workflow**:
+- [ ] Atualizei workflow-progress.md com gates count e status?
+- [ ] Atualizei temp-memory.md (Estado Atual + próximo passo)?
+- [ ] Atualizei decisions.md (SE bloqueio ou warning crítico)?
+- [ ] Logei em attempts.log (WORKFLOW COMPLETO + gates resultado)?
+
+**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
+
+**IMPORTANTE**: Se há bloqueadores, NÃO prosseguir para Workflow 5a. Corrigir issues, re-executar Workflow 4.5.
 
 ---
 

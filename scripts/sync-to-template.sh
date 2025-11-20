@@ -34,6 +34,7 @@ fi
 # Diretórios e arquivos para sincronizar
 SYNC_PATHS=(
     ".windsurf/workflows"
+    ".claude/agents"
     ".claude/commands"
     ".claude/CLAUDE.md"
     "scripts"
