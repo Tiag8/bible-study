@@ -55,6 +55,76 @@ Ler ANTES: `docs/PLAN.md`, `docs/TASK.md`, `README.md`, `AGENTS.md`
 
 ---
 
+## 🎯 Feature Orchestrator Integration
+
+Se está gerenciando **múltiplas features em paralelo**, use Feature Orchestrator para tracking de progresso:
+
+```bash
+# Ver dashboard (todas features)
+./scripts/feature-dashboard.sh
+
+# Atualizar state após completar Workflow 4.5
+./scripts/feature-update-state.sh <nome-feature> workflow 4.5
+
+# Ver estado detalhado desta feature
+cat .context/feat-<nome-feature>_orchestrator-state.json | jq
+
+# Se pausar em gate (aguardando correção)
+./scripts/feature-update-state.sh <nome-feature> status paused
+```
+
+**Benefício**: Volta ao contexto em 30seg (state persistido) vs 30min de re-raciocínio entre features.
+
+**Documentação**: `docs/guides/FEATURE-ORCHESTRATOR-QUICKSTART.md` | **CHEAT SHEET**: `docs/guides/CHEAT-SHEET.md`
+
+---
+
+## 🚨 GATE 0: Environment Validation (ANTES de GATE 1)
+
+**⚠️ CRÍTICO**: Validar ambiente ANTES de qualquer código.
+
+### ✅ Checklist
+
+**1. System Env Conflicts**
+```bash
+# Validar variáveis de ambiente não conflitantes
+./scripts/validate-env-conflicts.sh
+```
+- [ ] Script passou sem erros (exit 0)
+- [ ] SE exit 1: Limpar conflicts (`unset VITE_*` das variáveis system)
+- [ ] SE exit 0: Prosseguir para próximos checks
+
+**Por quê**: ADR-025 (90x ROI, recorrência 3+ features - system env vars sobrescrevem .env local)
+
+**2. Schema Validation**
+```bash
+# Validar DB schema sincronizado com types
+./scripts/validate-schema-first.sh
+```
+- [ ] DB real como source of truth
+- [ ] Migrations aplicadas e sincronizadas
+- [ ] Types regenerados após migrations
+- [ ] SE failed: Executar REGRA #8 checklist completo
+
+**Por quê**: ADR-020 + ADR-034 (60% bugs feat-super-admin-dashboard = prefix mismatch)
+
+### 🔴 BLOQUEIO ABSOLUTO
+
+**SE GATE 0 FALHOU**: ⛔ PARAR → Corrigir issues → Re-executar GATE 0 → ENTÃO prosseguir GATE 1
+
+**Meta-Learning**: Gate 0 previne 70%+ bugs ambientais detectados APÓS implementação (ADR-025, ADR-034). Economia de 5-15h debugging/feature.
+
+### 📝 Log Decisão
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+# Log gate result com marcação explícita para validação
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 0: Environment Validation - ✅ APROVADO" >> .context/${BRANCH_PREFIX}_attempts.log
+# OU se bloqueado:
+# echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 0: Environment Validation - ❌ BLOQUEADO - [razão]" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+---
+
 ## 🛡️ GATE 1: Tool Definition Validation (Se Gemini AI Tool)
 
 ### 🎯 Objetivo
@@ -224,8 +294,34 @@ WHERE table_name = 'lifetracker_profiles'
 **4. Prefixo Correto (lifetracker_)**
 - [ ] FK usa prefixo: `FOREIGN KEY (user_id) REFERENCES lifetracker_profiles(user_id)`
 
+### 3.4 Prefix Consistency Check (NOVO - ADR-034)
+
+⚠️ **Database Prefix Migration Checklist**:
+- [ ] **Migrations SQL**: Tabelas criadas com `lifetracker_` prefix?
+- [ ] **Funções RPC**: Usando `lifetracker_` prefix? (ex: `lifetracker_has_role`)
+- [ ] **Views Materializadas**: Referenciando tabelas `lifetracker_*`?
+- [ ] **Frontend Hooks**: Queries com prefix? (`.from("lifetracker_X")`)
+
+**Script Validation**:
+```bash
+# Audit codebase para prefix inconsistencies
+grep -r "\.from\(['\"](?!lifetracker_)" src/hooks/ src/lib/
+# SE matches: Corrigir ANTES prosseguir
+
+# Validar migrations (tabelas sem prefix)
+grep -r "CREATE TABLE" supabase/migrations/*.sql | grep -v "lifetracker_"
+# SE matches: Adicionar prefix ANTES aplicar migration
+```
+
+**Por quê**: 60% bugs feat-super-admin-dashboard = prefix mismatch (ADR-034). Queries frontend falhavam silenciosamente porque referenciavam tabelas sem prefix (`profiles` vs `lifetracker_profiles`).
+
+**Checklist Adicional**:
+- [ ] Migration cria tabela SEM prefix? → BLOQUEAR (adicionar `lifetracker_` ANTES)
+- [ ] Frontend query referencia tabela SEM prefix? → BLOQUEAR (corrigir para `lifetracker_*`)
+- [ ] RPC function referencia tabela SEM prefix? → BLOQUEAR (atualizar SQL)
+
 ### 🔴 BLOQUEIO
-**SE 1+ check FALHOU**: ⛔ PARAR. Corrigir FK antes de aplicar migration.
+**SE 1+ check FALHOU**: ⛔ PARAR. Corrigir FK E prefix consistency antes de aplicar migration.
 
 ### 📝 Log Decisão
 ```bash
@@ -503,10 +599,11 @@ echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 8: Pre-Deploy - �
 
 ### Checklist Geral
 
-**8 Gates Validados**:
+**9 Gates Validados**:
+- [ ] GATE 0: Environment Validation (OBRIGATÓRIO - SEMPRE PRIMEIRO)
 - [ ] GATE 1: Tool Validation (se aplicável)
 - [ ] GATE 2: Runtime Compatibility (se aplicável)
-- [ ] GATE 3: FK Reference (se aplicável)
+- [ ] GATE 3: FK Reference + Prefix Consistency (se aplicável)
 - [ ] GATE 4: File Size (aviso se > 500L)
 - [ ] GATE 5: Anti-Over-Engineering
 - [ ] GATE 6: Schema-First (OBRIGATÓRIO)
@@ -582,12 +679,15 @@ cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
   - ⚠️ Warnings: ${WARNINGS}
   - ❌ Bloqueados: ${BLOCKED}
 - **Actions**:
+  - GATE 0: Environment Validation (SEMPRE)
   - GATE 1: Tool Validation (se aplicável)
   - GATE 2: Runtime Compatibility (se aplicável)
-  - GATE 3: FK Reference Validation (se aplicável)
+  - GATE 3: FK Reference + Prefix Consistency (se aplicável)
   - GATE 4: File Size Limit (se aplicável)
   - GATE 5: Anti-Over-Engineering (se aplicável)
   - GATE 6: Schema-First Validation (SEMPRE)
+  - GATE 7: Performance (SEMPRE)
+  - GATE 8: Pre-Deploy (SEMPRE)
 - **Outputs**:
   - [Lista gates aprovados com ✅]
   - [Lista gates bloqueados com ❌ e motivo]
@@ -615,12 +715,15 @@ Workflow 4.5 (Pre-Implementation Gates) concluído.
 - ❌ Bloqueados: ${BLOCKED}
 
 **Gates Executados**:
+- GATE 0: Environment Validation [STATUS]
 - GATE 1: Tool Validation [STATUS]
 - GATE 2: Runtime Compatibility [STATUS]
-- GATE 3: FK Reference Validation [STATUS]
+- GATE 3: FK Reference + Prefix Consistency [STATUS]
 - GATE 4: File Size Limit [STATUS]
 - GATE 5: Anti-Over-Engineering [STATUS]
 - GATE 6: Schema-First Validation [STATUS]
+- GATE 7: Performance [STATUS]
+- GATE 8: Pre-Deploy [STATUS]
 
 **Próximo passo**: ${NEXT_STEP}
 

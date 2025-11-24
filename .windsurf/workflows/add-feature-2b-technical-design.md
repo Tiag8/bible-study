@@ -71,6 +71,51 @@ Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
 **SE script falhar**: Fallback manual (Read 6 arquivos).
 
 **Benefício**: Consolidated context loading vs manual Fase 0 (redução tempo).
+
+---
+
+## 🎯 FASE 0.5: GAP ANALYSIS (OBRIGATÓRIO) - Workflow 14 Consolidation
+
+**⚠️ CRÍTICO**: SEMPRE executar Gap Analysis ANTES de design. Previne 80% over-engineering.
+
+### O que é Gap Analysis?
+Responder: "Quanto % do código/backend **JÁ EXISTE** para esta feature?"
+
+### Executar Validação
+
+```bash
+./scripts/validate-gap-analysis.sh
+```
+
+**Target**:
+- 90%+ reuso = ✅ IDEAL (feature simples, apenas wiring)
+- 70-89% reuso = ⚠️ OK (algum código novo necessário)
+- < 70% reuso = 🔴 INVESTIGAR (feature complexa, validar escopo)
+
+### Perguntas Obrigatórias
+
+1. **Backend**: Qual % das queries/APIs já existe?
+2. **Frontend**: Qual % dos componentes já existe (shadcn/ui)?
+3. **Schema**: Tabelas existem? Migrations necessárias?
+4. **Deps**: Novas dependências necessárias? (Target: ZERO)
+
+### Documentar em decisions.md
+
+```markdown
+## Workflow 2b: Gap Analysis
+- **Backend reuso**: XX% (queries existem, view materializada, etc)
+- **Frontend reuso**: XX% (shadcn/ui, componentes existentes)
+- **Schema**: OK/Migrations necessárias
+- **Deps novas**: ZERO/Lista
+- **Código novo estimado**: XX linhas
+```
+
+### Evidências (Workflow 14 Consolidation)
+- feat-landing-page-mvp: 95% reuso → 12 arquivos, ZERO deps novas
+- feat-super-admin-dashboard: 95% backend existe → apenas 293 LOC
+
+**⛔ SE NÃO EXECUTOU**: PARAR e executar Gap Analysis AGORA.
+
 ---
 
 ## ⚠️ REGRA: 5 AGENTES OBRIGATÓRIOS (100% Features)

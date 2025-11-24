@@ -12,14 +12,14 @@ Antes de iniciar qualquer análise ultra-think:
    - `docs/pesquisa-de-mercado/` - Fundamentos científicos
 
 2. **Proteção de código** (CRÍTICO):
-   - Ler **[`ultra-think-git.md`](./ultra-think-git.md)** para workflow Git completo
    - Fazer `git status` antes de começar
    - Para análises >2h: usar `./scripts/create-feature-branch.sh analysis-[tema]`
+   - Fazer commits intermediários para trabalho longo
 
 3. **Salvamento de análises**:
    - Salvar em: `docs/analyses/YYYY-MM-DD-tema.md`
    - Fazer commits intermediários a cada fase
-   - Ver `ultra-think-git.md` para detalhes completos
+   - Usar `git branch analysis-[tema]` para análises complexas
 
 ---
 
@@ -447,31 +447,25 @@ Após completar este workflow:
 - [ ] Atualizar `docs/TASK.md` com status das tarefas completadas
 - [ ] Atualizar `docs/PLAN.md` se houve mudança estratégica
 - [ ] Criar ADR em `docs/adr/` se houve decisão arquitetural
-- [ ] Salvar análise em `docs/analyses/[data]-[tema].md` (ver `ultra-think-git.md`)
+- [ ] Salvar análise em `docs/analyses/[data]-[tema].md` com commit intermediário
 
 ---
 
 ## 🔗 Proteção de Código e Git Workflow
 
-Para **proteção completa de código, salvamento de análises, commits intermediários e troubleshooting**, consulte:
-
-**[→ ultra-think-git.md](./ultra-think-git.md)**
-
-Documentação complementar cobre:
-- Checklist pré-voo Git
-- Branch dedicadas para análises >2h
-- Template de salvamento em `docs/analyses/`
-- Commits intermediários a cada fase
-- Ciclo completo de workflow
-- Cenários de recuperação
-- Checklist de salvamento
+**Best Practices**:
+- Sempre fazer `git status` antes de análises
+- Para análises >2h: criar branch dedicada (`git branch analysis-[tema]`)
+- Salvamento em `docs/analyses/YYYY-MM-DD-[tema].md` com commits intermediários
+- Cada fase importante: `git commit -m "analysis: [fase] - [descrição]"`
+- Usar `.gitignore` para análises não-estruturadas em `/tmp/`
 
 ---
 
-**Última atualização**: 2025-11-03
-**Versão**: 2.1 (Split em 2 arquivos)
+**Última atualização**: 2025-11-21
+**Versão**: 2.2 (Consolidado)
 **Autor**: Windsurf AI Workflow (baseado em Claude Code ultra-think)
-**Mudanças v2.1**:
-- Dividido em `ultra-think.md` (workflow principal) + `ultra-think-git.md` (proteção Git)
-- Referências cruzadas adicionadas
-- Redundâncias removidas
+**Mudanças v2.2**:
+- Consolidado: ultra-think-git.md integrado em ultra-think.md
+- Proteção Git integrada no workflow principal
+- Best practices de branch e commits inline

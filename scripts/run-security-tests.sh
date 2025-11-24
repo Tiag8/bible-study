@@ -61,6 +61,11 @@ FUNCTIONS_PATH="supabase/functions"
 # ============================================
 echo -e "${BLUE}1️⃣ Scan de Secrets Hardcoded${NC}"
 
+# NOTA CRÍTICA: Exclusão intencional de docs/ e .windsurf/
+# Estes diretórios contêm exemplos de keys, documentação e referências
+# que são INTENCIONALMENTE secrets ou padrões (não secrets reais hardcoded)
+# O scan focará em src/, scripts/ e supabase/ onde código produção reside
+
 SECRETS_PATTERNS=(
     "password\s*=\s*['\"][^'\"]*['\"]"
     "api_key\s*=\s*['\"][^'\"]*['\"]"
@@ -74,10 +79,10 @@ SECRETS_PATTERNS=(
 SECRETS_FOUND=false
 
 for pattern in "${SECRETS_PATTERNS[@]}"; do
-    if grep -riE "$pattern" "$SCAN_PATH" --exclude-dir=node_modules --exclude-dir=dist --exclude="*.test.*" > /dev/null 2>&1; then
+    if grep -riE "$pattern" "$SCAN_PATH" --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=docs --exclude-dir=.windsurf --exclude="*.test.*" > /dev/null 2>&1; then
         SECRETS_FOUND=true
         echo -e "${RED}  ❌ Possível secret encontrado (padrão: $pattern)${NC}"
-        grep -riE "$pattern" "$SCAN_PATH" --exclude-dir=node_modules --exclude-dir=dist --exclude="*.test.*" | head -5 | sed 's/^/     /'
+        grep -riE "$pattern" "$SCAN_PATH" --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=docs --exclude-dir=.windsurf --exclude="*.test.*" | head -5 | sed 's/^/     /'
     fi
 done
 

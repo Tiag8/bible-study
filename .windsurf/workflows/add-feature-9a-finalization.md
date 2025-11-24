@@ -423,6 +423,55 @@ wc -c .windsurf/workflows/add-feature-9a-finalization.md
 
 ---
 
+## 🧠 Fase 21.5: Memory System Checklist
+
+**CRÍTICO**: Verificar se learnings devem ser capturados em memória global.
+
+### 21.5.1 Detecção de Keywords
+
+**Verificar commit messages/branch por keywords**:
+- `gemini, ai, tool` → memory/gemini.md
+- `supabase, RLS, migration` → memory/supabase.md
+- `deploy, docker, traefik` → memory/deployment.md
+- `debug, bug, rca` → memory/debugging.md
+- `whatsapp, webhook` → memory/uazapi.md
+- `security, injection` → memory/security.md
+- `git, commit, push` → memory/git.md
+- `workflow, gate` → memory/workflow.md
+
+### 21.5.2 Checklist Memory
+
+- [ ] Keywords detectadas na feature/commits?
+- [ ] Houve bug sistêmico resolvido (RCA 5 Whys)?
+- [ ] Houve decisão arquitetural (ADR criado)?
+- [ ] Houve meta-learning reutilizável?
+
+**SE SIM (qualquer item)**:
+```bash
+# Executar extração de learning
+/extract-learning
+```
+
+**SE NÃO**: Marcar "No learning this feature" e prosseguir.
+
+### 21.5.3 Novo Domínio (Se Necessário)
+
+**SE learning não cabe em domínio existente**:
+```bash
+~/.claude/scripts/sync-memory-domains.sh <novo-dominio> "<keywords>"
+# Exemplo: sync-memory-domains.sh stripe "stripe|payment|checkout"
+```
+
+### 21.5.4 Validação
+
+- [ ] Learning extraído (se aplicável)?
+- [ ] MEMORY.md index atualizado?
+- [ ] Commit local de memory? (aguarda aprovação push)
+
+**Ref**: REGRA #20 (Memória Global), `/extract-learning` command
+
+---
+
 ## ⏭️ CONTINUAÇÃO AUTOMÁTICA
 
 **Este workflow continua automaticamente em:**
@@ -579,6 +628,29 @@ echo "✅ Context arquivado em $BACKUP_DIR"
 - ❌ Feature ainda em branch (não mergeada)
 - ❌ Aguardando validação
 - ❌ Pode haver revisões/ajustes
+
+---
+
+## 🎯 Feature Orchestrator: Marcar Workflow Como Completo
+
+**CRÍTICO**: Atualizar Feature Orchestrator para permitir trabalho em outras features.
+
+```bash
+# Após Workflow 9a ser completado com sucesso
+./scripts/feature-update-state.sh <nome-feature> complete-workflow 9a
+
+# Ver dashboard (confirmar status)
+./scripts/feature-dashboard.sh
+
+# SE feature está 100% COMPLETA (pronta para merge):
+./scripts/feature-update-state.sh <nome-feature> status completed
+```
+
+**Timing**: Executar APÓS Fase 21 (Resumo) estar documentado.
+
+**Benefício**: Feature orchestrator sabe que feature está finalizada, libera pipeline para próximas features.
+
+**Ref**: REGRA #28, `docs/guides/FEATURE-ORCHESTRATOR-QUICKSTART.md`
 
 ---
 

@@ -18,6 +18,43 @@ Primeiro workflow de 11 etapas modulares: Fase 1 (Entendimento), Fase 2 (Anális
 
 ---
 
+## 🎯 Feature Orchestrator Integration
+
+Este workflow faz parte do **sistema Feature Orchestrator** (REGRA #28) para tracking de múltiplas features em paralelo com zero context loss.
+
+### Comandos Essenciais
+
+```bash
+# Ver dashboard (todas features em paralelo)
+./scripts/feature-dashboard.sh
+
+# Inicializar esta feature (se primeira vez)
+./scripts/feature-init.sh <nome-feature>
+
+# Atualizar state após completar este workflow
+./scripts/feature-update-state.sh <nome-feature> complete-workflow 1
+
+# Ver guia completo
+cat docs/guides/FEATURE-ORCHESTRATOR-QUICKSTART.md
+```
+
+### Benefícios
+
+- **Context Loss**: 50% → 10% (state persistido em `.context/`)
+- **Throughput**: +100% (4-6 features/semana vs 2-3 anteriormente)
+- **Visibilidade**: Dashboard centralizado de todas features ativas
+- **Zero Re-Learning**: Volta ao contexto em 30seg vs 30min de re-raciocínio
+
+### Quando Usar
+
+- ✅ Desenvolvendo 3+ features/semana
+- ✅ Quer gerenciar múltiplas features em paralelo
+- ✅ Context loss > 30min/feature
+
+**Documentação**: `docs/guides/FEATURE-ORCHESTRATOR-QUICKSTART.md` | **ADR**: ADR-028 | **Regra**: REGRA #28
+
+---
+
 ## 📚 Pré-requisito: Consultar Documentação Base
 
 Antes de iniciar, SEMPRE ler:

@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Feature Orchestrator State Schema",
+  "description": "State tracking para múltiplas features em desenvolvimento paralelo",
+  "type": "object",
+  "required": ["feature", "branch", "status", "current_workflow", "started_at", "updated_at"],
+  "properties": {
+    "feature": {
+      "type": "string",
+      "description": "Nome da feature (ex: feat-payment)",
+      "pattern": "^feat-[a-z0-9-]+$"
+    },
+    "branch": {
+      "type": "string",
+      "description": "Nome da branch Git (ex: feat/payment)",
+      "pattern": "^feat/[a-z0-9-]+$"
+    },
+    "status": {
+      "type": "string",
+      "description": "Status atual da feature",
+      "enum": ["active", "paused", "blocked", "completed", "failed"]
+    },
+    "current_workflow": {
+      "type": "string",
+      "description": "Workflow atual (ex: 1, 2b, 4.5, 6a)",
+      "pattern": "^[0-9]+[a-z]?$"
+    },
+    "current_phase": {
+      "type": "string",
+      "description": "Fase atual do workflow (ex: 0, 1.5, GATE 1)"
+    },
+    "gate": {
+      "type": ["object", "null"],
+      "description": "Gate pendente aguardando aprovação humana",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["human", "validation", "deploy"],
+          "description": "Tipo do gate"
+        },
+        "trigger": {
+          "type": "string",
+          "description": "Keyword que acionou o gate (ex: 'GATE 1', 'screenshot', 'staging')"
+        },
+        "reached_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp quando gate foi atingido"
+        },
+        "approved_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Timestamp quando gate foi aprovado"
+        },
+        "approved_by": {
+          "type": ["string", "null"],
+          "description": "Quem aprovou (user, auto)"
+        }
+      },
+      "required": ["type", "trigger", "reached_at"]
+    },
+    "workflows_completed": {
+      "type": "array",
+      "description": "Lista de workflows completados",
+      "items": {
+        "type": "string",
+        "pattern": "^[0-9]+[a-z]?$"
+      }
+    },
+    "attempts": {
+      "type": "object",
+      "description": "Contador de tentativas por workflow (para retry logic)",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp início da feature"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp última atualização"
+    },
+    "paused_until": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Timestamp até quando feature está pausada (ex: staging review 24h)"
+    },
+    "notes": {
+      "type": "array",
+      "description": "Notas contextuais sobre a feature",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {"type": "string", "format": "date-time"},
+          "note": {"type": "string"}
+        }
+      }
+    }
+  }
+}

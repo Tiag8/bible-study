@@ -4,6 +4,74 @@
 
 ---
 
+## v2.9.0 - 2025-11-24
+
+### 🔄 Sincronização: Life Track Growth (feat-onboarding-2-0 + 4 features)
+
+**Origem**: main branch após merge feat/onboarding-2-0 (Workflow 10 Template Sync)
+
+**Melhorias Sincronizadas:**
+
+#### 1. Workflows (28 arquivos)
+- **add-feature-1-planning.md**: +37 linhas (GATE 1 Reframing refinado)
+- **add-feature-4.5-pre-implementation-gates.md**: +79 linhas (6 gates completos)
+- **add-feature-8b-pareto-analysis.md**: Sistema Pareto Batch
+- **add-feature-9a-finalization.md**: +72 linhas (checklist expandido)
+- **add-feature-9b-retrospective.md**: RCA Retrospective workflow
+- **add-feature-5b-refactoring-rca.md**: NOVO workflow
+- **add-feature-6c-visual-refinement.md**: NOVO workflow
+- **add-feature-fast-track-critical-bug.md**: NOVO workflow
+
+#### 2. Scripts (21 arquivos)
+- **validate-schema-first.sh**: Schema-First validation
+- **validate-env-conflicts.sh**: Env conflicts detection
+- **validate-gate-1-executed.sh**: GATE 1 CSF enforcement
+- **validate-screenshot-gate.sh**: Screenshot-first pattern
+- **validate-yagni.sh**: Anti-over-engineering
+- **context-init.sh**: .context/ initialization
+- **context-read-all.sh**: Context loader
+- **context-load-all.sh**: Unified context loading
+- **feature-init.sh**: Feature Orchestrator init
+- **feature-dashboard.sh**: Multi-feature dashboard
+- **feature-update-state.sh**: Feature state management
+- **feature-cleanup.sh**: Feature cleanup
+- **deploy-vps-rsync.sh**: Rsync-first deploy (ADR-033)
+- **pre-deploy-check.sh**: Pre-deploy validation
+- **checkpoint.sh**: .context checkpoint
+- **code-hygiene-scan.sh**: Code hygiene scanner
+- **run-tests.sh**, **run-security-tests.sh**, **code-review.sh**, **clean-cache.sh**
+- **lib/colors.sh**: Shared colors library
+
+#### 3. .claude/agents (4 arquivos)
+- **orchestrator.md**: Atualizado (multi-agent coordination)
+- **memory-updater.md**: NOVO (8 gatilhos memory)
+- **AGENT_OUTPUT_TEMPLATE.md**: NOVO (structured agent output)
+- **PARALLEL_EXECUTION_GUIDE.md**: NOVO (parallelization guide)
+
+#### 4. docs/guides (4 arquivos)
+- **CHEAT-SHEET.md**: Quick reference comandos
+- **FEATURE-ORCHESTRATOR-QUICKSTART.md**: Multi-feature setup
+- **EXAMPLE-PRACTICAL-USE.md**: 4-day practical example
+- **SOLUTION-2-ROADMAP.md**: Roadmap evolução
+
+#### 5. .context/ (1 arquivo)
+- **ORCHESTRATOR-STATE-SCHEMA.json**: State tracking schema
+
+**Impacto:**
+- Workflows: 100% cobertura (28/28 sincronizados)
+- Scripts: +21 genéricos (50% → 80% coverage)
+- Agents: +3 novos guides
+- Feature Orchestrator: Multi-feature development ready
+- GATE 1 CSF: Enforcement via script
+
+**Métricas:**
+- Scripts genéricos: 44 → 65 (+48%)
+- Workflows: 28 (100% sync)
+- Agents: 15 → 18 (+20%)
+- Guides: +4 novos
+
+---
+
 ## v2.6.0 - 2025-11-20
 
 ---

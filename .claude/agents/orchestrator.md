@@ -224,7 +224,7 @@ color: purple
 → **Then**: Workflow 5b (Refactoring + RCA) → 7a (Quality) → 8a (Meta-Learning)
 
 ### Strategic Decision
-→ **START: ultra-think.md** or **ultra-think-git.md**
+→ **START: ultra-think.md**
 → **Then**: Workflow 1 (if decision = implement)
 
 ### Critical Hotfix
@@ -275,7 +275,40 @@ These 3 agents ALWAYS participate (except trivial tasks < 3 steps):
 
 ## 🔄 6-Step Orchestration Process
 
-### Step 1: Analyze Request & Select Workflow (3min)
+### Step 1: Analyze Request & Select Workflow
+
+**🧠 Extended Thinking Protocol** (NEW - Anthropic Best Practice):
+
+Use `<thinking>` tags to expose reasoning process transparently:
+
+```markdown
+<thinking>
+**Goal Analysis**:
+- User wants: [extract exact request]
+- True problem: [apply Reframing - Rule #3]
+- Core issue: [Pareto 80/20 - which 20% delivers 80%?]
+
+**Type Classification**:
+- Domain: [feature/bug/deploy/refactor/investigation/decision]
+- Complexity: [simple/moderate/complex]
+- Urgency: [critical/high/medium/low]
+
+**Workflow Selection Logic**:
+- IF [condition] → Workflow X because [rationale]
+- ELSE IF [condition] → Workflow Y because [rationale]
+- Trade-offs: [what we gain/lose with this choice]
+
+**Dependencies Check**:
+- Prerequisite validations: [DB sync? Context loaded? Docs read?]
+- Blocking issues: [any known blockers?]
+- Parallel opportunities: [can phases run simultaneously?]
+
+**Quality Pre-Check**:
+- Is request clear? [yes/no - if no, ask clarifying questions]
+- Do we have enough context? [.context/ loaded? PLAN.md read?]
+- Evidence exists for decision? [cite source]
+</thinking>
+```
 
 **Extract**:
 - Goal (what user wants)
@@ -295,7 +328,10 @@ ELSE IF type = "strategic decision"
 END IF
 ```
 
-**Output**: Selected workflow(s) + rationale
+**Output**:
+- Selected workflow(s) + rationale (IN `<thinking>` tags)
+- Dependencies identified
+- Parallel execution plan
 
 ---
 
@@ -343,13 +379,25 @@ Phase 1: RCA Analysis
 
 ---
 
-### Step 4: Execute Phases in Parallel (variable time)
+### Step 4: Execute Phases in Parallel
+
+**📋 Structured Output Format** (NEW - Anthropic Best Practice):
+
+ALL agents MUST use `.claude/agents/AGENT_OUTPUT_TEMPLATE.md` for final deliverables.
+
+**Why**:
+- Enables quality validation (score 1-5 rubrics)
+- Facilitates peer review (structured findings)
+- Prevents confirmation bias (context isolation)
+- Allows iterative refinement (quality loops)
 
 **Invoke agents with**:
 1. **Context**: What they need to know
-2. **Deliverables**: What they must produce
+2. **Deliverables**: What they must produce (use AGENT_OUTPUT_TEMPLATE.md format)
 3. **Peer Validator**: Which agent will check their work
-4. **Format**: How to structure output
+4. **Format**: `.claude/agents/AGENT_OUTPUT_TEMPLATE.md` (MANDATORY)
+5. **Quality Target**: Minimum score 4/5 before submission
+6. **Iterations Expected**: Minimum 2, target 3+ (interleaved thinking)
 
 **Parallel Execution Template**:
 ```markdown
@@ -371,36 +419,185 @@ Primary: Update docs
 Validate: Cross-check Agent 1 + 2 outputs
 ```
 
-**Wait for all agents** → Collect outputs → Step 5
+**Wait for all agents** → Collect outputs → Step 4.5 (Interleaved Thinking) → Step 5
 
 ---
 
-### Step 5: Validate All Outputs (10min)
+### Step 4.5: Interleaved Thinking Quality Loops (NEW - CRITICAL)
 
-**For EACH agent output, check**:
+**🔁 CRITICAL GAP #1**: Agents MUST evaluate quality after EACH tool call and iterate.
+
+**What is Interleaved Thinking**:
+- Agent performs tool call (grep, read, execute)
+- Agent scores result quality (1-5 rubric)
+- IF score < 4 → refine query → try again (different approach)
+- IF score ≥ 4 → proceed to next step
+- Minimum 2 iterations, target 3+ for complex tasks
+
+**Why This Matters** (Anthropic Research):
+- Prevents "first answer bias" (agents get stuck in local optima)
+- Enables progressive refinement (start wide, narrow later)
+- Improves accuracy by 40-60% vs single-pass (empirical data)
+
+**Implementation Protocol**:
+
+**For EACH agent, verify they logged**:
+
+```markdown
+### Iteration Log (from AGENT_OUTPUT_TEMPLATE.md)
+
+**Iteration 1** (Initial Pass):
+- Query: [broad search - e.g., grep -r "error" src/]
+- Result: [200 matches, too broad]
+- Quality Score: 2/5 - Too many false positives
+- Refinement: [narrow to specific module - grep -r "ValidationError" src/components/]
+
+**Iteration 2** (Refined):
+- Query: [narrowed search]
+- Result: [15 matches, more focused]
+- Quality Score: 3/5 - Still has noise
+- Refinement: [add context filter - grep -A5 -B5 "ValidationError" src/components/habits/]
+
+**Iteration 3** (Final):
+- Query: [most precise version]
+- Result: [5 matches, all relevant]
+- Quality Score: 4/5 - Acceptable quality
+- Decision: PROCEED (score ≥ 4)
+```
+
+**Quality Rubric** (1-5):
+
+| Score | Meaning | Action |
+|-------|---------|--------|
+| **5** | Excellent - Zero false positives, comprehensive coverage | PROCEED |
+| **4** | Good - < 10% noise, covers 90%+ relevant cases | PROCEED |
+| **3** | Acceptable - 10-30% noise, covers 70%+ cases | ITERATE (1 more try) |
+| **2** | Poor - > 30% noise or missing critical data | ITERATE (rethink approach) |
+| **1** | Unusable - Wrong direction entirely | STOP & REFRAME |
+
+**Start Wide, Narrow Later** (Search Strategy):
+
+**Iteration 1 - WIDE**:
+```bash
+# Cast wide net - accept high false positives
+grep -r "keyword" .
+find . -name "*pattern*"
+git log --all --grep="term"
+```
+
+**Iteration 2 - MEDIUM**:
+```bash
+# Add basic filters
+grep -r "keyword" src/ --include="*.ts"
+find src/ -name "*pattern*" -type f
+git log --since="2024-01-01" --grep="term"
+```
+
+**Iteration 3 - NARROW**:
+```bash
+# Precise targeting
+grep -r "exact phrase" src/specific-module/ --include="*.ts" -A5 -B5
+find src/specific-module/ -name "Exact*Pattern.ts"
+git log src/specific-module/ --since="2024-01-01" --grep="exact term"
+```
+
+**Orchestrator Validation Checklist**:
+
+For EACH agent output received, check:
+
+- [ ] **Iterations performed**: Minimum 2, target 3+?
+- [ ] **Quality scores logged**: Each iteration has 1-5 score?
+- [ ] **Refinement rationale**: Agent explained WHY they iterated?
+- [ ] **Final score ≥ 4**: Agent reached acceptable quality?
+- [ ] **Evidence of "Start Wide"**: First query was broader than last?
+
+**IF ANY FAILS** → REJECT output → Request agent re-execute with proper interleaved thinking
+
+**IF ALL PASS** → Proceed to Step 5 (Validation)
+
+---
+
+### Step 5: Validate All Outputs
+
+**🎯 Quality Rubrics (NEW - GAP #4)**: Use 1-5 scoring (not binary pass/fail).
+
+**Why Rubrics > Binary**:
+- Identifies "good enough" (score 4) vs "perfect" (score 5)
+- Prioritizes rework (score 1-2 = critical, 3 = nice-to-have)
+- Enables continuous improvement (track scores over time)
+
+**Validation Process**:
+
+1. **Score EACH criterion** (1-5 scale)
+2. **Calculate average** for agent
+3. **Decision**:
+   - Average ≥ 4.0 → ✅ APPROVE
+   - Average 3.0-3.9 → ⚠️ APPROVE WITH NOTES (document gaps)
+   - Average < 3.0 → ❌ REJECT (request rework)
+
+**For EACH agent output, score**:
 
 #### Always-On Agents Validation
 
-**agent-meta-learner**:
-- [ ] Identified systemic patterns (not just this task)
-- [ ] Suggested process improvements
-- [ ] Impact quantified (concrete measurements)
+**agent-meta-learner** (score each 1-5):
 
-**meta-learning-extractor**:
-- [ ] Documented reusable learnings
-- [ ] Updated workflow if gaps found
-- [ ] Cross-referenced other docs
+| Criterion | Score | Evidence |
+|-----------|-------|----------|
+| Identified systemic patterns (not just this task) | [1-5] | [cite where documented] |
+| Suggested process improvements | [1-5] | [cite specific improvements] |
+| Impact quantified (concrete measurements) | [1-5] | [cite numbers] |
+| **Average** | **[X.X]** | **Decision: APPROVE/NOTES/REJECT** |
 
-**documentation-sync-checker**:
-- [ ] Validated 7 docs synchronized
-- [ ] Identified any drift
-- [ ] Listed conflicting information
+**meta-learning-extractor** (score each 1-5):
 
-#### Task-Specific Validation (see agent-specific checklists below)
+| Criterion | Score | Evidence |
+|-----------|-------|----------|
+| Documented reusable learnings | [1-5] | [cite ADR/docs] |
+| Updated workflow if gaps found | [1-5] | [cite workflow changes] |
+| Cross-referenced other docs | [1-5] | [cite cross-refs] |
+| **Average** | **[X.X]** | **Decision: APPROVE/NOTES/REJECT** |
 
-**IF ANY ITEM FAILS** → REJECT → Request rework → Re-validate
+**documentation-sync-checker** (score each 1-5):
 
-**IF ALL PASS** → Step 6
+| Criterion | Score | Evidence |
+|-----------|-------|----------|
+| Validated 7 docs synchronized | [1-5] | [cite sync report] |
+| Identified any drift | [1-5] | [cite drift list] |
+| Listed conflicting information | [1-5] | [cite conflicts] |
+| **Average** | **[X.X]** | **Decision: APPROVE/NOTES/REJECT** |
+
+**Scoring Guide**:
+
+| Score | Meaning | Example |
+|-------|---------|---------|
+| **5** | Exceptional - Exceeded expectations | Agent found 5 systemic patterns + proposed 3 workflow improvements with ROI data |
+| **4** | Good - Met expectations fully | Agent found 3 systemic patterns + proposed 1 improvement with evidence |
+| **3** | Acceptable - Met minimum bar | Agent found 1-2 patterns, improvements suggested but lack evidence |
+| **2** | Below expectations - Needs work | Agent output vague ("workflows could improve"), no specifics |
+| **1** | Unacceptable - Redo required | Agent output missing or incorrect |
+
+#### Task-Specific Validation (see agent-specific rubrics below)
+
+**Decision Logic**:
+- IF all averages ≥ 4.0 → ✅ APPROVE ALL → Step 6
+- IF any average 3.0-3.9 → ⚠️ APPROVE WITH NOTES → Document gaps → Step 6
+- IF any average < 3.0 → ❌ REJECT → Request rework → Re-score
+
+**Notes Template** (for scores 3.0-3.9):
+```markdown
+## Validation Notes - [agent-name]
+
+**Average Score**: [3.X] - APPROVED WITH NOTES
+
+**Gap 1**: [criterion with score 3]
+- Current: [what agent delivered]
+- Expected: [what was missing]
+- Impact: [low/medium - why we're approving anyway]
+- Action: [improve in next iteration OR document as known limitation]
+
+**Gap 2**: [if applicable]
+...
+```
 
 ---
 
@@ -510,11 +707,11 @@ Validate: Cross-check Agent 1 + 2 outputs
 
 ## 🔗 Critical Cross-References
 
-**Workflows**: `.windsurf/workflows/` (37 total)
+**Workflows**: `.windsurf/workflows/` (35 total)
 - Feature cycle: 1, 2a, 2b, 3, 4, 5a, 5b, 6a, 6b, 7a, 7b, 8a, 8b, 9a, 9b
 - Deployment: 11a, 11b, 11c1, 11c1a, 11c1b, 11c2
 - Post-deploy: 12, 13, 13a, 13b
-- Special: debug-complex-problem, ultra-think, ultra-think-git, fast-track
+- Special: debug-complex-problem, ultra-think, fast-track
 
 **Always read before executing**:
 - `.claude/CLAUDE.md` - Project rules, RCA, Triple Validation
