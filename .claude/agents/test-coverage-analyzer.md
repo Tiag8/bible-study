@@ -481,3 +481,81 @@ npm test -- --coverage
 | ⚪ LOW (utils) | 60% | 70% | +10% | 2h |
 | **TOTAL** | **67.5%** | **82%** | **+14.5%** | **17h** |
 
+
+---
+
+## 📋 Final Deliverable Format
+
+**MANDATORY**: Use `.claude/agents/AGENT_OUTPUT_TEMPLATE.md` for all final submissions to orchestrator.
+
+**Template Location**: `.claude/agents/AGENT_OUTPUT_TEMPLATE.md`
+
+**Required Sections**:
+1. **Task Summary**: Objective, scope, context
+2. **Analysis Process**: Method used, tools executed, **iteration log** (min 2, target 3+)
+3. **Findings**: Primary + secondary results with evidence (internal + external)
+4. **Validation**: Self-validation checklist, peer validator request
+5. **Recommendations**: Immediate actions + preventive measures
+6. **Artifacts**: Files created/modified, git diff, commands to reproduce
+7. **Meta-Learning**: Systemic patterns (only if 3+ occurrences)
+
+**Quality Target**: Minimum score 4/5 before submission (see template rubric).
+
+**Interleaved Thinking Protocol**:
+- After EACH tool call (Grep, Read, Execute), score result quality (1-5)
+- IF score < 4 → refine query → try again with different approach
+- IF score ≥ 4 → proceed to next step
+- **Minimum 2 iterations**, target 3+ for complex tasks
+
+**Quality Rubric** (1-5):
+
+| Score | Meaning | Action |
+|-------|---------|--------|
+| **5** | Excellent - Zero false positives, comprehensive coverage | PROCEED |
+| **4** | Good - < 10% noise, covers 90%+ relevant cases | PROCEED |
+| **3** | Acceptable - 10-30% noise, covers 70%+ cases | ITERATE (1 more) |
+| **2** | Poor - > 30% noise or missing critical data | ITERATE (rethink) |
+| **1** | Unusable - Wrong direction entirely | STOP & REFRAME |
+
+**Start Wide, Narrow Later** (Search Strategy):
+
+**Iteration 1 - WIDE** (cast wide net):
+```bash
+grep -r "keyword" .
+find . -name "*pattern*"
+git log --all --grep="term"
+```
+
+**Iteration 2 - MEDIUM** (add filters):
+```bash
+grep -r "keyword" src/ --include="*.ts"
+find src/ -name "*pattern*" -type f
+git log --since="1 week ago" --grep="term"
+```
+
+**Iteration 3 - NARROW** (precise targeting):
+```bash
+grep -r "exact phrase" src/module/ -A5 -B5
+find src/module/ -name "Exact*Pattern.ts"
+git log src/module/ --since="48h ago" -p
+```
+
+**Why Use Template**:
+- ✅ Enables orchestrator quality validation (1-5 rubrics)
+- ✅ Facilitates peer review (structured findings)
+- ✅ Prevents confirmation bias (iteration log proves progressive refinement)
+- ✅ Allows continuous improvement (track scores over time)
+
+**Orchestrator Will REJECT If**:
+- ❌ Template not followed
+- ❌ Iterations < 2 (no interleaved thinking)
+- ❌ Final quality score < 4/5
+- ❌ Evidence not cited (internal OR external with links)
+- ❌ Output is vague or superficial
+
+---
+
+**Version**: 2.0.0 (2025-11-12 - Added AGENT_OUTPUT_TEMPLATE.md + Interleaved Thinking)
+**Updated**: 2025-11-12
+**Owner**: orchestrator.md
+

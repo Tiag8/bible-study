@@ -268,6 +268,49 @@ Gap**: 36x faster, 8+ causes target, -90% recurrence
 
 ---
 
+## 📊 Case Study #2: feat-super-admin-dashboard (2025-11-20)
+
+### Contexto
+- **Feature**: Super Admin Dashboard (9 métricas product analytics)
+- **Workflow**: 5a → 6a (Implementation → Testing)
+- **Bug**: 401 "Invalid API key" bloqueando dashboard
+
+### Multi-Agent Investigation
+**5 Agents Paralelos** (Bug #4 - System Env Vars):
+
+1. **Agent 1: Env Validator**
+   - Verificou `.env` vars presentes ✅
+   - Conclusão: Env file correto
+
+2. **Agent 2: Code Reviewer**
+   - Verificou `Auth.tsx` código ✅
+   - Conclusão: Supabase client correto
+
+3. **Agent 3: API Tester** 🎯
+   - Executou `curl` direto → 200 OK
+   - **INSIGHT CRÍTICO**: API key VÁLIDA, problema é frontend
+
+4. **Agent 4: User Config Validator**
+   - Verificou user config, senha ✅
+   - Conclusão: Autenticação configurada
+
+5. **Agent 5: Memory Searcher** 🔥
+   - Encontrou ADR-025 (System Env Override)
+   - **SOLUÇÃO**: `validate-env-conflicts.sh`
+
+### Resultado
+- **Diagnóstico**: 5min (5 agents paralelos)
+- **Root Cause**: System env vars overriding `.env`
+- **Fix**: Wrapper script + unset vars
+- **Bugs Totais Feature**: 5 (multi-agent aplicável a todos)
+
+### ROI
+- 5min multi-agent vs 3h debugging sequencial (36x speedup)
+- Pattern detection via Memory Searcher (ADR-025)
+- 100% acurácia (Agents 3+5 identificaram causa raiz)
+
+---
+
 ## Referências
 
 **Documentação Interna**:

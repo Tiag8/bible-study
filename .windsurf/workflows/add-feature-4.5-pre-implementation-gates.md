@@ -1,5 +1,5 @@
 ---
-description: Workflow Add-Feature (4.5/11) - Pre-Implementation Quality Gates
+description: Workflow Add-Feature (4.5/11) - Pre-Implementation Quality Gates (ORCHESTRATOR)
 auto_execution_mode: 1
 ---
 
@@ -9,35 +9,94 @@ Ler ANTES: `docs/PLAN.md`, `docs/TASK.md`, `README.md`, `AGENTS.md`
 
 ---
 
-## 🧠 FASE 0: LOAD CONTEXT (Script Unificado)
+## 🧠 FASE 0: LOAD CONTEXT
 
-**⚠️ USAR SCRIPT** (não Read manual):
+**Ver template**: `.windsurf/templates/fase-0-context-loading.md`
 
 ```bash
 ./scripts/context-load-all.sh feat-nome-feature
 ```
 
-**Output**: Resumo 6 arquivos .context/ (INDEX, workflow-progress, temp-memory, decisions, attempts.log, validation-loop).
-
-**SE script falhar**: Fallback manual (Read 6 arquivos).
-
-**Benefício**: Consolidated context loading vs manual Fase 0 (redução tempo).
 ---
 
-# Workflow 4.5/11: Pre-Implementation Quality Gates
+# Workflow 4.5/11: Pre-Implementation Quality Gates (ORCHESTRATOR)
 
-**Novo workflow** inserido ANTES do Workflow 5a (Implementation).
+> **Este workflow foi DECOMPOSTO em 6 sub-workflows** para reduzir context decay (832L → ~150L cada).
+> **Use este arquivo como NAVEGADOR** para os sub-workflows.
 
-**O que acontece**:
-- 5 Quality Gates preventivos ANTES de escrever código
-- Detecta 70% bugs ANTES implementação
-- Economiza 10-15h debugging/feature
+## 🗺️ MAPA DE SUB-WORKFLOWS
 
-**Por que etapa dedicada**:
-- ✅ Gates PREVENTIVOS (não reativos)
-- ✅ Valida ANTES de código (não depois)
-- ✅ Economiza debugging custoso
-- ✅ Baseado em meta-learning: feat-payment-gateway (5h) vs feat-sync-crud-mandamentos (52h) = 10x
+| Sub-Workflow | Gates | Quando Executar |
+|--------------|-------|-----------------|
+| **4.5a-environment** | GATE 0 | ⭐ SEMPRE PRIMEIRO |
+| **4.5b-database** | GATE 3, 6 | SE migration/FK |
+| **4.5c-ai-tools** | GATE 1 | SE Gemini AI |
+| **4.5d-edge-functions** | GATE 2 | SE Edge Function |
+| **4.5e-code-quality** | GATE 4, 5 | SEMPRE |
+| **4.5f-qa-deploy** | GATE 7, 8 | ⭐ SEMPRE |
+
+## 🚀 FLUXO DE EXECUÇÃO
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    START WORKFLOW 4.5                       │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  ⭐ 4.5a-environment (GATE 0) - SEMPRE PRIMEIRO             │
+│     ./scripts/validate-env-conflicts.sh                     │
+│     ./scripts/validate-schema-first.sh                      │
+└─────────────────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              ▼               ▼               ▼
+     ┌────────────────┐ ┌────────────────┐ ┌────────────────┐
+     │ SE AI/Gemini:  │ │ SE Edge Func:  │ │ SE Migration:  │
+     │ 4.5c-ai-tools  │ │ 4.5d-edge-func │ │ 4.5b-database  │
+     │ (GATE 1)       │ │ (GATE 2)       │ │ (GATE 3, 6)    │
+     └────────────────┘ └────────────────┘ └────────────────┘
+              │               │               │
+              └───────────────┼───────────────┘
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  ⭐ 4.5e-code-quality (GATE 4, 5) - SEMPRE                  │
+│     File Size + Anti-Over-Engineering                       │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  ⭐ 4.5f-qa-deploy (GATE 7, 8) - SEMPRE                     │
+│     Performance + Pre-Deploy                                │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  ✅ TODOS APROVADOS → Workflow 5a (Implementation)          │
+│  ❌ 1+ BLOQUEADO → Corrigir → Re-executar gates             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## ⚡ QUICK REFERENCE
+
+**Mínimo Obrigatório (todas features)**:
+1. `4.5a-environment` → GATE 0
+2. `4.5e-code-quality` → GATE 4, 5
+3. `4.5f-qa-deploy` → GATE 7, 8
+
+**Condicional**:
+- SE usa Gemini AI → `4.5c-ai-tools` (GATE 1)
+- SE Edge Function → `4.5d-edge-functions` (GATE 2)
+- SE migration/FK → `4.5b-database` (GATE 3, 6)
+
+## 📊 BENEFÍCIOS DECOMPOSIÇÃO
+
+| Métrica | Antes | Depois |
+|---------|-------|--------|
+| Linhas workflow | 832 | ~150/sub |
+| Context decay | Alto | Baixo |
+| Navegação | Scroll | Links |
+| Execução paralela | Não | Sim |
 
 **Meta-Learning**:
 - **ML-CONTEXT-03**: Quality Gates preventivos > reativos
