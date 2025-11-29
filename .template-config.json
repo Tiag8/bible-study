@@ -1,0 +1,166 @@
+{
+  "$schema": "./schemas/template-config.schema.json",
+  "version": "1.0.0",
+  "description": "Configuração master do template - define o que é sincronizável",
+  "last_updated": "2025-11-29",
+
+  "layers": {
+    "core": {
+      "description": "Arquivos universais - SEMPRE sincronizar",
+      "files": [
+        ".gitignore",
+        ".claude/agents/orchestrator.md",
+        ".claude/agents/rca-analyzer.md",
+        ".claude/agents/regression-guard.md",
+        ".claude/commands/clarify.md",
+        ".claude/commands/load-memory.md"
+      ],
+      "directories": [
+        "scripts/core/"
+      ]
+    },
+
+    "workflows": {
+      "description": "Workflows genéricos de desenvolvimento",
+      "files": [
+        ".windsurf/workflows/add-feature-1-planning.md",
+        ".windsurf/workflows/add-feature-2a-solutions.md",
+        ".windsurf/workflows/add-feature-2b-technical-design.md",
+        ".windsurf/workflows/add-feature-3-risk-analysis.md",
+        ".windsurf/workflows/add-feature-4-planning-final.md",
+        ".windsurf/workflows/add-feature-4.5-pre-implementation-gates.md",
+        ".windsurf/workflows/add-feature-5a-implementation.md",
+        ".windsurf/workflows/add-feature-5b-refactoring-rca.md",
+        ".windsurf/workflows/add-feature-6a-user-validation.md",
+        ".windsurf/workflows/add-feature-6b-visual-refinement.md",
+        ".windsurf/workflows/add-feature-7a-merge-strategy.md",
+        ".windsurf/workflows/add-feature-8a-post-implementation.md",
+        ".windsurf/workflows/add-feature-8b-pareto-check.md",
+        ".windsurf/workflows/add-feature-9a-code-hygiene.md",
+        ".windsurf/workflows/add-feature-9b-retrospective.md",
+        ".windsurf/workflows/add-feature-10-sync-to-template.md",
+        ".windsurf/workflows/add-feature-14-meta-learning-consolidation.md",
+        ".windsurf/workflows/workflow-0-setup.md"
+      ]
+    },
+
+    "stack-react-supabase": {
+      "description": "Stack React + Supabase + Vite",
+      "files": [
+        "Dockerfile.react",
+        "docker-compose.swarm.yml",
+        ".dockerignore"
+      ],
+      "scripts": [
+        "scripts/validate-db-sync.sh",
+        "scripts/validate-schema-first.sh",
+        "scripts/regenerate-supabase-types.sh",
+        "scripts/validate-env-conflicts.sh",
+        "scripts/validate-db-prefix.sh"
+      ]
+    },
+
+    "stack-vps-docker": {
+      "description": "Deploy VPS com Docker Swarm + Traefik",
+      "scripts": [
+        "scripts/deploy-vps-rsync.sh",
+        "scripts/deploy-vps.sh",
+        "scripts/vps-rollback.sh",
+        "scripts/pre-deploy-check.sh"
+      ]
+    },
+
+    "quality-gates": {
+      "description": "Scripts de validação e quality gates",
+      "scripts": [
+        "scripts/run-tests.sh",
+        "scripts/run-security-tests.sh",
+        "scripts/code-review.sh",
+        "scripts/validate-workflow-size.sh",
+        "scripts/validate-yagni.sh",
+        "scripts/validate-gate-1-executed.sh",
+        "scripts/code-hygiene-scan.sh"
+      ]
+    },
+
+    "context-system": {
+      "description": "Sistema de contexto (.context/)",
+      "scripts": [
+        "scripts/context-init.sh",
+        "scripts/context-load-all.sh",
+        "scripts/context-read-all.sh"
+      ],
+      "files": [
+        ".context/INDEX.md",
+        ".context/ORCHESTRATOR-STATE-SCHEMA.json"
+      ]
+    },
+
+    "feature-orchestrator": {
+      "description": "Sistema de orquestração multi-feature",
+      "scripts": [
+        "scripts/feature-init.sh",
+        "scripts/feature-dashboard.sh",
+        "scripts/feature-update-state.sh",
+        "scripts/feature-cleanup.sh"
+      ],
+      "docs": [
+        "docs/guides/FEATURE-ORCHESTRATOR-QUICKSTART.md",
+        "docs/guides/CHEAT-SHEET.md"
+      ]
+    }
+  },
+
+  "variables": {
+    "PROJECT_PREFIX": {
+      "description": "Prefixo do projeto para tabelas DB (ex: lifetracker_, clteam_)",
+      "pattern": "[a-z]+_",
+      "example": "lifetracker_"
+    },
+    "PROJECT_NAME": {
+      "description": "Nome do projeto (ex: Life Track Growth, CLTeam)",
+      "example": "Life Track Growth"
+    },
+    "PROJECT_SLUG": {
+      "description": "Slug do projeto para URLs/paths (ex: life-tracker, clteam)",
+      "pattern": "[a-z-]+",
+      "example": "life-tracker"
+    },
+    "VPS_HOST": {
+      "description": "IP ou hostname do VPS",
+      "example": "31.97.22.151"
+    },
+    "SUPABASE_PROJECT_REF": {
+      "description": "Ref do projeto Supabase",
+      "example": "fjddlffnlbrhgogkyplq"
+    }
+  },
+
+  "never_sync": [
+    ".env",
+    ".env.*",
+    "node_modules/",
+    "dist/",
+    "supabase/migrations/",
+    "src/",
+    "backups/",
+    ".context/*_attempts.log",
+    ".context/*_workflow-progress.md",
+    ".context/*_decisions.md"
+  ],
+
+  "conflict_strategy": {
+    "default": "template_wins",
+    "options": {
+      "template_wins": "Sobrescreve arquivo do projeto com template",
+      "project_wins": "Mantém arquivo do projeto, ignora template",
+      "merge_manual": "Cria .conflict e aguarda resolução manual",
+      "merge_auto": "Tenta merge automático (git merge-file)"
+    },
+    "per_file_overrides": {
+      ".claude/CLAUDE.md": "merge_manual",
+      "docs/PLAN.md": "project_wins",
+      "docs/TASK.md": "project_wins"
+    }
+  }
+}
