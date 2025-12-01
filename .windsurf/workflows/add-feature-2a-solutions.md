@@ -152,6 +152,82 @@ Antes de iniciar, SEMPRE ler:
 
 ---
 
+## 🔍 GATE 1.6: Code Reuse Research (ANTES de propor soluções)
+
+**CRÍTICO**: Pesquisar implementações existentes ANTES de criar código do zero.
+
+### Ordem de Busca (OBRIGATÓRIA)
+
+**1. Lib instalada cobre?** (package.json + node_modules)
+```bash
+# Verificar libs instaladas
+cat package.json | grep -A 100 '"dependencies"' | head -50
+# Buscar funcionalidade em node_modules
+grep -r "funcionalidade" node_modules/*/README.md 2>/dev/null | head -5
+```
+- [ ] Verificado package.json?
+- [ ] Lib instalada resolve? → SE SIM: Usar lib, documentar uso
+
+**2. NPM tem lib madura?** (npmjs.com)
+```bash
+# Pesquisar via MCP firecrawl ou web
+# Critérios: >1000 downloads/week, maintained (<6 meses), TypeScript support
+```
+- [ ] Pesquisado npm? Termos: [listar]
+- [ ] Encontrou lib? Nome: [___] Downloads: [___] Última release: [___]
+- [ ] Critérios atingidos? → SE SIM: Avaliar instalação
+
+**3. Shadcn/ui ou componente pronto?** (ui.shadcn.com)
+```bash
+# Verificar componentes shadcn disponíveis
+npx shadcn-ui@latest add --help 2>/dev/null | grep -A 100 "Available components"
+```
+- [ ] Feature é UI? → SE SIM: Verificar shadcn primeiro
+- [ ] Componente existe? → SE SIM: Usar `npx shadcn-ui add [componente]`
+
+**4. GitHub reference implementation?** (última opção)
+```bash
+# Pesquisar via MCP firecrawl
+# Critérios: MIT/Apache license, >100 stars, commits <6 meses, TypeScript
+```
+- [ ] Pesquisado GitHub? Query: [___]
+- [ ] Encontrou repo? URL: [___] Stars: [___] License: [___]
+- [ ] Critérios atingidos? (MIT/Apache, >100★, <6m, TS)
+- [ ] Código copiável ou apenas referência?
+
+### Matriz de Decisão Code Reuse
+
+| Encontrou | Qualidade | Ação |
+|-----------|-----------|------|
+| Lib instalada | Funciona | ✅ Usar lib, SKIP implementação |
+| Lib npm nova | Madura (>1k/week) | ⚠️ Instalar, avaliar bundle size |
+| Lib npm nova | Imatura | ❌ Não instalar, implementar próprio |
+| Shadcn component | Existe | ✅ Usar shadcn |
+| GitHub code | MIT + TS + Recent | ⚠️ Copiar + adaptar + documentar origem |
+| GitHub code | GPL ou Stale | ❌ Apenas referência, não copiar |
+| Nada encontrado | - | ✅ Prosseguir implementação própria |
+
+### Documentação Obrigatória
+
+**SE usou lib/código externo**:
+```markdown
+### Code Reuse Decision
+- **Fonte**: [npm/shadcn/github URL]
+- **License**: [MIT/Apache/etc]
+- **Motivo**: [Por que escolheu esta fonte]
+- **Adaptações**: [O que precisou mudar]
+```
+
+**SE não encontrou nada útil**:
+```markdown
+### Code Reuse Research
+- **Termos pesquisados**: [listar]
+- **Resultado**: Nenhuma solução pronta atende aos critérios
+- **Motivo**: [Por que implementar do zero]
+```
+
+---
+
 ## 🚨 GATE 1.5: Necessity Validation (Anti-Duplicação)
 
 **CRÍTICO**: Validar se solução NÃO duplica funcionalidade existente.
