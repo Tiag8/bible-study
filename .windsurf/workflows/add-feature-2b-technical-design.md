@@ -153,6 +153,19 @@ ls -1 docs/adr/ | tail -1  # Último número
 ```bash
 BRANCH_PREFIX=$(git branch --show-current | sed 's/feat\//feat-/')
 TIMESTAMP=$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+
+# Atualizar workflow-progress.md
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 2b: Technical Design ✅
+- **Data**: $TIMESTAMP
+- **Gap Analysis**: [XX]% reuso
+- **5 Agentes**: Executados
+- **ADR**: [ADR-XXX ou N/A]
+- **Next**: Workflow 3 (Risk Analysis)
+EOF
+
+# Log em attempts.log
 echo "[$TIMESTAMP] WORKFLOW: 2b - Design completo" >> .context/${BRANCH_PREFIX}_attempts.log
 ```
 

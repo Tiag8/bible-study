@@ -4,6 +4,69 @@
 
 ---
 
+## v2.12.0 - 2025-11-30
+
+### 🔄 Sincronização: Life Track Growth (main branch - Workflow 10)
+
+**Origem**: main branch (Workflow 10 Template Sync executado manualmente)
+
+**Melhorias Sincronizadas:**
+
+#### 1. Scripts (8 arquivos)
+
+**VPS Deployment (7 novos):**
+- **vps-rollback.sh**: Docker Swarm rollback automático (service revert)
+- **run-pre-deploy-tests.sh**: Pre-deploy gates (build, lint, security validation)
+- **smoke-tests-post-deploy.sh**: Post-deploy health checks (latency, HTTP 200)
+- **create-deploy-log.sh**: Deploy log automation (structured markdown)
+- **smoke-test-database.sh**: Database connectivity & performance validation
+- **deploy-vps-direct.sh**: Alternative direct Docker deploy (no git)
+- **deploy-vps.sh**: Git-based deploy (legacy, requires SSH)
+
+**Update:**
+- **deploy-vps-rsync.sh**: +force flag fix (ADR-033 compliance)
+
+#### 2. Workflows (2 atualizados, 3 removidos)
+
+**Atualizados:**
+- **add-feature-2b-technical-design.md**: +310 bytes (detailed patterns)
+- **add-feature-6a-user-validation.md**: +320 bytes (AI testing scenarios)
+
+**Removidos (obsoletos):**
+- ~~RULES_NO_FAKE_DATA.md~~ (template scaffolding)
+- ~~ultra-think-git.md~~ (redundant with git-guardian skill)
+- ~~workflow-0-setup.md~~ (template scaffolding)
+
+#### 3. ADRs (1 novo)
+
+- **ADR-035-ai-first-architecture-pattern.md**: AI-first handler pattern
+  - Pattern: Stateful webhooks com FSM (Finite State Machine)
+  - Aplicável: WhatsApp, Telegram, Slack bots
+
+#### 4. Guides (3 novos)
+
+- **GEMINI-PROMPT-INTERPRETATION-TESTING.md**: LLM prompt validation framework
+- **RULES-NO-FAKE-DATA.md**: Anti-pattern rules (no fake time estimates)
+- **GIT-HOOKS-SETUP.md**: Git hooks automation setup
+
+**Métricas:**
+- Scripts: +8 (deployment + validation)
+- Workflows: -1 net (2 updated, 3 removed)
+- ADRs: +1 (AI-first pattern)
+- Guides: +3
+
+**Impacto:**
+- **Deployment**: 7 scripts VPS Docker Swarm ready
+- **Quality**: Pre/post deploy validation automatizada
+- **AI Development**: AI-first pattern documentado (ADR-035)
+
+**Limpeza:**
+- Placeholders aplicados ({{PROJECT}}, {{SERVICE_NAME}}, {{GITHUB_REPO}})
+- Zero referências hardcoded a life_tracker
+- 3 workflows obsoletos removidos
+
+---
+
 ## v2.11.0 - 2025-11-29
 
 ### 🔄 Sincronização: Life Track Growth (feat-mobile-performance-optimization)

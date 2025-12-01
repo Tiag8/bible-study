@@ -53,13 +53,13 @@ if [ "$ENVIRONMENT" == "production" ]; then
     VPS_HOST="root@31.97.22.151"
     VPS_PATH="/root/life-tracker"
     DOMAIN="life-tracker.stackia.com.br"
-    SERVICE_NAME="lifetracker_app"
+    SERVICE_NAME="{{PROJECT}}_app"
     SSH_HELPER="$HOME/.ssh/vps-ssh.sh"
 elif [ "$ENVIRONMENT" == "staging" ]; then
     VPS_HOST="root@31.97.22.151"
     VPS_PATH="/root/life-tracker-staging"
     DOMAIN="staging.life-tracker.stackia.com.br"
-    SERVICE_NAME="lifetracker_staging_app"
+    SERVICE_NAME="{{PROJECT}}_staging_app"
     SSH_HELPER="$HOME/.ssh/vps-ssh.sh"
 fi
 
@@ -195,7 +195,12 @@ if ! $SSH_HELPER "docker service ls | grep -q $SERVICE_NAME"; then
 fi
 
 # 5.2 Update com rollback automático
+# NOTA: --force é OBRIGATÓRIO para garantir que o container seja substituído
+# mesmo quando a tag da imagem é a mesma (ex: latest)
+# Sem --force, Docker Swarm pode não detectar mudança na imagem
+# Ref: docs/ops/DEPLOY-ISSUE-REPORT-2025-11-26.md
 $SSH_HELPER "docker service update \
+  --force \
   --image life-tracker:latest \
   --update-parallelism 1 \
   --update-delay 10s \

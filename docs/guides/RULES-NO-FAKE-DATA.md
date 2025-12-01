@@ -94,7 +94,7 @@ Antes de apresentar análise ao usuário:
 ## 🔗 APLICAÇÃO
 
 **Todos workflows (1-11) DEVEM**:
-1. Referenciar este arquivo no topo: `Regras: .windsurf/workflows/RULES_NO_FAKE_DATA.md`
+1. Referenciar este arquivo no topo: `Regras: docs/guides/RULES-NO-FAKE-DATA.md`
 2. Aplicar checklist antes de apresentar ao usuário
 3. Validar dados com WebSearch quando relevante
 

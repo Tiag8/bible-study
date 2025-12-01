@@ -125,6 +125,19 @@ BRANCH_PREFIX=$(git branch --show-current | sed 's/feat\//feat-/')
 ```bash
 BRANCH_PREFIX=$(git branch --show-current | sed 's/feat\//feat-/')
 TIMESTAMP=$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+
+# Atualizar workflow-progress.md
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 6a: User Validation ✅
+- **Data**: $TIMESTAMP
+- **Cenários**: 6/6 executados
+- **Bugs**: [X] Blocker, [Y] Critical, [Z] Minor
+- **Status**: GATE 3 APROVADO
+- **Next**: Workflow 6b/7a
+EOF
+
+# Log em attempts.log
 echo "[$TIMESTAMP] WORKFLOW: 6a - Validação completa" >> .context/${BRANCH_PREFIX}_attempts.log
 echo "[$TIMESTAMP] GATE 3: APROVADO" >> .context/${BRANCH_PREFIX}_attempts.log
 ```
