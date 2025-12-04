@@ -25,6 +25,71 @@ Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
 **SE script falhar**: Fallback manual (Read 6 arquivos).
 
 **Benefício**: Consolidated context loading vs manual Fase 0 (redução tempo).
+
+---
+
+## 🧠 FASE 0.5: MEMORY RE-CHECK (Pré-Implementação) 🆕
+
+**Objetivo**: Confirmar que conhecimento de memórias ainda está presente antes de escrever código. Evitar erros já documentados.
+
+### Por que Re-Check?
+
+- Memory Audit foi feito em Workflow 2b (planejamento)
+- Entre planejamento e implementação pode haver mudança de contexto
+- LLMs podem "esquecer" informações entre workflows
+- Re-check garante aplicação do conhecimento no momento crítico
+
+### Verificação Rápida (2-3 min)
+
+**1. Revisar Memory Audit do Workflow 2b**:
+```bash
+# Ver o que foi documentado no planejamento
+grep -A 30 "Memory Audit" .context/${BRANCH_PREFIX}_decisions.md
+```
+
+**2. Confirmar domínios ainda relevantes**:
+- [ ] Domínios identificados ainda aplicam?
+- [ ] Algum domínio novo surgiu desde o planejamento?
+
+**3. Re-ler seções críticas** (SE necessário):
+```bash
+# Se implementação envolve WhatsApp
+cat ~/.claude/memory/uazapi.md | head -200
+
+# Se implementação envolve Gemini/AI
+cat ~/.claude/memory/gemini.md | head -200
+
+# Se implementação envolve Edge Functions
+cat ~/.claude/memory/edge-functions.md | head -200
+```
+
+### Checklist Pré-Código
+
+**ANTES de escrever qualquer código, confirmar**:
+- [ ] Li os erros conhecidos relevantes (Memory Audit Workflow 2b)?
+- [ ] Sei quais padrões aplicar?
+- [ ] Sei quais anti-patterns evitar?
+- [ ] Tenho checklists específicos do domínio?
+
+### Validação (Script)
+
+```bash
+./scripts/validate-memory-consulted.sh --phase=5a
+```
+
+**SE REJEITADO**:
+- Revisar `.context/{branch}_decisions.md` seção "Memory Audit"
+- Se ausente: ⛔ Voltar Workflow 2b Fase 0.2
+
+**SE APROVADO**: ✅ Prosseguir implementação com conhecimento confirmado
+
+---
+
+### ⚠️ GATE: Spec Review (SE > 10 itens)
+- [ ] Spec tem > 10 itens detalhados?
+  - SE SIM → Apresentar spec ao usuário e aguardar aprovação explícita
+  - SE NÃO → Prosseguir implementação
+
 ---
 
 ## ⚠️ REGRA CRÍTICA: USO MÁXIMO DE AGENTES
@@ -805,22 +870,30 @@ echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] DECISION: Código imple
 
 ---
 
-## ⏭️ CONTINUAÇÃO AUTOMÁTICA
+## 🧭 WORKFLOW NAVIGATOR
 
-**Este workflow continua automaticamente em:**
+### Próximo Workflow Padrão
+**[Workflow 6a] - User Validation**: Código implementado precisa validação manual com screenshots ANTES/DEPOIS.
 
-→ [Workflow 5b - Refactoring e RCA](.windsurf/workflows/add-feature-5b-refactoring-rca.md)
+### Quando Desviar do Padrão
 
-**Próximas etapas:**
-- Instalação de Git Hooks
-- Fase 12: Refactoring de código
-- Análise Root Cause de problemas (se aplicável)
-- Troubleshooting e correções
+| Situação | Workflow | Justificativa |
+|----------|----------|---------------|
+| Bug encontrado durante implementação | 5b (Refactoring RCA) | Corrigir bug com RCA 5 Whys antes de validar |
+| Código precisa refactor significativo | 5b (Refactoring RCA) | Limpar código antes de mostrar ao usuário |
+| Descobriu edge case crítico | 6b (Edge Cases) | Tratar edge case antes de validação geral |
 
-*A execução do Workflow 5b deve ser iniciada automaticamente após a conclusão desta parte.*
+### Quando Voltar
 
----
+| Sinal de Alerta | Voltar para | Por quê |
+|-----------------|-------------|---------|
+| Escopo mudou durante implementação | 1 (Planning) | Re-planejar com GATE 1 Reframing |
+| Design não funciona na prática | 2b (Technical Design) | Redesenhar solução técnica |
+| Risco novo identificado | 3 (Risk Analysis) | Avaliar e mitigar antes de continuar |
+| Gate de pre-implementation falhou | 4.5 (Pre-Implementation) | Resolver gate antes de código |
 
-**Workflow criado em**: 2025-11-04
-**Parte**: 5a de 9
-**Próximo**: Workflow 5b - Refactoring e RCA
+### Regras de Ouro
+- ⛔ **NUNCA pular**: Workflow 6a - código NÃO vai para quality gates sem validação manual
+- ⚠️ **Loop 5a→6a→5a (3+x)**: Voltar para 2b - problema é de design, não implementação
+- 🎯 **Dúvida?**: Usar skill `workflow-navigator` para análise completa do contexto
+
