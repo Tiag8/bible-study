@@ -21,6 +21,118 @@ Ler: `docs/PLAN.md`, `docs/TASK.md`, `.claude/CLAUDE.md`
 
 ---
 
+## FASE 0.1: EXTERNAL VALIDATION (Pontos Cegos) 🆕
+
+**Objetivo**: Identificar riscos e problemas que outros já enfrentaram. Prevenir vieses de planejamento.
+
+### Pesquisa Obrigatória (3-5 min)
+
+**Fontes a consultar** (usar WebSearch/WebFetch):
+1. **GitHub Issues**: `site:github.com [tecnologia] [problema] issue`
+2. **Stack Overflow**: `site:stackoverflow.com [tecnologia] [erro comum]`
+3. **Reddit**: `site:reddit.com [tecnologia] problems OR issues OR gotchas`
+
+**Perguntas a responder**:
+- [ ] "Que problemas outros tiveram com [tecnologia/abordagem]?"
+- [ ] "O que pode dar errado que não estou vendo?"
+- [ ] "Quais são os gotchas/armadilhas comuns?"
+
+### Output Obrigatório
+
+Documentar em `.context/{branch}_decisions.md`:
+```markdown
+## External Validation (Workflow 2b)
+**Data**: [timestamp]
+**Tecnologias pesquisadas**: [lista]
+
+### Riscos Identificados
+1. [Risco 1]: [fonte] → [mitigação]
+2. [Risco 2]: [fonte] → [mitigação]
+
+### Padrões Encontrados
+- [Padrão 1]: [como aplicar]
+- [Padrão 2]: [como aplicar]
+
+### Fontes Consultadas
+- [URL 1]: [resumo]
+- [URL 2]: [resumo]
+```
+
+**SE zero riscos encontrados**: ⚠️ Pesquisar mais ou documentar "Tecnologia madura, sem gotchas conhecidos"
+
+---
+
+## FASE 0.2: MEMORY AUDIT (Consulta Intencional) 🆕
+
+**Objetivo**: Garantir que conhecimento existente seja aplicado. Evitar erros repetidos.
+
+### Mapeamento de Domínios
+
+**Identificar domínios da feature**:
+```bash
+# Listar domínios tocados (marcar todos aplicáveis)
+DOMINIOS=""
+# [ ] whatsapp/webhook → uazapi.md
+# [ ] gemini/ai/tool → gemini.md
+# [ ] supabase/RLS/migration → supabase.md
+# [ ] deploy/docker → deployment.md
+# [ ] edge/deno → edge-functions.md
+# [ ] react/frontend → frontend.md
+# [ ] git/commit → git.md
+# [ ] security/auth → security.md
+# [ ] prompt/few-shot → prompt.md
+# [ ] workflow/gate → workflow.md
+# [ ] debug/rca → debugging.md
+```
+
+### Leitura OBRIGATÓRIA (não depender de keywords)
+
+**Para CADA domínio identificado**:
+```bash
+# Ler arquivo de memory correspondente
+cat ~/.claude/memory/[dominio].md
+
+# OU usar Read tool
+Read ~/.claude/memory/[dominio].md
+```
+
+### Extração de Conhecimento
+
+**Para cada memory file lido, extrair**:
+- [ ] Erros conhecidos relevantes à feature
+- [ ] Padrões a seguir
+- [ ] Anti-patterns a evitar
+- [ ] Checklists aplicáveis
+
+### Output Obrigatório
+
+Documentar em `.context/{branch}_decisions.md`:
+```markdown
+## Memory Audit (Workflow 2b)
+**Data**: [timestamp]
+**Arquivos consultados**: [lista]
+
+### Erros Conhecidos Relevantes
+1. [Erro de memory/X.md]: [como evitar nesta feature]
+
+### Padrões a Aplicar
+1. [Padrão de memory/Y.md]: [onde aplicar]
+
+### Checklists Extraídos
+- [ ] [Item 1 de memory/Z.md]
+- [ ] [Item 2 de memory/Z.md]
+```
+
+### Validação (Script)
+
+```bash
+./scripts/validate-memory-consulted.sh
+```
+
+**SE REJEITADO**: ⛔ Ler arquivos faltantes antes de prosseguir
+
+---
+
 ## FASE 0: LOAD CONTEXT
 
 ```bash
@@ -174,6 +286,8 @@ echo "[$TIMESTAMP] WORKFLOW: 2b - Design completo" >> .context/${BRANCH_PREFIX}_
 ## Checklist Final
 
 - [ ] **GATE 1**: Reframing validado?
+- [ ] **Fase 0.1**: External Validation executado? (Pontos cegos pesquisados)
+- [ ] **Fase 0.2**: Memory Audit executado? (Arquivos relevantes lidos)
 - [ ] **Fase 0.5**: Gap Analysis documentado?
 - [ ] **5 Agentes**: Executados em paralelo?
 - [ ] **Fase 3**: Design + Duplication Check?
@@ -192,4 +306,32 @@ echo "[$TIMESTAMP] WORKFLOW: 2b - Design completo" >> .context/${BRANCH_PREFIX}_
 ---
 
 **Versão**: 2.0 (Otimizado)
-**Próximo**: Workflow 3 (Risk Analysis)
+
+---
+
+## 🧭 WORKFLOW NAVIGATOR
+
+### Próximo Workflow Padrão
+**[Workflow 3] - Risk Analysis**: Design técnico aprovado → identificar e mitigar riscos antes de implementar.
+
+### Quando Desviar do Padrão
+
+| Situação | Workflow | Justificativa |
+|----------|----------|---------------|
+| Feature trivial, riscos óbvios | 4.5 (Pre-Implementation) | Pular risk analysis se < 100 linhas código |
+| Gap Analysis < 70% reuso | 1 (Planning) | Voltar para reframing - solução muito complexa |
+| Design requer validação técnica | ultra-think | Análise profunda antes de riscos |
+
+### Quando Voltar
+
+| Sinal de Alerta | Voltar para | Por quê |
+|-----------------|-------------|---------|
+| GATE 1 não executado | 1 Fase 1.5 | Reframing obrigatório antes de design |
+| Solução escolhida inviável | 2a (Solutions) | Escolher outra solução |
+| Gap Analysis < 70% | 1 (Planning) | Re-planejar com escopo menor |
+
+### Regras de Ouro
+- ⛔ **NUNCA pular**: Gap Analysis 90%+ é target - investigar se < 70%
+- ⚠️ **GATE 1 obrigatório**: validate-gate-1-executed.sh DEVE passar
+- 🎯 **Dúvida?**: Usar skill `workflow-navigator` para análise completa do contexto
+
