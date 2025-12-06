@@ -186,6 +186,61 @@ BRANCH_PREFIX=$(git branch --show-current | sed 's/feat\//feat-/')
 ./scripts/regenerate-supabase-types.sh
 ```
 
+### 3.1.5. Schema Discovery (SE feature usa DB) 🆕
+
+**Objetivo**: Consultar schema REAL antes de desenhar SQL. Prevenir suposições de nomes de colunas.
+
+**Quando executar**: Feature envolve SELECT/INSERT/UPDATE/CREATE FUNCTION em tabelas existentes.
+
+**Protocolo Obrigatório**:
+
+1. **Listar tabelas que serão usadas**:
+```markdown
+Tabelas envolvidas nesta feature:
+- lifetracker_profiles
+- lifetracker_habits
+- lifetracker_[outras]
+```
+
+2. **Consultar colunas via MCP** (OBRIGATÓRIO para cada tabela):
+```sql
+-- Via mcp__supabase_lifetracker__execute_sql
+SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_name = 'lifetracker_TABELA'
+ORDER BY ordinal_position;
+```
+
+3. **Documentar em `.context/{branch}_decisions.md`**:
+```markdown
+## Schema Discovery (Workflow 2b - Fase 3.1.5) ✅
+
+**Tabelas consultadas:**
+| Tabela | Colunas Relevantes |
+|--------|-------------------|
+| lifetracker_habits | id, user_id, name, current_streak, longest_streak |
+| lifetracker_profiles | user_id, journey_state, journey_metadata |
+
+**Colunas que VOU usar no design:**
+- lifetracker_habits.current_streak ✅ (existe)
+- lifetracker_habits.longest_streak ✅ (existe)
+
+**Colunas que NÃO existem (evitar no design):**
+- ❌ streak_count (não existe, usar current_streak)
+```
+
+**Checklist**:
+- [ ] Listei todas tabelas que vou usar?
+- [ ] Consultei information_schema para CADA tabela?
+- [ ] Documentei colunas disponíveis?
+- [ ] Evitei assumir nomes por convenção?
+
+**SE SKIP**: ⚠️ Alto risco de erro em Workflow 5a (ex: column not found)
+
+**ROI**: 3-5 min agora vs 15-60 min debug depois (5-20x)
+
+---
+
 ### 3.2. Duplication Check (OBRIGATÓRIO)
 
 ```bash
