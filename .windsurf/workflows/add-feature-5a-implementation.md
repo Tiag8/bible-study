@@ -85,6 +85,83 @@ cat ~/.claude/memory/edge-functions.md | head -200
 
 ---
 
+## 🔒 GATE 6.5: Schema Validation (SE escrever SQL) 🆕
+
+**Objetivo**: Prevenir erros de coluna/tabela inexistente validando schema ANTES de escrever SQL.
+
+### Quando Aplicar?
+
+- [ ] Feature envolve CREATE FUNCTION / RPC?
+- [ ] Feature envolve migrations com ALTER/INSERT/UPDATE?
+- [ ] Feature envolve queries em lifetracker_* tables?
+- [ ] Feature envolve triggers ou stored procedures?
+
+**SE SIM para qualquer item** → Executar validação obrigatória.
+
+### Protocolo de Validação
+
+**1. Identificar tabelas que serão referenciadas**:
+```markdown
+Tabelas envolvidas:
+- lifetracker_profiles
+- lifetracker_habits
+```
+
+**2. Consultar schema real via MCP** (OBRIGATÓRIO):
+```sql
+-- Via mcp__supabase_lifetracker__execute_sql
+SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_name = 'NOME_TABELA'
+ORDER BY ordinal_position;
+```
+
+**3. Documentar colunas disponíveis** em `.context/{branch}_decisions.md`:
+```markdown
+## Schema Validation (GATE 6.5) ✅
+
+**Tabelas consultadas:**
+| Tabela | Colunas Disponíveis |
+|--------|---------------------|
+| lifetracker_habits | id, user_id, name, current_streak, longest_streak... |
+| lifetracker_profiles | user_id, journey_state, journey_metadata... |
+
+**Colunas que VOU usar:**
+- lifetracker_habits.current_streak ✅
+- lifetracker_habits.longest_streak ✅
+
+**Colunas que NÃO existem (evitadas):**
+- ❌ streak_count (não existe)
+```
+
+**4. Validação por Script** (opcional):
+```bash
+./scripts/validate-columns-exist.sh --interactive
+```
+
+### Checklist GATE 6.5
+
+- [ ] Listei todas tabelas que vou referenciar?
+- [ ] Consultei information_schema para CADA tabela?
+- [ ] Documentei colunas disponíveis?
+- [ ] Confirmei que colunas que vou usar EXISTEM?
+- [ ] Evitei assumir nomes baseado em convenção?
+
+### Red Flags (Bloqueio)
+
+- ❌ Escrever SQL sem consultar schema primeiro
+- ❌ Assumir nome de coluna (ex: `streak_count` vs `current_streak`)
+- ❌ Copiar código antigo sem validar se schema mudou
+- ❌ Usar apenas types.ts (pode estar desatualizado)
+
+### ROI
+
+- **Tempo validação:** 3-5 min
+- **Tempo debug evitado:** 15-60 min por erro
+- **Fonte:** feat-flight-deck-dashboard (erro streak_count → current_streak)
+
+---
+
 ### ⚠️ GATE: Spec Review (SE > 10 itens)
 - [ ] Spec tem > 10 itens detalhados?
   - SE SIM → Apresentar spec ao usuário e aguardar aprovação explícita
