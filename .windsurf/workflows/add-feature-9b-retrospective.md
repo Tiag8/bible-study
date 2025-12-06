@@ -337,6 +337,42 @@ Código está commitado e push feito para `feat/add-profit-cards-makeup`.
 
 **⚠️ IMPORTANTE**: O merge para `main` **NÃO é automático**. Você decide quando fazer!
 
+---
+
+## 🔄 CHECKLIST TEMPLATE SYNC (OBRIGATÓRIO)
+
+**🎓 LEARNING #5 APLICADO**: Prevenir gap de propagação (2 dias) via reminder manual.
+
+**SE modificou algum destes arquivos durante a feature**:
+- [ ] `.windsurf/workflows/` (qualquer workflow)
+- [ ] `scripts/validate-*.sh` (scripts de validação)
+- [ ] `.claude/agents/` (agentes especializados)
+- [ ] `scripts/pre-*.sh` ou `scripts/post-*.sh` (hooks)
+
+**ENTÃO executar ANTES de merge**:
+```bash
+# Opção A: Sync automático de mudanças recentes
+~/.claude/scripts/template-extract.sh life_tracker --changed --auto
+
+# Opção B: Sync manual (escolher arquivos)
+~/.claude/scripts/template-extract.sh life_tracker
+
+# Opção C: Apenas validar (sem extrair)
+~/.claude/scripts/template-diff.sh life_tracker
+```
+
+**Por quê**: Sistema tem automação assimétrica:
+- ✅ Propagação automática (template → projetos)
+- ❌ Extração MANUAL (projeto → template)
+
+**Sem sync**: Melhorias ficam isoladas em 1 projeto (não propagam para clteam, lavateria, futuros).
+
+**ROI**: 2-3 min sync agora vs 2 dias gap de propagação.
+
+**Ver**: `~/.claude/skills/template-sync/SKILL.md` Learning #5
+
+---
+
 **As próximas fases são MANUAIS e opcionais:**
 
 ---
@@ -585,3 +621,31 @@ Parabéns! Completou: planejamento, implementação TDD, validação, code revie
 - Modular workflow structure (9/10)
 - User validation integration
 - Meta-learning before documentation
+
+---
+
+## 🧭 WORKFLOW NAVIGATOR
+
+### Próximo Workflow Padrão
+**[Workflow 10] - Template Sync** ou **[Workflow 11] - VPS Deploy**: Feature finalizada → sincronizar templates ou fazer deploy conforme necessidade.
+
+### Quando Desviar do Padrão
+
+| Situação | Workflow | Justificativa |
+|----------|----------|---------------|
+| RCA revelou causa raiz crítica | [Workflow afetado] | Corrigir antes de finalizar |
+| Merge bloqueado por conflict | 9a (Finalization) | Resolver conflitos primeiro |
+| Deploy necessário urgente | 11a (VPS Deploy Prep) | Priorizar deploy sobre template sync |
+
+### Quando Voltar
+
+| Sinal de Alerta | Voltar para | Por quê |
+|-----------------|-------------|---------|
+| Build de produção falhou | 7a (Quality Gates) | Re-executar validações |
+| RCA incompleto | 9b (continuar) | Completar análise retrospectiva |
+| Baseline delta > 20% não documentado | 9b Fase 21.5.4.5 | Atualizar estimativas |
+
+### Regras de Ouro
+- ⛔ **NUNCA pular**: Memory Update pós-RCA - causas raiz são candidatas obrigatórias
+- ⚠️ **Merge manual**: Fase 23 SEMPRE requer aprovação explícita do usuário
+- 🎯 **Dúvida?**: Usar skill `workflow-navigator` para análise completa do contexto
