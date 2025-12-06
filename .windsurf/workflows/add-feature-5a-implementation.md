@@ -423,12 +423,194 @@ REFERENCES lifetracker_profiles(user_id)
 
 ---
 
+### **Gate 4: Impact Mapping** (Análise em Teia Proativa) 🆕
+
+**Objetivo**: Mapear TODAS dependências e impactos ANTES de escrever código. Evitar efeito dominó onde "mexe uma coisa e estraga outra".
+
+**Quando Aplicar**:
+- [ ] Modificando componente existente (frontend)
+- [ ] Adicionando/modificando Edge Function (backend)
+- [ ] Mudanças em schema DB (migrations)
+- [ ] Adicionando nova feature que integra múltiplas camadas
+
+**SE SIM para qualquer item** → Executar mapeamento obrigatório.
+
+---
+
+#### Protocolo de Mapeamento (4 Camadas)
+
+**1. Frontend - Dependências de Componente**:
+```bash
+# Quantos arquivos importam este componente?
+grep -r "ComponentName" src/ | wc -l
+
+# Listar todos os imports
+grep -r "ComponentName" src/
+```
+
+**Checklist**:
+- [ ] Identifiquei quantos arquivos importam o componente?
+- [ ] Verifiquei quais hooks o componente usa?
+- [ ] Validei qual estado global o componente acessa?
+
+---
+
+**2. Backend - Edge Functions e Tools**:
+```bash
+# Quais funções chamam esta função?
+grep -r "functionName" supabase/functions/
+
+# Quais tools Gemini usam esta função?
+grep -r "functionName" supabase/functions/_shared/gemini-tools-*.ts
+```
+
+**Checklist**:
+- [ ] Listei todas Edge Functions que dependem desta função?
+- [ ] Identifiquei todos Gemini tools que a chamam?
+- [ ] Validei quantas outras funções ela chama (dependências downstream)?
+
+---
+
+**3. Database - Triggers, Views, Foreign Keys**:
+```bash
+# Script helper (recomendado)
+./scripts/db-dependency-checker.sh table_name
+
+# Ou manual via MCP
+mcp__supabase_lifetracker__execute_sql("
+  -- Triggers que usam esta tabela
+  SELECT trigger_name, event_object_table, action_statement
+  FROM information_schema.triggers
+  WHERE event_object_table = 'table_name';
+
+  -- Views que referenciam esta tabela
+  SELECT table_name FROM information_schema.views
+  WHERE view_definition LIKE '%table_name%';
+
+  -- Foreign Keys que apontam para esta tabela
+  SELECT constraint_name, table_name, constraint_type
+  FROM information_schema.table_constraints
+  WHERE constraint_type = 'FOREIGN KEY'
+  AND constraint_name IN (
+    SELECT constraint_name FROM information_schema.key_column_usage
+    WHERE referenced_table_name = 'table_name'
+  );
+")
+```
+
+**Checklist**:
+- [ ] Identifiquei todos triggers que disparam nesta tabela?
+- [ ] Listei todas views que leem desta tabela?
+- [ ] Validei todas foreign keys que apontam para esta tabela?
+- [ ] Verifiquei se alguma coluna que vou modificar/deletar é referenciada?
+
+---
+
+**4. Cross-Cutting - Permissions, Rate Limits, Logs**:
+
+**Checklist**:
+- [ ] Esta mudança afeta permissions/RLS policies?
+- [ ] Preciso atualizar rate limits?
+- [ ] Audit logs precisam registrar esta ação?
+- [ ] Webhooks externos escutam esta tabela/evento?
+- [ ] Notificações (email/WhatsApp) são disparadas?
+
+---
+
+#### Documentação de Impactos
+
+**Registrar em** `.context/{branch}_decisions.md`:
+
+```markdown
+## Impact Mapping (GATE 6.6) ✅
+
+**Contexto**: [Adicionar botão Exportar CSV no AdminDashboard]
+
+### 📱 Frontend (3 arquivos impactados)
+- `AdminDashboard.tsx` (modificado diretamente)
+- `useAdminData.ts` (adicionar método exportCSV)
+- `AdminTable.tsx` (botão será renderizado aqui)
+
+### ⚡ Backend (2 edge functions + 1 tool)
+- `admin-export` (criar novo)
+- `admin-permissions` (validar se admin)
+- Gemini tool: `export_admin_data` (criar novo)
+
+### 🗄️ Database (1 tabela + 1 policy)
+- Tabela: `lifetracker_admin_logs` (leitura)
+- RLS Policy: `admin_read_logs` (já existe ✅)
+- View: `admin_summary_view` (usar para export)
+
+### 🔐 Cross-Cutting
+- Permissions: admin-only check (já existe)
+- Rate limit: 10 exports/hora (adicionar novo)
+- Audit log: registrar cada export
+- Storage: salvar CSV temporário em /tmp (Edge Function)
+
+### ⚠️ Riscos Identificados
+- **Alto**: Export de dados sensíveis → garantir admin-only
+- **Médio**: CSV muito grande → timeout Edge Function (limite 10k linhas)
+- **Baixo**: Formato CSV inconsistente → usar lib papaparse
+
+### ✅ Validação
+- [ ] Todos impactos mapeados?
+- [ ] Riscos documentados?
+- [ ] Mitigações definidas?
+```
+
+---
+
+#### Checklist GATE 6.6
+
+**ANTES de escrever código, responder**:
+- [ ] **Frontend**: Quantos arquivos importam componente?
+- [ ] **Backend**: Quantas funções dependem desta função?
+- [ ] **Database**: Triggers/views/FKs afetados?
+- [ ] **Cross-Cutting**: Permissions/rate limits/logs impactados?
+- [ ] **Riscos**: Identifiquei riscos Alto/Médio/Baixo?
+- [ ] **Documentação**: Registrei em `.context/{branch}_decisions.md`?
+
+**SE impactos > 5 arquivos/tabelas/funções**:
+- ⚠️ Considerar **refatorar ANTES** de adicionar feature
+- ⚠️ Dividir feature em **múltiplas PRs menores**
+
+---
+
+#### Red Flags (Bloqueio)
+
+- ❌ Modificar componente sem mapear dependências
+- ❌ Adicionar coluna DB sem checar triggers/views
+- ❌ Criar Edge Function sem validar tools Gemini que a chamam
+- ❌ Começar código antes de documentar impactos
+
+---
+
+#### Ferramentas Helper
+
+**Script automatizado** (Fase 2 - opcional):
+```bash
+./scripts/impact-mapper.sh "AdminDashboard.tsx" "adicionar botão export"
+```
+
+**Output esperado**: Markdown com 4 camadas (Frontend, Backend, DB, Cross-Cutting)
+
+---
+
+#### ROI
+
+- **Tempo mapeamento manual**: 5-10 min
+- **Tempo debug evitado**: 30-120 min (efeito dominó)
+- **Fonte**: Experiência projeto (modificar tabela quebrou 3 views silenciosamente)
+
+---
+
 ### **Checkpoint Gates**
 
 **ANTES de prosseguir para deploy**:
 - [ ] Gate 1 validado (se aplicável)
 - [ ] Gate 2 validado (se aplicável)
 - [ ] Gate 3 validado (se aplicável)
+- [ ] Gate 4 validado (Impact Mapping - se aplicável)
 
 **Se algum gate falhar**: Corrigir ANTES de deploy
 
