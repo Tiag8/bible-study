@@ -1,890 +1,304 @@
 ---
-description: Workflow Add-Feature (4.5/11) - Pre-Implementation Quality Gates (ORCHESTRATOR)
+description: Workflow 4.5 - Pre-Implementation Quality Gates (9 Gates)
 auto_execution_mode: 1
 ---
 
-## 📚 Pré-requisito
+## Pré-requisito
 
-Ler ANTES: `docs/PLAN.md`, `docs/TASK.md`, `README.md`, `AGENTS.md`
+Ler: `docs/PLAN.md`, `docs/TASK.md`, `.claude/CLAUDE.md`
+
+**CRÍTICO**: Executar ANTES do Workflow 5a.
 
 ---
 
-## 🧠 FASE 0: LOAD CONTEXT
-
-**Ver template**: `.windsurf/templates/fase-0-context-loading.md`
+## FASE 0: LOAD CONTEXT
 
 ```bash
-./scripts/context-load-all.sh feat-nome-feature
+BRANCH_PREFIX=$(git branch --show-current | sed 's/feat\//feat-/')
+./scripts/context-load-all.sh $BRANCH_PREFIX
 ```
 
 ---
 
-# Workflow 4.5/11: Pre-Implementation Quality Gates (ORCHESTRATOR)
+## 9 GATES OBRIGATÓRIOS
 
-> **Este workflow foi DECOMPOSTO em 6 sub-workflows** para reduzir context decay (832L → ~150L cada).
-> **Use este arquivo como NAVEGADOR** para os sub-workflows.
-
-## 🗺️ MAPA DE SUB-WORKFLOWS
-
-| Sub-Workflow | Gates | Quando Executar |
-|--------------|-------|-----------------|
-| **4.5a-environment** | GATE 0 | ⭐ SEMPRE PRIMEIRO |
-| **4.5b-database** | GATE 3, 6 | SE migration/FK |
-| **4.5c-ai-tools** | GATE 1 | SE Gemini AI |
-| **4.5d-edge-functions** | GATE 2 | SE Edge Function |
-| **4.5e-code-quality** | GATE 4, 5 | SEMPRE |
-| **4.5f-qa-deploy** | GATE 7, 8 | ⭐ SEMPRE |
-
-## 🚀 FLUXO DE EXECUÇÃO
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    START WORKFLOW 4.5                       │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│  ⭐ 4.5a-environment (GATE 0) - SEMPRE PRIMEIRO             │
-│     ./scripts/validate-env-conflicts.sh                     │
-│     ./scripts/validate-schema-first.sh                      │
-└─────────────────────────────────────────────────────────────┘
-                              │
-              ┌───────────────┼───────────────┐
-              ▼               ▼               ▼
-     ┌────────────────┐ ┌────────────────┐ ┌────────────────┐
-     │ SE AI/Gemini:  │ │ SE Edge Func:  │ │ SE Migration:  │
-     │ 4.5c-ai-tools  │ │ 4.5d-edge-func │ │ 4.5b-database  │
-     │ (GATE 1)       │ │ (GATE 2)       │ │ (GATE 3, 6)    │
-     └────────────────┘ └────────────────┘ └────────────────┘
-              │               │               │
-              └───────────────┼───────────────┘
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│  ⭐ 4.5e-code-quality (GATE 4, 5) - SEMPRE                  │
-│     File Size + Anti-Over-Engineering                       │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│  ⭐ 4.5f-qa-deploy (GATE 7, 8) - SEMPRE                     │
-│     Performance + Pre-Deploy                                │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│  ✅ TODOS APROVADOS → Workflow 5a (Implementation)          │
-│  ❌ 1+ BLOQUEADO → Corrigir → Re-executar gates             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## ⚡ QUICK REFERENCE
-
-**Mínimo Obrigatório (todas features)**:
-1. `4.5a-environment` → GATE 0
-2. `4.5e-code-quality` → GATE 4, 5
-3. `4.5f-qa-deploy` → GATE 7, 8
-
-**Condicional**:
-- SE usa Gemini AI → `4.5c-ai-tools` (GATE 1)
-- SE Edge Function → `4.5d-edge-functions` (GATE 2)
-- SE migration/FK → `4.5b-database` (GATE 3, 6)
-
-## 📊 BENEFÍCIOS DECOMPOSIÇÃO
-
-| Métrica | Antes | Depois |
-|---------|-------|--------|
-| Linhas workflow | 832 | ~150/sub |
-| Context decay | Alto | Baixo |
-| Navegação | Scroll | Links |
-| Execução paralela | Não | Sim |
-
-**Meta-Learning**:
-- **ML-CONTEXT-03**: Quality Gates preventivos > reativos
-- **ML-CONTEXT-02**: Schema-First validation previne 60% bugs
-- **ADR-021**: Pre-Implementation Quality Gates
-- **ADR-026**: Multi-Agent RCA Parallelization (36x improvement)
-- **ADR-028**: Achievement Documentation Pattern
-
----
-
-## 🤖 USO MÁXIMO DE AGENTES
-
-**SEMPRE paralelo**: 3-5 agentes (Tool Validation + Runtime + Schema + File Size + Anti-Over-Engineering)
-**Benefício**: 15-20min vs 1-2h
-
----
-
-## 🎯 Feature Orchestrator Integration
-
-Se está gerenciando **múltiplas features em paralelo**, use Feature Orchestrator para tracking de progresso:
+### GATE 0: Environment Validation ⭐ SEMPRE PRIMEIRO
 
 ```bash
-# Ver dashboard (todas features)
-./scripts/feature-dashboard.sh
-
-# Atualizar state após completar Workflow 4.5
-./scripts/feature-update-state.sh <nome-feature> workflow 4.5
-
-# Ver estado detalhado desta feature
-cat .context/feat-<nome-feature>_orchestrator-state.json | jq
-
-# Se pausar em gate (aguardando correção)
-./scripts/feature-update-state.sh <nome-feature> status paused
-```
-
-**Benefício**: Volta ao contexto em 30seg (state persistido) vs 30min de re-raciocínio entre features.
-
-**Documentação**: `docs/guides/FEATURE-ORCHESTRATOR-QUICKSTART.md` | **CHEAT SHEET**: `docs/guides/CHEAT-SHEET.md`
-
----
-
-## 🚨 GATE 0: Environment Validation (ANTES de GATE 1)
-
-**⚠️ CRÍTICO**: Validar ambiente ANTES de qualquer código.
-
-### ✅ Checklist
-
-**1. System Env Conflicts**
-```bash
-# Validar variáveis de ambiente não conflitantes
 ./scripts/validate-env-conflicts.sh
-```
-- [ ] Script passou sem erros (exit 0)
-- [ ] SE exit 1: Limpar conflicts (`unset VITE_*` das variáveis system)
-- [ ] SE exit 0: Prosseguir para próximos checks
-
-**Por quê**: ADR-025 (90x ROI, recorrência 3+ features - system env vars sobrescrevem .env local)
-
-**2. Schema Validation**
-```bash
-# Validar DB schema sincronizado com types
 ./scripts/validate-schema-first.sh
 ```
-- [ ] DB real como source of truth
-- [ ] Migrations aplicadas e sincronizadas
-- [ ] Types regenerados após migrations
-- [ ] SE failed: Executar REGRA #8 checklist completo
 
-**Por quê**: ADR-020 + ADR-034 (60% bugs feat-super-admin-dashboard = prefix mismatch)
-
-### 🔴 BLOQUEIO ABSOLUTO
-
-**SE GATE 0 FALHOU**: ⛔ PARAR → Corrigir issues → Re-executar GATE 0 → ENTÃO prosseguir GATE 1
-
-**Meta-Learning**: Gate 0 previne 70%+ bugs ambientais detectados APÓS implementação (ADR-025, ADR-034). Economia de 5-15h debugging/feature.
-
-### 📝 Log Decisão
-```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-# Log gate result com marcação explícita para validação
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 0: Environment Validation - ✅ APROVADO" >> .context/${BRANCH_PREFIX}_attempts.log
-# OU se bloqueado:
-# echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 0: Environment Validation - ❌ BLOQUEADO - [razão]" >> .context/${BRANCH_PREFIX}_attempts.log
-```
+- [ ] Scripts passaram (exit 0)?
+- [ ] SE exit 1: Corrigir ANTES prosseguir
 
 ---
 
-## 🛡️ GATE 1: Tool Definition Validation (Se Gemini AI Tool)
+### GATE 1: Tool Validation (SE Gemini AI)
 
-### 🎯 Objetivo
-Validar schema de tool ANTES de codificar handler.
-
-### 🚨 QUANDO EXECUTAR
-- Feature usa Gemini AI tools (`gemini-tools-*.ts`)
-- Qualquer modificação em tool existente
-
-### ✅ Checklist
-
-**1. Tool Schema Completo**
-- [ ] `name` descritivo (ex: `save_habit`, não `save`)
-- [ ] `description` clara (50-100 chars)
-- [ ] `parameters` com tipos corretos (string, integer, boolean, array, object)
-- [ ] `required` array define campos obrigatórios vs opcionais
-
-**2. Alinhamento Backend**
-```typescript
-// Exemplo: save_habit
-required: ["user_id", "name"]  // ← DB tem NOT NULL?
-```
-
-**Validação**:
-```bash
-# Verificar DB schema
-./scripts/validate-db-sync.sh
-
-# Query direto se necessário
-mcp__supabase_lifetracker__execute_sql "
-SELECT column_name, is_nullable, data_type
-FROM information_schema.columns
-WHERE table_name = 'lifetracker_habits'
-ORDER BY ordinal_position;
-"
-```
-
-**3. UUID Explícito (ML-CONTEXT-01)**
-- [ ] Retorno tool inclui UUID no TEXTO (não só JSON)
-```typescript
-// ✅ CORRETO
-message: `Hábito criado! [ID: ${uuid}]`
-
-// ❌ ERRADO
-{ habit_id: uuid }  // LLM não vê
-```
-
-**4. Fuzzy Match (CRUD) (ML-CONTEXT-09)**
-- [ ] Tool aceita ID OU name (busca fuzzy)
-```typescript
-// update_habit, delete_habit, get_habit
-const habit = await fuzzyMatchHabit(habitIdOrName, userId);
-```
-
-### 🔴 BLOQUEIO
-**SE 1+ check FALHOU**: ⛔ PARAR. Ajustar tool definition ANTES de codificar.
-
-### 📝 Log Decisão
-```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-# Log gate result com marcação explícita para validação
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 1: Tool Validation - ✅ APROVADO" >> .context/${BRANCH_PREFIX}_attempts.log
-# OU se bloqueado:
-# echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 1: Tool Validation - ❌ BLOQUEADO - [razão]" >> .context/${BRANCH_PREFIX}_attempts.log
-```
+- [ ] Tool schema válido (FunctionDeclaration)?
+- [ ] DB alignment (tabela/campos existem)?
+- [ ] UUID explícito no retorno? (REGRA #15)
+- [ ] Fuzzy match implementado? (REGRA #17)
+- [ ] Token limit < 9000? (REGRA #18)
 
 ---
 
-## 🛡️ GATE 2: Runtime Compatibility (Se Edge Function)
+### GATE 2: Runtime Compatibility (SE Edge Function)
 
-### 🎯 Objetivo
-Validar compatibilidade runtime ANTES de deploy.
-
-### 🚨 QUANDO EXECUTAR
-- Qualquer Edge Function nova/modificada
-- Uso de libs externas
-- Código assíncrono
-
-### ✅ Checklist
-
-**1. Deno Runtime**
-- [ ] Imports são Deno-compatíveis (`npm:` ou `jsr:`)
-```typescript
-// ✅ CORRETO
-import Stripe from "npm:stripe@17.4.0";
-
-// ❌ ERRADO
-import Stripe from "stripe"; // Node.js style
-```
-
-**2. Async Pattern Correto**
-```typescript
-// ✅ CORRETO (Deno.serve)
-Deno.serve(async (req) => { ... });
-
-// ❌ ERRADO (addEventListener - deprecated)
-addEventListener("fetch", (event) => { ... });
-```
-
-**3. TypeScript Checks Locais**
-```bash
-# Validar antes deploy
-deno check supabase/functions/FUNCTION_NAME/index.ts
-```
-
-**4. Secrets Disponíveis**
-- [ ] `supabase secrets list` confirma vars necessárias
-```bash
-# Exemplo: stripe-webhook
-supabase secrets list | grep -E "STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET"
-```
-
-### 🔴 BLOQUEIO
-**SE 1+ check FALHOU**: ⛔ PARAR. Corrigir runtime antes de deploy.
-
-### 📝 Log Decisão
-```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-# Log gate result com marcação explícita para validação
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 2: Runtime Compatibility - ✅ APROVADO" >> .context/${BRANCH_PREFIX}_attempts.log
-# OU se bloqueado:
-# echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 2: Runtime Compatibility - ❌ BLOQUEADO - [razão]" >> .context/${BRANCH_PREFIX}_attempts.log
-```
+- [ ] Imports Deno-compatible (jsr:, npm:)?
+- [ ] Async pattern correto (Deno.serve)?
+- [ ] TypeScript OK (`deno check`)?
+- [ ] Secrets via Deno.env?
 
 ---
 
-## 🛡️ GATE 3: Foreign Key Reference Validation (Se Migration com FK)
+### GATE 3: FK Reference + Prefix (SE Migration)
 
-### 🎯 Objetivo
-Validar FK reference ANTES de aplicar migration.
-
-### 🚨 QUANDO EXECUTAR
-- Migration cria tabela com FK
-- Migration adiciona FK a tabela existente
-
-### ✅ Checklist
-
-**1. Tabela Referenciada Existe**
-```sql
--- Migration: lifetracker_payments REFERENCES lifetracker_profiles(user_id)
--- Validar ANTES:
-SELECT EXISTS (
-  SELECT 1 FROM information_schema.tables
-  WHERE table_name = 'lifetracker_profiles'
-);
-```
-
-**2. Coluna Referenciada Existe**
-```sql
--- Validar coluna user_id em profiles
-SELECT column_name, data_type
-FROM information_schema.columns
-WHERE table_name = 'lifetracker_profiles'
-  AND column_name = 'user_id';
-```
-
-**3. FK Aponta para PK/UNIQUE**
-- [ ] Coluna referenciada é PRIMARY KEY ou UNIQUE
-```sql
--- Validar constraints
-SELECT constraint_name, constraint_type
-FROM information_schema.table_constraints
-WHERE table_name = 'lifetracker_profiles'
-  AND constraint_type IN ('PRIMARY KEY', 'UNIQUE');
-```
-
-**4. Prefixo Correto (lifetracker_)**
-- [ ] FK usa prefixo: `FOREIGN KEY (user_id) REFERENCES lifetracker_profiles(user_id)`
-
-### 3.4 Prefix Consistency Check (NOVO - ADR-034)
-
-⚠️ **Database Prefix Migration Checklist**:
-- [ ] **Migrations SQL**: Tabelas criadas com `lifetracker_` prefix?
-- [ ] **Funções RPC**: Usando `lifetracker_` prefix? (ex: `lifetracker_has_role`)
-- [ ] **Views Materializadas**: Referenciando tabelas `lifetracker_*`?
-- [ ] **Frontend Hooks**: Queries com prefix? (`.from("lifetracker_X")`)
-
-**Script Validation**:
 ```bash
-# Audit codebase para prefix inconsistencies
-grep -r "\.from\(['\"](?!lifetracker_)" src/hooks/ src/lib/
-# SE matches: Corrigir ANTES prosseguir
-
-# Validar migrations (tabelas sem prefix)
+# Validar prefix consistency
+grep -r "\.from\(['\"](?!lifetracker_)" src/hooks/
 grep -r "CREATE TABLE" supabase/migrations/*.sql | grep -v "lifetracker_"
-# SE matches: Adicionar prefix ANTES aplicar migration
 ```
 
-**Por quê**: 60% bugs feat-super-admin-dashboard = prefix mismatch (ADR-034). Queries frontend falhavam silenciosamente porque referenciavam tabelas sem prefix (`profiles` vs `lifetracker_profiles`).
-
-**Checklist Adicional**:
-- [ ] Migration cria tabela SEM prefix? → BLOQUEAR (adicionar `lifetracker_` ANTES)
-- [ ] Frontend query referencia tabela SEM prefix? → BLOQUEAR (corrigir para `lifetracker_*`)
-- [ ] RPC function referencia tabela SEM prefix? → BLOQUEAR (atualizar SQL)
-
-### 🔴 BLOQUEIO
-**SE 1+ check FALHOU**: ⛔ PARAR. Corrigir FK E prefix consistency antes de aplicar migration.
-
-### 📝 Log Decisão
-```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-# Log gate result com marcação explícita para validação
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 3: FK Validation - ✅ APROVADO" >> .context/${BRANCH_PREFIX}_attempts.log
-# OU se bloqueado:
-# echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 3: FK Validation - ❌ BLOQUEADO - [razão]" >> .context/${BRANCH_PREFIX}_attempts.log
-```
+- [ ] FK aponta para PK/UNIQUE?
+- [ ] Prefixo `lifetracker_` em todas tabelas?
+- [ ] RLS policies existem?
 
 ---
 
-## 🛡️ GATE 4: File Size Limit (Se Arquivo > 500L)
+### GATE 4: File Size
 
-### 🎯 Objetivo
-Prevenir context decay em arquivos grandes (ML-CONTEXT-10).
-
-### 🚨 QUANDO EXECUTAR
-- Arquivo novo > 500 linhas
-- Modificação aumenta arquivo > 500L
-
-### ✅ Checklist
-
-**1. Context Decay Evidence**
-- **Fonte**: NPR/Medium 2025 - "LLM esquece contexto em arquivos 300+ linhas"
-- **Caso Real**: Handler 1,491L causou inconsistências → Modularização forçada
-
-**2. File Size Check**
 ```bash
-# Verificar tamanho
-wc -l src/path/to/file.ts
-
-# Se > 500L, considerar divisão
+find src/ supabase/functions/ -name "*.ts" -exec wc -l {} \; | sort -rn | head -5
 ```
 
-**3. Divisão Proposta**
-```typescript
-// Exemplo: gemini-chat-handler-v2.ts (1,491L)
-// DIVIDIR EM:
-// - gemini-tools-habits.ts (275L)
-// - gemini-tools-stats.ts (186L)
-// - gemini-tools-reminders.ts (240L)
-// - handler-v2.ts (270L - apenas orchestration)
-```
-
-**4. Alternativas**
-- [ ] Extrair utils/helpers para _shared/
-- [ ] Extrair constants para arquivo separado
-- [ ] Extrair types para types.ts
-
-### 🟡 AVISO (não bloqueio)
-**SE arquivo > 500L**: ⚠️ CONSIDERAR divisão. Documentar razão se não dividir.
-
-### 📝 Log Decisão
-```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-# Log gate result com marcação explícita para validação
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 4: File Size - ✅ APROVADO" >> .context/${BRANCH_PREFIX}_attempts.log
-# OU se aviso (não bloqueia):
-# echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 4: File Size - ⚠️ AVISO: dividir sugerido (arquivo > 500L)" >> .context/${BRANCH_PREFIX}_attempts.log
-```
+- [ ] Arquivos < 500 linhas?
+- [ ] SE > 500: Considerar divisão
 
 ---
 
-## 🛡️ GATE 5: Anti-Over-Engineering
+### GATE 5: Anti-Over-Engineering
 
-### 🎯 Objetivo
-Validar que solução SIMPLES não existe (REGRA #10 CLAUDE.md).
-
-### 🚨 QUANDO EXECUTAR
-- ANTES de criar novo módulo/classe/abstração
-- Feature que adiciona 3+ arquivos
-
-### ✅ Checklist
-
-**1. Funcionalidade Nativa Existe?**
-- [ ] Gemini AI já faz? (parsing, extração, NLP)
-- [ ] React/Supabase tem built-in? (cache, RLS, auth)
-- [ ] Biblioteca instalada cobre? (Zod, Recharts)
-
-**2. Gap Real Comprovado?**
-```typescript
-// ✅ TESTE OBRIGATÓRIO
-// 1. Testar solução atual
-// 2. Falhou em caso REAL (não hipotético)
-// 3. Gap é SISTÊMICO (3+ casos) ou pontual?
-```
-
-**3. Alternativas Simples?**
-- [ ] Ajustar prompt resolve?
-- [ ] Parâmetro/config resolve?
-- [ ] Doc adicional resolve?
-
-**4. Red Flags (bloqueio imediato)**
-- ❌ Parser/Extractor custom → Gemini já faz
-- ❌ Cache custom → React Query já tem
-- ❌ Validation layer → Zod já valida
-- ❌ Auth custom → Supabase já tem
-- ❌ "Futuramente vai precisar..." (YAGNI violation)
-
-### 🔴 BLOQUEIO
-**SE 1+ red flag**: ⛔ PARAR. Usar funcionalidade nativa.
-
-### 📝 Log Decisão
 ```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-# Log gate result com marcação explícita para validação
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 5: Anti-Over-Engineering - ✅ APROVADO" >> .context/${BRANCH_PREFIX}_attempts.log
-# OU se bloqueado:
-# echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 5: Anti-Over-Engineering - ❌ BLOQUEADO - [razão]" >> .context/${BRANCH_PREFIX}_attempts.log
+./scripts/validate-yagni.sh "[Feature]" "[Solução]"
 ```
+
+- [ ] Framework nativo resolve?
+- [ ] Biblioteca instalada cobre?
+- [ ] Gap real (não hipotético)?
+- [ ] 3+ casos de uso (Rule of Three)?
+
+**Red Flags**: Parser custom, cache custom, auth custom
 
 ---
 
-## 🎯 GATE 6: Schema-First Validation (OBRIGATÓRIO - Todas Features)
+### GATE 6: Schema-First ⭐ OBRIGATÓRIO
 
-### 🎯 Objetivo
-Validar DB schema ANTES de codificar (ML-CONTEXT-02).
+**PROPOSTA #5 (Workflow 14)**: Auto-fetch schema via MCP
 
-### 🚨 QUANDO EXECUTAR
-**SEMPRE** - Workflow 4.5 executado ANTES Workflow 5a.
-
-### ✅ Checklist
-
-**1. Source of Truth: DB Real**
 ```bash
-# Script automatizado
 ./scripts/validate-db-sync.sh
-
-# Query manual se necessário
-mcp__supabase_lifetracker__execute_sql "
-SELECT table_name, column_name, data_type, is_nullable
-FROM information_schema.columns
-WHERE table_name LIKE 'lifetracker_%'
-ORDER BY table_name, ordinal_position;
-"
-```
-
-**2. Prefixo lifetracker_**
-- [ ] TODAS tabelas começam com `lifetracker_`
-- [ ] TODAS policies seguem padrão
-
-**3. RLS Habilitado**
-```sql
--- Validar RLS em tabelas novas
-SELECT tablename, rowsecurity
-FROM pg_tables
-WHERE schemaname = 'public'
-  AND tablename LIKE 'lifetracker_%';
-```
-
-**4. Types Atualizados**
-```bash
-# Regenerar types APÓS validação schema
 ./scripts/regenerate-supabase-types.sh
 ```
 
-### 🔴 BLOQUEIO ABSOLUTO
-**SE schema desalinhado**: ⛔ PARAR workflow 5a.
+**Checklist Manual** (padrão atual):
+- [ ] DB real é source of truth?
+- [ ] Types atualizados?
+- [ ] RLS habilitado?
 
-### 📝 Log Decisão
-```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-# Log gate result com marcação explícita para validação
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 6: Schema-First - ✅ APROVADO" >> .context/${BRANCH_PREFIX}_attempts.log
-# OU se bloqueado:
-# echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 6: Schema-First - ❌ BLOQUEADO - [razão]" >> .context/${BRANCH_PREFIX}_attempts.log
-```
+**Checklist Automático** (NOVO - Workflow 14 Proposta #5):
 
----
+1. **Detectar tabelas** em `.context/{branch}_temp-memory.md`:
+   ```bash
+   grep -oE "lifetracker_[a-z_]+" .context/{branch}_temp-memory.md | sort -u
+   ```
 
-## 🛡️ GATE 7: Performance Validation (Pre-Code)
+2. **Auto-fetch schema via MCP** (CADA tabela):
+   ```sql
+   -- Via MCP execute_sql (automático)
+   SELECT column_name, data_type, is_nullable, column_default
+   FROM information_schema.columns
+   WHERE table_name = 'lifetracker_habits'
+   ORDER BY ordinal_position;
+   ```
 
-### 🎯 Objetivo
-Validar performance requirements ANTES de codificar.
+3. **Salvar snapshot** (gitignored):
+   ```bash
+   # .context/{branch}_schema-snapshot.json (gerado automaticamente)
+   {
+     "lifetracker_habits": [
+       {"name": "id", "type": "uuid", "nullable": "NO"},
+       {"name": "user_id", "type": "uuid", "nullable": "NO"},
+       {"name": "name", "type": "text", "nullable": "NO"},
+       ...
+     ],
+     "lifetracker_profiles": [...]
+   }
+   ```
 
-### 🚨 QUANDO EXECUTAR
-- TODAS features (obrigatório)
-- Modificação > 100 linhas
+4. **Workflow 5a**: Validar SQL contra snapshot (NÃO schema live)
 
-### ✅ Checklist
+**ROI**: Consulta manual 3-5min → automática 30s (ROI 6-10x)
 
-**1. Console.log Scan**
-```bash
-# Scan console.logs em src/ (não deve existir em produção)
-grep -r "console.log" src/ --exclude-dir=node_modules || echo "✅ No console.logs found"
-```
-- [ ] 0 console.logs em src/ (production code)
-
-**2. Bundle Size Check**
-```bash
-# Build preview para medir bundle
-npm run build
-# Verificar dist/ size
-du -sh dist/
-```
-- [ ] Bundle size < 500KB (threshold)
-- [ ] Se > 500KB: Identificar bloat (chunk analysis)
-
-**3. Performance Budget**
-- [ ] Dashboard load: < 2s target
-- [ ] Coach Chat: < 5s target
-- [ ] Habit Logging: Instantâneo
-
-### 🔴 BLOQUEIO
-**SE console.logs > 0 OU bundle > 500KB**: ⛔ PARAR. Limpar antes de prosseguir.
-
-### 📝 Log Decisão
-```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 7: Performance - ✅ APROVADO" >> .context/${BRANCH_PREFIX}_attempts.log
-# OU se bloqueado:
-# echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 7: Performance - ❌ BLOQUEADO - [razão]" >> .context/${BRANCH_PREFIX}_attempts.log
-```
+**Implementação**: Script `./scripts/auto-fetch-schema-snapshot.sh` (pendente)
 
 ---
 
-## 🛡️ GATE 8: Pre-Deploy Checklist (Pre-Code)
+### GATE 6.7: Soft Delete Consistency
 
-### 🎯 Objetivo
-Validar deploy readiness ANTES de escrever código.
+**SE entity tem soft delete** (`deleted_at` + `is_active`):
 
-### 🚨 QUANDO EXECUTAR
-- Features que alteram deployment (migrations, Edge Functions, env vars)
-- OBRIGATÓRIO antes Workflow 5a
+- [ ] Backend update AMBOS campos atomicamente?
+- [ ] Frontend query filtra AMBOS flags?
+- [ ] Index otimizado com `WHERE deleted_at IS NULL`?
+- [ ] Tool description menciona ambos campos?
 
-### ✅ Checklist
+**Validação**:
+```bash
+# Detectar inconsistências (deleted_at != null AND is_active = true)
+./scripts/validate-soft-delete-consistency.sh
+```
 
-**1. Build Success**
+**Por quê**: Soft delete com apenas 1 campo = data inconsistency bugs (ADR-043).
+
+**Snippet VS Code**: `sqsd` (Supabase Query Soft Delete)
+
+---
+
+### GATE 6.8: Output Format Specification
+
+**SE feature gera output para canal específico** (WhatsApp, Email, Telegram, Discord):
+
+- [ ] Identificado canal de output?
+- [ ] Canal tem formatação específica (não Markdown padrão)?
+- [ ] System prompt inclui seção "FORMATAÇÃO [CANAL]"?
+- [ ] Examples mostram formatação correta aplicada?
+- [ ] Proibições explícitas listadas (ex: ❌ **texto** Markdown)?
+
+**Template**:
+```typescript
+## FORMATAÇÃO [CANAL] (CRÍTICO)
+**Formato [Canal] é DIFERENTE de Markdown:**
+- Negrito: [sintaxe específica]
+- Itálico: [sintaxe específica]
+
+**PROIBIDO**:
+- ❌ **texto** (Markdown)
+- ❌ __texto__ (Markdown)
+
+**Exemplo CORRETO**:
+[exemplo visual com formatação aplicada]
+```
+
+**Por quê**: LLMs defaultam para Markdown quando contexto não é explícito = caracteres vazam no output (ADR-044).
+
+---
+
+### GATE 7: Performance ⭐ OBRIGATÓRIO
+
+```bash
+grep -r "console.log" src/ --exclude-dir=node_modules
+npm run build && du -sh dist/
+```
+
+- [ ] 0 console.logs em src/?
+- [ ] Bundle < 500KB?
+
+---
+
+### GATE 8: Pre-Deploy ⭐ OBRIGATÓRIO
+
 ```bash
 npm run build
-```
-- [ ] Build completa sem erros
-
-**2. TypeScript Check**
-```bash
 npx tsc --noEmit
-```
-- [ ] 0 type errors
-
-**3. Lint Pass**
-```bash
 npx eslint "src/**/*.{ts,tsx}"
 ```
-- [ ] 0 lint errors (warnings OK)
 
-**4. Tests Pass (se existirem)**
-```bash
-npm run test 2>/dev/null || echo "N/A"
-```
-- [ ] Todos testes passam OU N/A
-
-**5. Environment Variables**
-- [ ] .env.example atualizado (se novos secrets)
-- [ ] Supabase secrets configurados (se Edge Functions)
-
-**6. Migrations Ready**
-- [ ] Migration testada localmente (se DB changes)
-- [ ] Rollback migration criada (se schema breaking)
-
-### 🔴 BLOQUEIO
-**SE 1+ check FALHOU**: ⛔ PARAR. Corrigir antes de prosseguir para Workflow 5a.
-
-### 📝 Log Decisão
-```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 8: Pre-Deploy - ✅ APROVADO" >> .context/${BRANCH_PREFIX}_attempts.log
-# OU se bloqueado:
-# echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 8: Pre-Deploy - ❌ BLOQUEADO - [razão]" >> .context/${BRANCH_PREFIX}_attempts.log
-```
+- [ ] Build OK?
+- [ ] 0 TypeScript errors?
+- [ ] 0 lint errors?
 
 ---
 
-## ✅ APROVAÇÃO FINAL: Prosseguir para Workflow 5a
+## MATRIZ DE DECISÃO
 
-### Checklist Geral
-
-**9 Gates Validados**:
-- [ ] GATE 0: Environment Validation (OBRIGATÓRIO - SEMPRE PRIMEIRO)
-- [ ] GATE 1: Tool Validation (se aplicável)
-- [ ] GATE 2: Runtime Compatibility (se aplicável)
-- [ ] GATE 3: FK Reference + Prefix Consistency (se aplicável)
-- [ ] GATE 4: File Size (aviso se > 500L)
-- [ ] GATE 5: Anti-Over-Engineering
-- [ ] GATE 6: Schema-First (OBRIGATÓRIO)
-- [ ] GATE 7: Performance (OBRIGATÓRIO)
-- [ ] GATE 8: Pre-Deploy (OBRIGATÓRIO)
-
-**Se TODOS aprovados**: ✅ Prosseguir Workflow 5a (Implementation)
-
-**Se 1+ bloqueado**: ⛔ PARAR. Corrigir antes de codificar.
+| Gates Passed | Ação |
+|--------------|------|
+| 11/11 | ✅ Prosseguir Workflow 5a |
+| 10/11 | ⚠️ Corrigir 1 gate |
+| < 10/11 | ⛔ PARAR, corrigir todos |
 
 ---
 
-## 🧠 MEMORY UPDATE (Pós-Workflow - OPCIONAL)
-
-**APLICÁVEL**: Se gates detectaram padrões sistêmicos (recorrentes em 2+ features).
-
-**Checklist**:
-- [ ] Gate bloqueado 3+ features? → Learning para memory
-- [ ] Identificou padrão reutilizável? → Meta-learning para memory
-- [ ] Gate revelou gap sistêmico? → Adicionar ao memory
-
-**Ação (SE aplicável)**:
-1. Identificar memory file relevante (gemini.md, supabase.md, deployment.md, debugging.md)
-2. **SUGERIR ao usuário** com template completo + aguardar aprovação
-
-**Template Sugestão**:
-```
-🧠 SUGESTÃO MEMÓRIA GLOBAL:
-Arquivo: ~/.claude/memory/[arquivo].md
-Seção: [Life Track Growth ou Geral]
-
-Adicionar:
----
-### [Título Gate/Padrão] (Workflow 4.5 - ADR/evidência)
-**Problema**: [Gap detectado por gate]
-**Root Cause**: [5 Whys]
-**Solução**: [Gate/validação aplicada]
-**Prevenção**: [Script/checklist]
-**Exemplo**: [Code snippet ou comando]
-**Evidências**: [ADR-X, features afetadas]
----
-
-⏸️ APROVAR adição? (yes/no/edit)
-```
-
-**Por quê**: Gates preventivos frequentemente revelam padrões sistêmicos. Se gate bloqueia 2+ features, é candidato a memory global (zero re-aprendizado).
-
-**Ver**: `~/.claude/CLAUDE.md` REGRA #20 (Sistema de Memória Global)
-
----
-
-## 📊 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
-
-**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
-
-### F.1. Atualizar workflow-progress.md
+## FASE FINAL: UPDATE CONTEXT
 
 ```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+BRANCH_PREFIX=$(git branch --show-current | sed 's/feat\//feat-/')
+TIMESTAMP=$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
 
-# Contar gates aprovados/bloqueados/warnings (assumindo variáveis já setadas durante validação)
-APPROVED=${APPROVED_GATES:-0}
-BLOCKED=${BLOCKED_GATES:-0}
-WARNINGS=${WARNING_GATES:-0}
-TOTAL_GATES=$((APPROVED + BLOCKED + WARNINGS))
-
+# Atualizar workflow-progress.md
 cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
 
-### Workflow 4.5: Pre-Implementation Gates ✅ COMPLETO
-- **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
-- **Gates Validados**: ${TOTAL_GATES}
-  - ✅ Aprovados: ${APPROVED}
-  - ⚠️ Warnings: ${WARNINGS}
-  - ❌ Bloqueados: ${BLOCKED}
-- **Actions**:
-  - GATE 0: Environment Validation (SEMPRE)
-  - GATE 1: Tool Validation (se aplicável)
-  - GATE 2: Runtime Compatibility (se aplicável)
-  - GATE 3: FK Reference + Prefix Consistency (se aplicável)
-  - GATE 4: File Size Limit (se aplicável)
-  - GATE 5: Anti-Over-Engineering (se aplicável)
-  - GATE 6: Schema-First Validation (SEMPRE)
-  - GATE 7: Performance (SEMPRE)
-  - GATE 8: Pre-Deploy (SEMPRE)
-- **Outputs**:
-  - [Lista gates aprovados com ✅]
-  - [Lista gates bloqueados com ❌ e motivo]
-  - [Lista warnings com ⚠️]
-- **Decisão**: [PROSSEGUIR para Workflow 5a / BLOQUEADO: corrigir issues]
-- **Next**: [Workflow 5a (Implementation) SE todos aprovados / FIX SE 1+ bloqueado]
-EOF
-```
-
-### F.2. Atualizar temp-memory.md
-
-```bash
-NEXT_STEP=$([ ${BLOCKED} -eq 0 ] && echo "Workflow 5a (Implementation)" || echo "FIX bloqueadores")
-
-cat > /tmp/temp-memory-update.md <<EOF
-## Estado Atual
-
-✅ **PRE-IMPLEMENTATION GATES VALIDADOS**
-
-Workflow 4.5 (Pre-Implementation Gates) concluído.
-
-**Status Gates** (${TOTAL_GATES} validados):
-- ✅ Aprovados: ${APPROVED}
-- ⚠️ Warnings: ${WARNINGS}
-- ❌ Bloqueados: ${BLOCKED}
-
-**Gates Executados**:
-- GATE 0: Environment Validation [STATUS]
-- GATE 1: Tool Validation [STATUS]
-- GATE 2: Runtime Compatibility [STATUS]
-- GATE 3: FK Reference + Prefix Consistency [STATUS]
-- GATE 4: File Size Limit [STATUS]
-- GATE 5: Anti-Over-Engineering [STATUS]
-- GATE 6: Schema-First Validation [STATUS]
-- GATE 7: Performance [STATUS]
-- GATE 8: Pre-Deploy [STATUS]
-
-**Próximo passo**: ${NEXT_STEP}
-
-## Bloqueios/Questões
-
-$([ ${BLOCKED} -gt 0 ] && echo "- ❌ BLOQUEADORES: ${BLOCKED} gates bloqueados - corrigir antes de implementar" || echo "- Nenhum bloqueador - pronto para implementação")
+### Workflow 4.5: Pre-Implementation Gates ✅
+- **Data**: $TIMESTAMP
+- **Gates Passed**: [X]/9
+- **Bloqueios**: [Nenhum ou listar]
+- **Next**: Workflow 5a (Implementação)
 EOF
 
-sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
-cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
-rm /tmp/temp-memory-update.md
+# Log em attempts.log
+echo "[$TIMESTAMP] WORKFLOW: 4.5 - Gates validados" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$TIMESTAMP] GATES: [X]/9 passed" >> .context/${BRANCH_PREFIX}_attempts.log
 ```
-
-### F.3. Atualizar decisions.md (Se Bloqueio ou Warning Crítico)
-
-**SE houve bloqueio ou warning crítico**:
-
-```bash
-# Só criar entry se há bloqueadores ou warnings
-if [ ${BLOCKED} -gt 0 ] || [ ${WARNINGS} -gt 0 ]; then
-  cat >> .context/${BRANCH_PREFIX}_decisions.md <<'EOF'
 
 ---
 
-## Decisão: Pre-Implementation Gates - Issues Detectados
+## Checklist Final
 
-**Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
-**Contexto**: Workflow 4.5 - Validação pré-implementação
-**Decisão**: [CORRIGIR E RE-VALIDAR / ACEITAR WARNINGS E PROSSEGUIR]
-
-**Issues Detectados**:
-- [GATE X]: [Descrição issue + gravidade]
-- [GATE Y]: [Descrição issue + gravidade]
-
-**Ação Tomada**:
-- [SE BLOQUEADO]: ⛔ PARAR implementação, corrigir [issue], re-executar Workflow 4.5
-- [SE WARNING]: ⚠️ Documentar warning, adicionar TODO, prosseguir com cautela
-
-**Impacto**:
-- Tempo adicional: [estimativa SE bloqueado]
-- Risco: [ALTO / MÉDIO / BAIXO]
-
-**Referências**: [Gate checklist, evidências]
-EOF
-fi
-```
-
-### F.4. Log em attempts.log
-
-```bash
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 4.5 (Pre-Implementation Gates) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] ✅ GATES: ${APPROVED} aprovados, ${WARNINGS} warnings, ${BLOCKED} bloqueados" >> .context/${BRANCH_PREFIX}_attempts.log
-
-if [ ${BLOCKED} -gt 0 ]; then
-  echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] ⛔ BLOQUEADO: Corrigir issues ANTES de Workflow 5a" >> .context/${BRANCH_PREFIX}_attempts.log
-else
-  echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] PRÓXIMO PASSO: Workflow 5a (Implementation)" >> .context/${BRANCH_PREFIX}_attempts.log
-fi
-```
-
-### F.5. Validação Context Updated
-
-**Checklist Pós-Workflow**:
-- [ ] Atualizei workflow-progress.md com gates count e status?
-- [ ] Atualizei temp-memory.md (Estado Atual + próximo passo)?
-- [ ] Atualizei decisions.md (SE bloqueio ou warning crítico)?
-- [ ] Logei em attempts.log (WORKFLOW COMPLETO + gates resultado)?
-
-**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
-
-**IMPORTANTE**: Se há bloqueadores, NÃO prosseguir para Workflow 5a. Corrigir issues, re-executar Workflow 4.5.
+- [ ] GATE 0: Environment OK?
+- [ ] GATE 1-2: Tool/Runtime (se aplicável)?
+- [ ] GATE 3: FK + Prefix (se migration)?
+- [ ] GATE 4-5: Size + YAGNI?
+- [ ] GATE 6-8: Schema + Perf + Deploy?
+- [ ] 9/9 gates? .context/ atualizado?
 
 ---
 
-## 📚 Documentação de Referência
+## REGRA ANTI-ROI
 
-**Meta-Learnings**:
-- ML-CONTEXT-01: AI Context Persistence (UUID explícito)
-- ML-CONTEXT-02: Schema-First Validation
-- ML-CONTEXT-03: Quality Gates Preventivos > Reativos
-- ML-CONTEXT-09: Fuzzy Match CRUD
-- ML-CONTEXT-10: Context Decay 300+ linhas
-
-**ADRs**:
-- ADR-020: Schema-First Development
-- ADR-021: Pre-Implementation Quality Gates
-- ADR-022: AI Context Persistence Pattern
-
-**CLAUDE.md Regras**:
-- REGRA #8: Source of Truth Validation
-- REGRA #10: Anti-Over-Engineering
-- REGRA #14: Code Hygiene
-- REGRA #15: AI Context Persistence
-- REGRA #16: Pre-Implementation Quality Gates
-
-**Benefícios Comprovados**:
-- feat-payment-gateway: 5h (gates preventivos)
-- feat-sync-crud-mandamentos: 52h (gates reativos)
-- **Diferença**: 10x (47h economizadas)
+**NUNCA**: ROI, tempo, "horas economizadas"
+**PERMITIDO**: "X gates passed", evidências concretas
 
 ---
 
-**Versão**: 1.0.0
-**Criado**: 2025-11-13
-**Baseado em**: Meta-Learning Consolidation 2025-11-13
+**Versão**: 2.0 (Otimizado)
+
+---
+
+## 🧭 WORKFLOW NAVIGATOR
+
+### Próximo Workflow Padrão
+**[Workflow 5a] - Implementation**: Todos 9 gates aprovados → implementar código com TDD.
+
+### Quando Desviar do Padrão
+
+| Situação | Workflow | Justificativa |
+|----------|----------|---------------|
+| Gate 1 (Tool Validation) falhou | 2b (Technical Design) | Redesenhar schema/tools |
+| Gate 3 (FK Reference) falhou | 2b (Technical Design) | Corrigir modelo de dados |
+| Gate 6 (Schema-First) falhou | 3 (Risk Analysis) | Reavaliar riscos de DB |
+
+### Quando Voltar
+
+| Sinal de Alerta | Voltar para | Por quê |
+|-----------------|-------------|---------|
+| 3+ gates falharam | 2b (Technical Design) | Design precisa revisão |
+| Gate 0 (Environment) falhou | 0 (Setup) | Reconfigurar ambiente |
+| Gate 8 (Anti-Over-Engineering) falhou | 2a (Solutions) | Simplificar solução |
+
+### Regras de Ouro
+- ⛔ **NUNCA pular**: Gate 0 (Environment) + Gate 6 (Schema-First) - críticos
+- ⚠️ **Gate falhou 2+ vezes**: Voltar para design - não forçar
+- 🎯 **Dúvida?**: Usar skill `workflow-navigator` para análise completa do contexto
+
