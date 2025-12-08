@@ -2,6 +2,10 @@
 description: Adicionar nova funcionalidade ao projeto (Sistema Modular 9 Workflows)
 ---
 
+> ⚠️ **DEPRECATED**: Este workflow foi substituído por `add-feature-0-setup-unified.md`.
+> Use o Workflow 0 Unificado para todas as novas features.
+> Este arquivo será removido em 2025-01-15.
+
 # Workflow: Adicionar Nova Funcionalidade (Master)
 
 Este workflow guia a implementação de uma nova feature do início ao fim, com segurança e qualidade.
