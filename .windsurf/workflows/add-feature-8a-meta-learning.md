@@ -150,7 +150,51 @@ Adicionar:
 
 ---
 
-### 17.11 Validação Compliance Workflows 1-7 🚨 OBRIGATÓRIO
+### 17.11 Memory Consolidation Check 🧠 GATE-BASED
+
+**CRÍTICO**: APÓS adicionar learnings à memória global (Fase 17.10), validar se consolidação é necessária.
+
+**Quando Executar**: SEMPRE após atualizar arquivo memory (workflow.md, gemini.md, supabase.md, etc.)
+
+**Execute Analyzer**:
+```bash
+# Verificar arquivo atualizado
+./scripts/memory-analyzer.sh ~/.claude/memory/workflow.md
+```
+
+**GATE Criteria** (quando consolidar obrigatório):
+- [ ] Arquivo > 1800 linhas
+- [ ] Token count > 2000
+- [ ] Duplicados > 3
+- [ ] Learnings obsoletos > 5
+- [ ] Domínio com 7+ patterns (candidato split)
+
+**SE NENHUM GATE ATIVADO**:
+- ✅ Consolidação NÃO necessária
+- ⏸️ Aguardar próximo threshold trigger
+- 📝 Log: "SKIP consolidation (thresholds não atingidos)"
+
+**SE 1+ GATE ATIVADO**:
+- 🔴 Consolidação OBRIGATÓRIA
+- 🔧 Execute: `./scripts/memory-consolidate.sh ~/.claude/memory/workflow.md`
+- 📋 Revisão interativa: merge duplicados, archive obsoletos, split domínios
+- 📝 Commit separado: `chore(memory): consolidate workflow`
+
+**Arquivo ESPECÍFICO**:
+| Arquivo atualizado | Analyzer path |
+|-------------------|---------------|
+| workflow.md | `~/.claude/memory/workflow.md` |
+| gemini.md | `~/.claude/memory/gemini.md` |
+| supabase.md | `~/.claude/memory/supabase.md` |
+| deployment.md | `~/.claude/memory/deployment.md` |
+
+**Por quê**: Previne context overflow (workflow.md v2.7 = 1533 linhas, projeção v3.0 = 2000+ linhas). Consolidação gate-based garante memória saudável sem intervenção manual constante.
+
+**Evidência**: Party Mode analysis (2025-12-08) - learnings sistêmicos documentados mas workflow só adiciona, nunca consolida.
+
+---
+
+### 17.12 Validação Compliance Workflows 1-7 🚨 OBRIGATÓRIO
 
 **CRÍTICO**: Garantir que Workflows 1-7 seguem padrões de documentação e meta-learning.
 
@@ -371,10 +415,38 @@ echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] META-LEARNING: [Quantid
 **Workflow**: 8a/11 - Meta-Learning (Parte 1)
 **Versão**: 4.0 (Ultra-Optimized)
 **Data**: 2025-11-08
-**Próximo**: Workflow 8b - PLAN.md + Pareto
 
 **Changelog v4.0**:
 - Otimizado: Redução 62% (22,766 → 8,642 chars)
 - Removido: Explicações verbose, checklists redundantes
 - Consolidado: Seções similares, exemplos duplicados
 - Mantido: TODAS fases críticas + framework meta-learning completo
+
+---
+
+## 🧭 WORKFLOW NAVIGATOR
+
+### Próximo Workflow Padrão
+**[Workflow 9a] - Finalization**: Learnings extraídos → finalizar docs + commit atômico.
+
+### Quando Desviar do Padrão
+
+| Situação | Workflow | Justificativa |
+|----------|----------|---------------|
+| Pareto analysis necessária | 8b (Pareto Analysis) | Identificar melhorias 80/20 |
+| Learning sistêmico grave descoberto | 2b (Technical Design) | Redesenhar baseado no learning |
+| Bug recorrente identificado (3+x) | 5b (Refactoring RCA) | Corrigir bug sistêmico |
+
+### Quando Voltar
+
+| Sinal de Alerta | Voltar para | Por quê |
+|-----------------|-------------|---------|
+| Learning mostra problema de design | 2b (Technical Design) | Redesenhar antes de finalizar |
+| RCA revela escopo errado | 1 (Planning) | Re-planejar com escopo correto |
+| Meta-learning requer novo gate | 4.5 (Pre-Implementation) | Adicionar gate preventivo |
+
+### Regras de Ouro
+- ⛔ **NUNCA pular**: RCA 5 Whys - learnings sem causa raiz são inúteis
+- ⚠️ **Learning não sistêmico**: DESCARTAR - só documentar se afeta múltiplas features
+- 🎯 **Dúvida?**: Usar skill `workflow-navigator` para análise completa do contexto
+
