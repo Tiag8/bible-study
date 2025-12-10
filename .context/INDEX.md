@@ -1,8 +1,8 @@
-# 📚 Context Index - feat/sync-crud-mandamentos
+# 📚 Context Index - feat/fix-list-of-facts
 
-**Branch**: `feat/sync-crud-mandamentos`
-**Created**: 2025-11-11 16:20 -03
-**Feature**: whatsapp-onboarding-fix
+**Branch**: `feat/fix-list-of-facts`
+**Created**: 2025-12-10 06:28 -03
+**Feature**: fix-list-of-facts
 
 ---
 
@@ -10,17 +10,17 @@
 
 **⚠️ SEMPRE ler nesta ordem ANTES de qualquer ação**:
 
-1. **feat-sync-crud-mandamentos_workflow-progress.md** - Onde estou agora? (qual workflow ativo)
-2. **feat-sync-crud-mandamentos_temp-memory.md** - Estado atual resumido (o que foi feito, próximos passos)
-3. **feat-sync-crud-mandamentos_decisions.md** - Decisões já tomadas (por quê escolhemos X?)
-4. **feat-sync-crud-mandamentos_validation-loop.md** - Tentativas Workflow 6 (se existir - loop crítico)
-5. **feat-sync-crud-mandamentos_attempts.log** - Histórico completo (todas tentativas, sucesso + falhas)
+1. **feat-fix-list-of-facts_workflow-progress.md** - Onde estou agora? (qual workflow ativo)
+2. **feat-fix-list-of-facts_temp-memory.md** - Estado atual resumido (o que foi feito, próximos passos)
+3. **feat-fix-list-of-facts_decisions.md** - Decisões já tomadas (por quê escolhemos X?)
+4. **feat-fix-list-of-facts_validation-loop.md** - Tentativas Workflow 6 (se existir - loop crítico)
+5. **feat-fix-list-of-facts_attempts.log** - Histórico completo (todas tentativas, sucesso + falhas)
 
 ---
 
 ## 📄 Descrição dos Arquivos
 
-### feat-sync-crud-mandamentos_workflow-progress.md
+### feat-fix-list-of-facts_workflow-progress.md
 **O que é**: Registro de CADA workflow executado (0-13)
 **Quando atualizar**: Início (registrar start) e fim (registrar complete) de cada workflow
 **Formato**:
@@ -32,7 +32,7 @@
 - **Next**: Workflow Y ([Nome])
 ```
 
-### feat-sync-crud-mandamentos_temp-memory.md
+### feat-fix-list-of-facts_temp-memory.md
 **O que é**: Resumo do estado atual da branch
 **Quando atualizar**: SEMPRE que estado mudar (código, decisão, bloqueio)
 **Seções**:
@@ -41,7 +41,7 @@
 - Decisões Pendentes (precisa escolher X?)
 - Bloqueios/Questões (aguardando Y)
 
-### feat-sync-crud-mandamentos_decisions.md
+### feat-fix-list-of-facts_decisions.md
 **O que é**: Log de decisões chave (arquitetura, stack, trade-offs)
 **Quando atualizar**: Sempre que decisão importante for tomada
 **Formato**:
@@ -53,7 +53,7 @@
 - **Alternativas consideradas**: [X, Y, Z]
 ```
 
-### feat-sync-crud-mandamentos_validation-loop.md
+### feat-fix-list-of-facts_validation-loop.md
 **O que é**: Loop de tentativa/erro do Workflow 6 (User Validation)
 **Quando atualizar**: Durante Workflow 6 (cada tentativa)
 **Formato**:
@@ -66,7 +66,7 @@
 - **Próxima tentativa**: [O que vou tentar agora]
 ```
 
-### feat-sync-crud-mandamentos_attempts.log
+### feat-fix-list-of-facts_attempts.log
 **O que é**: Log append-only de TODAS tentativas (timestamp obrigatório)
 **Quando atualizar**: TODA interação (workflow start/end, tentativa, decisão)
 **Formato**:

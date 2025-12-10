@@ -292,6 +292,27 @@ cat > .context/${PREFIX}_validation-loop.md <<EOF
 **Nota**: Este arquivo é CRÍTICO durante Workflow 6. LLM DEVE ler ANTES de cada nova tentativa.
 EOF
 
+# === 7. COPIAR TEMPLATES (Workflow 14 - Proposta #2 + #6) ===
+echo "📋 Copiando templates para .context/..."
+
+# Template GATE 1 Reframing (Workflow 14 Proposta #2)
+if [ -f "docs/templates/reframing-gate-1-template.md" ]; then
+  sed "s|{FEATURE_NAME}|${FEATURE_NAME}|g; s|{BRANCH}|${BRANCH_NAME}|g; s|{DATE}|$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M %Z')|g" \
+    docs/templates/reframing-gate-1-template.md > .context/${PREFIX}_reframing-gate-1.md
+  echo "   ✅ ${PREFIX}_reframing-gate-1.md (GATE 1 template)"
+else
+  echo "   ⚠️  Template GATE 1 não encontrado (criado manualmente via Workflow 1)"
+fi
+
+# Template External Validation (Workflow 14 Proposta #6)
+if [ -f "docs/templates/external-validation-template.md" ]; then
+  sed "s|{FEATURE_NAME}|${FEATURE_NAME}|g; s|{BRANCH}|${BRANCH_NAME}|g; s|{DATE}|$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M %Z')|g" \
+    docs/templates/external-validation-template.md > .context/${PREFIX}_external-validation.md
+  echo "   ✅ ${PREFIX}_external-validation.md (External Validation template)"
+else
+  echo "   ⚠️  Template External Validation não encontrado (criado manualmente via Workflow 2b)"
+fi
+
 # === FINALIZAÇÃO ===
 echo ""
 echo "✅ .context/ inicializado com sucesso!"
@@ -303,9 +324,11 @@ echo "   - ${PREFIX}_temp-memory.md"
 echo "   - ${PREFIX}_decisions.md"
 echo "   - ${PREFIX}_attempts.log"
 echo "   - ${PREFIX}_validation-loop.md"
+echo "   - ${PREFIX}_reframing-gate-1.md (NEW - Workflow 14)"
+echo "   - ${PREFIX}_external-validation.md (NEW - Workflow 14)"
 echo ""
 echo "📖 LLM deve ler INDEX.md PRIMEIRO antes de qualquer ação!"
 echo ""
 echo "⚠️  Lembre-se: TODA interação deve atualizar pelo menos 1 arquivo .context/"
 echo ""
-echo "🎯 Próximo passo: Executar Workflow 1 (Planning)"
+echo "🎯 Próximo passo: Executar Workflow 1 (Planning + GATE 1 Reframing)"

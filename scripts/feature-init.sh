@@ -1,35 +1,108 @@
 #!/bin/bash
 # scripts/feature-init.sh
-# Inicializar nova feature com state tracking
+# Inicializar nova feature com .context/ files
+# Versão: 4.0.0 - Suporte a Worktrees (backward compatible)
 
 set -euo pipefail
 
+# ============================================================================
+# PARSE ARGUMENTS
+# ============================================================================
+
+WORKTREE_MODE=false
+FEATURE_NAME=""
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --worktree)
+      WORKTREE_MODE=true
+      shift
+      ;;
+    --help|-h)
+      cat << EOF
+USAGE:
+  ./scripts/feature-init.sh <nome-da-feature> [--worktree]
+
+ARGUMENTS:
+  <nome-da-feature>  Nome da feature (ex: payment, auth)
+
+OPTIONS:
+  --worktree         Criar feature como worktree isolado (recomendado para desenvolvimento paralelo)
+
+EXAMPLES:
+  # Branch simples (comportamento tradicional)
+  ./scripts/feature-init.sh payment
+
+  # Worktree isolado (desenvolvimento paralelo)
+  ./scripts/feature-init.sh payment --worktree
+
+NOTES:
+  - Worktrees permitem múltiplas features simultaneamente
+  - Cada worktree tem .context/ e node_modules isolados
+  - Use worktrees para bugfix urgente durante feature
+  - Use worktrees para comparar código lado a lado
+
+EOF
+      exit 0
+      ;;
+    *)
+      FEATURE_NAME=$1
+      shift
+      ;;
+  esac
+done
+
 # Validar argumentos
-if [ $# -lt 1 ]; then
-  echo "❌ Uso: ./scripts/feature-init.sh <nome-da-feature>"
+if [ -z "$FEATURE_NAME" ]; then
+  echo "❌ Uso: ./scripts/feature-init.sh <nome-da-feature> [--worktree]"
   echo "   Exemplo: ./scripts/feature-init.sh payment"
+  echo "   Exemplo: ./scripts/feature-init.sh payment --worktree"
+  echo ""
+  echo "   Use --help para mais informações"
   exit 1
 fi
 
-FEATURE_NAME=$1
+# ============================================================================
+# WORKTREE MODE
+# ============================================================================
+
+if [ "$WORKTREE_MODE" = true ]; then
+  echo ""
+  echo "🔄 Modo Worktree Detectado"
+  echo "   Delegando para worktree-manager.sh..."
+  echo ""
+
+  # Delegar para worktree-manager
+  exec "$(dirname "$0")/worktree-manager.sh" create "$FEATURE_NAME"
+  exit 0
+fi
+
+# ============================================================================
+# TRADITIONAL BRANCH MODE (BACKWARD COMPATIBLE)
+# ============================================================================
+
 FEATURE_PREFIX="feat-${FEATURE_NAME}"
 BRANCH_NAME="feat/${FEATURE_NAME}"
-STATE_FILE=".context/${FEATURE_PREFIX}_orchestrator-state.json"
 
 # Colors sourced from lib/colors.sh (DRY principle)
 source "$(dirname "$0")/lib/colors.sh"
 
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║           Feature Initialization                          ║${NC}"
+echo -e "${BLUE}║           Feature Initialization (Branch Mode)            ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
+# Sugerir worktree se apropriado
+echo -e "${CYAN}💡 Dica:${NC} Use ${YELLOW}--worktree${NC} para desenvolvimento paralelo"
+echo -e "   (múltiplas features simultaneamente, bugfix sem interromper feature)"
+echo ""
+
 # 1. Verificar se feature já existe
-if [ -f "$STATE_FILE" ]; then
+if [ -f ".context/${FEATURE_PREFIX}_workflow-progress.md" ]; then
   echo -e "${YELLOW}⚠️  Feature já existe: $FEATURE_PREFIX${NC}"
-  echo -e "${YELLOW}   State file: $STATE_FILE${NC}"
+  echo -e "${YELLOW}   Arquivos .context/ já criados${NC}"
   echo ""
-  echo -e "${YELLOW}   Deseja continuar? (irá sobrescrever state)${NC}"
+  echo -e "${YELLOW}   Deseja continuar? (irá sobrescrever)${NC}"
   read -p "   (yes/NO): " confirm
   if [ "$confirm" != "yes" ]; then
     echo -e "${RED}❌ Cancelado${NC}"
@@ -38,7 +111,7 @@ if [ -f "$STATE_FILE" ]; then
 fi
 
 # 2. Criar branch Git
-echo -e "${BLUE}📍 Step 1/4: Criando Git branch${NC}"
+echo -e "${BLUE}📍 Step 1/3: Criando Git branch${NC}"
 if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
   echo -e "${YELLOW}   Branch já existe: $BRANCH_NAME${NC}"
   git checkout "$BRANCH_NAME"
@@ -48,94 +121,68 @@ else
 fi
 echo ""
 
-# 3. Criar state file
-echo -e "${BLUE}📍 Step 2/4: Criando orchestrator state${NC}"
+# 3. Criar .context/ files
+echo -e "${BLUE}📍 Step 2/3: Criando .context/ files${NC}"
 
 # Timestamp ISO 8601 (timezone America/Sao_Paulo)
 NOW=$(TZ='America/Sao_Paulo' date -Iseconds)
 
-cat > "$STATE_FILE" <<EOF
-{
-  "feature": "${FEATURE_PREFIX}",
-  "branch": "${BRANCH_NAME}",
-  "status": "active",
-  "current_workflow": "1",
-  "current_phase": "0",
-  "gate": null,
-  "workflows_completed": [],
-  "attempts": {},
-  "started_at": "${NOW}",
-  "updated_at": "${NOW}",
-  "paused_until": null,
-  "notes": [
-    {
-      "timestamp": "${NOW}",
-      "note": "Feature iniciada via feature-init.sh"
-    }
-  ]
-}
-EOF
-
-echo -e "${GREEN}   ✅ State criado: $STATE_FILE${NC}"
-echo ""
-
-# 4. Criar .context/ files (padrão existente)
-echo -e "${BLUE}📍 Step 3/4: Criando .context/ files padrão${NC}"
-
 # workflow-progress.md
-touch ".context/${FEATURE_PREFIX}_workflow-progress.md"
 cat > ".context/${FEATURE_PREFIX}_workflow-progress.md" <<EOF
 # Workflow Progress: $FEATURE_PREFIX
 
 **Iniciado**: $NOW
 **Status**: Active
+**Mode**: Branch (traditional)
 
 ## Workflows Completados
 
 (nenhum ainda)
 
-## Workflow Atual: 1 (Planning)
+## Workflow Atual
 
-**Fase atual**: 0
+Use skill **workflow-navigator** para recomendação.
 
 ---
 
 ## Histórico
-- $NOW: Feature iniciada
+- $NOW: Feature iniciada (branch mode)
 EOF
 
 # temp-memory.md
-touch ".context/${FEATURE_PREFIX}_temp-memory.md"
-echo "# Temp Memory: $FEATURE_PREFIX" > ".context/${FEATURE_PREFIX}_temp-memory.md"
-echo "" >> ".context/${FEATURE_PREFIX}_temp-memory.md"
-echo "(Memória temporária da sessão)" >> ".context/${FEATURE_PREFIX}_temp-memory.md"
+cat > ".context/${FEATURE_PREFIX}_temp-memory.md" <<EOF
+# Temp Memory: $FEATURE_PREFIX
+
+(Memória temporária da sessão)
+EOF
 
 # decisions.md
-touch ".context/${FEATURE_PREFIX}_decisions.md"
-echo "# Decisions: $FEATURE_PREFIX" > ".context/${FEATURE_PREFIX}_decisions.md"
-echo "" >> ".context/${FEATURE_PREFIX}_decisions.md"
-echo "## Decisões Arquiteturais" >> ".context/${FEATURE_PREFIX}_decisions.md"
-echo "(nenhuma ainda)" >> ".context/${FEATURE_PREFIX}_decisions.md"
+cat > ".context/${FEATURE_PREFIX}_decisions.md" <<EOF
+# Decisions: $FEATURE_PREFIX
+
+## Decisões Arquiteturais
+(nenhuma ainda)
+EOF
 
 # attempts.log
-touch ".context/${FEATURE_PREFIX}_attempts.log"
-echo "[$NOW] Feature iniciada via feature-init.sh" > ".context/${FEATURE_PREFIX}_attempts.log"
+echo "[$NOW] Feature iniciada via feature-init.sh v4.0.0 (branch mode)" > ".context/${FEATURE_PREFIX}_attempts.log"
 
 # validation-loop.md
-touch ".context/${FEATURE_PREFIX}_validation-loop.md"
-echo "# Validation Loop: $FEATURE_PREFIX" > ".context/${FEATURE_PREFIX}_validation-loop.md"
-echo "" >> ".context/${FEATURE_PREFIX}_validation-loop.md"
-echo "(Ciclos de validação)" >> ".context/${FEATURE_PREFIX}_validation-loop.md"
+cat > ".context/${FEATURE_PREFIX}_validation-loop.md" <<EOF
+# Validation Loop: $FEATURE_PREFIX
 
-echo -e "${GREEN}   ✅ .context/ files criados (6 arquivos)${NC}"
+(Ciclos de validação)
+EOF
+
+echo -e "${GREEN}   ✅ .context/ files criados (5 arquivos)${NC}"
 echo ""
 
-# 5. Resumo
-echo -e "${BLUE}📍 Step 4/4: Resumo${NC}"
+# 4. Resumo
+echo -e "${BLUE}📍 Step 3/3: Resumo${NC}"
 echo -e "${GREEN}✅ Feature inicializada com sucesso!${NC}"
 echo ""
+
 echo -e "${BLUE}📦 Arquivos criados:${NC}"
-echo -e "   - $STATE_FILE"
 echo -e "   - .context/${FEATURE_PREFIX}_workflow-progress.md"
 echo -e "   - .context/${FEATURE_PREFIX}_temp-memory.md"
 echo -e "   - .context/${FEATURE_PREFIX}_decisions.md"
@@ -144,12 +191,15 @@ echo -e "   - .context/${FEATURE_PREFIX}_validation-loop.md"
 echo ""
 
 echo -e "${CYAN}💡 Próximos passos:${NC}"
-echo -e "   1. Ver dashboard: ${YELLOW}./scripts/feature-dashboard.sh${NC}"
-echo -e "   2. Começar Workflow 1: Pedir IA executar reframing"
-echo -e "   3. Atualizar state: ${YELLOW}./scripts/feature-update-state.sh $FEATURE_NAME <workflow> <phase>${NC}"
+echo -e "   1. Use skill ${YELLOW}workflow-navigator${NC} para saber qual workflow começar"
+echo -e "   2. Use skill ${YELLOW}party-mode${NC} para decisões arquiteturais complexas"
 echo ""
 
 echo -e "${BLUE}🎯 Feature: $FEATURE_PREFIX${NC}"
 echo -e "${BLUE}📍 Branch: $BRANCH_NAME${NC}"
-echo -e "${BLUE}📊 Status: active (Workflow 1 Fase 0)${NC}"
+echo -e "${BLUE}📍 Mode: Branch (traditional)${NC}"
+echo ""
+
+echo -e "${CYAN}💡 Quer desenvolvimento paralelo?${NC}"
+echo -e "   Use: ${YELLOW}./scripts/worktree-manager.sh create $FEATURE_NAME${NC}"
 echo ""

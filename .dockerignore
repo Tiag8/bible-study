@@ -1,64 +1,25 @@
-# =============================================================================
-# .dockerignore - Generic Template with Educational Comments
-# =============================================================================
-# Purpose: Prevents unnecessary files from being copied to Docker build context
-# Benefits:
-#   - Faster builds (less data to copy)
-#   - Smaller images (fewer files copied)
-#   - Better security (prevents secret leakage)
-#   - Improved cache (changes to ignored files don't invalidate cache)
-#
-# How it works: Similar to .gitignore, but for Docker build context
-# =============================================================================
-
-# =============================================================================
-# Dependencies (will be installed inside container)
-# =============================================================================
-# Reason: npm install will run inside container, no need to copy these
+# Dependencies
 node_modules/
 *.pnp
 *.pnp.js
-bower_components/
-vendor/
 
-# =============================================================================
-# Production Build Output (will be generated inside container)
-# =============================================================================
-# Reason: Multi-stage build generates these, copying would waste space
+# Production build
 dist/
 build/
-out/
-.next/
-.nuxt/
 
-# =============================================================================
-# Version Control
-# =============================================================================
-# Reason: Git history not needed in runtime, wastes space
+# Version control
 .git/
 .gitignore
 .gitattributes
-.gitmodules
 
-# =============================================================================
-# Environment Variables (SECURITY CRITICAL!)
-# =============================================================================
-# Reason: NEVER copy secrets to Docker image!
-# These should be passed as environment variables at runtime
+# Environment variables (secrets)
 .env
 .env.local
-.env.development
 .env.development.local
-.env.test
 .env.test.local
-.env.production
 .env.production.local
-.env.*
 
-# =============================================================================
-# IDE and Editor Files
-# =============================================================================
-# Reason: Editor configs not needed in container
+# IDE and editor
 .vscode/
 .idea/
 *.swp
@@ -70,185 +31,62 @@ out/
 *.launch
 .settings/
 *.sublime-workspace
-*.sublime-project
 
-# =============================================================================
-# Documentation (not needed in runtime)
-# =============================================================================
-# Reason: Reduces image size, docs are for developers not production
+# Documentation (not needed in Docker image)
 README.md
 docs/
 *.md
-!README.production.md  # Exception: keep if you have production-specific docs
 CHANGELOG.md
-LICENSE
-CONTRIBUTING.md
-CODE_OF_CONDUCT.md
 
-# =============================================================================
 # Logs
-# =============================================================================
-# Reason: Local logs not relevant in container
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
-logs/
 
-# =============================================================================
-# Operating System Files
-# =============================================================================
-# Reason: OS-specific files cause issues in Linux containers
-.DS_Store       # macOS
+# OS files
+.DS_Store
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
-ehthumbs.db     # Windows
+ehthumbs.db
 Thumbs.db
-desktop.ini
 
-# =============================================================================
 # Testing
-# =============================================================================
-# Reason: Tests run in CI/CD, not needed in production image
 coverage/
 .nyc_output/
 *.lcov
-test/
-tests/
-__tests__/
-*.test.js
-*.test.ts
-*.test.jsx
-*.test.tsx
-*.spec.js
-*.spec.ts
-*.spec.jsx
-*.spec.tsx
-jest.config.js
-vitest.config.ts
-cypress/
-cypress.json
-playwright.config.ts
 
-# =============================================================================
-# Cache Files
-# =============================================================================
-# Reason: Caches are machine-specific, useless in container
+# Cache
 .cache/
 .eslintcache
 .node_repl_history
 .parcel-cache
 .pytest_cache
-.tsbuildinfo
-.vite/
-.turbo/
 
-# =============================================================================
-# Temporary Files
-# =============================================================================
-# Reason: Temp files can cause unpredictable builds
+# Temporary files
 *.tmp
 *.bak
-*.temp
-.tmp/
-temp/
+.turbo/
 
-# =============================================================================
-# Package Manager Lock Files (optional - depends on strategy)
-# =============================================================================
-# Reason: Some teams prefer to always use latest compatible versions
-# WARNING: Commenting these out ensures reproducible builds!
-# Only ignore if you understand the implications
+# Optional npm files
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# =============================================================================
-# Docker Files (not needed inside image)
-# =============================================================================
-# Reason: Dockerfile is for building, not runtime
-Dockerfile*
-docker-compose*.yml
+# Docker files (not needed in image)
+Dockerfile
+docker-compose.yml
+docker-compose.*.yml
 .dockerignore
 
-# =============================================================================
-# GitHub and CI/CD
-# =============================================================================
-# Reason: GitHub workflows not needed in production
+# GitHub
 .github/
 .gitpod.yml
-.gitlab-ci.yml
-.travis.yml
-Jenkinsfile
-azure-pipelines.yml
-.circleci/
 
-# =============================================================================
-# Development Configuration
-# =============================================================================
-# Reason: Dev configs not needed in production build
+# Development
 .env.example
 .editorconfig
-.prettierrc
-.prettierrc.json
-.prettierignore
-.eslintrc*
-.eslintignore
-tsconfig.json
-tsconfig.*.json
-vite.config.ts
-vite.config.js
-webpack.config.js
-rollup.config.js
-
-# =============================================================================
-# Scripts (usually not needed in runtime)
-# =============================================================================
-# Reason: Deployment scripts run outside container
-scripts/
-!scripts/start.sh  # Exception: keep if used in production
-
-# =============================================================================
-# Backup Files (SECURITY!)
-# =============================================================================
-# Reason: Backups may contain sensitive data
-*.backup
-*.dump
-*.sql
-backups/
-*.bak
-
-# =============================================================================
-# Project-Specific (CUSTOMIZE THIS SECTION!)
-# =============================================================================
-# Add your project-specific ignores here
-# Examples:
-# data/           # If you have local data files
-# uploads/        # User uploads (should be volume-mounted)
-# static/         # If static files are built separately
-
-# =============================================================================
-# Tips for Maintaining .dockerignore
-# =============================================================================
-# 1. Test build context size:
-#    docker build --no-cache -t test . 2>&1 | grep "Sending build context"
-#
-# 2. List what's being copied:
-#    Create a simple Dockerfile:
-#      FROM alpine
-#      COPY . /tmp/
-#      RUN ls -lah /tmp/
-#    Then: docker build --no-cache .
-#
-# 3. Use negation (!) to include specific files:
-#    docs/*
-#    !docs/production-guide.md
-#
-# 4. Keep this file in sync with .gitignore (but they're different!)
-#    .gitignore: What not to commit
-#    .dockerignore: What not to copy to build context
-# =============================================================================
