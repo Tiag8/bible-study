@@ -246,6 +246,69 @@ echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] VALIDATION: Workflows 1
 
 ---
 
+### 17.13 Rules Verification 📋 GATE-BASED
+
+**CRÍTICO**: APÓS extrair learnings sistêmicos, verificar se `~/.claude/rules/` precisa de atualização.
+
+**Quando Executar**: SEMPRE após Fase 16 (quando learning sistêmico identificado).
+
+**5 Perguntas de Validação**:
+1. Learning afeta REGRAS de comportamento IA? → SIM? Continuar
+2. É pattern recorrente (2+ features/projetos)? → SIM? Continuar
+3. Regra existente precisa atualização? → Verificar arquivos
+4. Falta regra para este pattern? → Candidato novo arquivo
+5. Regra existente pode ser otimizada/consolidada? → Candidato otimização
+
+**SE NENHUMA POSITIVA**:
+- ✅ Rules NÃO precisam atualização
+- 📝 Log: "SKIP rules (não aplicável)"
+
+**SE 1+ POSITIVA**:
+- 🔴 Verificação OBRIGATÓRIA dos 9 arquivos rules
+
+**Arquivos `~/.claude/rules/`** (verificar TODOS):
+```
+01-agent-execution.md    - Uso de agentes
+02-source-of-truth.md    - Validação schemas DB
+03-git-workflow.md       - Commits, push, branches
+04-security.md           - RLS, LGPD, secrets
+05-anti-patterns.md      - Over-engineering, any
+06-testing.md            - Testes, validações
+07-typescript.md         - Types, any, deprecated
+08-documentation.md      - Docs, ADRs, INDEX
+09-performance.md        - Cache, lazy loading
+```
+
+**Ações Permitidas** (APÓS aprovação usuário):
+1. **EDITAR**: Atualizar regra existente com novo pattern/checklist
+2. **OTIMIZAR**: Consolidar regras similares, remover redundâncias
+3. **CRIAR**: Novo arquivo de regra SE pattern não coberto
+
+**Template Proposta**:
+```
+📋 PROPOSTA ATUALIZAÇÃO RULES:
+
+**Tipo**: [EDITAR/OTIMIZAR/CRIAR]
+**Arquivo**: ~/.claude/rules/[arquivo].md
+**Seção**: [Nova/Existente]
+
+**Mudança proposta**:
+---
+[Conteúdo a adicionar/modificar]
+---
+
+**Justificativa**: [Por quê esta regra é necessária]
+**Evidência**: [FASE 1.5 User Dashboard, ADR-X, etc.]
+
+⏸️ APROVAR? (yes/no/edit)
+```
+
+**Por quê**: Rules são ENFORCEMENT (diferente de memory que é REFERENCE). Learnings que impactam comportamento consistente da IA DEVEM virar rules.
+
+**Evidência**: FASE 1.5 User Dashboard - identificou schema-first validation (REGRA #31) e @deprecated markers (REGRA #35).
+
+---
+
 ## ✅ Checkpoint: Meta-Aprendizado Parte 1 Completo
 
 **Aprendizados capturados e documentados!**
@@ -254,6 +317,7 @@ echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] VALIDATION: Workflows 1
 - [ ] INDEX.md atualizado (novos arquivos, stats, versão)
 - [ ] CLAUDE.md atualizado (padrões, changelog, meta-learnings)
 - [ ] Workflows melhorados (gates, checklists, avisos)
+- [ ] Rules verificadas e atualizadas (se aplicável)
 
 **Próximo**: PLAN.md + Análise Pareto 80/20 (Workflow 8b)
 
