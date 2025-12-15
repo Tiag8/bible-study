@@ -3,331 +3,274 @@ description: Workflow Add-Feature (2a/11) - Solution Design (Research & Decision
 auto_execution_mode: 1
 ---
 
-## 📚 Pré-requisito: Consultar Documentação Base
+# Workflow 2a/11: Solution Design - Research & Decision
 
-Antes de iniciar, SEMPRE ler:
-- `docs/PLAN.md`, `docs/TASK.md`, `README.md`, `AGENTS.md`
-- `.windsurf/workflows`, `docs/`, `scripts/`
+**Objetivo**: Propor 3 soluções diferentes (A, B, C), comparar prós/contras/trade-offs, e obter decisão fundamentada do usuário.
 
 ---
 
-## 🧠 FASE 0: LOAD CONTEXT (Script Unificado)
+## 1️⃣ O QUE FAZER (5W1H Framework)
 
-**⚠️ USAR SCRIPT** (não Read manual):
+### WHO (Quem está envolvido?)
+- **Developer/AI**: Propor 3 soluções viáveis
+- **User**: Escolher solução baseada em trade-offs
+- **Reviewer**: Validar decisão contra anti-patterns
+
+### WHAT (O que deve ser feito?)
+- **Core**: Propor 3 abordagens diferentes (Simples, Balanceada, Otimizada)
+- **Comparison**: Matriz de decisão (prós/contras/trade-offs)
+- **Validation**: GATE 1.5 (Anti-Duplicação), GATE 1.6 (Code Reuse), Advogado do Diabo
+
+### WHERE (Onde acontece?)
+- **Research**: MCPs (context7, firecrawl), npm, shadcn/ui, GitHub
+- **Documentation**: `.context/{branch}_decisions.md`
+- **Next**: Workflow 2b (Technical Design)
+
+### WHEN (Quando executar?)
+1. **ANTES**: Workflow 1 (Reframing) completo, GATE 1 aprovado
+2. **DURANTE**: Pesquisa paralela, matriz de decisão, validações
+3. **DEPOIS**: Usuário escolhe solução → atualizar .context/
+
+### WHY (Por quê importa?)
+- **Quality**: 3 soluções → evita aceitar primeira ideia
+- **Tradeoffs**: Usuário decide com visibilidade (simplicidade vs otimização)
+- **Anti-Over-Engineering**: Validações previnem duplicação/over-complexity
+
+### HOW (Como executar?)
+- **Pattern**: Research → Propose 3 → Compare → Validate → User Decision
+- **Agents**: MÁXIMO paralelo (pesquisa, arquitetura, performance, risco)
+- **Checkpoints**: REGRA #14 - Uma ação atômica → aprovação
+
+---
+
+## 2️⃣ PRINCÍPIOS DE SOLUTION DESIGN
+
+### P1: Three-Solution Rule (COMO propor?)
+**Princípio**: SEMPRE propor 3 soluções diferentes (Simples, Balanceada, Otimizada)
+
+**Guidelines**:
+- **Solução A (Simples)**: Abordagem direta, tempo mínimo, baixo risco
+- **Solução B (Balanceada)**: Equilíbrio simplicidade/performance, escalável
+- **Solução C (Otimizada)**: Performance máxima, alto volume, complexa
+
+**Red Flags**:
+- ❌ Propor apenas 1 solução (não validou alternativas)
+- ❌ Soluções muito similares (não explorou espaço de design)
+
+---
+
+### P2: Anti-Duplicação (O QUE validar?)
+**Princípio**: NUNCA implementar funcionalidade que já existe nativa/lib
+
+**Guidelines**:
+1. **Gemini nativo?** (parsing, tool calling, extração)
+2. **React/Supabase built-in?** (cache, validation, auth, RLS)
+3. **Lib instalada cobre?** (package.json + node_modules)
+4. **Evidência de gap real?** (screenshot/log de falha)
+
+**Red Flags**:
+- ❌ Parser custom → Gemini JÁ extrai via function calling
+- ❌ Cache custom → React Query JÁ tem staleTime/cacheTime
+- ❌ Auth middleware → Supabase Auth + RLS JÁ protege
+
+**GATE 1.5 Bloqueio**: SE funcionalidade existe nativa → ⛔ PARAR, usar nativa
+
+---
+
+### P3: Code Reuse First (ONDE buscar?)
+**Princípio**: Buscar solução existente ANTES de implementar do zero
+
+**Ordem OBRIGATÓRIA**:
+1. **Lib instalada cobre?** (package.json)
+2. **NPM tem lib madura?** (>1k downloads/week, <6 meses, TypeScript)
+3. **Shadcn/ui componente?** (ui.shadcn.com)
+4. **GitHub reference?** (MIT/Apache, >100★, <6m, TS)
+
+**Matriz Decisão**:
+- Lib instalada + funciona → ✅ Usar lib, SKIP implementação
+- Lib npm madura → ⚠️ Instalar, avaliar bundle size
+- Shadcn existe → ✅ Usar shadcn
+- GitHub MIT + TS + Recent → ⚠️ Copiar + adaptar + documentar
+- Nada encontrado → ✅ Implementar próprio
+
+**GATE 1.6 Bloqueio**: SE lib cobre → ⛔ PARAR, não reinventar roda
+
+---
+
+### P4: Trade-Off Transparency (COMO comparar?)
+**Princípio**: Usuário decide baseado em trade-offs claros, não preferências IA
+
+**Matriz Decisão** (obrigatória):
+| Critério | A (Simples) | B (Balanceada) | C (Otimizada) |
+|----------|-------------|----------------|---------------|
+| Simplicidade | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
+| Performance | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| Manutenibilidade | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
+| Escalabilidade | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| Time to Market | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
+
+**Guidelines**:
+- **Solução A**: Quando prioridade = velocidade, MVP, baixo volume
+- **Solução B**: Quando quer evitar refatoração futura, volume médio-alto
+- **Solução C**: Quando performance crítica, volume muito alto
+
+**Red Flags**:
+- ❌ Recomendação sem justificativa (qual contexto/prioridade?)
+- ❌ Trade-offs vagos ("mais rápido", "melhor")
+
+---
+
+### P5: Devil's Advocate (QUANDO questionar?)
+**Princípio**: SEMPRE validar suposições com perguntas críticas ANTES aprovar
+
+**10 Perguntas OBRIGATÓRIAS**:
+1. **E se oposto for verdade?** (desafiar premissa)
+2. **O que NÃO estamos vendo?** (blind spots)
+3. **Fontes atualizadas?** (< 1 semana ✅, > 1 mês ❌)
+4. **Executamos Reframing?** (problema CERTO?)
+5. **Custo de oportunidade?** (o que NÃO faremos?)
+6. **O que pode dar errado?** (top 3 riscos)
+7. **Complexidade justificada?** (evidência vs "best practice")
+8. **MVP validou?** (10% código testa suposição?)
+9. **Abstração necessária?** (< 3 camadas)
+10. **YAGNI?** (resolve problema REAL vs futuro hipotético)
+
+**Resultado**: ✅ APROVADO | ⚠️ AJUSTAR | ❌ REJEITAR
+
+**Red Flags**:
+- ❌ Solução "C" sem evidência de necessidade (over-engineering)
+- ❌ Abstrações prematuras (antes de 3 usos - Rule of Three)
+
+---
+
+## 3️⃣ EXEMPLOS CANÔNICOS (Pattern Reference)
+
+### Example 1: Habit Tracking Feature (Simple → Balanceada)
+```markdown
+**Solução A (Simples)**:
+- useState local
+- API call direto
+- Zero cache
+- Time: 2h
+
+**Solução B (Balanceada)**: ✅ ESCOLHIDA
+- React Query (staleTime 5min)
+- Optimistic updates
+- RLS policies
+- Time: 4h
+- Trade-off: +2h → evita refatoração (cache futuro)
+
+**Solução C (Otimizada)**:
+- IndexedDB offline-first
+- Sync service worker
+- Time: 8h
+- ❌ REJEITADA: Volume não justifica (50 habits/user)
+```
+
+---
+
+### Example 2: Payment Integration (Code Reuse)
+```markdown
+**GATE 1.6 - Code Reuse Research**:
+1. Lib instalada? → ❌ Não tem Stripe SDK
+2. NPM madura? → ✅ @stripe/stripe-js (5M/week, <6m, TS)
+3. Shadcn? → N/A (não é UI)
+4. GitHub? → N/A (lib oficial cobre)
+
+**Decisão**: ✅ Instalar @stripe/stripe-js (não implementar do zero)
+
+**Solução A (Simples)**:
+- Stripe SDK
+- Webhook simples
+- Zero retry
+- Time: 3h
+
+**Solução B (Balanceada)**: ✅ ESCOLHIDA
+- Stripe SDK + webhook
+- Exponential backoff
+- Idempotency keys
+- Time: 5h
+- Trade-off: +2h → previne duplicação pagamentos
+
+**Solução C (Otimizada)**:
+- Stripe + custom processor
+- ❌ REJEITADA: GATE 1.5 (Stripe JÁ cobre 100%)
+```
+
+---
+
+### Example 3: NLP Parsing (Anti-Duplicação)
+```markdown
+**GATE 1.5 - Anti-Duplicação**:
+- [ ] Gemini nativo? → ✅ SIM (tool calling + structured output)
+- [ ] React/Supabase built-in? → N/A
+- [ ] Lib instalada? → N/A
+- [ ] Evidência gap? → ❌ NÃO testei Gemini nativo
+
+**Resultado**: ⛔ BLOQUEIO - Testar Gemini nativo ANTES custom parser
+
+**Teste Gemini**:
+```typescript
+// Gemini function declaration
+{ name: "save_habit", description: "Parse texto → hábito", parameters: {...} }
+// Result: 98.9% precisão (9/9 casos)
+```
+
+**Decisão**: ✅ Usar Gemini nativo, SKIP custom parser
+
+**Learning**: habit-field-parser.ts (680 linhas) DELETADO - over-engineering (commit e380c00)
+```
+
+---
+
+## 4️⃣ VALIDATION GATES
+
+### GATE 0: Load Context
+**Quando**: SEMPRE (início workflow)
 
 ```bash
 ./scripts/context-load-all.sh feat-nome-feature
 ```
 
-**Output**: Resumo 6 arquivos .context/ (INDEX, workflow-progress, temp-memory, decisions, attempts.log, validation-loop).
+---
 
-**SE script falhar**: Fallback manual (Read 6 arquivos).
+### GATE 1.5: Anti-Duplicação
+**Quando**: ANTES propor soluções
 
-**Benefício**: Consolidated context loading vs manual Fase 0 (redução tempo).
+**Checklist**:
+- [ ] Funcionalidade nativa existente? (Gemini/React/Supabase/Lib)
+- [ ] Evidências de gap real? (screenshot/log falha)
+- [ ] Gap sistêmico (3+ casos) ou pontual?
+- [ ] Alternativa mais simples? (prompt/config/doc vs código)
+
+**SE FALHOU**: ⛔ PARAR → Usar nativo → SKIP implementação
 
 ---
 
-## 🤖 CRÍTICO: Uso Máximo de Agentes (Claude Code)
+### GATE 1.6: Code Reuse Research
+**Quando**: ANTES propor soluções
 
-> **🚨 REGRA ABSOLUTA 🚨**
->
-> **SEMPRE** usar o **MÁXIMO de agentes possível** em paralelo para analisar as 3 soluções propostas.
->
-> - Exploração arquitetura (agent 1), dependências (agent 2), performance (agent 3), código similar (agent 4), risco (agent 5)
-> - 3 soluções = 3-5 agentes paralelos = 4-5x mais rápido
-
----
-
-# Workflow 2a/11: Solution Design - Research & Decision
-
-**O que acontece**:
-- Fase 1: Propor 3 Soluções Diferentes (A, B, C)
-- Fase 2: Comparação Prós/Contras/Trade-offs
-- Recomendação fundamentada
-- **GATE 1**: Usuário escolhe solução
-
-**Por que 3 soluções?**
-- ✅ Força IA a pensar profundamente (não aceitar primeira ideia)
-- ✅ Usuário tem opções (poder de decisão)
-- ✅ Considera trade-offs (simplicidade vs. otimização)
-
----
-
-## 📐 Fase 1: Propor 3 Soluções Diferentes
-
-> **💡 MCPs Úteis**: `firecrawl-mcp` (pesquisa mercado), `context7` (docs libs), `gemini-cli brainstorm` (ideação)
-> Ver: `docs/integrations/MCP.md`
-
-### 🅰️ Solução A: Conservadora/Simples
-
-**Abordagem**: [Descrever abordagem mais simples e direta]
-
-**Arquitetura**:
-- **Componentes**: [listar]
-- **Hooks**: [listar]
-- **Database**: [mudanças necessárias]
-- **Queries**: [estratégia]
-
-**Exemplo de código**:
-```typescript
-// Exemplo ilustrativo da solução A
-```
-
-**Tempo estimado**: [X horas]
-
----
-
-### 🅱️ Solução B: Moderada/Balanceada
-
-**Abordagem**: [Descrever abordagem intermediária, balanceando simplicidade e otimização]
-
-**Arquitetura**:
-- **Componentes**: [listar]
-- **Hooks**: [listar]
-- **Database**: [mudanças necessárias]
-- **Queries**: [estratégia]
-
-**Exemplo de código**:
-```typescript
-// Exemplo ilustrativo da solução B
-```
-
-**Tempo estimado**: [X horas]
-
----
-
-### 🅲 Solução C: Avançada/Otimizada
-
-**Abordagem**: [Descrever abordagem mais sofisticada, com otimizações]
-
-**Arquitetura**:
-- **Componentes**: [listar]
-- **Hooks**: [listar]
-- **Database**: [mudanças necessárias]
-- **Queries**: [estratégia]
-
-**Exemplo de código**:
-```typescript
-// Exemplo ilustrativo da solução C
-```
-
-**Tempo estimado**: [X horas]
-
----
-
-## ⚖️ Fase 2: Comparação - Prós, Contras e Trade-offs
-
-### Matriz de Decisão
-
-| Critério | A (Simples) | B (Balanceada) | C (Otimizada) |
-|----------|-------------|----------------|---------------|
-| **Simplicidade** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
-| **Performance** | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Manutenibilidade** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
-| **Escalabilidade** | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Time to Market** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
-| **Risco** | Baixo | Médio | Alto |
-| **Tempo** | [X]h | [Y]h | [Z]h |
-
-### Prós e Contras
-
-#### Solução A (Simples)
-**Prós**: ✅ Rápida, fácil manter, baixo risco, menor complexidade
-**Contras**: ❌ Performance não ideal, pode precisar refatorar depois
-**Quando**: Prioridade é velocidade, feature experimental/MVP, baixo volume
-
----
-
-#### Solução B (Balanceada)
-**Prós**: ✅ Equilíbrio simplicidade/performance, escalável, risco controlado
-**Contras**: ❌ Mais complexo que A, pode ser over-engineering se volume baixo
-**Quando**: Projeto maduro, quer evitar refatoração futura, volume médio-alto
-
----
-
-#### Solução C (Otimizada)
-**Prós**: ✅ Performance máxima, escalável alto volume, preparado para crescimento
-**Contras**: ❌ Maior complexidade, mais difícil manter, maior tempo, risco bugs
-**Quando**: Performance crítica, volume muito alto, orçamento/tempo para investir
-
----
-
-## 🔍 GATE 1.6: Code Reuse Research (ANTES de propor soluções)
-
-**CRÍTICO**: Pesquisar implementações existentes ANTES de criar código do zero.
-
-### Ordem de Busca (OBRIGATÓRIA)
-
-**1. Lib instalada cobre?** (package.json + node_modules)
-```bash
-# Verificar libs instaladas
-cat package.json | grep -A 100 '"dependencies"' | head -50
-# Buscar funcionalidade em node_modules
-grep -r "funcionalidade" node_modules/*/README.md 2>/dev/null | head -5
-```
+**Checklist**:
 - [ ] Verificado package.json?
-- [ ] Lib instalada resolve? → SE SIM: Usar lib, documentar uso
+- [ ] Pesquisado NPM? (termos: [___])
+- [ ] Verificado shadcn/ui?
+- [ ] Pesquisado GitHub? (MIT/Apache, >100★, <6m, TS)
 
-**2. NPM tem lib madura?** (npmjs.com)
-```bash
-# Pesquisar via MCP firecrawl ou web
-# Critérios: >1000 downloads/week, maintained (<6 meses), TypeScript support
-```
-- [ ] Pesquisado npm? Termos: [listar]
-- [ ] Encontrou lib? Nome: [___] Downloads: [___] Última release: [___]
-- [ ] Critérios atingidos? → SE SIM: Avaliar instalação
+**SE ENCONTROU**: ⛔ PARAR → Usar lib → SKIP implementação
 
-**3. Shadcn/ui ou componente pronto?** (ui.shadcn.com)
-```bash
-# Verificar componentes shadcn disponíveis
-npx shadcn-ui@latest add --help 2>/dev/null | grep -A 100 "Available components"
-```
-- [ ] Feature é UI? → SE SIM: Verificar shadcn primeiro
-- [ ] Componente existe? → SE SIM: Usar `npx shadcn-ui add [componente]`
-
-**4. GitHub reference implementation?** (última opção)
-```bash
-# Pesquisar via MCP firecrawl
-# Critérios: MIT/Apache license, >100 stars, commits <6 meses, TypeScript
-```
-- [ ] Pesquisado GitHub? Query: [___]
-- [ ] Encontrou repo? URL: [___] Stars: [___] License: [___]
-- [ ] Critérios atingidos? (MIT/Apache, >100★, <6m, TS)
-- [ ] Código copiável ou apenas referência?
-
-### Matriz de Decisão Code Reuse
-
-| Encontrou | Qualidade | Ação |
-|-----------|-----------|------|
-| Lib instalada | Funciona | ✅ Usar lib, SKIP implementação |
-| Lib npm nova | Madura (>1k/week) | ⚠️ Instalar, avaliar bundle size |
-| Lib npm nova | Imatura | ❌ Não instalar, implementar próprio |
-| Shadcn component | Existe | ✅ Usar shadcn |
-| GitHub code | MIT + TS + Recent | ⚠️ Copiar + adaptar + documentar origem |
-| GitHub code | GPL ou Stale | ❌ Apenas referência, não copiar |
-| Nada encontrado | - | ✅ Prosseguir implementação própria |
-
-### Documentação Obrigatória
-
-**SE usou lib/código externo**:
+**Documentar**:
 ```markdown
 ### Code Reuse Decision
 - **Fonte**: [npm/shadcn/github URL]
-- **License**: [MIT/Apache/etc]
-- **Motivo**: [Por que escolheu esta fonte]
-- **Adaptações**: [O que precisou mudar]
-```
-
-**SE não encontrou nada útil**:
-```markdown
-### Code Reuse Research
-- **Termos pesquisados**: [listar]
-- **Resultado**: Nenhuma solução pronta atende aos critérios
-- **Motivo**: [Por que implementar do zero]
+- **License**: [MIT/Apache]
+- **Motivo**: [Por que escolheu]
+- **Adaptações**: [O que mudou]
 ```
 
 ---
 
-## 🚨 GATE 1.5: Necessity Validation (Anti-Duplicação)
-
-**CRÍTICO**: Validar se solução NÃO duplica funcionalidade existente.
-
-### Checklist Anti-Duplicação (OBRIGATÓRIO)
-
-**1. Funcionalidade Nativa Existente?**
-- [ ] **Gemini AI** JÁ faz isso nativamente? (parsing, extração, análise, tool calling)
-  - Verificar: function declarations, prompts atuais
-  - Se SIM → ⛔ BLOQUEAR, usar Gemini nativo
-- [ ] **React/Supabase** JÁ tem built-in? (cache, validation, auth, RLS)
-  - Verificar: docs oficiais + código atual
-  - Se SIM → ⛔ BLOQUEAR, usar built-in
-- [ ] **Biblioteca instalada** JÁ cobre? (verificar package.json + node_modules)
-  - Verificar: grep -r "funcionalidade" node_modules/
-  - Se SIM → ⛔ BLOQUEAR, documentar uso lib
-
-**2. Evidências de Gap Real**
-- [ ] **Testei solução atual** e FALHOU em caso real? (não hipotético)
-  - Evidência: [screenshot/log/código testado]
-  - Se NÃO testei → ⛔ PAUSAR, testar primeiro
-- [ ] **Tenho log/screenshot** provando inadequação?
-  - Anexar: [link ou caminho arquivo]
-  - Se NÃO tenho → ⛔ PAUSAR, criar evidência
-- [ ] Gap é **SISTÊMICO** (afeta 3+ casos) ou pontual (1 edge case)?
-  - Se pontual → ⚠️ Considerar workaround ao invés de feature
-  - Se sistêmico → ✅ Prosseguir
-
-**3. Alternativas Mais Simples**
-- [ ] **Ajustar prompt/config** resolve? (vs criar código novo)
-  - Exemplo: Melhorar system prompt Gemini, adicionar few-shot examples
-  - Se SIM → ⛔ BLOQUEAR, usar alternativa
-- [ ] **Parâmetro/flag** resolve? (vs criar abstração)
-  - Exemplo: staleTime no React Query, enable flag no Supabase
-  - Se SIM → ⛔ BLOQUEAR, usar parâmetro
-- [ ] **Documentar uso existente** resolve? (vs reimplementar)
-  - Exemplo: README de como usar feature X corretamente
-  - Se SIM → ⛔ BLOQUEAR, criar doc
-
-### Red Flags - Bloqueio Imediato
-
-**❌ Se QUALQUER item abaixo for verdade, REJEITAR solução**:
-- Parser/Extractor → Gemini JÁ faz via tool calling
-- Cache custom → React Query JÁ tem staleTime/cacheTime
-- Validation layer → Zod/TypeScript JÁ valida
-- Auth middleware → Supabase Auth + RLS JÁ protege
-- Wrapper/Adapter → Biblioteca já tem API direta
-
-### Exemplos Bloqueados (Over-Engineering Detectados)
-
-1. ❌ **`habit-field-parser.ts`**
-   - Prometia: Parsing texto → estruturado
-   - Realidade: Gemini JÁ extrai via function calling
-   - ROI: Negativo (680 linhas sem benefício)
-   - Ação: DELETADO (commit e380c00)
-
-2. ❌ **Sentry MCP**
-   - Prometia: Debug automático via MCP
-   - Realidade: Curl + API Sentry faz o mesmo
-   - ROI: Negativo (overhead config/manutenção)
-   - Ação: REMOVIDO (ADR-010)
-
-3. ❌ **Custom Auth**
-   - Prometia: Login avançado
-   - Realidade: Supabase Auth JÁ cobre 100%
-   - ROI: Negativo (reinventar roda)
-   - Ação: BLOQUEADO antes de implementar
-
-### Regra de Ouro
-
-> **"Se solução pode ser substituída por prompt melhor, config ou doc, é over-engineering."**
-
-### Ação se Gate 1.5 FALHAR
-
-- ⛔ **PAUSAR** Workflow 2a
-- 🔙 **VOLTAR** para Workflow 1 (Reframing)
-- 🔍 **PESQUISAR** alternativa nativa/existente
-- ✅ **VALIDAR** com usuário antes de prosseguir
-
----
-
-## 💡 Recomendação
-
-Baseado no contexto, **recomendo a Solução [A/B/C]**.
-
-**Justificativa**:
-[Explicar considerando: contexto Life Tracker, prioridade feature, recursos disponíveis, volume dados, crescimento futuro, risco aceitável]
-
-**Evolução futura**:
-- A → B quando [condição]
-- B já preparado para [cenário]
-- C garante [benefício]
-
----
-
-## ✋ GATE 1: Escolha da Solução
-
-**⚠️ PARADA OBRIGATÓRIA - Decisão do Usuário**
-
-**Qual solução implementar?**
+### GATE 1: User Decision
+**Quando**: APÓS comparação de soluções
 
 **Opções**:
 1. **A** (Simples/Rápida)
@@ -336,301 +279,27 @@ Baseado no contexto, **recomendo a Solução [A/B/C]**.
 4. **Combinar** (mix) - explique
 5. **Ajustar** - explique o quê
 
-**Por que importa?**
-- ✅ Controle sobre trade-offs (velocidade vs. qualidade)
-- ✅ Sistema aprende suas preferências
-- ✅ Evita aceitar cegamente primeira proposta
-- ✅ Garante alinhamento estratégico
-
 **Aguardando decisão...** 🚦
 
 ---
 
-## ✅ Checkpoint: Solução Escolhida!
+### Devil's Advocate Validation
+**Quando**: APÓS escolha, ANTES aprovar
 
-**Solução selecionada**: [A / B / C / Customizada]
-
----
-
-## 👿 Advogado do Diabo: Validação Crítica (OBRIGATÓRIO)
-
-**ANTES de prosseguir**, responder:
-
-### Validação de Suposições
-- [ ] **E se o oposto for verdade?** (desafiar premissa)
-  - Ex: E se usuários NÃO querem esta feature?
-  - Resposta: [análise]
-
-- [ ] **O que NÃO estamos vendo?** (blind spots)
-  - Ex: Esquecemos mobile/offline?
-  - Resposta: [análise]
-
-### Validação de Fontes ⭐
-- [ ] **Quais são suas fontes?**
-  - Lista completa de docs/código consultado:
-    - [ ] docs/PLAN.md (linha X)
-    - [ ] supabase/migrations/...
-    - [ ] src/components/...
-
-- [ ] **Pesquisou nos lugares certos?**
-  - ✅ Verificado: [listar]
-  - ❌ Faltou: [gaps]
-
-- [ ] **Fontes atualizadas?**
-  - ✅ Recentes (< 1 semana)
-  - ⚠️ Médios (1 sem - 1 mês)
-  - ❌ Antigos (> 1 mês) ← revalidar!
-
-### Validação de Abordagem
-- [ ] **Executamos Reframing?** (problema CERTO?)
-  - Ref: Workflow 1, Fase 1.5
-  - Validado: Sim/Não
-
-- [ ] **Custo de oportunidade?**
-  - O que NÃO faremos se escolher essa solução?
-  - Trade-offs aceitáveis?
-
-- [ ] **O que pode dar errado?**
-  - Top 3 riscos
-  - Mitigações planejadas
-
-**Ver**: `.claude/CLAUDE.md` → Seção "Advogado do Diabo"
+**Checklist**:
+- [ ] 10 perguntas respondidas?
+- [ ] Fontes atualizadas (<1 semana)?
+- [ ] Reframing executado?
+- [ ] Top 3 riscos identificados?
+- [ ] Mitigações planejadas?
 
 **Resultado**: ✅ APROVADO | ⚠️ AJUSTAR | ❌ REJEITAR
 
 ---
 
-## 🚨 Validação Anti-Over-Engineering (OBRIGATÓRIO)
+## 5️⃣ CONTEXT UPDATE (.context/ - OBRIGATÓRIO)
 
-**CRÍTICO**: SEMPRE validar se solução não é over-engineered ANTES de aprovar.
-
-### Checklist YAGNI/KISS
-- [ ] **Solução resolve problema REAL** (não futuro hipotético)?
-  - Evidência de necessidade: [citar fonte/dado concreto]
-  - vs "futuramente pode precisar" ❌
-
-- [ ] **Existe alternativa mais SIMPLES**?
-  - Opção simplificada: [descrever]
-  - Por que não funciona: [razão baseada em evidência]
-
-- [ ] **Complexidade justificada por EVIDÊNCIA**?
-  - Fonte: [doc oficial, benchmark, caso real]
-  - Link: [URL acessível]
-  - Relevância: [como se aplica AQUI]
-
-- [ ] **Posso validar com MVP (10% do código)**?
-  - MVP: [versão mínima viável]
-  - Validação incremental: [como testar antes de implementar tudo]
-
-### Red Flags Detectados?
-- [ ] ❌ Abstrações > 3 camadas
-- [ ] ❌ Padrões de design sem justificativa
-- [ ] ❌ Features "para o futuro"
-- [ ] ❌ Over-optimization prematura
-
-**Se 2+ red flags**: ⛔ REJEITAR solução, pedir simplificação
-
-**Exemplo Over-Engineering (NÃO fazer)**:
-- MCP Sentry: Prometia debug via MCP, mas curl + API faz o mesmo
-- Overhead: Config, manutenção, docs
-- Decisão: REMOVIDO (este workflow implementou regra para prevenir)
-
-**Ver**: `.claude/CLAUDE.md` → REGRA #10 Anti-Over-Engineering
-
----
-
-## 🧠 Meta-Learning: Captura de Aprendizados
-
-**⚠️ CRÍTICO - NÃO PULE**: Fundamental para evolução contínua.
-
-### Questões de Reflexão (Responder TODAS)
-
-**1. Eficiência (Nota 1-10):**
-- [ ] Nota: __/10
-- [ ] Se < 8: Fase ineficiente? Como melhorar?
-
-**2. Iterações com Usuário:**
-- [ ] Número: __
-- [ ] Se > 3: O que causou? Como tornar mais autônomo?
-
-**3. Gaps Identificados:**
-- [ ] Validação faltou? (qual? onde inserir?)
-- [ ] Gate falhou? (qual melhorar?)
-- [ ] Comando repetido 3+? (automatizar?)
-
-**4. RCA - Se identificou problema:**
-- [ ] Problema: [breve]
-- [ ] 5 Whys aplicados? (causa raiz sistêmica?)
-- [ ] Afeta múltiplas features? (SE NÃO: descartar - não sistêmico)
-- [ ] Meta-learning previne recorrência?
-
-### Ações de Melhoria (Se Aplicável)
-
-**Documentação a atualizar:**
-- [ ] Este workflow precisa melhorias? → Descrever
-- [ ] CLAUDE.md precisa novo padrão? → Especificar
-- [ ] Novo script útil? → Nome + função
-- [ ] ADR necessário? → Decisão a documentar
-
-**ROI Esperado:** [Ex: "20min/feature futura" ou "Previne 2h debugging"]
-
-### ⚠️ IMPORTANTE
-- **Só documentar learnings SISTÊMICOS** (não pontuais)
-- **Aplicar RCA obrigatoriamente** para validar se sistêmico
-- **Consolidação final** no Workflow 8a
-
-### Validação de Tamanho
-
-```bash
-# Se alterou workflow, validar tamanho
-wc -c .windsurf/workflows/add-feature-2a-solutions.md
-# ✅ < 12000 chars | ❌ > 12000: comprimir/dividir
-```
-
-**Checklist Otimização** (se > 11k):
-- [ ] Remover exemplos redundantes
-- [ ] Consolidar checklists
-- [ ] Extrair detalhes para docs/
-- [ ] Dividir em 2 workflows
-
----
-
----
-
-## 🚨 REGRA CRÍTICA: ANTI-ROI
-
-**NUNCA calcule ou mencione**:
-- ❌ ROI (Return on Investment)
-- ❌ Tempo de execução/produção
-- ❌ "Horas economizadas"
-- ❌ Estimativas temporais (Xmin vs Ymin)
-
-**Por quê**:
-- Projeto desenvolvido por IA (não humanos)
-- IA executa tarefas em paralelo (não linear)
-- Cálculos consomem tokens sem valor
-- Polui documentação com dados irrelevantes
-
-**Permitido**:
-- ✅ Evidências concretas (código, logs, testes)
-- ✅ Comparações qualitativas ("mais rápido", "mais eficiente")
-- ✅ Métricas técnicas (latência, throughput, memory usage)
-
-**Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
-
----
-
-## ✅ FASE 4: CHECKPOINTS (REGRA #13 - Uma Ação Por Vez)
-
-**CRÍTICO**: Durante todo este workflow, SEMPRE executar checkpoint após CADA ação atômica.
-
-### 4.1. O que é uma Ação Atômica?
-
-**Ação atômica** = Menor unidade testável e reversível.
-
-**Exemplos deste workflow (Solutions)**:
-- ✅ "Pesquisar abordagem X em docs oficiais (MCP context7)"
-- ✅ "Executar brainstorm Gemini para gerar 5 soluções"
-- ✅ "Criar matriz de decisão comparando 3 soluções"
-- ✅ "Validar viabilidade técnica da solução A"
-- ✅ "Documentar trade-offs de cada solução"
-- ❌ "Criar todas 3 soluções completas" (NÃO atômico - múltiplas ações)
-
-### 4.2. Checkpoint Obrigatório (Após Cada Ação)
-
-**Usar script automatizado**:
-```bash
-./scripts/checkpoint.sh "descrição da ação executada"
-```
-
-**Ou manualmente**:
-
-**Template de Checkpoint**:
-```
-✅ AÇÃO COMPLETA: [descrição da ação]
-
-📸 EVIDÊNCIA:
-[pesquisa realizada, matriz criada, análise de viabilidade]
-
-🔍 VALIDAÇÃO:
-- [x] Ação executada com sucesso
-- [x] Sem erros/warnings
-- [x] Output documentado
-- [x] Próxima ação identificada
-
-🎯 PRÓXIMA AÇÃO PROPOSTA:
-[descrição da próxima ação]
-
-⏸️ AGUARDANDO APROVAÇÃO do usuário para continuar.
-```
-
-### 4.3. Checklist Checkpoint (Executar a Cada Ação)
-
-- [ ] **Executei apenas 1 ação?**
-- [ ] **Mostrei evidência ao usuário?** (pesquisa, matriz, análise)
-- [ ] **Usuário validou?** (aprovação explícita)
-- [ ] **Documentei em `.context/`?** (attempts.log)
-- [ ] **Identifiquei próxima ação?** (planejamento incremental)
-
-### 4.4. Exemplo de Aplicação (Solutions)
-
-**Fluxo com Checkpoints**:
-
-```
-1. AÇÃO: "Pesquisar libs para feature X (MCP context7 + firecrawl)"
-   → Executar → Checkpoint → Aprovação
-
-2. AÇÃO: "Brainstorm Gemini: gerar 5 soluções candidatas"
-   → Executar → Checkpoint → Aprovação
-
-3. AÇÃO: "Filtrar 5 → 3 soluções viáveis (Pareto 80/20)"
-   → Executar → Checkpoint → Aprovação
-
-4. AÇÃO: "Criar matriz de decisão (complexidade, risco, ROI)"
-   → Executar → Checkpoint → Aprovação
-
-5. AÇÃO: "Validar viabilidade técnica solução recomendada"
-   → Executar → Checkpoint → Aprovação
-```
-
-### 4.5. Quando NÃO Aplicar Checkpoint
-
-**Exceções** (ações podem ser agrupadas):
-- ✅ **Pesquisa paralela**: Buscar 3 libs simultaneamente (MCP)
-- ✅ **Análise agregada**: Ler docs oficiais + exemplos (leitura)
-
-**MAS**: Mesmo nas exceções, mostrar resultado ANTES de próxima ação.
-
-### 4.6. Benefícios no Solutions
-
-**Eficiência**:
-- ✅ Solução validada ANTES de design técnico detalhado
-- ✅ Trade-offs discutidos ANTES de implementação
-- ✅ Zero retrabalho (cada solução avaliada incrementalmente)
-
-**Colaboração**:
-- ✅ Usuário escolhe solução com visibilidade completa
-- ✅ Feedback loop rápido (30seg por checkpoint)
-- ✅ Ajuste de rota imediato (se solução inviável)
-
-### 4.7. Documentação Automática
-
-Cada checkpoint DEVE logar em `.context/attempts.log`:
-
-```bash
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] CHECKPOINT: [ação] - SUCCESS" >> .context/${BRANCH_PREFIX}_attempts.log
-```
-
-**Ver**: REGRA #13 em `.claude/CLAUDE.md` para detalhes completos.
-
----
-
-## 🧠 FASE FINAL: UPDATE CONTEXT (.context/ - OBRIGATÓRIO)
-
-**⚠️ CRÍTICO**: SEMPRE atualizar `.context/` APÓS workflow.
-
-### F.1. Atualizar workflow-progress.md
-
+### Update workflow-progress.md
 ```bash
 BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
 
@@ -639,110 +308,45 @@ cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
 ### Workflow 2a: Solutions ✅ COMPLETO
 - **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
 - **Actions**:
-  - Propostas 3 soluções (A: Simples, B: Balanceada, C: Avançada)
-  - Comparação matriz de decisão (prós/contras/trade-offs)
-  - Gate 1.5: Anti-duplicação validada (Gemini/React/Supabase nativo)
-  - Recomendação fundamentada apresentada
-  - Advogado do Diabo executado (10 perguntas críticas)
-  - Anti-over-engineering validado (YAGNI/KISS)
-- **Outputs**:
-  - Matriz de decisão completa (3 soluções comparadas)
-  - Solução recomendada com justificativa
-  - Trade-offs documentados
-  - Riscos iniciais identificados
+  - Propostas 3 soluções (A, B, C)
+  - Matriz decisão comparando trade-offs
+  - GATE 1.5 + 1.6 validados
+  - Advogado do Diabo executado
+- **Outputs**: Solução escolhida: [A/B/C]
 - **Next**: Workflow 2b (Technical Design)
 EOF
 ```
 
-### F.2. Atualizar temp-memory.md
-
-```bash
-# Atualizar seção "Estado Atual"
-cat > /tmp/temp-memory-update.md <<'EOF'
-## Estado Atual
-
-Workflow 2a (Solutions) concluído com sucesso.
-
-**Solução escolhida**: [A / B / C / Customizada]
-
-**Justificativa**: [Resumo da decisão baseada em matriz]
-
-**Próximo passo**: Executar Workflow 2b (Technical Design) para detalhar arquitetura da solução escolhida.
-
 ---
 
-## Próximos Passos
-
-- [ ] Executar Workflow 2b (Technical Design)
-- [ ] Arquitetura detalhada da solução
-- [ ] Validação viabilidade técnica
-- [ ] Criar ADR (se decisão arquitetural importante)
-
----
-
-## Decisões Pendentes
-
-[Se houver decisões técnicas pendentes após escolha da solução]
-
-EOF
-
-# Substituir seção no arquivo original (preservar "Última Atualização")
-sed -i.bak '/## Estado Atual/,/## Bloqueios\/Questões/{//!d;}' .context/${BRANCH_PREFIX}_temp-memory.md
-cat /tmp/temp-memory-update.md >> .context/${BRANCH_PREFIX}_temp-memory.md
-rm /tmp/temp-memory-update.md
-```
-
-### F.3. Atualizar decisions.md (Se Decisões Tomadas)
-
-**⚠️ Só atualizar se DECISÃO foi tomada no workflow.**
-
+### Update decisions.md
 ```bash
-# Exemplo: Se escolhemos Solução B (Balanceada)
 cat >> .context/${BRANCH_PREFIX}_decisions.md <<EOF
 
 ## Workflow 2a - Solutions
-- **Decisão**: Solução B (Balanceada)
-- **Por quê**: Equilíbrio simplicidade/performance, escalável, risco controlado
-- **Trade-off**: Mais complexo que A, mas evita refatoração futura
-- **Alternativas consideradas**:
-  - A (Simples): Rejeitada - pode precisar refatorar depois
-  - C (Otimizada): Rejeitada - over-engineering para volume atual
+- **Decisão**: Solução [A/B/C]
+- **Por quê**: [Justificativa]
+- **Trade-off**: [Resumo]
+- **Alternativas**: [Rejeitadas + motivo]
 - **Data**: $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
 EOF
 ```
 
-### F.4. Log em attempts.log
+---
 
+### Log attempts.log
 ```bash
 echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 2a (Solutions) - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] DECISION: Solução escolhida - [A/B/C]" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] DECISION: Solução [A/B/C]" >> .context/${BRANCH_PREFIX}_attempts.log
 ```
 
-### F.5. Validação Context Updated
+---
 
-**Checklist Pós-Workflow**:
-- [ ] Atualizei workflow-progress.md?
-- [ ] Atualizei temp-memory.md (Estado Atual + Próximos Passos)?
-- [ ] Atualizei decisions.md (se decisão tomada)?
-- [ ] Logei em attempts.log (WORKFLOW COMPLETO + decisão)?
+## ⏭️ PRÓXIMO WORKFLOW
 
-**Se NÃO atualizou**: ⛔ PARAR e atualizar AGORA.
+**Workflow 2b - Technical Design**: Detalhar arquitetura da solução escolhida (componentes, hooks, database, queries)
 
 ---
 
-## ⏭️ CONTINUAÇÃO AUTOMÁTICA
-
-**Próximo workflow:**
-
-→ [Workflow 2b - Technical Design](.windsurf/workflows/add-feature-2b-technical-design.md)
-
-**Próximas etapas:**
-- Design técnico detalhado da solução escolhida
-- Root Cause Analysis (se aplicável)
-- Validação viabilidade técnica
-- Criação de ADR (se necessário)
-
----
-
-**Criado**: 2025-10-27 | **Atualizado**: 2025-11-08
+**Criado**: 2025-10-27 | **Otimizado**: 2025-12-10 (5W1H Meta-Framework)
 **Parte**: 2a/11 | **Próximo**: Workflow 2b
