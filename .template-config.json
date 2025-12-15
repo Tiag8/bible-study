@@ -79,7 +79,9 @@
         "scripts/validate-workflow-size.sh",
         "scripts/validate-yagni.sh",
         "scripts/validate-gate-1-executed.sh",
-        "scripts/code-hygiene-scan.sh"
+        "scripts/code-hygiene-scan.sh",
+        "scripts/validate-tool-schemas.ts",
+        "scripts/validate-feature-compliance.sh"
       ]
     },
 
@@ -88,7 +90,8 @@
       "scripts": [
         "scripts/context-init.sh",
         "scripts/context-load-all.sh",
-        "scripts/context-read-all.sh"
+        "scripts/context-read-all.sh",
+        "scripts/validate-memory-audit-mandatory.sh"
       ],
       "files": [
         ".context/INDEX.md",
