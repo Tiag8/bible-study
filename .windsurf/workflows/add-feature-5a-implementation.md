@@ -51,6 +51,31 @@ npx ts-node scripts/validate-tool-schemas.ts <target>
 
 ---
 
+## 📋 FASE 0.7: FEATURE TYPE DETECTION (1-2 min)
+
+**Objetivo**: Classificar tipo de feature para adaptar E2E testing.
+
+**Classificação**:
+- [ ] **Backend-only**: Edge Functions, RPCs, migrations
+  - Arquivos: `supabase/functions/`, `supabase/migrations/`
+  - E2E: curl/postman, RPC validation, schema checks
+
+- [ ] **Full-stack**: Backend + Frontend
+  - Arquivos: `src/` + `supabase/functions/`
+  - E2E: Playwright flows end-to-end
+
+- [ ] **UI-only**: Components, hooks, pages
+  - Arquivos: `src/components/`, `src/pages/`
+  - E2E: Playwright visual tests, interactions
+
+**Output**: Documentar tipo em `.context/{branch}_decisions.md`
+
+**ROI**: 1min classificação vs 15-60min debug E2E incompleto
+
+**Fonte**: Learning #23 (FASE 2.5 Follow-Up v3)
+
+---
+
 ## 1️⃣ 5W1H FRAMEWORK
 
 **WHO**: Developer (código) + AI (assist) + Reviewer (gates)
@@ -62,7 +87,27 @@ npx ts-node scripts/validate-tool-schemas.ts <target>
 
 ---
 
-## 2️⃣ PRINCÍPIOS (P1-P5)
+## 📝 TODO TAGGING CONVENTION
+
+**Convenção**: TODOs críticos (bloqueiam feature) DEVEM ter tag `@PHASE-X`
+
+**Exemplo**:
+```typescript
+// TODO @PHASE-2.6: Implement retry logic for failed messages
+```
+
+**Correspondência em TASK.md**:
+```markdown
+- [ ] FASE 2.6.1: Implementar retry logic para mensagens falhadas
+```
+
+**Validação Pre-Commit**: `./scripts/sync-code-todos-to-taskmd.sh` (bloqueia se TODOs não rastreados)
+
+**Fonte**: Learning #25 (FASE 2.5 Follow-Up v3)
+
+---
+
+## 2️⃣ PRINCÍPIOS (P1-P6)
 
 ### P1: Code Organization
 **Feature-first** (não layer-first)
@@ -97,6 +142,18 @@ npx ts-node scripts/validate-tool-schemas.ts <target>
 - Internal: Trust TypeScript, framework
 - Logs: Contexto debug (user_id, timestamp)
 - ❌ Red Flags: Try-catch excessivo, double-validation, stack trace exposto
+
+### P6: Async Operations (Snapshot + Fallback)
+**Context temporal** (scheduled, queued, retries)
+- Save: Snapshot completo no momento da decisão (`context_snapshot`)
+- Process: Tentar fresh context primeiro
+- Fallback: Usar snapshot SE fresh falhar
+- Log: Qual context usado (fresh vs snapshot)
+- ❌ Red Flags: Sem snapshot, sem fallback, assumir context sempre disponível
+
+**Quando Aplicar**: Cron jobs, approval queues, delayed tasks, multi-step workflows
+**Padrão**: `docs/patterns/CONTEXT-SNAPSHOT-FALLBACK.md`
+**Fonte**: Learning #24 (FASE 2.5 Follow-Up v3)
 
 ---
 
@@ -183,20 +240,46 @@ it('should create habit and show in list', async () => {
 **ROI**: 5-10min vs 30-120min debug efeito dominó
 
 ### Post-Code Gates
-- **Screenshot**: ANTES (Workflow 2b) vs DEPOIS (side-by-side approval)
-- **Smoke Tests**: `npm run build && npx tsc --noEmit && npm run lint && npm test`
+
+**Screenshot**: ANTES (Workflow 2b) vs DEPOIS (side-by-side)
+
+**Build & Lint**: `npm run build && npx tsc --noEmit && npm run lint`
+
+**E2E Testing** (adaptado ao Feature Type - Fase 0.7):
+
+**SE Backend-only**:
+- [ ] curl/postman test Edge Function endpoint
+- [ ] Validar RPC return type e behavior (schema correto)
+- [ ] Verificar schema changes aplicadas (migration pushed)
+- [ ] Testar error handling e edge cases
+
+**SE Full-stack**:
+- [ ] Playwright flow completo: UI → Backend → DB → UI
+- [ ] Validar integração frontend-backend
+- [ ] Verificar estado final consistente (DB + UI)
+
+**SE UI-only**:
+- [ ] Playwright visual tests (screenshot comparison)
+- [ ] Testar interações usuário (clicks, inputs, navigation)
+- [ ] Validar responsividade (mobile, tablet, desktop)
+
+**TODO Validation**:
+- [ ] Executar `./scripts/sync-code-todos-to-taskmd.sh`
+- [ ] SE exit 1: Adicionar TODOs faltantes a TASK.md OU remover tag `@PHASE-X`
 
 ---
 
 ## 5️⃣ COVERAGE VALIDATION
 
 **Meta-Checklist**:
-- [ ] P1-P5 aplicados? (mental checklist code review)
+- [ ] P1-P6 aplicados? (mental checklist code review)
 - [ ] GATE 6.5/6.6 executados? (SE aplicável)
+- [ ] Fase 0.7: Feature type classificado? (E2E adaptado)
+- [ ] TODO Convention seguida? (tags `@PHASE-X` validadas)
 - [ ] Exemplos alinhados? (canonical patterns)
 - [ ] Red Flags evitados? (lista cada princípio)
 
-**Coverage**: 5 princípios → 85-90% dos 130 checklists originais
+**Coverage**: 6 princípios + 3 learnings FASE 2.5 → 90%+ dos 130 checklists originais
 
 ---
 
@@ -207,10 +290,12 @@ it('should create habit and show in list', async () => {
 ```bash
 git commit -m "feat(scope): description
 
-- P1-P5 principles applied
+- P1-P6 principles applied
 - GATE 6.5: Schema validated (SE SQL)
 - GATE 6.6: Impact mapped (SE modificação)
-- Coverage: 80%+"
+- Fase 0.7: Feature type classified (E2E adapted)
+- TODO Convention: @PHASE-X tags validated
+- Coverage: 90%+"
 ```
 3. **Prosseguir**: Workflow 6a (Validation) SE tests OK
 
@@ -220,8 +305,12 @@ git commit -m "feat(scope): description
 
 **Regras**: #5 (Teia), #11 (YAGNI), #14 (Atômico), #17 (No any), #28 (Gates), #31 (Schema-First)
 **ADRs**: ADR-021 (Gates), ADR-023 (Gemini 9k), ADR-030 (Tailwind), ADR-035 (Schema)
-**Scripts**: `context-read-all.sh`, `validate-memory-consulted.sh`, `db-dependency-checker.sh`, `impact-mapper.sh`
+**Scripts**: `context-read-all.sh`, `validate-memory-consulted.sh`, `db-dependency-checker.sh`, `impact-mapper.sh`, `sync-code-todos-to-taskmd.sh`
+**Learnings**: workflow.md #23 (Feature Type), #24 (Context Snapshot), #25 (TODO Sync)
+**Patterns**: `docs/patterns/CONTEXT-SNAPSHOT-FALLBACK.md`
 
 ---
 
-**Versão**: 2.0.0 | **Chars**: 4,873 | **Reduction**: 87.6% vs v1 (39,415)
+**Versão**: 2.1.0 | **Chars**: 5,823 | **Evolution**: +950 chars (4 melhorias FASE 2.5) | **Reduction**: 85.2% vs v1 (39,415)
+
+<!-- PROPAGATE -->
