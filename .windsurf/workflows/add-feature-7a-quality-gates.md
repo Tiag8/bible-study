@@ -185,8 +185,22 @@ npm audit
 **3. Análise Estática**
 ```bash
 npm run lint
-npx tsc --noEmit
+
+# TypeScript check - Skip para Edge Functions (Deno runtime)
+if git diff --name-only --cached | grep -q "supabase/functions/"; then
+  echo "⏭️ Edge Functions detected - Skipping tsc (use Deno runtime validation)"
+  echo "✅ Alternative: Supabase deploy validates Deno compatibility"
+else
+  npx tsc --noEmit
+fi
 ```
+
+**Rationale**: Edge Functions usam Deno runtime (não Node.js). TypeScript compiler (tsc) roda em contexto Node e não entende:
+- Deno global types (`Deno.serve`, `Deno.env`)
+- ESM imports (`https://esm.sh/...`)
+- Edge Runtime modules
+
+**Validação alternativa**: Supabase CLI valida Edge Functions no deploy (`supabase functions deploy`)
 
 **4. SQL Injection**
 ```typescript
@@ -606,4 +620,33 @@ EOF
 
 **Criado**: 2025-10-27 (modificado: 2025-11-08)
 **Parte**: 7a de 11
-**Próximo**: Workflow 7b
+
+---
+
+## 🧭 WORKFLOW NAVIGATOR
+
+### Próximo Workflow Padrão
+**[Workflow 8a] - Meta-Learning**: Quality gates aprovados → extrair learnings sistêmicos antes de finalizar.
+
+### Quando Desviar do Padrão
+
+| Situação | Workflow | Justificativa |
+|----------|----------|---------------|
+| Vulnerabilidade encontrada | 7b (Security RCA) | Resolver issue de segurança com RCA |
+| Code review reprovou | 5b (Refactoring RCA) | Refatorar código antes de tentar novamente |
+| Security scan falhou | 7b (Security RCA) | Tratar vulnerabilidades antes de prosseguir |
+| Pronto para deploy urgente | 11a (VPS Deployment Prep) | Pular meta-learning se feature crítica |
+
+### Quando Voltar
+
+| Sinal de Alerta | Voltar para | Por quê |
+|-----------------|-------------|---------|
+| Falhas graves de arquitetura | 2b (Technical Design) | Redesenhar antes de corrigir |
+| Múltiplos bugs encontrados | 5a (Implementation) | Implementação estava incompleta |
+| Gates falharam 3+ vezes | 1 (Planning) | Problema de escopo/entendimento |
+
+### Regras de Ouro
+- ⛔ **NUNCA pular**: Workflow 8a (Meta-Learning) - learnings sistêmicos previnem bugs futuros
+- ⚠️ **Security scan failed**: SEMPRE ir para 7b - vulnerabilidades são bloqueadoras
+- 🎯 **Dúvida?**: Usar skill `workflow-navigator` para análise completa do contexto
+
