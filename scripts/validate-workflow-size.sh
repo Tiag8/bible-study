@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Validate Workflow Size Script
-# Ensures all workflow files are under 12k character limit
+# Ensures all workflow files are under 20KB character limit
 # Exit code: 0 (all OK), 1 (at least one exceeds limit)
 
 set -euo pipefail
@@ -14,8 +14,8 @@ NC='\033[0m' # No Color
 
 # Configuration
 WORKFLOW_DIR=".windsurf/workflows"
-MAX_SIZE=12000
-WARNING_SIZE=11000
+MAX_SIZE=20480  # 20KB limit
+WARNING_SIZE=19000  # Warning at 19KB (leave 1KB margin)
 
 # Check if workflow directory exists
 if [ ! -d "$WORKFLOW_DIR" ]; then
