@@ -149,6 +149,19 @@ git log --all --grep="keyword-relacionada"
 ```bash
 BRANCH_PREFIX=$(git branch --show-current | sed 's/feat\//feat-/')
 TIMESTAMP=$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')
+
+# Atualizar workflow-progress.md
+cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
+
+### Workflow 5b: Refactoring & RCA ✅
+- **Data**: $TIMESTAMP
+- **Refactoring**: [Aplicado/N/A]
+- **Duplicação**: [0 detectada ou listar]
+- **RCA 5 Whys**: [Executado/N/A]
+- **Next**: Workflow 6 (User Validation)
+EOF
+
+# Log em attempts.log
 echo "[$TIMESTAMP] WORKFLOW: 5b - COMPLETO" >> .context/${BRANCH_PREFIX}_attempts.log
 ```
 
@@ -174,3 +187,31 @@ echo "[$TIMESTAMP] WORKFLOW: 5b - COMPLETO" >> .context/${BRANCH_PREFIX}_attempt
 
 **Versão**: 2.0 (Otimizado)
 **Próximo**: Workflow 6 (User Validation)
+
+---
+
+## 🧭 WORKFLOW NAVIGATOR
+
+### Próximo Workflow Padrão
+**[Workflow 6a] - User Validation**: Código implementado e refatorado → validar manualmente com usuário antes de quality gates.
+
+### Quando Desviar do Padrão
+
+| Situação | Workflow | Justificativa |
+|----------|----------|---------------|
+| RCA detectou problema arquitetural grave | 2b (Technical Design) | Re-projetar antes de continuar |
+| Duplicação sistêmica detectada | 8a (Meta-Learning) | Documentar padrão antes de prosseguir |
+| Testes falharam 3+ vezes | 5a (Implementation) | Voltar e corrigir implementação base |
+
+### Quando Voltar
+
+| Sinal de Alerta | Voltar para | Por quê |
+|-----------------|-------------|---------|
+| RCA revelou causa raiz em design | 2b (Technical Design) | Problema está na arquitetura |
+| Duplicação com Gemini/React Query/Supabase | 2a (Solutions) | Escolher solução nativa |
+| Refactoring quebrou funcionalidade | 5a (Implementation) | Re-implementar com abordagem diferente |
+
+### Regras de Ouro
+- ⛔ **NUNCA pular**: RCA 5 Whys quando testes falharam 2+ vezes
+- ⚠️ **Duplicação detectada**: BLOQUEAR refactoring até resolver
+- 🎯 **Dúvida?**: Usar skill `workflow-navigator` para análise completa do contexto
