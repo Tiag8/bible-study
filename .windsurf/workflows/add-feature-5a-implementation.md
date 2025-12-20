@@ -49,6 +49,61 @@ npx ts-node scripts/validate-tool-schemas.ts <target>
 
 **ROI**: 5-10min análise vs 30-120min debug efeito dominó
 
+### FASE 0.6.1: List INSERT/UPSERT Points (SE schema change) 🆕
+
+**Objetivo**: Identificar TODOS os pontos de código que fazem INSERT/UPSERT na tabela que será modificada, para garantir consistência após schema change.
+
+**Quando Executar**: SEMPRE quando modificar schema de tabela existente (ALTER TABLE, ADD COLUMN, DROP COLUMN).
+
+**Processo (3-5 min)**:
+
+```bash
+# 1. Buscar INSERT diretos
+grep -r "\.from('TABLE_NAME')\.insert\|\.from(\"TABLE_NAME\")\.insert" supabase/functions/
+
+# 2. Buscar UPSERT diretos
+grep -r "\.from('TABLE_NAME')\.upsert\|\.from(\"TABLE_NAME\")\.upsert" supabase/functions/
+
+# 3. Buscar RPCs que fazem INSERT (via db-dependency-checker.sh output)
+./scripts/db-dependency-checker.sh TABLE_NAME | grep -A5 "RPCs/FUNCTIONS"
+
+# 4. Documentar em .context/{branch}_decisions.md
+```
+
+**Checklist Obrigatória**:
+- [ ] Listei TODOS INSERT/UPSERT points? (grep + db-dependency-checker.sh)
+- [ ] Para CADA point: verifico se schema change afeta?
+- [ ] SE ADD COLUMN: default value definido OU code atualizado para incluir?
+- [ ] SE DROP COLUMN: code atualizado para remover referencias?
+- [ ] SE RENAME COLUMN: code atualizado com novo nome?
+- [ ] Pattern consistente? (ex: SE user_id adicionado, TODOS INSERT/UPSERT incluem?)
+
+**Exemplo Real** (ADR-050 Phase 5):
+
+```bash
+# Schema change: ADD user_id to lifetracker_entity_keywords
+# Found 2 INSERT/UPSERT points:
+
+# Point 1: keyword-matcher.ts:207 (UPSERT) ✅ UPDATED
+user_id: userId  # Added
+
+# Point 2: gemini-chat-handler-v2.ts:2702 (RPC auto_learn_keyword) ❌ NOT UPDATED
+# Root Cause: RPC não aceita user_id parameter
+# Fix: Replace RPC with direct UPSERT (gemini-chat-handler-v2.ts:2704-2718)
+```
+
+**Red Flags**:
+- 🚩 Schema change sem listar INSERT/UPSERT points (70% code desalinhamento)
+- 🚩 ADD COLUMN sem verificar se code precisa update (silent failures)
+- 🚩 Assumir "apenas 1 lugar insere nessa tabela" (wrong 80% do tempo)
+- 🚩 Usar pattern diferente em diferentes files (inconsistência)
+
+**ROI**: 3-5min checklist vs 60-120min debug code desalinhamento
+
+**Prevenção**: 70% code desalinhamento (save_habit vs keyword-matcher inconsistency)
+
+**Evidência**: ADR-050 Phase 5 - save_habit usava RPC sem user_id, keyword-matcher usava UPSERT com user_id
+
 ---
 
 ## 📋 FASE 0.7: FEATURE TYPE DETECTION (1-2 min)
@@ -226,6 +281,40 @@ it('should create habit and show in list', async () => {
 
 **ROI**: 3-5min vs 15-60min debug
 
+### ⭐ GATE 6.5.5: Database Dependency Mapping (ANTES Migration) 🆕
+**Quando**: ALTER TABLE, DROP COLUMN, schema changes em tabelas existentes
+
+**Processo** (5-8 min):
+1. **Executar script**: `./scripts/db-dependency-checker.sh <table_name>`
+2. **Documentar dependências** em `.context/{branch}_decisions.md`:
+   - RPCs/Functions que referenciam a tabela
+   - Triggers on table
+   - Views que selecionam da tabela
+   - Foreign Keys (incoming + outgoing)
+   - Indexes
+   - RLS Policies
+3. **Planejar atualizações**: Para CADA dependência, anotar se precisa update
+4. **Ordem de execução**: Migration → RPC updates → Code changes → Deploy
+
+**Checklist Obrigatória**:
+- [ ] Script `db-dependency-checker.sh` executado?
+- [ ] Dependências listadas (RPCs, triggers, views, FKs, indexes, RLS)?
+- [ ] Para cada dependência: plano de update documentado?
+- [ ] Ordem de execução definida (migration first, RPC updates, code)?
+- [ ] SE 5+ dependências: create `.context/{branch}_migration-dependencies.md`
+
+**❌ Bloqueios**:
+- ALTER TABLE sem executar script
+- Migration commitada sem atualizar RPCs dependentes
+- Dependências não documentadas
+- Assumir "não tem dependências" sem verificar
+
+**ROI**: 5-8min análise vs 90min debug migrations incompletas
+
+**Evidência**: ADR-050 Phase 5 - RPC `auto_learn_keyword` não atualizado após schema change
+
+**Prevenção**: 90% migrations incompletas (3/3 bugs identificados teriam sido prevenidos)
+
 ### ⭐ GATE 6.6: Impact Mapping (SE modifica existente)
 **Quando**: Modificar componente, Edge Function, schema, multi-camadas
 
@@ -304,13 +393,14 @@ git commit -m "feat(scope): description
 ## 📚 REFERÊNCIAS
 
 **Regras**: #5 (Teia), #11 (YAGNI), #14 (Atômico), #17 (No any), #28 (Gates), #31 (Schema-First)
-**ADRs**: ADR-021 (Gates), ADR-023 (Gemini 9k), ADR-030 (Tailwind), ADR-035 (Schema)
+**ADRs**: ADR-021 (Gates), ADR-023 (Gemini 9k), ADR-030 (Tailwind), ADR-035 (Schema), ADR-050 (User-Scoped Keywords)
 **Scripts**: `context-read-all.sh`, `validate-memory-consulted.sh`, `db-dependency-checker.sh`, `impact-mapper.sh`, `sync-code-todos-to-taskmd.sh`
 **Learnings**: workflow.md #23 (Feature Type), #24 (Context Snapshot), #25 (TODO Sync)
-**Patterns**: `docs/patterns/CONTEXT-SNAPSHOT-FALLBACK.md`
+**Patterns**: `docs/patterns/CONTEXT-SNAPSHOT-FALLBACK.md`, `docs/patterns/DIRECT-UPSERT-RPC-PATTERN.md`
+**Pareto**: Meta-Learning #2 (GATE 6.5.5 - ROI 15x), #3 (Pattern Doc - ROI 18x), #4 (FASE 0.6.1 - ROI 12x)
 
 ---
 
-**Versão**: 2.1.0 | **Chars**: 5,823 | **Evolution**: +950 chars (4 melhorias FASE 2.5) | **Reduction**: 85.2% vs v1 (39,415)
+**Versão**: 2.3.0 | **Chars**: ~8,100 | **Evolution**: +900 chars (FASE 0.6.1 INSERT/UPSERT Mapping) | **Reduction**: 79.4% vs v1 (39,415)
 
 <!-- PROPAGATE -->
