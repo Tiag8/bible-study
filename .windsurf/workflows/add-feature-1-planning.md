@@ -18,40 +18,11 @@ Primeiro workflow de 11 etapas modulares: Fase 1 (Entendimento), Fase 2 (Anális
 
 ---
 
-## 🎯 Feature Orchestrator Integration
+## 🎯 Skills para Navegação
 
-Este workflow faz parte do **sistema Feature Orchestrator** (REGRA #28) para tracking de múltiplas features em paralelo com zero context loss.
-
-### Comandos Essenciais
-
-```bash
-# Ver dashboard (todas features em paralelo)
-./scripts/feature-dashboard.sh
-
-# Inicializar esta feature (se primeira vez)
-./scripts/feature-init.sh <nome-feature>
-
-# Atualizar state após completar este workflow
-./scripts/feature-update-state.sh <nome-feature> complete-workflow 1
-
-# Ver guia completo
-cat docs/guides/FEATURE-ORCHESTRATOR-QUICKSTART.md
-```
-
-### Benefícios
-
-- **Context Loss**: 50% → 10% (state persistido em `.context/`)
-- **Throughput**: +100% (4-6 features/semana vs 2-3 anteriormente)
-- **Visibilidade**: Dashboard centralizado de todas features ativas
-- **Zero Re-Learning**: Volta ao contexto em 30seg vs 30min de re-raciocínio
-
-### Quando Usar
-
-- ✅ Desenvolvendo 3+ features/semana
-- ✅ Quer gerenciar múltiplas features em paralelo
-- ✅ Context loss > 30min/feature
-
-**Documentação**: `docs/guides/FEATURE-ORCHESTRATOR-QUICKSTART.md` | **ADR**: ADR-028 | **Regra**: REGRA #28
+Use **skills** para decisões de workflow:
+- `workflow-navigator` - Recomenda qual workflow usar
+- `party-mode` - Debate multi-agente para decisões complexas
 
 ---
 
@@ -715,9 +686,38 @@ Ou manualmente: `/add-feature-2-solutions`
 
 ---
 
-**Criado**: 2025-10-27 | **Atualizado**: 2025-11-20 | **Parte**: 1/11 | **Próximo**: Solution Design (3 Soluções)
+**Criado**: 2025-10-27 | **Atualizado**: 2025-11-20 | **Parte**: 1/11
 
 **v2.1** (2025-11-20):
 - 🆕 Fase 0.5: CSF Validation (GATE 1, Workflow 4.5, Schema-First)
 - 🔧 Enforcement: Pre-requisitos críticos obrigatórios
 - ✅ ADR-031, ADR-021, REGRA #9
+
+---
+
+## 🧭 WORKFLOW NAVIGATOR
+
+### Próximo Workflow Padrão
+**[Workflow 2a/2b] - Solutions/Technical Design**: GATE 1 Reframing aprovado → propor soluções técnicas.
+
+### Quando Desviar do Padrão
+
+| Situação | Workflow | Justificativa |
+|----------|----------|---------------|
+| Problema trivial, solução óbvia | 2b (Technical Design) | Pular 2a se apenas 1 solução viável |
+| Bug crítico em produção | fast-track-critical-bug | Correção urgente < 2h |
+| Decisão arquitetural complexa | ultra-think | Análise profunda antes de soluções |
+
+### Quando Voltar
+
+| Sinal de Alerta | Voltar para | Por quê |
+|-----------------|-------------|---------|
+| GATE 1 Reframing falhou | 1 Fase 1.5 | Re-executar Reframing até aprovar |
+| Escopo não está claro | 1 Fase 1 | Fazer mais perguntas de contexto |
+| Usuário não validou problema | 1 Fase 1.5 | Reframing precisa aprovação |
+
+### Regras de Ouro
+- ⛔ **NUNCA pular**: GATE 1 Reframing - problema ERRADO = feature ERRADA
+- ⚠️ **Re-executar GATE 1 se**: Problema parece sintoma, não causa raiz
+- 🎯 **Dúvida?**: Usar skill `workflow-navigator` para análise completa do contexto
+

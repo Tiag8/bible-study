@@ -578,3 +578,31 @@ Ou digite: `/add-feature-8-meta-learning`
 **Workflow criado**: 2025-10-27 (mod: 2025-11-08)
 **Parte**: 7b de 11
 **Próximo**: Meta-Learning
+
+---
+
+## 🧭 WORKFLOW NAVIGATOR
+
+### Próximo Workflow Padrão
+**[Workflow 8a] - Meta-Learning**: Quality gates aprovados → consolidar learnings sistêmicos e atualizar documentação.
+
+### Quando Desviar do Padrão
+
+| Situação | Workflow | Justificativa |
+|----------|----------|---------------|
+| Vulnerabilidade crítica detectada | 5a (Implementation) | Corrigir antes de documentar |
+| RCA revelou falha em workflow anterior | [Workflow afetado] | Corrigir na origem |
+| Score < 7.0 após correções | 7a (Quality Gates) | Re-executar quality gates |
+
+### Quando Voltar
+
+| Sinal de Alerta | Voltar para | Por quê |
+|-----------------|-------------|---------|
+| Secrets hardcoded encontrados | 5a (Implementation) | Corrigir código imediatamente |
+| SQL injection detectado | 5a (Implementation) | Fix de segurança urgente |
+| RLS não configurado | 4.5 (Pre-Implementation) | Migration necessária |
+
+### Regras de Ouro
+- ⛔ **NUNCA pular**: Security scan - vulnerabilidades críticas bloqueiam merge
+- ⚠️ **Quality Gate falhou**: RCA obrigatório antes de prosseguir
+- 🎯 **Dúvida?**: Usar skill `workflow-navigator` para análise completa do contexto

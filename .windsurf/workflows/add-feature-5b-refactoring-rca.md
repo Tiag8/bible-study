@@ -112,7 +112,21 @@ grep -r "validateUser\|checkAuth" supabase/functions/_shared/
 
 **SE executou RCA**: Mapear teia ANTES de fix
 
-### Checklist (14 checks)
+### Script Automatizado ⭐ RECOMENDADO
+
+```bash
+# Teia automática com Serena (14 checks em 2-3 min)
+./scripts/serena-teia-mapper.sh <symbol_ou_arquivo_afetado> \
+  --output-file .context/${BRANCH_PREFIX}_teia-analysis.md
+```
+
+**Benefício Serena**:
+- Automatiza os 14 checks sistemáticos
+- LSP-based semantic analysis (zero false positives em imports/calls)
+- Output estruturado em Markdown (pronto para .context/)
+- 10-15 min manual → 2-3 min automatizado
+
+### Checklist (14 checks) - Manual Fallback
 
 **Mapeamento** (5):
 - [ ] Arquivos que importam código afetado?
@@ -134,7 +148,7 @@ grep -r "validateUser\|checkAuth" supabase/functions/_shared/
 - [ ] Adicionar testes?
 - [ ] Validar zero regressões?
 
-### Ferramentas
+### Ferramentas Manuais (SE Serena indisponível)
 
 ```bash
 grep -r "import.*from.*arquivo-afetado" src/ supabase/

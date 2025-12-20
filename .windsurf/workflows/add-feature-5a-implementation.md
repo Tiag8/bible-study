@@ -25,7 +25,9 @@
 **Processo (5-10 min)**:
 
 ```bash
-# 1. Código + integrações (4 camadas)
+# 1. Código + integrações (4 camadas) - ⭐ Recomendado Serena (40% menos false positives)
+./scripts/impact-mapper-serena.sh <target>
+# OU (fallback se Serena indisponível)
 ./scripts/impact-mapper.sh <target>
 
 # 2. Database específico (SE modificar schema)
@@ -34,6 +36,11 @@
 # 3. Tools Gemini (SE modificar tools)
 npx ts-node scripts/validate-tool-schemas.ts <target>
 ```
+
+**Benefício Serena**:
+- 40% menos false positives (LSP-based semantic analysis)
+- 2-3 min mais rápido vs grep manual
+- Detecção precisa de importers, call sites, pattern matching
 
 **Classificação de Risco**:
 | Dependências | Risco | Ação |

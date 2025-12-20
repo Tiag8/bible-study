@@ -239,21 +239,78 @@ ORDER BY ordinal_position;
 
 **ROI**: 3-5 min agora vs 15-60 min debug depois (5-20x)
 
+### 3.1.6. Database Impact Analysis (SE schema change) 🆕 ⭐
+
+**Objetivo**: Mapear ANTES de desenhar como schema change afetará código existente.
+
+**Quando executar**: Feature envolve ALTER TABLE, ADD/DROP COLUMN, CREATE TABLE, ou modificação de RPC.
+
+**Script Serena**:
+```bash
+# Mapear impacto de mudanças em tabelas/colunas (database layer)
+./scripts/impact-mapper-serena.sh <table_or_column_name> --layer database
+
+# Output mostra:
+# - Queries SQL que referenciam tabela/coluna
+# - RPCs/Functions afetados
+# - Views e triggers dependentes
+# - Frontend hooks que usam a tabela
+```
+
+**Documentar em `.context/{branch}_decisions.md`**:
+```markdown
+## Database Impact Analysis (Workflow 2b - Fase 3.1.6) ✅
+
+**Tabela analisada**: lifetracker_habits
+
+**Impacto mapeado** (via Serena):
+- **RPCs afetados**: 3 (recalculate_habit_streak, auto_learn_keyword, get_habits_with_entries)
+- **Frontend queries**: 5 hooks (useHabits, useHabitCard, useHabitStreaks, etc)
+- **Triggers**: 1 (update_updated_at_column)
+- **Views**: 0
+
+**Ações necessárias** (após schema change):
+- [ ] Atualizar RPC recalculate_habit_streak (adicionar novo campo)
+- [ ] Atualizar useHabits hook (incluir campo no SELECT)
+- [ ] Verificar trigger não quebrou
+```
+
+**Benefícios**:
+- Previne 90% "forgot to update RPC/query" bugs
+- Design considera impacto TOTAL (não apenas tabela)
+- Lista completa de arquivos a modificar em Workflow 5a
+
+**ROI**: 5-8 min análise vs 60-120 min debug código desalinhado
+
 ---
 
 ### 3.2. Duplication Check (OBRIGATÓRIO)
 
+**⭐ RECOMENDADO - Serena Pattern Detection**:
+```bash
+# Detectar patterns similares semanticamente (LSP-based)
+./scripts/serena-teia-mapper.sh <função_proposta> --output-file .context/${BRANCH_PREFIX}_duplication-check.md
+
+# Benefícios Serena:
+# - Detecta duplicações semânticas (não apenas string match)
+# - Encontra implementações similares por comportamento
+# - Pattern matching cross-file/cross-layer
+# - 40% menos false positives vs grep
+```
+
+**Fallback Manual**:
 ```bash
 # Buscar implementações similares
 grep -r "parse\|extract\|transform" supabase/functions/_shared/
 grep -r "cache\|stale\|invalidate" src/hooks/
 ```
 
-- [ ] Grepei codebase?
+**Checklist**:
+- [ ] Usei Serena OU grepei codebase?
 - [ ] Testei solução atual e FALHOU?
 - [ ] Consultei docs oficiais?
 
-**SE duplicação**: ⛔ CANCELAR, usar existente
+**SE duplicação detectada**: ⛔ CANCELAR design, usar existente
 
 ### 3.3. Arquitetura Detalhada
 
@@ -271,6 +328,53 @@ grep -r "cache\|stale\|invalidate" src/hooks/
 2. Verify Versions: `npm info @package version`
 3. Suggest 2-3 Options (incluir "usar existente")
 4. Comparison Table
+
+### 3.5. Design Impact Mapping (ANTES de finalizar) 🆕 ⭐
+
+**Objetivo**: Validar que design proposto não quebrará código existente. Shift-left do Workflow 5a FASE 0.6.
+
+**Quando executar**: SEMPRE antes de aprovar design técnico (pré-Workflow 3).
+
+**Script Serena**:
+```bash
+# Mapear impacto do design proposto (4 camadas)
+./scripts/impact-mapper-serena.sh <componente_ou_função_a_modificar> --layer all
+
+# Se criar novo componente, analisar similares existentes
+./scripts/serena-teia-mapper.sh <componente_similar_existente> --output-file .context/${BRANCH_PREFIX}_design-reference.md
+```
+
+**Documentar riscos em `.context/{branch}_decisions.md`**:
+```markdown
+## Design Impact Mapping (Workflow 2b - Fase 3.5) ✅
+
+**Componente a modificar**: parseHabitInput (handler-v2.ts)
+
+**Impacto mapeado**:
+- **Frontend dependencies**: 12 arquivos importam
+- **Backend calls**: 5 Edge Functions chamam
+- **Database queries**: 3 tabelas afetadas
+- **Cross-cutting**: Rate limiting, logs, webhooks
+
+**Classificação de Risco**: MEDIUM (5-14 dependencies)
+
+**Mitigações planejadas**:
+- Feature flag para rollout gradual
+- Backward compatibility mantida (novos parâmetros opcionais)
+- Testes E2E para cada importer
+```
+
+**Classificação de Risco** (mesmo do Workflow 5a):
+| Dependências | Risco | Ação Design |
+|--------------|-------|-------------|
+| 0 | LOW | Design isolado, pode prosseguir |
+| 1-4 | MEDIUM | Planejar testes para cada dependency |
+| 5-14 | HIGH | Considerar feature flag, rollout gradual |
+| 15+ | CRITICAL | Re-design para reduzir acoplamento OU planejar canary deploy |
+
+**SE CRITICAL**: ⚠️ Considerar voltar Workflow 2a (Solutions) para abordagem menos acoplada
+
+**ROI**: 5-10 min análise no design vs 30-120 min debugging efeito dominó em Workflow 6a
 
 ---
 

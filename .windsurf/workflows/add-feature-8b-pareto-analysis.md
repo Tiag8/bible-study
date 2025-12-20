@@ -317,3 +317,31 @@ Acionar: `.windsurf/workflows/add-feature-9-finalization.md` ou `/add-feature-9-
 **Workflow**: 8b/11 - PLAN.md + Pareto (Parte 2) | **Versão**: 3.2 (Otimizado) | **Data**: 2025-11-08
 
 **Changelog v3.2 (2025-11-08)**: Otimizado de 13,956 → 8,892 chars (-36%, 74% of limit). Removido exemplos redundantes, consolidado checklists, comprimido explicações verbosas. Mantido: metodologia Pareto, RCA, priorização ROI > 10x, meta-learning.
+
+---
+
+## 🧭 WORKFLOW NAVIGATOR
+
+### Próximo Workflow Padrão
+**[Workflow 9a] - Finalization**: Melhorias Pareto aprovadas/rejeitadas → documentar, commitar e finalizar feature.
+
+### Quando Desviar do Padrão
+
+| Situação | Workflow | Justificativa |
+|----------|----------|---------------|
+| Melhoria Pareto requer nova migration | 4.5 (Pre-Implementation) | Validar gates antes de implementar |
+| Melhoria afeta arquitetura | 2b (Technical Design) | Redesenhar antes de implementar |
+| Descobriu gap em workflow anterior | [Workflow afetado] | Corrigir na origem |
+
+### Quando Voltar
+
+| Sinal de Alerta | Voltar para | Por quê |
+|-----------------|-------------|---------|
+| 0 melhorias identificadas | 8a (Meta-Learning) | Análise incompleta - refazer |
+| PLAN.md inconsistente | 8a (Meta-Learning) | Consolidar learnings primeiro |
+| Pareto revelou problema em design | 2b (Technical Design) | Corrigir arquitetura |
+
+### Regras de Ouro
+- ⛔ **NUNCA pular**: RCA para cada melhoria - garantir ROI > 10x
+- ⚠️ **Implementar apenas com aprovação**: Melhorias Pareto requerem OK do usuário
+- 🎯 **Dúvida?**: Usar skill `workflow-navigator` para análise completa do contexto

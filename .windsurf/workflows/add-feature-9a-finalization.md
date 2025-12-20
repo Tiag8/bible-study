@@ -631,29 +631,6 @@ echo "✅ Context arquivado em $BACKUP_DIR"
 
 ---
 
-## 🎯 Feature Orchestrator: Marcar Workflow Como Completo
-
-**CRÍTICO**: Atualizar Feature Orchestrator para permitir trabalho em outras features.
-
-```bash
-# Após Workflow 9a ser completado com sucesso
-./scripts/feature-update-state.sh <nome-feature> complete-workflow 9a
-
-# Ver dashboard (confirmar status)
-./scripts/feature-dashboard.sh
-
-# SE feature está 100% COMPLETA (pronta para merge):
-./scripts/feature-update-state.sh <nome-feature> status completed
-```
-
-**Timing**: Executar APÓS Fase 21 (Resumo) estar documentado.
-
-**Benefício**: Feature orchestrator sabe que feature está finalizada, libera pipeline para próximas features.
-
-**Ref**: REGRA #28, `docs/guides/FEATURE-ORCHESTRATOR-QUICKSTART.md`
-
----
-
 ## 🔄 VALIDATION LOOP (OBRIGATÓRIO - Workflows Iterativos)
 
 **APLICÁVEL**: Se finalization envolve validação manual final ou ajustes pré-commit.
@@ -722,3 +699,32 @@ EOF
 - ✅ Split de Workflow 9 em Parte A (9a) e Parte B (9b)
 - ✅ Parte A: Docs + Commit + Summary (Fases 19-21)
 - ✅ Continuidade automática para Parte B
+
+---
+
+## 🧭 WORKFLOW NAVIGATOR
+
+### Próximo Workflow Padrão
+**[Workflow 11a/12] - Deploy ou Merge**: Feature finalizada → deploy para staging/prod ou merge para main.
+
+### Quando Desviar do Padrão
+
+| Situação | Workflow | Justificativa |
+|----------|----------|---------------|
+| Retrospectiva necessária | 9b (Retrospective) | Feature complexa, lições a capturar |
+| Pronto para deploy VPS | 11a (VPS Deployment Prep) | Deploy antes de merge |
+| Apenas merge sem deploy | 12 (Merge to Main) | Feature não precisa deploy imediato |
+
+### Quando Voltar
+
+| Sinal de Alerta | Voltar para | Por quê |
+|-----------------|-------------|---------|
+| Docs incompletas | 8a (Meta-Learning) | Capturar learnings faltantes |
+| Commit não atômico | 7a (Quality Gates) | Reorganizar commits |
+| Tests falhando | 5a (Implementation) | Corrigir código |
+
+### Regras de Ouro
+- ⛔ **NUNCA pular**: Commit atômico com mensagem descritiva
+- ⚠️ **Deploy sem staging**: SEMPRE testar em staging antes de prod
+- 🎯 **Dúvida?**: Usar skill `workflow-navigator` para análise completa do contexto
+

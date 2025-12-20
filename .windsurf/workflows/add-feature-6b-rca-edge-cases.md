@@ -596,3 +596,31 @@ Acionar workflow: .windsurf/workflows/add-feature-7-quality.md
 **Workflow criado em**: 2025-10-27 | **Dividido em**: 2025-11-04
 **Parte**: 6b de 11 (Parte 2 de 2)
 **Próximo**: Quality (Code Review + Security)
+
+---
+
+## 🧭 WORKFLOW NAVIGATOR
+
+### Próximo Workflow Padrão
+**[Workflow 7a] - Quality Gates**: RCA e edge cases validados → executar code review automatizado e security scan.
+
+### Quando Desviar do Padrão
+
+| Situação | Workflow | Justificativa |
+|----------|----------|---------------|
+| RCA revelou bug arquitetural | 2b (Technical Design) | Problema está no design, não na implementação |
+| Edge case requer nova migration | 4.5 (Pre-Implementation) | Validar gates antes de mudar schema |
+| Causa raiz afeta múltiplas features | 8a (Meta-Learning) | Documentar learning sistêmico primeiro |
+
+### Quando Voltar
+
+| Sinal de Alerta | Voltar para | Por quê |
+|-----------------|-------------|---------|
+| Bug não reproduzível | 6a (User Validation) | Refazer validação com mais cenários |
+| Fix causa regressão | 5a (Implementation) | Re-implementar com TDD |
+| 5 Whys inconclusivo | 5b (Refactoring & RCA) | RCA mais profundo necessário |
+
+### Regras de Ouro
+- ⛔ **NUNCA pular**: Resolução em Teia após RCA - garantir fix completo
+- ⚠️ **Bug encontrado tarde**: Criar teste automatizado para prevenir recorrência
+- 🎯 **Dúvida?**: Usar skill `workflow-navigator` para análise completa do contexto

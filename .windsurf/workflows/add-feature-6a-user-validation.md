@@ -162,4 +162,33 @@ echo "[$TIMESTAMP] GATE 3: APROVADO" >> .context/${BRANCH_PREFIX}_attempts.log
 ---
 
 **Versão**: 2.0 (Otimizado)
-**Próximo**: Workflow 6b (Visual Refinement) ou 7a (Merge)
+
+---
+
+## 🧭 WORKFLOW NAVIGATOR
+
+### Próximo Workflow Padrão
+**[Workflow 7a] - Quality Gates**: Validação aprovada → código precisa code review + security scan antes de merge.
+
+### Quando Desviar do Padrão
+
+| Situação | Workflow | Justificativa |
+|----------|----------|---------------|
+| Bug encontrado na validação | 5b (Refactoring RCA) | Corrigir bug com RCA antes de quality gates |
+| Edge case descoberto | 6b (Edge Cases) | Tratar edge case antes de quality gates |
+| Ajustes visuais necessários | 6c (Visual Refinement) | Refinamento UI antes de quality gates |
+| Vulnerabilidade identificada | 7b (Security RCA) | Resolver issue de segurança imediatamente |
+
+### Quando Voltar
+
+| Sinal de Alerta | Voltar para | Por quê |
+|-----------------|-------------|---------|
+| Múltiplos bugs Blocker/Critical | 5a (Implementation) | Implementação incompleta, não apenas fix |
+| Escopo mudou durante validação | 1 (Planning) | Re-planejar com novo escopo + GATE 1 |
+| 5+ iterações 6a sem aprovação | 2b (Technical Design) | Problema de design, não implementação |
+
+### Regras de Ouro
+- ⛔ **NUNCA pular**: Workflow 7a - código NÃO vai para merge sem quality gates
+- ⚠️ **Loop 6a→5b→6a (3+x)**: Voltar para 2b - problema é de design
+- 🎯 **Dúvida?**: Usar skill `workflow-navigator` para análise completa do contexto
+
