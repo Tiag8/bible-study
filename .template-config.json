@@ -2,7 +2,7 @@
   "$schema": "./schemas/template-config.schema.json",
   "version": "1.0.0",
   "description": "Configuração master do template - define o que é sincronizável",
-  "last_updated": "2025-11-29",
+  "last_updated": "2025-12-24",
 
   "layers": {
     "core": {
@@ -23,25 +23,42 @@
     "workflows": {
       "description": "Workflows genéricos de desenvolvimento",
       "files": [
+        ".windsurf/workflows/add-feature.md",
+        ".windsurf/workflows/add-feature-0-setup-unified.md",
         ".windsurf/workflows/add-feature-1-planning.md",
         ".windsurf/workflows/add-feature-2a-solutions.md",
         ".windsurf/workflows/add-feature-2b-technical-design.md",
         ".windsurf/workflows/add-feature-3-risk-analysis.md",
-        ".windsurf/workflows/add-feature-4-planning-final.md",
         ".windsurf/workflows/add-feature-4.5-pre-implementation-gates.md",
+        ".windsurf/workflows/add-feature-4.5a-environment.md",
         ".windsurf/workflows/add-feature-4.5b-database.md",
+        ".windsurf/workflows/add-feature-4.5d-edge-functions.md",
+        ".windsurf/workflows/add-feature-4.5e-code-quality.md",
+        ".windsurf/workflows/add-feature-4.5f-qa-deploy.md",
         ".windsurf/workflows/add-feature-5a-implementation.md",
         ".windsurf/workflows/add-feature-5b-refactoring-rca.md",
         ".windsurf/workflows/add-feature-6a-user-validation.md",
-        ".windsurf/workflows/add-feature-6b-visual-refinement.md",
-        ".windsurf/workflows/add-feature-7a-merge-strategy.md",
-        ".windsurf/workflows/add-feature-8a-post-implementation.md",
-        ".windsurf/workflows/add-feature-8b-pareto-check.md",
-        ".windsurf/workflows/add-feature-9a-code-hygiene.md",
+        ".windsurf/workflows/add-feature-6b-rca-edge-cases.md",
+        ".windsurf/workflows/add-feature-6c-visual-refinement.md",
+        ".windsurf/workflows/add-feature-7a-quality-gates.md",
+        ".windsurf/workflows/add-feature-7b-rca-security.md",
+        ".windsurf/workflows/add-feature-8a-meta-learning.md",
+        ".windsurf/workflows/add-feature-8b-pareto-analysis.md",
+        ".windsurf/workflows/add-feature-9a-finalization.md",
         ".windsurf/workflows/add-feature-9b-retrospective.md",
-        ".windsurf/workflows/add-feature-10-sync-to-template.md",
+        ".windsurf/workflows/add-feature-10-template-sync.md",
+        ".windsurf/workflows/add-feature-11a-vps-deployment-prep.md",
+        ".windsurf/workflows/add-feature-11b-vps-deployment-exec.md",
+        ".windsurf/workflows/add-feature-11c1a-vps-monitoring.md",
+        ".windsurf/workflows/add-feature-11c1b-rca-rollback.md",
+        ".windsurf/workflows/add-feature-11c2-vps-rollback-docs.md",
+        ".windsurf/workflows/add-feature-12-merge-to-main.md",
+        ".windsurf/workflows/add-feature-13a-post-deploy.md",
+        ".windsurf/workflows/add-feature-13b-rca-metrics.md",
         ".windsurf/workflows/add-feature-14-meta-learning-consolidation.md",
-        ".windsurf/workflows/workflow-0-setup.md"
+        ".windsurf/workflows/add-feature-fast-track-critical-bug.md",
+        ".windsurf/workflows/debug-complex-problem.md",
+        ".windsurf/workflows/ultra-think.md"
       ]
     },
 
@@ -92,7 +109,8 @@
         "scripts/context-init.sh",
         "scripts/context-load-all.sh",
         "scripts/context-read-all.sh",
-        "scripts/validate-memory-audit-mandatory.sh"
+        "scripts/validate-memory-audit-mandatory.sh",
+        "scripts/validate-context-captured.sh"
       ],
       "files": [
         ".context/INDEX.md",
