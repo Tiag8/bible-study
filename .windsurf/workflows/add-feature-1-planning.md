@@ -26,65 +26,85 @@ Use **skills** para decisões de workflow:
 
 ---
 
-## 📚 Pré-requisito: Consultar Documentação Base
-
-Antes de iniciar, SEMPRE ler:
-- `docs/PLAN.md`, `docs/TASK.md`, `README.md`
-- `docs/` (TODA pasta), `supabase/` (TODA pasta)
-
----
-
 ## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
 
 **⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
 
-### 0.1. Ler INDEX.md (Guia de Leitura)
+### 0.1. Carregar Contexto
 
 ```bash
-cat .context/INDEX.md
+./scripts/context-read-all.sh  # Lê todos arquivos .context/
 ```
 
-**Entender**:
-- Ordem de leitura dos arquivos
-- O que cada arquivo faz
-- Checklists obrigatórios
-
-### 0.2. Ler Context Files (Ordem Definida em INDEX.md)
-
-```bash
-# Prefixo da branch (ex: feat-members)
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-
-# 1. Onde estou agora?
-cat .context/${BRANCH_PREFIX}_workflow-progress.md
-
-# 2. Estado atual resumido
-cat .context/${BRANCH_PREFIX}_temp-memory.md
-
-# 3. Decisões já tomadas
-cat .context/${BRANCH_PREFIX}_decisions.md
-
-# 4. Histórico completo (últimas 30 linhas)
-tail -30 .context/${BRANCH_PREFIX}_attempts.log
-```
-
-### 0.3. Validação Context Loaded
-
-**Checklist**:
-- [ ] Li INDEX.md?
-- [ ] Li workflow-progress.md (onde estou)?
-- [ ] Li temp-memory.md (estado atual)?
-- [ ] Li decisions.md (decisões já tomadas)?
-- [ ] Li últimas 30 linhas de attempts.log?
+**Checklist**: Li INDEX.md? workflow-progress? temp-memory? decisions? attempts.log?
 
 **Se NÃO leu**: ⛔ PARAR e ler AGORA.
 
-### 0.4. Log Início Workflow
+---
+
+## 🛡️ GATE 0: Deep Context Capture (/clarify) - OBRIGATÓRIO 🆕
+
+**⚠️ CRÍTICO**: Capturar contexto COMPLETO antes de qualquer análise.
+
+### Quando Executar GATE 0
+
+- ✅ Pedido tem < 30 palavras E envolve criação/modificação
+- ✅ Pedido menciona "ou", "talvez", "pode ser" (ambiguidade)
+- ✅ Pedido afeta 2+ sistemas (front+back, back+db)
+- ✅ É primeira mensagem de feature/bug nova
+- ✅ Você não tem 100% clareza do que o usuário quer
+
+### Executar /clarify
 
 ```bash
-BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 1 (Planning) - START" >> .context/${BRANCH_PREFIX}_attempts.log
+# Skill /clarify executa 3 fases:
+# Fase 1: Contextualização técnica (busca teia no código/DB)
+# Fase 2: Perguntas de contexto (loop até usuário validar)
+# Fase 3: Persistir em .context/{branch}_context-captured.md
 ```
+
+**Output esperado**:
+```
+📊 CONTEXTO TÉCNICO ENCONTRADO:
+- Componentes: [lista]
+- Hooks: [lista]
+- Edge Functions: [lista]
+- Tabelas DB: [lista]
+- Dependências: [N arquivos]
+
+✅ CHECKLIST CONTEXTO CAPTURADO:
+- [x] Objetivo claro
+- [x] Escopo definido (dentro/fora)
+- [x] Comportamento esperado
+- [x] Edge cases identificados
+- [x] Integrações mapeadas
+
+⏸️ CONTEXTO SUFICIENTE? (sim/não/mais perguntas)
+```
+
+### Validação GATE 0
+
+```bash
+./scripts/validate-context-captured.sh
+# Exit 0 = GATE 0 PASSOU
+# Exit 1 = GATE 0 FALHOU (executar /clarify)
+```
+
+**Checklist GATE 0**:
+- [ ] Contexto técnico buscado automaticamente?
+- [ ] Perguntas de contexto feitas ao usuário?
+- [ ] Usuário confirmou "contexto suficiente"?
+- [ ] Arquivo `.context/{branch}_context-captured.md` existe?
+
+**⛔ SE FALHOU**: PARAR → Executar `/clarify` → Re-validar
+
+**Log Decisão**:
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 0: Context Capture - [APROVADO/BLOQUEADO]" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+**✅ SE APROVADO**: Prosseguir para Fase 0.5 (CSF Validation).
 
 ---
 
@@ -259,7 +279,94 @@ BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
 echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 1: Reframing - [APROVADO/BLOQUEADO]" >> .context/${BRANCH_PREFIX}_attempts.log
 ```
 
-**✅ SE APROVADO**: Prosseguir para Análise de Impacto abaixo.
+**✅ SE APROVADO**: Prosseguir para Fase 1.6 (Spec Generation + Clarify).
+
+---
+
+## 📐 Fase 1.6: SPECIFY - Preencher spec.md (REGRA #46)
+
+**⚠️ CRÍTICO**: Preencher `{prefix}_spec.md` APÓS GATE 1 Reframing aprovado.
+
+### 1.6.1 Localizar spec.md
+
+**Arquivo**: `.context/{prefix}_spec.md` (criado por `context-init.sh`)
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+cat .context/${BRANCH_PREFIX}_spec.md
+```
+
+### 1.6.2 Preencher spec.md
+
+**Preencher spec.md** com base no Reframing:
+- **Overview**: Problema REFRAMADO (não original)
+- **Problem Statement**: Para quem? Qual impacto?
+- **Requirements**: Derivados do problema reframado
+- **User Stories**: Como [persona], quero [ação], para [benefício]
+- **Out of Scope**: O que NÃO está incluído (explícito)
+- **Success Criteria**: Como saber que está PRONTO?
+
+**Template Rápido**:
+```markdown
+## Requirements (spec.md)
+
+### Functional Requirements
+- [ ] FR-1: [Derivado do problema reframado]
+- [ ] FR-2: [Testável com critério de aceite]
+
+### Non-Functional Requirements
+- [ ] NFR-1: Performance - [critério mensurável]
+- [ ] NFR-2: Security - RLS obrigatório (lifetracker_*)
+
+## User Stories
+- US-1: Como [persona], quero [ação], para [benefício]
+```
+
+### 1.6.3 CLARIFY - Resolver Ambiguidades
+
+**ANTES de prosseguir para análise de impacto**, resolver TODAS ambiguidades:
+
+**Perguntas Obrigatórias para CADA requirement**:
+- [ ] Requirement é TESTÁVEL? (critério de aceite explícito?)
+- [ ] Existe CONTRADIÇÃO entre requirements?
+- [ ] ESCOPO (IN/OUT) está claro?
+- [ ] DEPENDÊNCIAS identificadas?
+- [ ] EDGE CASES considerados?
+
+**Técnica: 5 Whys para Requirements Vagos**:
+```
+Requirement: "Sistema deve ser rápido"
+1. O que é rápido? → < 2 segundos
+2. Para qual operação? → Dashboard load
+3. Em qual cenário? → 100 usuários simultâneos
+4. Com qual hardware? → VPS 2GB RAM
+5. REQUIREMENT CLARO: "Dashboard carrega < 2s com 100 usuários em VPS 2GB"
+```
+
+**Transformação**:
+```
+❌ Ambíguo: "Suportar múltiplos usuários"
+✅ Claro: "Suportar 1000 usuários ativos, 100 simultâneos, 10 req/s por usuário"
+```
+
+### 🛡️ GATE 1.6: Clarify Validation
+
+**Checklist Obrigatório**:
+- [ ] spec.md preenchido com requirements derivados do problema reframado?
+- [ ] ZERO requirements ambíguos? (todos testáveis)
+- [ ] Contradições resolvidas?
+- [ ] Escopo IN/OUT documentado?
+- [ ] Usuário validou clarificações?
+
+**⛔ SE NÃO**: PARAR → Clarificar → Re-validar
+
+**Log Decisão**:
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] GATE 1.6: Clarify - [APROVADO/BLOQUEADO]" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+**✅ SE APROVADO**: Prosseguir para Análise de Impacto.
 
 ---
 
@@ -392,187 +499,28 @@ Problema: Email não salvou
 
 ## 🧠 Meta-Learning: Captura de Aprendizados
 
-**⚠️ CRÍTICO - NÃO PULE**: Fundamental para evolução contínua.
+**Ver detalhes**: Workflow 8a (Meta-Learning) para processo completo.
 
-### Questões de Reflexão (TODAS)
+**Quick Checklist**:
+- [ ] Eficiência ≥ 8/10? Iterações ≤ 3?
+- [ ] Gaps identificados? (validação/gate/script)
+- [ ] RCA aplicado SE problema sistêmico?
 
-**1. Eficiência (Nota 1-10)**:
-- [ ] Nota: __/10
-- [ ] Se < 8: Fase ineficiente? Como melhorar?
-- [ ] Alguma fase demorou muito? Qual? Por quê?
-
-**2. Iterações**:
-- [ ] Número: __
-- [ ] Se > 3: O que causou múltiplas idas e vindas?
-- [ ] Como tornar workflow mais autônomo?
-
-**3. Gaps**:
-- [ ] Validação faltou? (Onde inserir checklist?)
-- [ ] Gate falhou detectar erro? (Melhorar qual?)
-- [ ] Comando repetido 3+ vezes? (Automatizar em script?)
-
-**4. RCA (se identificou problema)**:
-- [ ] Problema: [descrever]
-- [ ] 5 Whys aplicados? (causa raiz sistêmica?)
-- [ ] Afeta múltiplas features? (SE NÃO: descartar - não é sistêmico)
-- [ ] Meta-learning previne recorrência? (não apenas corrige sintoma)
-
-### Ações de Melhoria
-
-**Documentação a atualizar**:
-- [ ] Workflow (.md) precisa melhorias? → Descrever alterações
-- [ ] CLAUDE.md precisa seção nova? → Especificar
-- [ ] Novo script útil? → Nome + função
-- [ ] ADR necessário? → Decisão arquitetural
-
-**ROI Esperado**: [Ex: "20min economizadas/feature" ou "Previne 2h debugging"]
-
-**IMPORTANTE**:
-- Só learnings SISTÊMICOS (não pontuais)
-- Aplicar RCA para validar
-- Consolidação final: Workflow 8a
-
-### Validação Tamanho
-
-```bash
-wc -c .windsurf/workflows/add-feature-1-planning.md
-# ✅ < 12000 chars (12k limit)
-```
-
-**Se workflow > 11k**:
-- [ ] Remover exemplos redundantes
-- [ ] Consolidar checklists similares
-- [ ] Extrair detalhes para docs/
-- [ ] Dividir em 2 workflows (se > 12k)
+**Regra**: ANTI-ROI - NUNCA calcular tempo/ROI. Ver `~/.claude/rules/08-communication.md` REGRA #7.
 
 ---
 
----
+## ✅ FASE 4: CHECKPOINTS (REGRA #14)
 
-## 🚨 REGRA CRÍTICA: ANTI-ROI
+**CRÍTICO**: Checkpoint após CADA ação atômica.
 
-**NUNCA calcule ou mencione**:
-- ❌ ROI (Return on Investment)
-- ❌ Tempo de execução/produção
-- ❌ "Horas economizadas"
-- ❌ Estimativas temporais (Xmin vs Ymin)
-
-**Por quê**:
-- Projeto desenvolvido por IA (não humanos)
-- IA executa tarefas em paralelo (não linear)
-- Cálculos consomem tokens sem valor
-- Polui documentação com dados irrelevantes
-
-**Permitido**:
-- ✅ Evidências concretas (código, logs, testes)
-- ✅ Comparações qualitativas ("mais rápido", "mais eficiente")
-- ✅ Métricas técnicas (latência, throughput, memory usage)
-
-**Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
-
----
-
-## ✅ FASE 4: CHECKPOINTS (REGRA #13 - Uma Ação Por Vez)
-
-**CRÍTICO**: Durante todo este workflow, SEMPRE executar checkpoint após CADA ação atômica.
-
-### 4.1. O que é uma Ação Atômica?
-
-**Ação atômica** = Menor unidade testável e reversível.
-
-**Exemplos deste workflow**:
-- ✅ "Ler e analisar docs/PLAN.md"
-- ✅ "Executar Reframing do problema"
-- ✅ "Identificar arquivos afetados no database"
-- ✅ "Executar Ultra Think para decisão arquitetural"
-- ❌ "Fazer todo planejamento" (NÃO atômico - múltiplas ações)
-
-### 4.2. Checkpoint Obrigatório (Após Cada Ação)
-
-**Usar script automatizado**:
 ```bash
 ./scripts/checkpoint.sh "descrição da ação executada"
 ```
 
-**Ou manualmente**:
+**Checklist**: Executei 1 ação? Mostrei evidência? Usuário validou? Logei em .context/?
 
-**Template de Checkpoint**:
-```
-✅ AÇÃO COMPLETA: [descrição da ação]
-
-📸 EVIDÊNCIA:
-[screenshot, log, diff, análise feita]
-
-🔍 VALIDAÇÃO:
-- [x] Ação executada com sucesso
-- [x] Sem erros/warnings
-- [x] Output documentado
-- [x] Próxima ação identificada
-
-🎯 PRÓXIMA AÇÃO PROPOSTA:
-[descrição da próxima ação]
-
-⏸️ AGUARDANDO APROVAÇÃO do usuário para continuar.
-```
-
-### 4.3. Checklist Checkpoint (Executar a Cada Ação)
-
-- [ ] **Executei apenas 1 ação?**
-- [ ] **Mostrei evidência ao usuário?** (análise, documentos lidos, output)
-- [ ] **Usuário validou?** (aprovação explícita)
-- [ ] **Documentei em `.context/`?** (attempts.log)
-- [ ] **Identifiquei próxima ação?** (planejamento incremental)
-
-### 4.4. Exemplo de Aplicação (Workflow 1)
-
-**Fluxo com Checkpoints**:
-
-```
-1. AÇÃO: "Ler docs/PLAN.md"
-   → Executar → Checkpoint → Aprovação
-
-2. AÇÃO: "Executar Reframing do problema"
-   → Executar → Checkpoint → Aprovação
-
-3. AÇÃO: "Identificar features similares em docs/features/"
-   → Executar → Checkpoint → Aprovação
-
-4. AÇÃO: "Analisar impacto no database"
-   → Executar → Checkpoint → Aprovação
-
-5. AÇÃO: "Executar Ultra Think (se aplicável)"
-   → Executar → Checkpoint → Aprovação
-```
-
-### 4.5. Quando NÃO Aplicar Checkpoint
-
-**Exceções** (ações podem ser agrupadas):
-- ✅ **Leitura múltipla**: Ler 3 docs em sequência (não muda estado)
-- ✅ **Análise agregada**: Grep + Find + Análise (apenas busca)
-
-**MAS**: Mesmo nas exceções, mostrar resultado ANTES de próxima ação.
-
-### 4.6. Benefícios no Workflow 1
-
-**Eficiência**:
-- ✅ Reframing validado ANTES de análise profunda
-- ✅ Documentação encontrada ANTES de Ultra Think
-- ✅ Zero retrabalho (cada etapa validada)
-
-**Colaboração**:
-- ✅ Usuário vê progresso incremental
-- ✅ Feedback loop rápido (30seg por checkpoint)
-- ✅ Correção de rota imediata (se necessário)
-
-### 4.7. Documentação Automática
-
-Cada checkpoint DEVE logar em `.context/attempts.log`:
-
-```bash
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] CHECKPOINT: [ação] - SUCCESS" >> .context/${BRANCH_PREFIX}_attempts.log
-```
-
-**Ver**: REGRA #13 em `.claude/CLAUDE.md` para detalhes completos.
+**Ver**: `~/.claude/rules/05-git-deploy.md` REGRA #14 para detalhes.
 
 ---
 
@@ -686,7 +634,24 @@ Ou manualmente: `/add-feature-2-solutions`
 
 ---
 
-**Criado**: 2025-10-27 | **Atualizado**: 2025-11-20 | **Parte**: 1/11
+**Criado**: 2025-10-27 | **Atualizado**: 2025-12-30 | **Parte**: 1/11
+
+**v2.4** (2025-12-30):
+- 🆕 GATE 0: Deep Context Capture (`/clarify` v2.0) - OBRIGATÓRIO
+- 🆕 Script: `validate-context-captured.sh` (validação GATE 0)
+- 🔄 Fluxo: GATE 0 → Fase 0.5 (CSF) → GATE 1 (Reframing)
+- ✅ Problema resolvido: Contexto insuficiente antes de análise
+
+**v2.3** (2025-12-28):
+- 🔄 Fase 1.6: SPECIFY - Preencher `{prefix}_spec.md` (inline v2.0)
+- 🔄 Spec.md agora em `.context/{prefix}_spec.md` (não mais em specs/)
+- 🔄 Removida dependência de spec-init.sh (context-init.sh já cria)
+- ✅ Integração com Spec-Driven Unified
+
+**v2.2** (2025-12-27):
+- 🆕 Fase 1.6: Spec Generation + Clarify (REGRA #46 Spec-Driven)
+- 🆕 GATE 1.6: Clarify Validation (5 checks obrigatórios)
+- ✅ Fonte: GitHub Spec Kit + OpenSpec
 
 **v2.1** (2025-11-20):
 - 🆕 Fase 0.5: CSF Validation (GATE 1, Workflow 4.5, Schema-First)
@@ -697,27 +662,9 @@ Ou manualmente: `/add-feature-2-solutions`
 
 ## 🧭 WORKFLOW NAVIGATOR
 
-### Próximo Workflow Padrão
-**[Workflow 2a/2b] - Solutions/Technical Design**: GATE 1 Reframing aprovado → propor soluções técnicas.
+**Próximo**: Workflow 2a (Solutions) ou 2b (Technical Design)
 
-### Quando Desviar do Padrão
+**Desvios**: Bug crítico → fast-track | Decisão complexa → ultra-think
 
-| Situação | Workflow | Justificativa |
-|----------|----------|---------------|
-| Problema trivial, solução óbvia | 2b (Technical Design) | Pular 2a se apenas 1 solução viável |
-| Bug crítico em produção | fast-track-critical-bug | Correção urgente < 2h |
-| Decisão arquitetural complexa | ultra-think | Análise profunda antes de soluções |
-
-### Quando Voltar
-
-| Sinal de Alerta | Voltar para | Por quê |
-|-----------------|-------------|---------|
-| GATE 1 Reframing falhou | 1 Fase 1.5 | Re-executar Reframing até aprovar |
-| Escopo não está claro | 1 Fase 1 | Fazer mais perguntas de contexto |
-| Usuário não validou problema | 1 Fase 1.5 | Reframing precisa aprovação |
-
-### Regras de Ouro
-- ⛔ **NUNCA pular**: GATE 1 Reframing - problema ERRADO = feature ERRADA
-- ⚠️ **Re-executar GATE 1 se**: Problema parece sintoma, não causa raiz
-- 🎯 **Dúvida?**: Usar skill `workflow-navigator` para análise completa do contexto
+**Regra de Ouro**: ⛔ NUNCA pular GATE 1 Reframing. Dúvida? → skill `workflow-navigator`
 
