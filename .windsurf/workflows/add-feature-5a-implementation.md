@@ -88,7 +88,7 @@ grep -r "\.from('TABLE_NAME')\.upsert\|\.from(\"TABLE_NAME\")\.upsert" supabase/
 **Exemplo Real** (ADR-050 Phase 5):
 
 ```bash
-# Schema change: ADD user_id to lifetracker_entity_keywords
+# Schema change: ADD user_id to ${PROJECT_PREFIX}entity_keywords
 # Found 2 INSERT/UPSERT points:
 
 # Point 1: keyword-matcher.ts:207 (UPSERT) ✅ UPDATED
@@ -135,6 +135,65 @@ user_id: userId  # Added
 **ROI**: 1min classificação vs 15-60min debug E2E incompleto
 
 **Fonte**: Learning #23 (FASE 2.5 Follow-Up v3)
+
+---
+
+## 📋 FASE 0.8: LOAD tasks.md (REGRA #46) 🆕
+
+**Objetivo**: Usar tasks.md como guia de implementação, seguindo ordem de dependências.
+
+**Arquivo Inline** (v2.0 - criado por `context-init.sh`):
+
+```bash
+# Localizar tasks.md inline
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+TASKS_FILE=".context/${BRANCH_PREFIX}_tasks.md"
+
+if [ -f "$TASKS_FILE" ]; then
+  echo "✅ Tasks file encontrado: $TASKS_FILE"
+  cat "$TASKS_FILE"
+fi
+```
+
+### Uso de tasks.md na Implementação
+
+**Ordem de Execução**:
+1. Ler tasks.md para entender dependency graph
+2. Implementar tasks na ordem de dependências (não alfabética)
+3. Marcar tasks como concluídas conforme implementa
+
+**Tracking**:
+```markdown
+# Em tasks.md, atualizar status:
+
+- [x] T-1.1: [Tarefa concluída] ← Marcar [x] quando done
+- [~] T-1.2: [Tarefa em progresso] ← Usar [~] para in_progress
+- [ ] T-1.3: [Tarefa pendente] ← Manter [ ] para pending
+```
+
+**Mapeamento tasks.md ↔ Commits**:
+```bash
+# Commit message deve referenciar task ID
+git commit -m "feat(scope): T-1.1 - description
+
+- Implements T-1.1 from tasks.md
+- Dependencies: none"
+```
+
+### Validação Final
+
+**Ao completar todas tasks**:
+- [ ] Todas tasks marcadas [x] em tasks.md?
+- [ ] Dependency graph respeitado? (tarefas pai antes de filhas)
+- [ ] Commits referenciam task IDs?
+
+**SE tasks.md não existe**:
+- [ ] Voltar Workflow 3.5 (TASKS) para criar tasks.md
+- [ ] OU usar docs/TASK.md legacy como alternativa
+
+**Por quê**: Implementar sem ordem = retrabalho quando dependências falham.
+
+**ROI**: 2min load + track vs 20-60min refazer ordem errada
 
 ---
 
@@ -276,7 +335,7 @@ it('should create habit and show in list', async () => {
 ## 4️⃣ VALIDATION GATES
 
 ### ⭐ GATE 6.5: Schema Validation (SE SQL)
-**Quando**: CREATE FUNCTION, migrations, queries `lifetracker_*`
+**Quando**: CREATE FUNCTION, migrations, queries `${PROJECT_PREFIX}*`
 
 **Processo** (3-5 min):
 1. Listar tabelas referenciadas
@@ -363,6 +422,122 @@ it('should create habit and show in list', async () => {
 - [ ] Executar `./scripts/sync-code-todos-to-taskmd.sh`
 - [ ] SE exit 1: Adicionar TODOs faltantes a TASK.md OU remover tag `@PHASE-X`
 
+### ⭐ GATE 6.7: OBSERVABILITY GATE (ANTES Deploy) 🆕
+**Quando**: Criar/alterar Edge Function, Tool Gemini, Handler crítico
+
+**Checklist Obrigatória**:
+- [ ] VERSION TAG adicionado? (`const MODULE_VERSION = "YYYY-MM-DD-NNN"`)
+- [ ] Log de entrada? (parâmetros recebidos)
+- [ ] Log de saída? (resultado retornado)
+- [ ] Erros retornam mensagem DESCRITIVA? (não genérica)
+- [ ] Erros 4xx são LOGADOS? (não silenciosos)
+- [ ] Validações runtime para tipos críticos? (triggers, assinaturas, IDs)
+
+**Pattern VERSION TAG**:
+```typescript
+const MODULE_VERSION = "2025-12-30-001";
+console.log(`[module-name] 🚀 VERSION: ${MODULE_VERSION}`);
+```
+
+**Pattern Logging Estruturado**:
+```typescript
+console.log(`[tool_name v${VERSION}] ENTRY: userId=${userId}, args=${JSON.stringify(toolArgs)}`);
+// ... lógica ...
+console.log(`[tool_name v${VERSION}] SUCCESS: result=${JSON.stringify(result)}`);
+```
+
+**❌ Bloqueios**:
+- Deploy sem VERSION TAG
+- `catch (e) { /* ignore */ }` - NUNCA ignorar erros
+- `return "Erro genérico"` - SEMPRE mensagem descritiva
+- Trigger hardcoded não validado contra VALID_TRIGGERS
+
+**ROI**: 5min observability vs 2h+ debug blind loop
+
+**Evidência**: Bug Onboarding João - 422 errors silenciosos, 6 RCAs sem resolver por falta de observability
+
+**Cross-ref**: REGRA #44.1 (Observability Obrigatória)
+
+### ⭐ GATE 6.8: CLEANUP GATE (APÓS Modificar Fluxo) 🆕
+**Quando**: Remover feature, alterar fluxo, renomear função/trigger
+
+**Processo (3 Etapas)**:
+
+**Etapa 1: MAPEAR** - Executar script de validação:
+```bash
+./scripts/validate-cleanup.sh "codigo_a_remover"
+
+# Exit codes:
+# 0 = Cleanup completo (0 referências)
+# 1 = Código morto encontrado (seguro remover)
+# 2 = Código CONECTADO encontrado (requer análise)
+```
+
+**Etapa 2: CLASSIFICAR** - Para cada referência encontrada:
+
+| Pergunta | Se SIM | Se NÃO |
+|----------|--------|--------|
+| Código é chamado por outro código? | ⚠️ CONECTADO - Analisar impacto | ✅ Código morto - Remover |
+| Existe import deste código? | ⚠️ CONECTADO - Verificar quem importa | ✅ Código morto - Remover |
+| É exportado para uso externo? | ⚠️ CONECTADO - Verificar consumers | ✅ Código morto - Remover |
+| Trigger/RPC existe no DB? | ⚠️ CONECTADO - Verificar se usado | ✅ Código morto - Remover |
+
+**Etapa 3: DECIDIR** - Baseado na classificação:
+
+```
+SE Exit Code = 0 (0 referências):
+  → ✅ CLEANUP COMPLETO - Prosseguir
+
+SE Exit Code = 1 (código morto):
+  → Remover linhas identificadas
+  → Executar script novamente
+  → Repetir até Exit Code = 0
+
+SE Exit Code = 2 (código CONECTADO):
+  → ⛔ PARAR - Mudança afeta outras partes
+  → Mapear impacto da conexão
+  → Avaliar se mudança precisa propagar
+  → SE SIM: Voltar Workflow 2b → 3 → 4.5 → 5a
+  → SE NÃO: Documentar razão e adaptar código conectado
+```
+
+**Checklist Obrigatória**:
+- [ ] Executei `./scripts/validate-cleanup.sh "codigo"`?
+- [ ] SE Exit 2: Mapeei impacto das conexões?
+- [ ] SE Exit 2 + propagar: Voltei Workflow 2b/3/4.5?
+- [ ] Removi TODOS os pontos de código morto?
+- [ ] Atualizei arrays/listas que incluíam o código removido?
+- [ ] Removi fallbacks que dependem de fluxo antigo?
+- [ ] Validei que triggers usados existem em TRANSITION_RULES?
+- [ ] Validei assinatura das funções chamadas?
+- [ ] Atualizei mensagens de retorno que referenciavam fluxo antigo?
+- [ ] Executei script novamente e obtive Exit 0?
+
+**Tipos de Código Morto a Buscar**:
+| Tipo | Exemplo | Impacto |
+|------|---------|---------|
+| Tool definitions | `CONFIRM_PHONE_NUMBER_TOOL` | IA pode chamar tool inexistente |
+| Tool handlers | `case "confirm_phone_number":` | Código nunca executado |
+| Fallbacks | `isPhoneConfirmationQuestion` | Lógica para fluxo antigo |
+| Arrays órfãos | `ONBOARDING_TOOLS.push()` | Validações quebradas |
+| Mensagens retorno | `next_step: "Confirmar telefone..."` | IA recebe instrução errada |
+| Triggers inválidos | `"whatsapp_name_collected"` | 422 silenciosos |
+
+**❌ Bloqueios**:
+- Remover feature sem executar `validate-cleanup.sh`
+- Ignorar Exit Code 2 (código conectado)
+- Alterar fluxo sem atualizar mensagens de retorno
+- Renomear trigger sem atualizar TRANSITION_RULES
+- Comentar código ao invés de DELETAR
+- Deixar fallbacks para fluxos inexistentes
+- Finalizar cleanup com Exit Code != 0
+
+**ROI**: 10min cleanup vs 3h+ debug código morto
+
+**Evidência**: Bug Onboarding João - 9 pontos código morto `confirm_phone_number`, 5 triggers inválidos
+
+**Cross-ref**: REGRA #52 (Cleanup Obrigatório), `scripts/validate-cleanup.sh`
+
 ---
 
 ## 5️⃣ COVERAGE VALIDATION
@@ -399,15 +574,22 @@ git commit -m "feat(scope): description
 
 ## 📚 REFERÊNCIAS
 
-**Regras**: #5 (Teia), #11 (YAGNI), #14 (Atômico), #17 (No any), #28 (Gates), #31 (Schema-First)
+**Regras**: #5 (Teia), #11 (YAGNI), #14 (Atômico), #17 (No any), #28 (Gates), #31 (Schema-First), #44.1 (Observability) 🆕, #46 (Spec-Driven), #52 (Cleanup) 🆕
 **ADRs**: ADR-021 (Gates), ADR-023 (Gemini 9k), ADR-030 (Tailwind), ADR-035 (Schema), ADR-050 (User-Scoped Keywords)
-**Scripts**: `context-read-all.sh`, `validate-memory-consulted.sh`, `db-dependency-checker.sh`, `impact-mapper.sh`, `sync-code-todos-to-taskmd.sh`
+**Scripts**: `context-read-all.sh`, `validate-memory-consulted.sh`, `db-dependency-checker.sh`, `impact-mapper.sh`, `sync-code-todos-to-taskmd.sh`, `spec-init.sh` 🆕
 **Learnings**: workflow.md #23 (Feature Type), #24 (Context Snapshot), #25 (TODO Sync)
 **Patterns**: `docs/patterns/CONTEXT-SNAPSHOT-FALLBACK.md`, `docs/patterns/DIRECT-UPSERT-RPC-PATTERN.md`
 **Pareto**: Meta-Learning #2 (GATE 6.5.5 - ROI 15x), #3 (Pattern Doc - ROI 18x), #4 (FASE 0.6.1 - ROI 12x)
+**Specs**: `.context/{prefix}_spec.md`, `{prefix}_plan.md`, `{prefix}_tasks.md` (REGRA #46 - Inline v2.0)
 
 ---
 
-**Versão**: 2.3.0 | **Chars**: ~8,100 | **Evolution**: +900 chars (FASE 0.6.1 INSERT/UPSERT Mapping) | **Reduction**: 79.4% vs v1 (39,415)
+**Versão**: 2.6.0 | **Chars**: ~11,800 | **Evolution**: +2,300 chars (GATE 6.7, 6.8) | **Reduction**: 70.0% vs v1 (39,415)
+
+**Changelog v2.6.0**: Adicionado GATE 6.7 (Observability) e GATE 6.8 (Cleanup) - Extraídos do Bug Onboarding João (REGRA #44.1, #52)
+
+**Changelog v2.5.0**: FASE 0.8 atualizada para usar formato inline `.context/{prefix}_tasks.md` (v2.0 Spec-Driven)
+
+**Changelog v2.4.0**: Adicionada FASE 0.8 (LOAD tasks.md) para usar tasks.md como guia de implementação com tracking de progresso (REGRA #46 Spec-Driven)
 
 <!-- PROPAGATE -->
