@@ -62,43 +62,77 @@ Documentar em `.context/{branch}_decisions.md`:
 
 ---
 
-## FASE 0.2: MEMORY AUDIT (Consulta Intencional) 🆕
+## FASE 0.2: MEMORY AUDIT (Dinâmico Baseado em Contexto WF1) 🆕 ⭐
 
-**Objetivo**: Garantir que conhecimento existente seja aplicado. Evitar erros repetidos.
+**Objetivo**: Auto-carregar memórias relevantes baseado no CONTEXTO DO WORKFLOW 1 (spec.md + decisions.md). Evitar erros repetidos.
 
-### Mapeamento de Domínios
+**CRÍTICO**: Este passo usa o contexto do planejamento (WF1) para determinar QUAIS memórias carregar - não apenas arquivos modificados.
 
-**Identificar domínios da feature**:
+### Passo 1: Análise de Contexto do WF1
+
 ```bash
-# Listar domínios tocados (marcar todos aplicáveis)
-DOMINIOS=""
-# [ ] whatsapp/webhook → uazapi.md
-# [ ] gemini/ai/tool → gemini.md
-# [ ] supabase/RLS/migration → supabase.md
-# [ ] deploy/docker → deployment.md
-# [ ] edge/deno → edge-functions.md
-# [ ] react/frontend → frontend.md
-# [ ] git/commit → git.md
-# [ ] security/auth → security.md
-# [ ] prompt/few-shot → prompt.md
-# [ ] workflow/gate → workflow.md
-# [ ] debug/rca → debugging.md
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+# Extrair domínios do spec.md (requirements indicam tecnologias)
+echo "📋 Analisando spec.md para detectar domínios..."
+cat .context/${BRANCH_PREFIX}_spec.md | grep -Eo "(WhatsApp|Gemini|Supabase|Edge Function|webhook|migration|RLS|auth|frontend|React|dashboard|AI|tool|prompt)" | sort -u
+
+# Extrair domínios das decisions.md (reframing + escolhas indicam stack)
+echo "📋 Analisando decisions.md para detectar domínios..."
+cat .context/${BRANCH_PREFIX}_decisions.md | grep -Eo "(WhatsApp|Gemini|Supabase|Edge Function|webhook|migration|RLS|auth|frontend|React|dashboard|AI|tool|prompt)" | sort -u
 ```
 
-### Leitura OBRIGATÓRIA (não depender de keywords)
+### Passo 2: Mapeamento Domínio → Memory (Dinâmico)
 
-**Para CADA domínio identificado**:
+**Mapa de Domínio → Arquivo Memory**:
+
+| Domínio Detectado | Memory File | Quando Carregar |
+|-------------------|-------------|-----------------|
+| WhatsApp, webhook, UAZAPI | `uazapi.md` | Sempre se spec menciona WhatsApp |
+| Gemini, AI, tool, prompt | `gemini.md` | Sempre se spec usa IA/tools |
+| Supabase, migration, RLS | `supabase.md` | Sempre se spec modifica DB |
+| Edge Function, Deno | `edge-functions.md` | Sempre se spec cria Edge Function |
+| deploy, docker, VPS | `deployment.md` | Sempre se spec envolve deploy |
+| git, merge, branch | `git.md` | Sempre se spec grande (multi-file) |
+| frontend, React, dashboard | `frontend.md` | Sempre se spec tem UI |
+| security, auth, RLS bypass | `security.md` | Sempre se spec envolve auth/dados |
+| debug, bug, RCA | `debugging.md` | Sempre se spec é bugfix |
+| workflow, gate, validation | `workflow.md` | Sempre (default) |
+| prompt, PTCF, few-shot | `prompt.md` | Sempre se spec usa prompts IA |
+
+### Passo 3: Auto-Load Dinâmico
+
 ```bash
-# Ler arquivo de memory correspondente
-cat ~/.claude/memory/[dominio].md
+# Analisa spec.md + decisions.md + arquivos modificados
+./scripts/auto-load-memory.sh --from-context
 
-# OU usar Read tool
-Read ~/.claude/memory/[dominio].md
+# Ou preview antes de carregar
+./scripts/auto-load-memory.sh --from-context --dry-run
 ```
 
-### Extração de Conhecimento
+**O script (v2.0)**:
+1. **LÊ spec.md e decisions.md** (contexto do WF1) ← 🆕 NOVO
+2. Detecta arquivos modificados na feature (git diff)
+3. Analisa conteúdo buscando 40+ patterns de domínio
+4. **Prioriza domínios do spec.md** (peso 2x) ← 🆕 NOVO
+5. Calcula score de relevância para cada memory file
+6. Auto-carrega memórias com score ≥ 30
+7. Gera relatório de análise
 
-**Para cada memory file lido, extrair**:
+**Output gerado**:
+- `.context/{branch}_auto-loaded-memory.md` - Memórias concatenadas
+- `.context/{branch}_memory-analysis.md` - Relatório com scores e fontes
+
+### Passo 4: Leitura do Contexto Auto-Carregado
+
+```bash
+# Ler memórias auto-carregadas
+Read .context/{branch}_auto-loaded-memory.md
+```
+
+### Passo 5: Extração de Conhecimento
+
+**Para cada memory carregada, extrair**:
 - [ ] Erros conhecidos relevantes à feature
 - [ ] Padrões a seguir
 - [ ] Anti-patterns a evitar
@@ -108,9 +142,18 @@ Read ~/.claude/memory/[dominio].md
 
 Documentar em `.context/{branch}_decisions.md`:
 ```markdown
-## Memory Audit (Workflow 2b)
+## Memory Audit (Workflow 2b) - Contexto Dinâmico v2.0
 **Data**: [timestamp]
-**Arquivos consultados**: [lista]
+**Script**: auto-load-memory.sh v2.0.0 --from-context
+
+### Domínios Detectados (de spec.md + decisions.md)
+- [Domínio 1]: [de spec.md FR-X]
+- [Domínio 2]: [de decisions.md Reframing]
+
+### Arquivos Auto-Carregados (com scores)
+| Memory | Score | Fonte |
+|--------|-------|-------|
+| [memory.md] | [score] | spec.md FR-X / git diff / decisions.md |
 
 ### Erros Conhecidos Relevantes
 1. [Erro de memory/X.md]: [como evitar nesta feature]
@@ -129,7 +172,7 @@ Documentar em `.context/{branch}_decisions.md`:
 ./scripts/validate-memory-consulted.sh
 ```
 
-**SE REJEITADO**: ⛔ Ler arquivos faltantes antes de prosseguir
+**SE REJEITADO**: ⛔ Re-executar auto-load ou ler manualmente
 
 ---
 
@@ -197,17 +240,17 @@ BRANCH_PREFIX=$(git branch --show-current | sed 's/feat\//feat-/')
 1. **Listar tabelas que serão usadas**:
 ```markdown
 Tabelas envolvidas nesta feature:
-- lifetracker_profiles
-- lifetracker_habits
-- lifetracker_[outras]
+- ${PROJECT_PREFIX}profiles
+- ${PROJECT_PREFIX}habits
+- ${PROJECT_PREFIX}[outras]
 ```
 
 2. **Consultar colunas via MCP** (OBRIGATÓRIO para cada tabela):
 ```sql
--- Via mcp__supabase_lifetracker__execute_sql
+-- Via mcp__supabase_${PROJECT_PREFIX}_execute_sql
 SELECT column_name, data_type, is_nullable
 FROM information_schema.columns
-WHERE table_name = 'lifetracker_TABELA'
+WHERE table_name = '${PROJECT_PREFIX}TABELA'
 ORDER BY ordinal_position;
 ```
 
@@ -218,12 +261,12 @@ ORDER BY ordinal_position;
 **Tabelas consultadas:**
 | Tabela | Colunas Relevantes |
 |--------|-------------------|
-| lifetracker_habits | id, user_id, name, current_streak, longest_streak |
-| lifetracker_profiles | user_id, journey_state, journey_metadata |
+| ${PROJECT_PREFIX}habits | id, user_id, name, current_streak, longest_streak |
+| ${PROJECT_PREFIX}profiles | user_id, journey_state, journey_metadata |
 
 **Colunas que VOU usar no design:**
-- lifetracker_habits.current_streak ✅ (existe)
-- lifetracker_habits.longest_streak ✅ (existe)
+- ${PROJECT_PREFIX}habits.current_streak ✅ (existe)
+- ${PROJECT_PREFIX}habits.longest_streak ✅ (existe)
 
 **Colunas que NÃO existem (evitar no design):**
 - ❌ streak_count (não existe, usar current_streak)
@@ -261,7 +304,7 @@ ORDER BY ordinal_position;
 ```markdown
 ## Database Impact Analysis (Workflow 2b - Fase 3.1.6) ✅
 
-**Tabela analisada**: lifetracker_habits
+**Tabela analisada**: ${PROJECT_PREFIX}habits
 
 **Impacto mapeado** (via Serena):
 - **RPCs afetados**: 3 (recalculate_habit_streak, auto_learn_keyword, get_habits_with_entries)
@@ -378,7 +421,82 @@ grep -r "cache\|stale\|invalidate" src/hooks/
 
 ---
 
-## FASE 3.5: GATE Anti-Over-Engineering
+## FASE 3.6: PLAN - Preencher plan.md (REGRA #46 Spec-Driven)
+
+**Objetivo**: Consolidar design técnico em `{prefix}_plan.md` derivado de `{prefix}_spec.md`.
+
+### Validar spec.md Existe
+
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+ls .context/${BRANCH_PREFIX}_spec.md
+cat .context/${BRANCH_PREFIX}_spec.md  # Revisar requirements
+```
+
+**SE NÃO existe**: ⛔ Voltar Workflow 1 Fase 1.6
+
+### Preencher plan.md
+
+**Localização**: `.context/{prefix}_plan.md` (criado por context-init.sh)
+
+**Seções OBRIGATÓRIAS derivadas do design técnico**:
+
+```markdown
+# Plan: {Feature Name}
+
+## Architecture Overview
+[Diagrama ASCII ou descrição - derivado de FASE 3.3]
+
+## Tech Stack
+[Tabela tecnologias - derivado de FASE 3.4 Dependências]
+
+## Components
+[Para CADA componente do design]
+1. **Component A**: [Responsabilidade] → Implementa FR-[N] de spec.md
+2. **Component B**: [Responsabilidade] → Implementa FR-[N] de spec.md
+
+## Database Changes
+[SQL derivado de FASE 3.1.5 Schema Discovery]
+- Tables: ${PROJECT_PREFIX}[nome]
+- RLS: OBRIGATÓRIO
+
+## Implementation Strategy
+[Fases ordenadas - qual implementar primeiro]
+- Fase 1: Foundation (base)
+- Fase 2: Core (funcionalidade principal)
+- Fase 3: Polish (refinamentos)
+
+## Risks & Mitigations
+[Derivado de FASE 3.5 Design Impact Mapping]
+| Risco | Probabilidade | Impacto | Mitigação |
+|-------|---------------|---------|-----------|
+| [X] | Alta/Média/Baixa | Alto/Médio/Baixo | [Como mitigar] |
+
+## Testing Strategy
+[Derivado de Agent Testing - FASE Agentes]
+- Unit: [o que testar]
+- Integration: [o que testar]
+- E2E: [cenários críticos]
+```
+
+### Checklist plan.md
+
+- [ ] Architecture Overview definida?
+- [ ] CADA componente mapeia para 1+ requirements do spec.md?
+- [ ] Database changes seguem prefixo ${PROJECT_PREFIX}?
+- [ ] RLS policies planejadas?
+- [ ] Riscos documentados com mitigações?
+- [ ] Testing strategy cobre requirements críticos?
+
+**Log**:
+```bash
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] ARTIFACT: plan.md preenchido" >> .context/${BRANCH_PREFIX}_attempts.log
+```
+
+---
+
+## FASE 3.7: GATE Anti-Over-Engineering
 
 ```bash
 ./scripts/validate-yagni.sh "Feature X" "Solução Y"
@@ -450,7 +568,9 @@ echo "[$TIMESTAMP] WORKFLOW: 2b - Design completo" >> .context/${BRANCH_PREFIX}_
 - [ ] **Fase 0.5**: Gap Analysis documentado?
 - [ ] **5 Agentes**: Executados em paralelo?
 - [ ] **Fase 3**: Design + Duplication Check?
-- [ ] **Fase 3.5**: YAGNI aprovado?
+- [ ] **Fase 3.5**: Design Impact Mapping executado?
+- [ ] **Fase 3.6**: plan.md preenchido? (REGRA #46) 🆕
+- [ ] **Fase 3.7**: YAGNI aprovado?
 - [ ] **Fase 4**: Viabilidade confirmada?
 - [ ] **ADR**: Criado (se necessário)?
 - [ ] **.context/**: Atualizado?
@@ -464,7 +584,11 @@ echo "[$TIMESTAMP] WORKFLOW: 2b - Design completo" >> .context/${BRANCH_PREFIX}_
 
 ---
 
-**Versão**: 2.0 (Otimizado)
+**Versão**: 2.2 (Dynamic Memory Audit)
+
+**Changelog v2.2**: FASE 0.2 (Memory Audit) atualizada para análise DINÂMICA baseada em spec.md + decisions.md do WF1. Script auto-load-memory.sh v2.0.0 agora suporta --from-context (2x weight).
+
+**Changelog v2.1**: Adicionada FASE 3.6 (Gerar plan.md) para integração com REGRA #46 Spec-Driven Development
 
 ---
 
