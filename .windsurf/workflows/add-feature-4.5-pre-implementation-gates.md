@@ -1,5 +1,5 @@
 ---
-description: Workflow 4.5 - Pre-Implementation Quality Gates (9 Gates)
+description: Workflow 4.5 - Pre-Implementation Quality Gates (12 Gates)
 auto_execution_mode: 1
 ---
 
@@ -20,7 +20,60 @@ BRANCH_PREFIX=$(git branch --show-current | sed 's/feat\//feat-/')
 
 ---
 
-## 9 GATES OBRIGATÓRIOS
+## PRE-REQUISITO: GATE WF3 + WF3.5 (OBRIGATÓRIO) 🆕
+
+**CRÍTICO**: Workflows 3 (Risk Analysis) e 3.5 (Tasks) DEVEM ter sido executados antes de entrar no 4.5.
+
+```bash
+# Validar Workflow 3 (Risk Analysis) executado
+./scripts/validate-workflow-3-executed.sh
+
+# Validar Workflow 3.5 (Tasks) executado
+./scripts/validate-workflow-3.5-executed.sh
+```
+
+**SE ALGUM FALHAR (exit 1)**:
+- ⛔ PARAR → Voltar para o workflow faltante
+- WF3 não executado → Voltar para `.windsurf/workflows/add-feature-3-risk-analysis.md`
+- WF3.5 não executado → Voltar para `.windsurf/workflows/add-feature-3.5-tasks.md`
+
+**Por quê obrigatório**:
+- **WF3 (Risk Analysis)**: Identificar riscos ANTES de implementar evita 30-40% bugs
+- **WF3.5 (Tasks)**: Tasks atômicas garantem implementação organizada e rastreável
+
+---
+
+## 12 GATES OBRIGATÓRIOS (10 + 2 novos)
+
+### GATE -2: Workflow 3 (Risk Analysis) ⭐ NOVO
+
+```bash
+./scripts/validate-workflow-3-executed.sh
+```
+
+- [ ] Script passou (exit 0)?
+- [ ] Riscos documentados em decisions.md?
+- [ ] Mitigações definidas?
+- [ ] Rollback plan presente?
+
+**SE exit 1**: ⛔ Voltar para Workflow 3
+
+---
+
+### GATE -1: Workflow 3.5 (Tasks) ⭐ NOVO
+
+```bash
+./scripts/validate-workflow-3.5-executed.sh
+```
+
+- [ ] Script passou (exit 0)?
+- [ ] tasks.md existe com conteúdo?
+- [ ] Tasks têm dependências explícitas (dep:)?
+- [ ] Dependency graph presente?
+
+**SE exit 1**: ⛔ Voltar para Workflow 3.5
+
+---
 
 ### GATE 0: Environment Validation ⭐ SEMPRE PRIMEIRO
 
@@ -31,6 +84,61 @@ BRANCH_PREFIX=$(git branch --show-current | sed 's/feat\//feat-/')
 
 - [ ] Scripts passaram (exit 0)?
 - [ ] SE exit 1: Corrigir ANTES prosseguir
+
+---
+
+### GATE 0.5: Spec Validation (REGRA #46) 🆕
+
+**CRÍTICO**: Validar consistência entre spec.md, plan.md e tasks.md ANTES de implementar.
+
+**Arquivos Inline** (v2.0 - criados por `context-init.sh`):
+
+```bash
+# Detectar se spec-driven está ativo
+BRANCH_PREFIX=$(git branch --show-current | sed 's/\//-/g')
+
+# Verificar artefatos inline existem
+SPEC_FILE=".context/${BRANCH_PREFIX}_spec.md"
+PLAN_FILE=".context/${BRANCH_PREFIX}_plan.md"
+TASKS_FILE=".context/${BRANCH_PREFIX}_tasks.md"
+
+if [ -f "$SPEC_FILE" ]; then
+  echo "✅ Spec-Driven ativo"
+  echo "   spec.md:  $SPEC_FILE"
+  echo "   plan.md:  $PLAN_FILE"
+  echo "   tasks.md: $TASKS_FILE"
+fi
+```
+
+**Usar skill spec-validator** (4 Checks):
+```
+/spec-validator
+```
+
+**Checklist Manual (se skill indisponível)**:
+
+1. **Coverage Spec → Plan** (100% requirements)
+   - [ ] TODO requirement em spec.md tem componente correspondente em plan.md?
+   - [ ] Nenhum requirement sem implementação planejada?
+
+2. **Consistency Plan → Spec** (0% over-engineering)
+   - [ ] TODO componente em plan.md deriva de requirement em spec.md?
+   - [ ] Nenhum componente "extra" sem justificativa?
+
+3. **Coverage Plan → Tasks** (100% implementável)
+   - [ ] TODO componente em plan.md tem tasks em tasks.md?
+   - [ ] Nenhum gap de execução?
+
+4. **Dependency Validation** (alinhamento)
+   - [ ] Dependências em spec.md == dependências em plan.md?
+
+**SE arquivos spec não existem**:
+- [ ] Voltar Workflow 1 Fase 1.6 (SPECIFY) para criar spec.md
+- [ ] OU executar `./scripts/context-init.sh <feature-name>` para criar templates
+
+**Por quê**: Implementar código que não corresponde a requirements = retrabalho 100%.
+
+**ROI**: 5-10 min validação vs 30-120 min refazer código desalinhado
 
 ---
 
@@ -57,12 +165,12 @@ BRANCH_PREFIX=$(git branch --show-current | sed 's/feat\//feat-/')
 
 ```bash
 # Validar prefix consistency
-grep -r "\.from\(['\"](?!lifetracker_)" src/hooks/
-grep -r "CREATE TABLE" supabase/migrations/*.sql | grep -v "lifetracker_"
+grep -r "\.from\(['\"](?!${PROJECT_PREFIX})" src/hooks/
+grep -r "CREATE TABLE" supabase/migrations/*.sql | grep -v "${PROJECT_PREFIX}"
 ```
 
 - [ ] FK aponta para PK/UNIQUE?
-- [ ] Prefixo `lifetracker_` em todas tabelas?
+- [ ] Prefixo `${PROJECT_PREFIX}` em todas tabelas?
 - [ ] RLS policies existem?
 
 ---
@@ -111,7 +219,7 @@ find src/ supabase/functions/ -name "*.ts" -exec wc -l {} \; | sort -rn | head -
 
 1. **Detectar tabelas** em `.context/{branch}_temp-memory.md`:
    ```bash
-   grep -oE "lifetracker_[a-z_]+" .context/{branch}_temp-memory.md | sort -u
+   grep -oE "${PROJECT_PREFIX}[a-z_]+" .context/{branch}_temp-memory.md | sort -u
    ```
 
 2. **Auto-fetch schema via MCP** (CADA tabela):
@@ -119,7 +227,7 @@ find src/ supabase/functions/ -name "*.ts" -exec wc -l {} \; | sort -rn | head -
    -- Via MCP execute_sql (automático)
    SELECT column_name, data_type, is_nullable, column_default
    FROM information_schema.columns
-   WHERE table_name = 'lifetracker_habits'
+   WHERE table_name = '${PROJECT_PREFIX}habits'
    ORDER BY ordinal_position;
    ```
 
@@ -127,13 +235,13 @@ find src/ supabase/functions/ -name "*.ts" -exec wc -l {} \; | sort -rn | head -
    ```bash
    # .context/{branch}_schema-snapshot.json (gerado automaticamente)
    {
-     "lifetracker_habits": [
+     "${PROJECT_PREFIX}habits": [
        {"name": "id", "type": "uuid", "nullable": "NO"},
        {"name": "user_id", "type": "uuid", "nullable": "NO"},
        {"name": "name", "type": "text", "nullable": "NO"},
        ...
      ],
-     "lifetracker_profiles": [...]
+     "${PROJECT_PREFIX}profiles": [...]
    }
    ```
 
@@ -142,6 +250,41 @@ find src/ supabase/functions/ -name "*.ts" -exec wc -l {} \; | sort -rn | head -
 **ROI**: Consulta manual 3-5min → automática 30s (ROI 6-10x)
 
 **Implementação**: Script `./scripts/auto-fetch-schema-snapshot.sh` (pendente)
+
+---
+
+### GATE 6.6: SQL Behavior Validation ⭐ CRÍTICO
+
+**CRÍTICO**: GATE 6 valida schema (colunas, tipos) mas NÃO valida comportamento SQL (UNION, DISTINCT, GROUP BY).
+
+**Problema**: Operações SQL têm comportamento não-intuitivo que pode causar duplicatas/missing rows silenciosamente.
+
+**SE migration tem UNION/DISTINCT/GROUP BY/JOIN com multi-entity relationships**:
+
+```bash
+./scripts/validate-sql-behavior.sh <migration_file>
+```
+
+**Checklist**:
+- [ ] Migration detectou UNION/DISTINCT/GROUP BY?
+- [ ] Script gerou checklist de edge case tests?
+- [ ] Testei com usuário multi-entity (5+ entities)?
+- [ ] Resultado: 1 row por user_id (ou entity esperada)?
+- [ ] Query testada em psql/MCP com dados reais?
+
+**Edge Cases Obrigatórios**:
+- **UNION**: Usuário com N entities (habits, goals) retorna N rows?
+- **DISTINCT**: Ordem não-determinística sem ORDER BY?
+- **GROUP BY**: Multi-entity gera N rows por user?
+- **JOIN**: LEFT JOIN sem filtering gera NULL duplicates?
+
+**Por quê**: UNION deduplica comparando TODA row (não apenas user_id). Se campos differ (habit_id, habit_name), UNION vê como unique → duplicatas.
+
+**Solução**: DISTINCT ON (user_id) + ORDER BY para escolher 1 row por user.
+
+**Evidência**: Bug #5 - Felipe 9 habits → 9 rows na VIEW (UNION não deduplicou).
+
+**Ver**: ADR-052 (SQL Behavior Validation), AGENTS.md Section 2 (DISTINCT ON Pattern)
 
 ---
 
@@ -195,6 +338,46 @@ find src/ supabase/functions/ -name "*.ts" -exec wc -l {} \; | sort -rn | head -
 
 ---
 
+### GATE 6.9: Schema Type Change Impact
+
+**SE migration muda TIPO de coluna** (TEXT → JSONB, INTEGER → BIGINT, etc):
+
+**Validação Obrigatória**:
+```bash
+# Executar ANTES de aplicar migration
+./scripts/validate-schema-type-change.sh <field_name>
+
+# Exemplo: Migration muda reasoning de TEXT → JSONB
+./scripts/validate-schema-type-change.sh reasoning
+```
+
+**Checklist**:
+- [ ] Executei script validation para CADA campo com type change?
+- [ ] Script listou TODOS usos do campo (frontend + backend + Edge)?
+- [ ] Atualizei CADA arquivo listado ANTES de aplicar migration?
+- [ ] TypeScript types regenerados APÓS migration? (`./scripts/regenerate-supabase-types.sh`)
+- [ ] Testes manuais confirmam zero erros?
+- [ ] Se JSONB field: Consultei `docs/AGENTS.md` JSONB Field Access Pattern?
+
+**Red Flags**:
+- ❌ Migration aplicada ANTES de atualizar código
+- ❌ Script validation NÃO executado
+- ❌ Arquivo listado no script mas NÃO atualizado
+- ❌ Render direto de campo JSONB (ex: `<p>{field}</p>`)
+- ❌ Método de string em campo JSONB (ex: `field.slice()`)
+
+**Por quê**: Schema type changes são BREAKING - código que funcionava com tipo antigo QUEBRA com novo tipo.
+
+**Evidência**: 2 bugs JSONB (FASE 2.5 - AdminAIDecisions.tsx + DecisionDetailModal.tsx) causados por migration TEXT → JSONB sem atualizar frontend.
+
+**ROI**: Script 3min vs Debug 15-60min (ROI 5-20x)
+
+**Referências**:
+- ADR-051: Schema Type Change Validation Process
+- `docs/AGENTS.md`: JSONB Field Access Pattern
+
+---
+
 ### GATE 7: Performance ⭐ OBRIGATÓRIO
 
 ```bash
@@ -225,9 +408,12 @@ npx eslint "src/**/*.{ts,tsx}"
 
 | Gates Passed | Ação |
 |--------------|------|
-| 11/11 | ✅ Prosseguir Workflow 5a |
-| 10/11 | ⚠️ Corrigir 1 gate |
-| < 10/11 | ⛔ PARAR, corrigir todos |
+| 12/12 | ✅ Prosseguir Workflow 5a |
+| 11/12 | ⚠️ Corrigir 1 gate |
+| < 11/12 | ⛔ PARAR, corrigir todos |
+| GATE -2 ou -1 falhou | ⛔ BLOQUEIO ABSOLUTO - Voltar WF3/3.5 |
+
+**NOTA**: Gates -2 (WF3) e -1 (WF3.5) são pré-requisitos absolutos. Se falharem, não continuar independente dos outros gates.
 
 ---
 
@@ -242,26 +428,29 @@ cat >> .context/${BRANCH_PREFIX}_workflow-progress.md <<EOF
 
 ### Workflow 4.5: Pre-Implementation Gates ✅
 - **Data**: $TIMESTAMP
-- **Gates Passed**: [X]/9
+- **Gates Passed**: [X]/10
 - **Bloqueios**: [Nenhum ou listar]
 - **Next**: Workflow 5a (Implementação)
 EOF
 
 # Log em attempts.log
 echo "[$TIMESTAMP] WORKFLOW: 4.5 - Gates validados" >> .context/${BRANCH_PREFIX}_attempts.log
-echo "[$TIMESTAMP] GATES: [X]/9 passed" >> .context/${BRANCH_PREFIX}_attempts.log
+echo "[$TIMESTAMP] GATES: [X]/10 passed" >> .context/${BRANCH_PREFIX}_attempts.log
 ```
 
 ---
 
 ## Checklist Final
 
-- [ ] GATE 0: Environment OK?
-- [ ] GATE 1-2: Tool/Runtime (se aplicável)?
-- [ ] GATE 3: FK + Prefix (se migration)?
-- [ ] GATE 4-5: Size + YAGNI?
-- [ ] GATE 6-8: Schema + Perf + Deploy?
-- [ ] 9/9 gates? .context/ atualizado?
+- [ ] **GATE -2**: Workflow 3 (Risk Analysis) executado? 🆕
+- [ ] **GATE -1**: Workflow 3.5 (Tasks) executado? tasks.md preenchido? 🆕
+- [ ] **GATE 0**: Environment OK?
+- [ ] **GATE 0.5**: Spec Validation OK? (REGRA #46)
+- [ ] **GATE 1-2**: Tool/Runtime (se aplicável)?
+- [ ] **GATE 3**: FK + Prefix (se migration)?
+- [ ] **GATE 4-5**: Size + YAGNI?
+- [ ] **GATE 6-8**: Schema + Perf + Deploy?
+- [ ] **12/12** gates? .context/ atualizado?
 
 ---
 
@@ -272,19 +461,27 @@ echo "[$TIMESTAMP] GATES: [X]/9 passed" >> .context/${BRANCH_PREFIX}_attempts.lo
 
 ---
 
-**Versão**: 2.0 (Otimizado)
+**Versão**: 2.3 (WF3/WF3.5 Gates)
+
+**Changelog v2.3**: Adicionados GATE -2 (Workflow 3 Risk Analysis) e GATE -1 (Workflow 3.5 Tasks) como pré-requisitos obrigatórios. Agora são 12 gates (10 + 2 novos).
+
+**Changelog v2.2**: GATE 0.5 atualizado para usar formato inline `.context/{prefix}_spec.md` (v2.0 Spec-Driven)
+
+**Changelog v2.1**: Adicionado GATE 0.5 (Spec Validation) para validar consistência spec.md↔plan.md↔tasks.md antes de implementar (REGRA #46)
 
 ---
 
 ## 🧭 WORKFLOW NAVIGATOR
 
 ### Próximo Workflow Padrão
-**[Workflow 5a] - Implementation**: Todos 9 gates aprovados → implementar código com TDD.
+**[Workflow 5a] - Implementation**: Todos 12 gates aprovados → implementar código com TDD.
 
 ### Quando Desviar do Padrão
 
 | Situação | Workflow | Justificativa |
 |----------|----------|---------------|
+| GATE -2 (WF3) falhou | 3 (Risk Analysis) | Executar análise de riscos 🆕 |
+| GATE -1 (WF3.5) falhou | 3.5 (Tasks) | Criar tasks atômicas 🆕 |
 | Gate 1 (Tool Validation) falhou | 2b (Technical Design) | Redesenhar schema/tools |
 | Gate 3 (FK Reference) falhou | 2b (Technical Design) | Corrigir modelo de dados |
 | Gate 6 (Schema-First) falhou | 3 (Risk Analysis) | Reavaliar riscos de DB |
@@ -293,12 +490,13 @@ echo "[$TIMESTAMP] GATES: [X]/9 passed" >> .context/${BRANCH_PREFIX}_attempts.lo
 
 | Sinal de Alerta | Voltar para | Por quê |
 |-----------------|-------------|---------|
+| GATE -2 ou -1 falhou | 3 ou 3.5 | Pré-requisitos absolutos 🆕 |
 | 3+ gates falharam | 2b (Technical Design) | Design precisa revisão |
 | Gate 0 (Environment) falhou | 0 (Setup) | Reconfigurar ambiente |
-| Gate 8 (Anti-Over-Engineering) falhou | 2a (Solutions) | Simplificar solução |
+| Gate 5 (Anti-Over-Engineering) falhou | 2a (Solutions) | Simplificar solução |
 
 ### Regras de Ouro
-- ⛔ **NUNCA pular**: Gate 0 (Environment) + Gate 6 (Schema-First) - críticos
+- ⛔ **NUNCA pular**: GATE -2/-1 (WF3/WF3.5) + Gate 0 (Environment) + Gate 6 (Schema-First)
 - ⚠️ **Gate falhou 2+ vezes**: Voltar para design - não forçar
 - 🎯 **Dúvida?**: Usar skill `workflow-navigator` para análise completa do contexto
 
