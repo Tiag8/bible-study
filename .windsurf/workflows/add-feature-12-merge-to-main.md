@@ -2,15 +2,6 @@
 description: Workflow Add-Feature (12/12) - Merge to Main (Finalização Completa)
 ---
 
-## 📚 Pré-requisito: Consultar Documentação Base
-
-Antes de iniciar qualquer planejamento ou ação, SEMPRE ler:
-- `docs/PLAN.md` - Visão estratégica atual
-- `docs/TASK.md` - Status das tarefas em andamento
-- `docs/pesquisa-de-mercado/` - Fundamentos científicos
-
----
-
 # Workflow 12/12: Merge to Main (Finalização Completa)
 
 Este é o **décimo segundo e último workflow** de 12 etapas modulares para adicionar uma nova funcionalidade com segurança e qualidade.
@@ -24,68 +15,21 @@ Este é o **décimo segundo e último workflow** de 12 etapas modulares para adi
 
 ---
 
-## ⚠️ REGRA CRÍTICA: USO MÁXIMO DE AGENTES
-
-**SEMPRE usar o MÁXIMO de agentes possível em paralelo** para todas as fases deste workflow.
-
-**Benefícios:**
-- ⚡ Redução drástica do tempo de execução (até 36x mais rápido)
-- 🎯 Melhor cobertura de análise
-- 🚀 Maior throughput de tarefas
-
-**Exemplo:**
-- Fase 1 (Verificação Final): 3+ agentes validando código, testes e segurança em paralelo
-- Fase 2 (Merge Preparation): 2+ agentes preparando merge e verificando conflitos
-- Fase 3 (Validação Pós-Merge): 3+ agentes testando build, documentação e integridade
-- Fase 4 (Limpeza): 2+ agentes sincronizando branches e removendo dados temporários
-
----
-
 ## 🎯 Objetivo
 
 Finalizar completamente o ciclo de desenvolvimento de uma feature com merge seguro para main, validação completa e limpeza adequada.
 
 ---
 
-## 🧠 FASE 0: LOAD CONTEXT (.context/ - OBRIGATÓRIO)
-
-**⚠️ CRÍTICO**: SEMPRE ler `.context/` ANTES de qualquer ação.
-
-### 0.1. Ler Context Files
+## 🧠 FASE 0: LOAD CONTEXT
 
 ```bash
-BRANCH_PREFIX=$(git symbolic-ref --short HEAD 2>/dev/null | sed 's/\//-/g' || echo "main")
-
-# 1. Guia
-cat .context/INDEX.md
-
-# 2. Progresso (verificar workflows 1-11 completos)
-cat .context/${BRANCH_PREFIX}_workflow-progress.md
-
-# 3. Estado (verificar branch pronta para merge)
-cat .context/${BRANCH_PREFIX}_temp-memory.md
-
-# 4. Decisões (revisar decisões arquiteturais críticas)
-cat .context/${BRANCH_PREFIX}_decisions.md
-
-# 5. Histórico (últimas 30 linhas)
-tail -30 .context/${BRANCH_PREFIX}_attempts.log
+./scripts/context-read-all.sh  # Lê todos arquivos .context/
 ```
 
-**Checklist Pré-Merge**:
-- [ ] Li INDEX.md?
-- [ ] Workflows 1-11 marcados como ✅ COMPLETO em workflow-progress.md?
-- [ ] temp-memory.md indica "pronto para merge"?
-- [ ] Decisões críticas em decisions.md validadas?
-- [ ] Nenhum bloqueador em attempts.log?
+**Checklist Pré-Merge**: Workflows 1-11 ✅? temp-memory "pronto para merge"? Sem bloqueadores?
 
-**Se NÃO leu ou tem bloqueadores**: ⛔ PARAR e resolver ANTES de merge.
-
-### 0.2. Log Início Workflow
-
-```bash
-echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] WORKFLOW: 12 (Merge to Main) - START" >> .context/${BRANCH_PREFIX}_attempts.log
-```
+**Se bloqueadores**: ⛔ PARAR e resolver ANTES de merge.
 
 ---
 
@@ -120,49 +64,13 @@ Antes de fazer merge, validar:
 
 ### 1.2 Code Hygiene Final Scan
 
-**OBRIGATÓRIO**: Varredura final antes de merge.
-
 ```bash
 ./scripts/code-hygiene-scan.sh
 ```
 
-**Validar**:
-- [ ] Zero arquivos temporários
-- [ ] Zero console.logs em src/ (produção)
-- [ ] Duplicação < 5%
-- [ ] Código formatado 100%
-- [ ] TODOs < 20 (ou documentados em issues)
+**Validar**: Zero arquivos temp, Zero console.logs, Duplicação < 5%, TODOs < 20
 
-**Se FALHAR**: ⛔ **NÃO fazer merge até corrigir**.
-
-#### Checklist Code Hygiene Final
-
-**Arquivos de Teste**:
-- [ ] Arquivos `test-*.js` temporários removidos?
-- [ ] Scripts de debug em `scripts/` removidos?
-- [ ] Dados de teste em `.sql` removidos?
-- [ ] READMEs temporários (`README-test-*.md`) removidos?
-
-**Código Limpo**:
-- [ ] Console.logs de debug removidos?
-- [ ] Comentários `// DEBUG:` removidos?
-- [ ] TODOs resolvidos ou com issue vinculado?
-- [ ] Código duplicado refatorado?
-
-**Dependências**:
-- [ ] Packages não usados removidos? (`npm prune`)
-- [ ] Imports de dev não estão em produção?
-
-**Dados Sensíveis**:
-- [ ] `.env.example` atualizado?
-- [ ] Nenhum secret hardcoded?
-- [ ] Nenhum email/phone real em exemplos?
-
-**Formatação**:
-```bash
-npx prettier --check "src/**/*.{ts,tsx}"
-npx eslint "src/**/*.{ts,tsx}"
-```
+**Se FALHAR**: ⛔ NÃO fazer merge até corrigir.
 
 ### 1.3 Verificar Status da Branch
 
@@ -336,40 +244,10 @@ git log main --oneline -5
 
 ### Opção B: Pull Request (Projeto com Time)
 
-**Para projetos com revisão de código:**
-
 ```bash
-# Criar PR via GitHub CLI
-gh pr create \
-  --title "feat: descrição da feature" \
-  --body "$(cat <<'EOF'
-## 📝 Descrição
-- O que foi implementado
-- Problemas resolvidos
-- Melhorias adicionadas
-
-## ✅ Checklist
-- [x] Testes passando
-- [x] Build de produção OK
-- [x] Code review aprovado
-- [x] Security scan passou
-- [x] Documentação atualizada
-
-## 📊 Mudanças
-- X arquivos modificados
-- +YYY linhas adicionadas
-- -ZZZ linhas removidas
-
-## 🔗 Relacionados
-- Fecha issue #123 (se aplicável)
-- Depende de PR #456 (se aplicável)
-EOF
-)"
+gh pr create --title "feat: descrição" --body "Ver .github/PULL_REQUEST_TEMPLATE.md"
+# Após aprovação: gh pr merge [PR_NUMBER] --merge
 ```
-
-**Após aprovação:**
-- Mergear via GitHub UI (Squash ou Merge commit)
-- Ou via CLI: `gh pr merge [PR_NUMBER] --merge`
 
 ---
 
@@ -533,33 +411,6 @@ git fetch --prune
 
 ---
 
-## 📋 Fase 6: Próximas Ações
-
-### Deploy para Produção?
-
-**Pergunta crítica**: Esta feature modificou código/banco/infra visível para usuários?
-
-**Opções:**
-- `sim` → Executar **Workflow 11** (VPS Deployment) para deploy em produção
-- `não` → Feature finalizada, sem necessidade de deploy imediato
-- `staging` → Deploy para staging primeiro (testar com usuários reais)
-
-### Verificar Nova Feature
-
-**IMPORTANTE**: Sempre validar main após merge:
-
-```bash
-# Criar nova branch para próxima feature
-./scripts/create-feature-branch.sh "proxima-funcionalidade"
-
-# Branch herdará:
-# ✅ Código da feature anterior (agora em main)
-# ✅ Documentação atualizada
-# ✅ Scripts mais recentes
-```
-
----
-
 ## 🎉 Checklist Final - Feature Completada!
 
 Antes de considerar a feature **completamente finalizada**, validar:
@@ -710,63 +561,14 @@ echo "[$(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')] PRÓXIMO PASSO: Deploy 
 
 ---
 
-## 🚀 Métricas da Feature
-
-**Tempos estimados:**
-- Workflow 1 (Planning): 20-30 min
-- Workflow 2 (Solutions): 30-45 min
-- Workflow 3 (Risk): 15-20 min
-- Workflow 4 (Setup): 10-15 min
-- Workflow 5 (Implementation): 1-3 horas
-- Workflow 6 (User Validation): 30-60 min
-- Workflow 7 (Quality): 20-30 min
-- Workflow 8 (Meta-Learning): 15-20 min
-- Workflow 9 (Finalization): 20-30 min
-- Workflow 10 (Template Sync): 15-30 min
-- Workflow 11 (Deployment): 15-30 min (se necessário)
-- **Workflow 12 (Merge): 10-15 min** ← VOCÊ ESTÁ AQUI
-
-**Total estimado**: 5-8 horas (simples) até 10-15 horas (complexa com deploy)
-
----
-
-## 🔄 Se Precisar Reverter (Rollback)
-
-**Se fez merge mas precisa reverter:**
-
-### Opção 1: Revert (Seguro - Recomendado)
+## 🔄 Rollback (Se Necessário)
 
 ```bash
-# Criar commit que desfaz a merge
-git checkout main
-git revert -m 1 HEAD
-git push origin main
-
-# ✅ Safe: Cria novo commit, não altera história
+# Revert seguro (recomendado)
+git checkout main && git revert -m 1 HEAD && git push origin main
 ```
 
-### Opção 2: Reset (Perigoso)
-
-```bash
-# ⚠️ CUIDADO: Altera história do repositório
-git checkout main
-git reset --hard HEAD~1
-git push origin main --force  # Force push!
-```
-
-**Preferir Opção 1 (Revert)** - é mais seguro em projetos com time.
-
----
-
-## 📚 Documentação de Referência
-
-Para informações completas sobre workflows e processos:
-
-- **Todos os workflows**: `.windsurf/workflows/`
-- **Plano estratégico**: `docs/PLAN.md`
-- **Tarefas em andamento**: `docs/TASK.md`
-- **Troubleshooting**: `docs/TROUBLESHOOTING.md`
-- **Branching workflow**: `docs/WORKFLOW_BRANCHES.md`
+Ver `docs/ops/ROLLBACK-GUIDE.md` para detalhes.
 
 ---
 
@@ -785,30 +587,8 @@ Para informações completas sobre workflows e processos:
 
 ---
 
-## 🚨 REGRA CRÍTICA: ANTI-ROI
-
-**NUNCA calcule ou mencione**:
-- ❌ ROI (Return on Investment)
-- ❌ Tempo de execução/produção
-- ❌ "Horas economizadas"
-- ❌ Estimativas temporais (Xmin vs Ymin)
-
-**Por quê**:
-- Projeto desenvolvido por IA (não humanos)
-- IA executa tarefas em paralelo (não linear)
-- Cálculos consomem tokens sem valor
-- Polui documentação com dados irrelevantes
-
-**Permitido**:
-- ✅ Evidências concretas (código, logs, testes)
-- ✅ Comparações qualitativas ("mais rápido", "mais eficiente")
-- ✅ Métricas técnicas (latência, throughput, memory usage)
-
-**Regra**: NEVER guess time/ROI. Use dados concretos ou não mencione.
-
+**Regra**: ANTI-ROI - NUNCA calcular tempo/ROI. Ver `~/.claude/rules/08-communication.md` REGRA #7.
 
 ---
 
-**Workflow criado em**: 2025-11-03
-**Versão**: 1.0 (Novo workflow de merge)
-**Autor**: Claude Code
+**Versão**: 1.1 | **Atualizado**: 2025-12-26
