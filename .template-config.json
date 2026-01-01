@@ -1,8 +1,8 @@
 {
   "$schema": "./schemas/template-config.schema.json",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Configuração master do template - define o que é sincronizável",
-  "last_updated": "2025-12-24",
+  "last_updated": "2026-01-01",
 
   "layers": {
     "core": {
@@ -99,7 +99,8 @@
         "scripts/validate-gate-1-executed.sh",
         "scripts/code-hygiene-scan.sh",
         "scripts/validate-tool-schemas.ts",
-        "scripts/validate-feature-compliance.sh"
+        "scripts/validate-feature-compliance.sh",
+        "scripts/enforce-macro-steps.sh"
       ]
     },
 
@@ -110,7 +111,9 @@
         "scripts/context-load-all.sh",
         "scripts/context-read-all.sh",
         "scripts/validate-memory-audit-mandatory.sh",
-        "scripts/validate-context-captured.sh"
+        "scripts/validate-context-captured.sh",
+        "scripts/auto-load-memory.sh",
+        "scripts/validate-memory-consulted.sh"
       ],
       "files": [
         ".context/INDEX.md",
