@@ -394,6 +394,30 @@ it('should create habit and show in list', async () => {
 
 **ROI**: 5-10min vs 30-120min debug efeito dominó
 
+### ⭐ GATE 6.9: FLOW MAPPING (SE Código Complexo) 🆕
+**Quando**: Modificar código >100 linhas OU com 3+ checkpoints (if/switch/loop)
+
+**Processo** (5-10 min):
+1. Mapear fluxo completo (INPUT → processamento → OUTPUT)
+2. Identificar TODOS breaks/fallbacks/early returns
+3. Simular mudança no papel (desenhar fluxo)
+4. Confirmar: sei EXATAMENTE onde/como modificar?
+
+**Checklist Mínima**:
+- [ ] VERSION TAG adicionado? (ver GATE 6.7)
+- [ ] Logs por layer adicionados?
+- [ ] Fluxo completo mapeado (checkpoints identificados)?
+- [ ] Breaks/fallbacks identificados?
+- [ ] Simulei mudança antes de implementar?
+
+**❌ Bloqueios**: Modificar código complexo sem flow mapping, modificar sem entender todos os checkpoints
+
+**ROI**: 10min mapeamento vs 6h+ debugging iterativo
+
+**Detalhes**: Ver `~/.claude/memory/debugging.md` Caso 17 (RCA-057 Series - Magic Link)
+
+**Evidência**: RCA-057 - 7 deploys para 1 bug devido a falta de flow understanding (user: "arruma uma coisa e estraga outra")
+
 ### Post-Code Gates
 
 **Screenshot**: ANTES (Workflow 2b) vs DEPOIS (side-by-side)
@@ -574,17 +598,20 @@ git commit -m "feat(scope): description
 
 ## 📚 REFERÊNCIAS
 
-**Regras**: #5 (Teia), #11 (YAGNI), #14 (Atômico), #17 (No any), #28 (Gates), #31 (Schema-First), #44.1 (Observability) 🆕, #46 (Spec-Driven), #52 (Cleanup) 🆕
+**Regras**: #5 (Teia), #11 (YAGNI), #14 (Atômico), #17 (No any), #28 (Gates), #31 (Schema-First), #44 (Observability-First) 🆕, #44.1 (Observability) 🆕, #46 (Spec-Driven), #52 (Cleanup) 🆕
 **ADRs**: ADR-021 (Gates), ADR-023 (Gemini 9k), ADR-030 (Tailwind), ADR-035 (Schema), ADR-050 (User-Scoped Keywords)
 **Scripts**: `context-read-all.sh`, `validate-memory-consulted.sh`, `db-dependency-checker.sh`, `impact-mapper.sh`, `sync-code-todos-to-taskmd.sh`, `spec-init.sh` 🆕
 **Learnings**: workflow.md #23 (Feature Type), #24 (Context Snapshot), #25 (TODO Sync)
 **Patterns**: `docs/patterns/CONTEXT-SNAPSHOT-FALLBACK.md`, `docs/patterns/DIRECT-UPSERT-RPC-PATTERN.md`
+**Cases**: debugging.md Caso 17 (RCA-057 - Flow Mapping) 🆕
 **Pareto**: Meta-Learning #2 (GATE 6.5.5 - ROI 15x), #3 (Pattern Doc - ROI 18x), #4 (FASE 0.6.1 - ROI 12x)
 **Specs**: `.context/{prefix}_spec.md`, `{prefix}_plan.md`, `{prefix}_tasks.md` (REGRA #46 - Inline v2.0)
 
 ---
 
-**Versão**: 2.6.0 | **Chars**: ~11,800 | **Evolution**: +2,300 chars (GATE 6.7, 6.8) | **Reduction**: 70.0% vs v1 (39,415)
+**Versão**: 2.7.0 | **Chars**: ~12,400 | **Evolution**: +600 chars (GATE 6.9) | **Reduction**: 68.5% vs v1 (39,415)
+
+**Changelog v2.7.0**: Adicionado GATE 6.9 (Flow Mapping) - Extraído do RCA-057 Series (debugging.md Caso 17, REGRA #44)
 
 **Changelog v2.6.0**: Adicionado GATE 6.7 (Observability) e GATE 6.8 (Cleanup) - Extraídos do Bug Onboarding João (REGRA #44.1, #52)
 
