@@ -1,8 +1,30 @@
 #!/bin/bash
+# ==============================================================================
+# Script: validate-gate-1-executed.sh
+# ==============================================================================
+# Purpose: validate gate 1 executed
+#
+# Usage:
+#   ./scripts/validate-gate-1-executed.sh [arguments]
+#
+# Used by:
+#   - Workflow (3 references)
+#
+# Exit codes:
+#     1
+#
+# Version: 1.0.0
+# Date: 2026-01-04
+# ==============================================================================
 # scripts/validate-gate-1-executed.sh
 # Valida que GATE 1 Reframing foi executado (CSF non-negotiable ADR-031)
 
 set -e
+
+set -euo pipefail
+
+# Trap ERR to show line number on error
+trap 'echo "❌ Error at line $LINENO"' ERR
 
 echo "🚨 Validação GATE 1 Reframing (CSF)"
 echo ""
