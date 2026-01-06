@@ -11,6 +11,12 @@ Ler: `docs/PLAN.md`, `docs/TASK.md`, `.claude/CLAUDE.md`
 
 ---
 
+## Próximo Workflow
+
+→ [Workflow 3 - Risk Analysis](.windsurf/workflows/add-feature-3-risk-analysis.md)
+
+---
+
 ## PRE-REQUISITO: GATE 1 Reframing (CSF)
 
 ```bash
@@ -18,6 +24,24 @@ Ler: `docs/PLAN.md`, `docs/TASK.md`, `.claude/CLAUDE.md`
 ```
 
 **SE REJEITADO** (exit 1): ⛔ Retornar Workflow 1 → Fase 1.5
+
+---
+
+## AUTO-INVOKE: database-schema-validator (Gap A1) 🆕
+
+**Objetivo**: Validar schema DB ANTES de design técnico. Previne design baseado em schema desatualizado.
+
+**Agent**: `database-schema-validator` (auto-invoke para features DB-related)
+
+**Valida** (6 phases): DB State real, Table Prefix (lifetracker_), RLS Policies, Migrations, Indexes FK, Security.
+
+**Output**: `.context/{branch}_db-validation-report.md`
+
+**Checklist**: 6 phases executadas? Report gerado? Issues críticos identificados? DB real consultado?
+
+**Decisão**: ⛔ FAIL crítico → resolver ANTES | ⚠️ WARNING → documentar | ✅ PASS → prosseguir
+
+**ROI**: Previne 60% schema bugs, 100% missing RLS, 80% performance gaps (ADR-021)
 
 ---
 
