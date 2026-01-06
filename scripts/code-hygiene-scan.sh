@@ -1,9 +1,31 @@
 #!/bin/bash
+# ==============================================================================
+# Script: code-hygiene-scan.sh
+# ==============================================================================
+# Purpose: code hygiene scan
+#
+# Usage:
+#   ./scripts/code-hygiene-scan.sh [arguments]
+#
+# Used by:
+#   - Workflow (3 references)
+#
+# Exit codes:
+#     0,  1
+#
+# Version: 1.0.0
+# Date: 2026-01-04
+# ==============================================================================
 # Code Hygiene Scanner
 # Detecta sujeira, bloat, arquivos temporários
 # Baseado em best practices NPR/Byldd/DEV.to/Medium (2025)
 
 set -e
+
+set -euo pipefail
+
+# Trap ERR to show line number on error
+trap 'echo "❌ Error at line $LINENO"' ERR
 
 echo "🧹 CODE HYGIENE SCAN - $(TZ='America/Sao_Paulo' date '+%Y-%m-%d %H:%M')"
 echo ""
@@ -13,9 +35,6 @@ REPORT="hygiene-report.txt"
 
 CRITICAL_COUNT=0
 
-# ============================================================
-# 1. ARQUIVOS TEMPORÁRIOS
-# ============================================================
 echo "1️⃣ Scanning temporary files..."
 TEMP_FILES=$(find . -type f \( \
   -name "*.tmp" -o \
@@ -35,9 +54,6 @@ fi
 
 echo "" | tee -a "$REPORT"
 
-# ============================================================
-# 2. CÓDIGO NÃO USADO (TypeScript)
-# ============================================================
 echo "2️⃣ Scanning unused code (ts-prune)..."
 if command -v npx &> /dev/null; then
   UNUSED=$(npx ts-prune 2>/dev/null | grep -v "used in module" | head -20 || true)
@@ -54,9 +70,6 @@ fi
 
 echo "" | tee -a "$REPORT"
 
-# ============================================================
-# 3. DUPLICAÇÃO DE CÓDIGO
-# ============================================================
 echo "3️⃣ Scanning code duplication (jscpd)..."
 if command -v npx &> /dev/null; then
   # Executar jscpd e capturar saída
@@ -77,9 +90,6 @@ fi
 
 echo "" | tee -a "$REPORT"
 
-# ============================================================
-# 4. TODOs ANTIGOS (> 7 dias)
-# ============================================================
 echo "4️⃣ Scanning TODOs/FIXMEs..."
 TODOS=$(grep -r "TODO\|FIXME" src/ 2>/dev/null | wc -l || echo 0)
 TODOS=$(echo "$TODOS" | xargs) # trim whitespace
@@ -95,9 +105,6 @@ fi
 
 echo "" | tee -a "$REPORT"
 
-# ============================================================
-# 5. CONSOLE.LOGS EM PRODUÇÃO
-# ============================================================
 echo "5️⃣ Scanning console.logs in src/..."
 CONSOLE_LOGS=$(grep -r "console\.\(log\|debug\|warn\)" src/ --exclude-dir=node_modules 2>/dev/null | wc -l || echo 0)
 CONSOLE_LOGS=$(echo "$CONSOLE_LOGS" | xargs) # trim
@@ -113,9 +120,6 @@ fi
 
 echo "" | tee -a "$REPORT"
 
-# ============================================================
-# 6. FORMATAÇÃO (Prettier)
-# ============================================================
 echo "6️⃣ Checking Prettier formatting..."
 if command -v npx &> /dev/null; then
   UNFORMATTED=$(npx prettier --check "src/**/*.{ts,tsx}" 2>&1 | grep -c "Code style issues" || echo 0)
@@ -132,9 +136,6 @@ fi
 
 echo "" | tee -a "$REPORT"
 
-# ============================================================
-# 7. ARQUIVOS README TEMPORÁRIOS
-# ============================================================
 echo "7️⃣ Scanning temporary README files..."
 README_TEMPS=$(find . -type f -name "README-test-*.md" 2>/dev/null | grep -v node_modules || true)
 
@@ -148,9 +149,6 @@ fi
 
 echo "" | tee -a "$REPORT"
 
-# ============================================================
-# RELATÓRIO FINAL
-# ============================================================
 echo "========================================" | tee -a "$REPORT"
 echo "📊 HYGIENE REPORT SUMMARY" | tee -a "$REPORT"
 echo "========================================" | tee -a "$REPORT"
@@ -159,7 +157,6 @@ echo "Threshold: 3" | tee -a "$REPORT"
 echo "Report saved: $REPORT" | tee -a "$REPORT"
 echo "========================================" | tee -a "$REPORT"
 
-# Exit code baseado em thresholds
 if [ "$CRITICAL_COUNT" -gt 3 ]; then
   echo ""
   echo "❌ HYGIENE FAILURE: $CRITICAL_COUNT critical issues found (threshold: 3)"
