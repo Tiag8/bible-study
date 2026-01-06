@@ -1,8 +1,30 @@
 #!/bin/bash
+# ==============================================================================
+# Script: validate-yagni.sh
+# ==============================================================================
+# Purpose: validate yagni
+#
+# Usage:
+#   ./scripts/validate-yagni.sh [arguments]
+#
+# Used by:
+#   - Workflow (3 references), CLAUDE.md (1 references)
+#
+# Exit codes:
+#     1
+#
+# Version: 1.0.0
+# Date: 2026-01-04
+# ==============================================================================
 # scripts/validate-yagni.sh
 # Valida Anti-Over-Engineering: Framework já tem? Biblioteca cobre? Gap REAL?
 
 set -e
+
+set -euo pipefail
+
+# Trap ERR to show line number on error
+trap 'echo "❌ Error at line $LINENO"' ERR
 
 echo "🔍 Validação YAGNI (Anti-Over-Engineering)"
 echo ""
