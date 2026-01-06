@@ -18,7 +18,78 @@ BRANCH_PREFIX=$(git branch --show-current | sed 's/feat\//feat-/')
 
 ---
 
+## AUTO-INVOKE: regression-guard (Gap A3 - MANDATORY) 🆕
+
+**Objetivo**: Prevenir regressões via snapshot BEFORE/AFTER comparison. Executa ANTES e DEPOIS da validação para detectar breaking changes.
+
+**Quando executar**: SEMPRE antes de Workflow 6a (automático para TODAS features).
+
+**Agent**: `regression-guard`
+**Invocação**: Automática (Claude detecta Workflow 6a iniciado)
+
+**O que faz** (9 phases):
+1. **Validate Modification Reason** (Phase 1): Bug comprovado? Requisito explícito? Problema medido?
+2. **Capture BEFORE** (Phase 2): Screenshots, logs, DB state, performance baseline
+3. **Plan Modification** (Phase 3): O QUE, POR QUE, COMO, rollback plan
+4. **Create Branch** (Phase 4): Proteção git (nunca main direto)
+5. **Monitor Implementation** (Phase 5): Watch errors, tests, file changes
+6. **Capture AFTER** (Phase 6): Same tests as BEFORE, comparison table
+7. **Post-Modification Validation** (Phase 7): Manual testing, edge cases, logs
+8. **Pre-Deploy Quality Gate** (Phase 8): 8-item gate checklist
+9. **Document Result** (Phase 9): Deploy report, snapshots references
+
+**Output esperado**:
+- `.context/{branch}_regression-before.md` (snapshot ANTES)
+- `.context/{branch}_regression-after.md` (snapshot DEPOIS)
+- `.context/{branch}_regression-comparison.md` (BEFORE vs AFTER table)
+- `docs/deploy-reports/YYYY-MM-DD-feature-name.md` (validation summary)
+
+**Checklist**:
+- [ ] Agent executou Phase 1 (validate reason)?
+- [ ] BEFORE snapshot capturado (Phase 2)?
+- [ ] AFTER snapshot capturado (Phase 6)?
+- [ ] Comparison table gerada (BEFORE vs AFTER)?
+- [ ] Zero regressions detectados?
+- [ ] Quality gate checklist 100% completo?
+
+**SE regressions detectados**: ⛔ REJECT + rollback recomendado
+
+**SE all gates pass**: ✅ Prosseguir para Fase 12
+
+**Evidence** (from regression-guard.md):
+- 9-phase systematic validation process
+- BEFORE/AFTER snapshot comparison prevents 100% undetected regressions
+- Quality gate (8 items) ensures deploy readiness
+- Rollback plan documented (< 5min recovery target)
+
+**Integration Points**:
+- **Fase 12.0** (line 23): Executa regression-guard --mode before
+- **Fase 15** (line 131): Executa regression-guard --mode after
+- **GATE 3** (line 154): Verifica zero breaking changes
+
+---
+
 ## FASE 12: PREPARAÇÃO VALIDAÇÃO
+
+### 12.0. Regression Guard (Gap A3 - MANDATORY) 🆕
+
+**CRÍTICO**: Executar ANTES de qualquer validação/deploy. NUNCA OPCIONAL.
+
+```bash
+# Invocar regression-guard skill (auto-executa agent)
+# Cria BEFORE snapshot do estado atual
+/regression-guard --mode before
+```
+
+**O que faz**:
+- Captura snapshot ANTES das mudanças serem validadas/deployed
+- Valida que GATE 1 foi executado (reframing)
+- Executa bundle de validações (run-all-validations.sh)
+- Cria baseline para comparação AFTER deploy
+
+**Output**: `.context/{branch}_regression-before.md`
+
+**SE FALHOU**: ⛔ NÃO prosseguir para deploy/validação
 
 ### 12.1. Screenshot DEPOIS (ADR-029)
 
@@ -30,6 +101,7 @@ BRANCH_PREFIX=$(git branch --show-current | sed 's/feat\//feat-/')
 
 ### 12.2. Checklist Pré-Validação
 
+- [ ] **Regression Guard executado?** (MANDATORY - Gap A3) 🆕
 - [ ] Build OK? (`npm run build`)
 - [ ] Deploy staging/local disponível?
 - [ ] Screenshot ANTES + DEPOIS capturados?
@@ -107,11 +179,37 @@ BRANCH_PREFIX=$(git branch --show-current | sed 's/feat\//feat-/')
 
 ---
 
+## FASE 15: REGRESSION VERIFICATION (Gap A3 - MANDATORY) 🆕
+
+**CRÍTICO**: Executar DEPOIS da validação, ANTES de GATE 3 final.
+
+```bash
+# Invocar regression-guard skill (auto-executa agent)
+# Cria AFTER snapshot e compara com BEFORE
+/regression-guard --mode after
+```
+
+**O que faz**:
+- Captura snapshot DEPOIS das mudanças validadas
+- Compara BEFORE vs AFTER (detecta breaking changes)
+- Valida que funcionalidades existentes ainda funcionam
+- Detecta regressões introduzidas pela feature
+
+**Output**: `.context/{branch}_regression-comparison.md`
+
+**SE BREAKING CHANGES**: ⛔ REJECT + rollback recomendado
+**SE OK**: ✅ Prosseguir para GATE 3
+
+---
+
 ## GATE 3: Confirmação
 
 **Checklist**:
+- [ ] **Regression Guard BEFORE executado?** (MANDATORY - Gap A3) 🆕
 - [ ] 6 cenários batch executados?
 - [ ] Screenshots coletados?
+- [ ] **Regression Guard AFTER executado?** (MANDATORY - Gap A3) 🆕
+- [ ] **Zero breaking changes detectados?** (Regression Guard) 🆕
 - [ ] 0 Blocker/Critical?
 - [ ] Console limpo (F12)?
 - [ ] Responsivo OK?
@@ -146,9 +244,12 @@ echo "[$TIMESTAMP] GATE 3: APROVADO" >> .context/${BRANCH_PREFIX}_attempts.log
 
 ## Checklist Final
 
+- [ ] **Fase 12.0**: Regression Guard BEFORE executado? (MANDATORY - Gap A3) 🆕
 - [ ] **Fase 12**: Pré-validação + screenshots OK?
 - [ ] **Fase 13**: 6 cenários batch executados?
 - [ ] **Fase 14**: Bugs classificados?
+- [ ] **Fase 15**: Regression Guard AFTER executado? (MANDATORY - Gap A3) 🆕
+- [ ] **Fase 15**: Zero breaking changes detectados?🆕
 - [ ] **GATE 3**: Aprovação recebida?
 - [ ] **Final**: .context/ atualizado?
 
