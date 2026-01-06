@@ -158,6 +158,51 @@ git log --all --grep="keyword-relacionada"
 
 ---
 
+## AUTO-INVOKE: test-coverage-analyzer (Gap A2) 🆕
+
+**Objetivo**: Garantir cobertura de testes APÓS refactoring/RCA. Previne código modificado sem testes correspondentes.
+
+**Quando executar**: SEMPRE após Workflow 5b (refactoring ou RCA executados).
+
+**Agent**: `test-coverage-analyzer`
+**Invocação**: Automática (Claude detecta código modificado sem testes correspondentes)
+
+**O que analisa** (4 phases):
+1. **Scan Codebase** (Phase 1): Map source files → test files (coverage mapping)
+2. **Prioritize** (Phase 2): Classificar por criticidade (🔴 CRITICAL → ⚪ LOW)
+3. **Recommend Strategy** (Phase 3): Test types (unit, integration, e2e) + planos de implementação
+4. **Calculate Metrics** (Phase 4): Coverage atual vs target (por prioridade)
+
+**Output esperado**: `.context/{branch}_test-coverage-analysis.md`
+
+**Checklist**:
+- [ ] Agent executou 4 phases de análise?
+- [ ] Report gerado com coverage mapping (tested vs untested)?
+- [ ] Código CRITICAL untested identificado? (auth, payments, data integrity)
+- [ ] Estratégia de testes recomendada para critical paths?
+- [ ] Coverage targets definidos (CRITICAL 90%, HIGH 80%, MEDIUM 85%, LOW 70%)?
+
+**Priorização de Criticidade**:
+| Priority | Category | Risk Level | Target Coverage |
+|----------|----------|------------|----------------|
+| 🔴 CRITICAL | Auth, Payments, Data Integrity | HIGH (security/money) | 90% |
+| 🟡 HIGH | Core Features (habits, goals, assessments) | MEDIUM (user-facing) | 80% |
+| 🟢 MEDIUM | UI Components | LOW (visual) | 85% |
+| ⚪ LOW | Utils, Helpers | MINIMAL | 70% |
+
+**SE CRITICAL untested detectado**: ⚠️ Adicionar testes ANTES de Workflow 6a (User Validation)
+
+**SE HIGH untested detectado**: ⚠️ Documentar em decisions.md, adicionar durante Workflow 7a (Quality Gates)
+
+**SE MEDIUM/LOW untested**: ✅ Documentar para implementação futura (tech debt)
+
+**Evidence Documentado** (internal):
+- Refactoring sem test coverage → 40% regressions (feat-streak vs feat-payment)
+- CRITICAL paths untested → 2x bug rate em produção
+- Test coverage 90%+ → zero security incidents (auth)
+
+---
+
 ## FASE FINAL: UPDATE CONTEXT
 
 ```bash
