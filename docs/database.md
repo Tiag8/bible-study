@@ -24,3 +24,9 @@
 - `reference_label`: text (ex: "Êxodo 20")
 - `source_study_id`: uuid (fk studies.id)
 - `status`: boolean
+
+### `bible_profiles` (Gestão de Acessos)
+- `id`: uuid (PK, vinculada a auth.users.id)
+- `email`: text
+- `role`: text (default: 'free') -- Valores: 'admin', 'free', 'premium' (futuro)
+- `created_at`: timestamp

@@ -5,7 +5,7 @@ import { Search, Network, Filter, X, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { mockTags } from "@/lib/mock-data";
+import { useTags } from "@/hooks";
 import { cn } from "@/lib/utils";
 
 interface TopBarProps {
@@ -24,6 +24,7 @@ export function TopBar({
   onGraphClick,
 }: TopBarProps) {
   const [showTagDropdown, setShowTagDropdown] = useState(false);
+  const { tags, loading: tagsLoading } = useTags();
 
   const toggleTag = (tagName: string) => {
     if (selectedTags.includes(tagName)) {
@@ -92,48 +93,54 @@ export function TopBar({
                 )}
               </div>
               <div className="p-2 max-h-64 overflow-y-auto">
-                {mockTags.map((tag) => (
-                  <button
-                    key={tag.id}
-                    onClick={() => toggleTag(tag.name)}
-                    className={cn(
-                      "w-full flex items-center justify-between px-3 py-2 rounded-md text-sm",
-                      "hover:bg-gray-50 transition-colors",
-                      selectedTags.includes(tag.name) && "bg-blue-50"
-                    )}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={cn(
-                          "w-2 h-2 rounded-full",
-                          `bg-${tag.color}-500`
-                        )}
-                        style={{
-                          backgroundColor:
-                            tag.color === "blue"
-                              ? "#3b82f6"
-                              : tag.color === "purple"
-                              ? "#8b5cf6"
-                              : tag.color === "green"
-                              ? "#22c55e"
-                              : tag.color === "amber"
-                              ? "#f59e0b"
-                              : tag.color === "pink"
-                              ? "#ec4899"
-                              : tag.color === "indigo"
-                              ? "#6366f1"
-                              : tag.color === "red"
-                              ? "#ef4444"
-                              : "#10b981",
-                        }}
-                      />
-                      <span>{tag.name}</span>
-                    </div>
-                    {selectedTags.includes(tag.name) && (
-                      <Check className="w-4 h-4 text-blue-600" />
-                    )}
-                  </button>
-                ))}
+                {tagsLoading ? (
+                  <div className="text-center py-4 text-gray-500 text-sm">Carregando...</div>
+                ) : tags.length === 0 ? (
+                  <div className="text-center py-4 text-gray-500 text-sm">Nenhuma tag</div>
+                ) : (
+                  tags.map((tag) => (
+                    <button
+                      key={tag.id}
+                      onClick={() => toggleTag(tag.name)}
+                      className={cn(
+                        "w-full flex items-center justify-between px-3 py-2 rounded-md text-sm",
+                        "hover:bg-gray-50 transition-colors",
+                        selectedTags.includes(tag.name) && "bg-blue-50"
+                      )}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={cn(
+                            "w-2 h-2 rounded-full",
+                            `bg-${tag.color}-500`
+                          )}
+                          style={{
+                            backgroundColor:
+                              tag.color === "blue"
+                                ? "#3b82f6"
+                                : tag.color === "purple"
+                                ? "#8b5cf6"
+                                : tag.color === "green"
+                                ? "#22c55e"
+                                : tag.color === "amber"
+                                ? "#f59e0b"
+                                : tag.color === "pink"
+                                ? "#ec4899"
+                                : tag.color === "indigo"
+                                ? "#6366f1"
+                                : tag.color === "red"
+                                ? "#ef4444"
+                                : "#10b981",
+                          }}
+                        />
+                        <span>{tag.name}</span>
+                      </div>
+                      {selectedTags.includes(tag.name) && (
+                        <Check className="w-4 h-4 text-blue-600" />
+                      )}
+                    </button>
+                  ))
+                )}
               </div>
             </div>
           )}

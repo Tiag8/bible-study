@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { BibleBook, mockStudies, formatRelativeDate } from "@/lib/mock-data";
+import { BibleBook, formatRelativeDate } from "@/lib/mock-data";
+import { useStudies } from "@/hooks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +12,7 @@ import {
   Clock,
   Edit3,
   Plus,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,15 +22,30 @@ interface ChapterViewProps {
 }
 
 export function ChapterView({ book, onBack }: ChapterViewProps) {
+  // Hook Supabase
+  const { loading, getStudiesByBook } = useStudies();
+
   // Generate chapters array
   const chapters = Array.from({ length: book.totalChapters }, (_, i) => i + 1);
 
   // Get studies for this book
-  const bookStudies = mockStudies.filter((s) => s.book === book.name);
+  const bookStudies = getStudiesByBook(book.name);
 
   const getChapterStudy = (chapter: number) => {
-    return bookStudies.find((s) => s.chapter === chapter);
+    return bookStudies.find((s) => s.chapter_number === chapter);
   };
+
+  // Calcular capítulos estudados dinamicamente
+  const studiedChapters = bookStudies.map(s => s.chapter_number);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+        <span className="ml-3 text-gray-500">Carregando...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -46,7 +63,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{book.name}</h1>
               <p className="text-sm text-gray-500">
-                {book.studiedChapters.length} de {book.totalChapters} capítulos
+                {studiedChapters.length} de {book.totalChapters} capítulos
                 estudados
               </p>
             </div>
@@ -77,7 +94,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
           </span>
           <span className="text-sm font-bold text-blue-600">
             {Math.round(
-              (book.studiedChapters.length / book.totalChapters) * 100
+              (studiedChapters.length / book.totalChapters) * 100
             )}
             %
           </span>
@@ -87,7 +104,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
             className="bg-blue-600 h-3 rounded-full transition-all"
             style={{
               width: `${
-                (book.studiedChapters.length / book.totalChapters) * 100
+                (studiedChapters.length / book.totalChapters) * 100
               }%`,
             }}
           />
@@ -101,7 +118,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
         </h2>
         <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
           {chapters.map((chapter) => {
-            const isStudied = book.studiedChapters.includes(chapter);
+            const isStudied = studiedChapters.includes(chapter);
             const study = getChapterStudy(chapter);
             const studyId = `${book.id}-${chapter}`;
 

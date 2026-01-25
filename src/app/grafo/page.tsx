@@ -7,13 +7,11 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  mockStudies,
-  mockStudyLinks,
   mockBibleBooks,
-  getBookCategory,
   bookCategoryColors,
   BookCategory,
 } from "@/lib/mock-data";
+import { useGraph, GraphNode } from "@/hooks";
 import {
   ZoomIn,
   ZoomOut,
@@ -21,39 +19,19 @@ import {
   Home,
   Info,
   X,
+  Loader2,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 // Dynamic import para evitar SSR issues com canvas
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center h-full">
-      <div className="animate-pulse text-gray-400">Carregando grafo...</div>
+      <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      <span className="ml-3 text-gray-400">Carregando grafo...</span>
     </div>
   ),
 });
-
-// Tipos para o grafo
-interface GraphNode {
-  id: string;
-  name: string;
-  book: string;
-  chapter: number;
-  category: BookCategory;
-  color: string;
-  val: number; // Tamanho do nó
-}
-
-interface GraphLink {
-  source: string;
-  target: string;
-}
-
-interface GraphData {
-  nodes: GraphNode[];
-  links: GraphLink[];
-}
 
 // Legenda de categorias
 const categoryLabels: Record<BookCategory, string> = {
@@ -71,51 +49,32 @@ const categoryLabels: Record<BookCategory, string> = {
 
 export default function GrafoPage() {
   const router = useRouter();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const graphRef = useRef<any>(null);
+
+  // Hook Supabase
+  const { graphData, loading } = useGraph();
 
   // Estado
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
-  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [showLegend, setShowLegend] = useState(true);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
 
-  // Preparar dados do grafo
-  const graphData: GraphData = {
-    nodes: mockStudies.map((study) => {
-      const book = mockBibleBooks.find((b) => b.name === study.book);
-      const category = getBookCategory(study.book);
-      return {
-        id: study.id,
-        name: study.title,
-        book: study.book,
-        chapter: study.chapter,
-        category,
-        color: bookCategoryColors[category],
-        val: study.status === "completed" ? 8 : 5, // Estudos completos são maiores
-      };
-    }),
-    links: mockStudyLinks.map((link) => ({
-      source: link.source_study_id,
-      target: link.target_study_id,
-    })),
-  };
-
   // Handlers
   const handleNodeClick = useCallback(
-    (node: GraphNode) => {
-      // Encontra o estudo para obter bookId
-      const study = mockStudies.find((s) => s.id === node.id);
-      if (study) {
-        const book = mockBibleBooks.find((b) => b.name === study.book);
-        if (book) {
-          router.push(`/estudo/${book.id}-${study.chapter}`);
-        }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (node: any) => {
+      // Node já contém book e chapter do graphData
+      const book = mockBibleBooks.find((b) => b.name === node.book);
+      if (book) {
+        router.push(`/estudo/${book.id}-${node.chapter}`);
       }
     },
     [router]
   );
 
-  const handleNodeHover = useCallback((node: GraphNode | null) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleNodeHover = useCallback((node: any | null) => {
     setHoveredNode(node);
     document.body.style.cursor = node ? "pointer" : "default";
   }, []);
@@ -152,6 +111,22 @@ export default function GrafoPage() {
 
   // Categorias ativas no grafo
   const activeCategories = [...new Set(graphData.nodes.map((n) => n.category))];
+
+  // Estado de carregamento
+  if (loading) {
+    return (
+      <div className="flex h-screen bg-gray-950">
+        <Sidebar
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+          <span className="ml-4 text-xl text-gray-400">Carregando grafo...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-950">
@@ -296,7 +271,9 @@ export default function GrafoPage() {
             ref={graphRef}
             graphData={graphData}
             nodeLabel=""
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             nodeColor={(node: any) => node.color}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             nodeVal={(node: any) => node.val}
             nodeRelSize={4}
             linkColor={() => "rgba(100, 116, 139, 0.3)"}
@@ -307,6 +284,7 @@ export default function GrafoPage() {
             backgroundColor="#030712"
             onNodeClick={handleNodeClick}
             onNodeHover={handleNodeHover}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             nodeCanvasObject={(node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
               const label = node.name;
               const fontSize = 12 / globalScale;

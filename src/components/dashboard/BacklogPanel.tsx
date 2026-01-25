@@ -1,12 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import {
-  mockBacklog,
-  mockStudies,
-  formatRelativeDate,
-  BacklogItem,
-} from "@/lib/mock-data";
+import { formatRelativeDate } from "@/lib/mock-data";
+import { useBacklog, useStudies } from "@/hooks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,8 +14,8 @@ import {
   Link2,
   X,
   ChevronRight,
+  Loader2,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface BacklogPanelProps {
   onStudyClick?: (referenceLabel: string) => void;
@@ -28,41 +24,43 @@ interface BacklogPanelProps {
 export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newReference, setNewReference] = useState("");
-  const [backlogItems, setBacklogItems] = useState(mockBacklog);
+  const [isAdding, setIsAdding] = useState(false);
 
-  const pendingItems = backlogItems.filter((item) => !item.status);
-  const completedItems = backlogItems.filter((item) => item.status);
+  // Hooks Supabase
+  const {
+    loading: backlogLoading,
+    addToBacklog,
+    toggleBacklogStatus,
+    deleteFromBacklog,
+    getPending,
+    getCompleted
+  } = useBacklog();
+  const { studies } = useStudies();
+
+  const pendingItems = getPending();
+  const completedItems = getCompleted();
 
   const getSourceStudy = (sourceId: string | null) => {
     if (!sourceId) return null;
-    return mockStudies.find((s) => s.id === sourceId);
+    return studies.find((s) => s.id === sourceId);
   };
 
-  const handleAddItem = () => {
+  const handleAddItem = async () => {
     if (newReference.trim()) {
-      const newItem: BacklogItem = {
-        id: `b${Date.now()}`,
-        reference_label: newReference.trim(),
-        source_study_id: null,
-        status: false,
-        created_at: new Date().toISOString(),
-      };
-      setBacklogItems([newItem, ...backlogItems]);
+      setIsAdding(true);
+      await addToBacklog(newReference.trim());
       setNewReference("");
       setShowAddForm(false);
+      setIsAdding(false);
     }
   };
 
-  const handleToggleStatus = (itemId: string) => {
-    setBacklogItems(
-      backlogItems.map((item) =>
-        item.id === itemId ? { ...item, status: !item.status } : item
-      )
-    );
+  const handleToggleStatus = async (itemId: string) => {
+    await toggleBacklogStatus(itemId);
   };
 
-  const handleRemoveItem = (itemId: string) => {
-    setBacklogItems(backlogItems.filter((item) => item.id !== itemId));
+  const handleRemoveItem = async (itemId: string) => {
+    await deleteFromBacklog(itemId);
   };
 
   return (
@@ -108,9 +106,9 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
                 size="sm"
                 className="flex-1"
                 onClick={handleAddItem}
-                disabled={!newReference.trim()}
+                disabled={!newReference.trim() || isAdding}
               >
-                Adicionar
+                {isAdding ? "Adicionando..." : "Adicionar"}
               </Button>
               <Button
                 variant="ghost"
@@ -129,7 +127,12 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
 
       {/* Pending Items */}
       <div className="flex-1 overflow-y-auto">
-        {pendingItems.length > 0 ? (
+        {backlogLoading ? (
+          <div className="flex items-center justify-center h-32">
+            <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
+            <span className="ml-2 text-gray-500">Carregando...</span>
+          </div>
+        ) : pendingItems.length > 0 ? (
           <div className="p-3 space-y-2">
             <p className="text-xs font-medium text-gray-500 uppercase tracking-wider px-1">
               Para Estudar ({pendingItems.length})

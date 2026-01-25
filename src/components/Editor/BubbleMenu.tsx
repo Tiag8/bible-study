@@ -3,8 +3,8 @@
 import { BubbleMenu } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
 import { useState, useCallback } from "react";
-import { Link2, Unlink, BookOpen, ExternalLink } from "lucide-react";
-import { mockStudies } from "@/lib/mock-data";
+import { Link2, Unlink, BookOpen, ExternalLink, Loader2 } from "lucide-react";
+import { useStudies } from "@/hooks";
 import { cn } from "@/lib/utils";
 
 interface BubbleMenuComponentProps {
@@ -17,6 +17,9 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
   const [mode, setMode] = useState<MenuMode>("default");
   const [linkUrl, setLinkUrl] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Hook Supabase
+  const { studies, loading: studiesLoading } = useStudies();
 
   const handleSetLink = useCallback(() => {
     if (linkUrl) {
@@ -51,9 +54,9 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
     console.log(`Referência criada para: ${studyTitle} (ID: ${studyId})`);
   }, [editor]);
 
-  const filteredStudies = mockStudies.filter((study) =>
+  const filteredStudies = studies.filter((study) =>
     study.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    study.book.toLowerCase().includes(searchQuery.toLowerCase())
+    study.book_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const isLinkActive = editor.isActive("link");
@@ -182,7 +185,12 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
           </div>
 
           <div className="max-h-48 overflow-y-auto">
-            {filteredStudies.length > 0 ? (
+            {studiesLoading ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+                <span className="ml-2 text-sm text-gray-500">Carregando...</span>
+              </div>
+            ) : filteredStudies.length > 0 ? (
               filteredStudies.map((study) => (
                 <button
                   key={study.id}
@@ -193,7 +201,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
                     {study.title}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {study.book} {study.chapter} • {study.status === "completed" ? "Concluído" : "Rascunho"}
+                    {study.book_name} {study.chapter_number} • {study.status === "completed" ? "Concluído" : "Rascunho"}
                   </div>
                 </button>
               ))
