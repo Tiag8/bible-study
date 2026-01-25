@@ -42,6 +42,8 @@ export default function StudyPage({ params }: StudyPageProps) {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Confirmação de saída
   const [showExitConfirm, setShowExitConfirm] = useState(false);
@@ -64,13 +66,16 @@ export default function StudyPage({ params }: StudyPageProps) {
       }
 
       try {
+        console.log("[ESTUDO] loadStudy - calling getOrCreateStudy:", book.name, chapter);
         const studyData = await getOrCreateStudy(book.name, chapter, `${book.name} ${chapter}`);
+        console.log("[ESTUDO] loadStudy - study loaded:", studyData?.id);
         setStudy(studyData);
         setTitle(studyData.title);
         setSelectedTags(studyData.tags || []);
+        setIsInitialLoad(true); // Marca que acabou de carregar
       } catch (error) {
-        console.error("Erro ao carregar estudo:", error);
-        router.push("/");
+        console.error("[ESTUDO] loadStudy ERROR:", error);
+        setLoadError(error instanceof Error ? error.message : "Erro ao carregar estudo");
       } finally {
         setIsLoading(false);
       }
@@ -79,9 +84,16 @@ export default function StudyPage({ params }: StudyPageProps) {
   }, [id, router, getOrCreateStudy]);
 
   // Salvar automaticamente (debounced)
+  // Ignora a primeira chamada (mount do editor)
   const handleContentChange = useCallback(() => {
+    if (isInitialLoad) {
+      console.log("[ESTUDO] handleContentChange - ignoring initial load");
+      setIsInitialLoad(false);
+      return;
+    }
+    console.log("[ESTUDO] handleContentChange - marking unsaved");
     setHasUnsavedChanges(true);
-  }, []);
+  }, [isInitialLoad]);
 
   // Função de salvamento
   const handleSave = useCallback(async () => {
@@ -169,11 +181,24 @@ export default function StudyPage({ params }: StudyPageProps) {
       ]
     : [];
 
-  if (isLoading || !study) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
         <span className="ml-3 text-gray-500">Carregando estudo...</span>
+      </div>
+    );
+  }
+
+  if (loadError || !study) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Erro ao carregar estudo</h2>
+          <p className="text-gray-600 mb-4">{loadError || "Estudo não encontrado"}</p>
+          <Button onClick={() => router.push("/")}>Voltar para início</Button>
+        </div>
       </div>
     );
   }

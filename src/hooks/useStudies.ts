@@ -182,7 +182,7 @@ export function useStudies() {
       return data;
     } catch (err) {
       console.error('[STUDIES] saveStudy ERROR:', err);
-      return null;
+      throw err;
     }
   }, [user?.id]);
 
