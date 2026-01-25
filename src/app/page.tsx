@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopBar } from "@/components/dashboard/TopBar";
@@ -9,10 +9,23 @@ import { ChapterView } from "@/components/dashboard/ChapterView";
 import { BacklogPanel } from "@/components/dashboard/BacklogPanel";
 import { mockBibleBooks, BibleBook } from "@/lib/mock-data";
 import { useStudies } from "@/hooks";
+import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
+
+  // Auth check
+  const { user, loading: authLoading } = useAuth();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      console.log('[DASHBOARD] No user after auth loaded, redirecting to login');
+      router.push('/login');
+    }
+  }, [authLoading, user, router]);
+
   // Supabase hook
   const { studies, loading: studiesLoading } = useStudies();
 
@@ -64,6 +77,26 @@ export default function DashboardPage() {
     // TODO: Create new study from backlog reference
     console.log(`Creating study for: ${referenceLabel}`);
   };
+
+  // Show loading while auth is being checked
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+        <span className="ml-3 text-gray-500">Verificando autenticação...</span>
+      </div>
+    );
+  }
+
+  // If no user after loading, useEffect will redirect - show nothing
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+        <span className="ml-3 text-gray-500">Redirecionando...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">
