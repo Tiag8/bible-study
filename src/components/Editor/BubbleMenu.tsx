@@ -3,7 +3,7 @@
 import { BubbleMenu } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
 import { useState, useCallback } from "react";
-import { Link2, Unlink, BookOpen, ExternalLink, Loader2, Highlighter } from "lucide-react";
+import { Link2, Unlink, BookOpen, ExternalLink, Loader2, Highlighter, Palette, Quote } from "lucide-react";
 import { useStudies } from "@/hooks";
 import { cn } from "@/lib/utils";
 
@@ -11,15 +11,26 @@ interface BubbleMenuComponentProps {
   editor: Editor;
 }
 
-type MenuMode = "default" | "link" | "reference" | "highlight";
+type MenuMode = "default" | "link" | "reference" | "highlight" | "textColor";
 
 const HIGHLIGHT_COLORS = [
-  { name: "Amarelo", color: "#fef08a", textColor: "#000" },
-  { name: "Verde", color: "#bbf7d0", textColor: "#000" },
-  { name: "Azul", color: "#bfdbfe", textColor: "#000" },
-  { name: "Rosa", color: "#fbcfe8", textColor: "#000" },
-  { name: "Laranja", color: "#fed7aa", textColor: "#000" },
-  { name: "Roxo", color: "#ddd6fe", textColor: "#000" },
+  { name: "Amarelo", color: "#fef08a" },
+  { name: "Verde", color: "#bbf7d0" },
+  { name: "Azul", color: "#bfdbfe" },
+  { name: "Rosa", color: "#fbcfe8" },
+  { name: "Laranja", color: "#fed7aa" },
+  { name: "Roxo", color: "#ddd6fe" },
+];
+
+const TEXT_COLORS = [
+  { name: "Preto", color: "#1f2937" },
+  { name: "Cinza", color: "#6b7280" },
+  { name: "Vermelho", color: "#dc2626" },
+  { name: "Laranja", color: "#ea580c" },
+  { name: "Verde", color: "#16a34a" },
+  { name: "Azul", color: "#2563eb" },
+  { name: "Roxo", color: "#9333ea" },
+  { name: "Rosa", color: "#db2777" },
 ];
 
 export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
@@ -73,6 +84,20 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
     setMode("default");
   }, [editor]);
 
+  const handleTextColor = useCallback((color: string) => {
+    editor.chain().focus().setColor(color).run();
+    setMode("default");
+  }, [editor]);
+
+  const handleRemoveTextColor = useCallback(() => {
+    editor.chain().focus().unsetColor().run();
+    setMode("default");
+  }, [editor]);
+
+  const handleToggleBlockquote = useCallback(() => {
+    editor.chain().focus().toggleBlockquote().run();
+  }, [editor]);
+
   const filteredStudies = studies.filter((study) =>
     study.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     study.book_name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -116,6 +141,25 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
             title="Marca-texto"
           >
             <Highlighter className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => setMode("textColor")}
+            className="p-2 rounded hover:bg-gray-100 transition-colors"
+            title="Cor do texto"
+          >
+            <Palette className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={handleToggleBlockquote}
+            className={cn(
+              "p-2 rounded hover:bg-gray-100 transition-colors",
+              editor.isActive("blockquote") && "text-blue-600 bg-blue-50"
+            )}
+            title="Citação"
+          >
+            <Quote className="w-4 h-4" />
           </button>
 
           {isLinkActive && (
@@ -281,6 +325,43 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
               Remover marca-texto
             </button>
           )}
+
+          <button
+            onClick={() => setMode("default")}
+            className="mt-2 text-xs text-gray-500 hover:text-gray-700"
+          >
+            ← Voltar
+          </button>
+        </div>
+      )}
+
+      {mode === "textColor" && (
+        <div className="p-2 w-48">
+          <div className="flex items-center gap-2 mb-2">
+            <Palette className="w-4 h-4 text-gray-400" />
+            <span className="text-sm font-medium text-gray-700">Cor do texto</span>
+          </div>
+
+          <div className="grid grid-cols-4 gap-2">
+            {TEXT_COLORS.map((tc) => (
+              <button
+                key={tc.color}
+                onClick={() => handleTextColor(tc.color)}
+                className="w-full aspect-square rounded-full border-2 border-gray-200 hover:border-gray-400 transition-colors flex items-center justify-center"
+                style={{ backgroundColor: tc.color }}
+                title={tc.name}
+              >
+                <span className="text-white text-xs font-bold drop-shadow-sm">A</span>
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={handleRemoveTextColor}
+            className="w-full mt-2 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors"
+          >
+            Cor padrão
+          </button>
 
           <button
             onClick={() => setMode("default")}

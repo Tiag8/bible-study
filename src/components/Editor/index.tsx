@@ -6,6 +6,8 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import Highlight from "@tiptap/extension-highlight";
+import TextStyle from "@tiptap/extension-text-style";
+import Color from "@tiptap/extension-color";
 import { BubbleMenuComponent } from "./BubbleMenu";
 import { SlashMenu } from "./SlashMenu";
 import { useSlashMenu } from "./useSlashMenu";
@@ -34,6 +36,8 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
           class: "highlight",
         },
       }),
+      TextStyle,
+      Color,
     ],
     content: initialContent,
     immediatelyRender: false, // Fix SSR hydration mismatch
