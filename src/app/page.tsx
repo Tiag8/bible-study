@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopBar } from "@/components/dashboard/TopBar";
@@ -8,9 +8,14 @@ import { BookGrid } from "@/components/dashboard/BookGrid";
 import { ChapterView } from "@/components/dashboard/ChapterView";
 import { BacklogPanel } from "@/components/dashboard/BacklogPanel";
 import { mockBibleBooks, BibleBook } from "@/lib/mock-data";
+import { useStudies } from "@/hooks";
+import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
+  // Supabase hook
+  const { studies, loading: studiesLoading } = useStudies();
+
   // Navigation state
   const [selectedBook, setSelectedBook] = useState<BibleBook | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -19,9 +24,29 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
+  // Enriquecer livros com dados de estudos do Supabase
+  const enrichedBooks = useMemo(() => {
+    return mockBibleBooks.map((book) => {
+      const bookStudies = studies.filter((s) => s.book_name === book.name);
+      const studiedChapters = bookStudies.map((s) => s.chapter_number);
+      const lastUpdate = bookStudies.length > 0
+        ? bookStudies.reduce((latest, s) => {
+            const sDate = new Date(s.updated_at).getTime();
+            return sDate > latest ? sDate : latest;
+          }, 0)
+        : null;
+
+      return {
+        ...book,
+        studiedChapters,
+        lastUpdate: lastUpdate ? new Date(lastUpdate).toISOString() : null,
+      };
+    });
+  }, [studies]);
+
   // Handlers
   const handleBookClick = (bookId: string) => {
-    const book = mockBibleBooks.find((b) => b.id === bookId);
+    const book = enrichedBooks.find((b) => b.id === bookId);
     if (book) {
       setSelectedBook(book);
     }
@@ -79,12 +104,19 @@ export default function DashboardPage() {
               </div>
 
               {/* Book Grid */}
-              <BookGrid
-                books={mockBibleBooks}
-                searchQuery={searchQuery}
-                selectedTags={selectedTags}
-                onBookClick={handleBookClick}
-              />
+              {studiesLoading ? (
+                <div className="flex items-center justify-center h-64">
+                  <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                  <span className="ml-3 text-gray-500">Carregando estudos...</span>
+                </div>
+              ) : (
+                <BookGrid
+                  books={enrichedBooks}
+                  searchQuery={searchQuery}
+                  selectedTags={selectedTags}
+                  onBookClick={handleBookClick}
+                />
+              )}
             </div>
           )}
         </main>

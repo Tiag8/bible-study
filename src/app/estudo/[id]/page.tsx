@@ -7,20 +7,15 @@ import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  getBookById,
-  getOrCreateStudy,
-  saveStudyContent,
-  StudyWithContent,
-  StudyContent,
-  mockTags,
-} from "@/lib/mock-data";
+import { getBookById } from "@/lib/mock-data";
+import { useStudies, useTags, StudyWithContent } from "@/hooks";
 import {
   Save,
   CheckCircle,
   Clock,
   Tag,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -32,11 +27,16 @@ export default function StudyPage({ params }: StudyPageProps) {
   const { id } = use(params);
   const router = useRouter();
 
+  // Hooks Supabase
+  const { getOrCreateStudy, saveStudy } = useStudies();
+  const { tags: availableTags, loading: tagsLoading } = useTags();
+
   // Estado do estudo
   const [study, setStudy] = useState<StudyWithContent | null>(null);
   const [title, setTitle] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showTagDropdown, setShowTagDropdown] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Estado de edição
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -49,23 +49,34 @@ export default function StudyPage({ params }: StudyPageProps) {
 
   // Carregar estudo
   useEffect(() => {
-    // Parse do ID: formato "bookId-chapter" (ex: "gen-1", "pro-16")
-    const parts = id.split("-");
-    const chapter = parseInt(parts.pop() || "1", 10);
-    const bookId = parts.join("-");
+    async function loadStudy() {
+      setIsLoading(true);
+      // Parse do ID: formato "bookId-chapter" (ex: "gen-1", "pro-16")
+      const parts = id.split("-");
+      const chapter = parseInt(parts.pop() || "1", 10);
+      const bookId = parts.join("-");
 
-    const book = getBookById(bookId);
-    if (!book) {
-      // Se livro não encontrado, redireciona para home
-      router.push("/");
-      return;
+      const book = getBookById(bookId);
+      if (!book) {
+        // Se livro não encontrado, redireciona para home
+        router.push("/");
+        return;
+      }
+
+      try {
+        const studyData = await getOrCreateStudy(book.name, chapter, `${book.name} ${chapter}`);
+        setStudy(studyData);
+        setTitle(studyData.title);
+        setSelectedTags(studyData.tags || []);
+      } catch (error) {
+        console.error("Erro ao carregar estudo:", error);
+        router.push("/");
+      } finally {
+        setIsLoading(false);
+      }
     }
-
-    const studyData = getOrCreateStudy(id, book.name, chapter);
-    setStudy(studyData);
-    setTitle(studyData.title);
-    setSelectedTags(studyData.tags);
-  }, [id, router]);
+    loadStudy();
+  }, [id, router, getOrCreateStudy]);
 
   // Salvar automaticamente (debounced)
   const handleContentChange = useCallback(() => {
@@ -78,16 +89,20 @@ export default function StudyPage({ params }: StudyPageProps) {
 
     setIsSaving(true);
 
-    // Simula delay de salvamento
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // Salva conteúdo (simula persistência)
-    saveStudyContent(study.id, study.content);
-
-    setHasUnsavedChanges(false);
-    setLastSaved(new Date());
-    setIsSaving(false);
-  }, [study]);
+    try {
+      await saveStudy(study.id, {
+        title,
+        content: study.content,
+        tags: selectedTags,
+      });
+      setHasUnsavedChanges(false);
+      setLastSaved(new Date());
+    } catch (error) {
+      console.error("Erro ao salvar estudo:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [study, title, selectedTags, saveStudy]);
 
   // Auto-save a cada 30 segundos se houver alterações
   useEffect(() => {
@@ -149,15 +164,16 @@ export default function StudyPage({ params }: StudyPageProps) {
   // Breadcrumbs
   const breadcrumbItems: BreadcrumbItem[] = study
     ? [
-        { label: study.book, href: "/" },
-        { label: `Capítulo ${study.chapter}` },
+        { label: study.book_name, href: "/" },
+        { label: `Capítulo ${study.chapter_number}` },
       ]
     : [];
 
-  if (!study) {
+  if (isLoading || !study) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-pulse text-gray-400">Carregando estudo...</div>
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+        <span className="ml-3 text-gray-500">Carregando estudo...</span>
       </div>
     );
   }
@@ -266,43 +282,49 @@ export default function StudyPage({ params }: StudyPageProps) {
                 {showTagDropdown && (
                   <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                     <div className="p-2 max-h-64 overflow-y-auto">
-                      {mockTags.map((tag) => (
-                        <button
-                          key={tag.id}
-                          onClick={() => toggleTag(tag.name)}
-                          className={cn(
-                            "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm",
-                            "hover:bg-gray-50 transition-colors text-left",
-                            selectedTags.includes(tag.name) && "bg-blue-50"
-                          )}
-                        >
-                          <span
-                            className="w-2 h-2 rounded-full"
-                            style={{
-                              backgroundColor:
-                                tag.color === "blue"
-                                  ? "#3b82f6"
-                                  : tag.color === "purple"
-                                  ? "#8b5cf6"
-                                  : tag.color === "green"
-                                  ? "#22c55e"
-                                  : tag.color === "amber"
-                                  ? "#f59e0b"
-                                  : tag.color === "pink"
-                                  ? "#ec4899"
-                                  : tag.color === "indigo"
-                                  ? "#6366f1"
-                                  : tag.color === "red"
-                                  ? "#ef4444"
-                                  : "#10b981",
-                            }}
-                          />
-                          <span>{tag.name}</span>
-                          {selectedTags.includes(tag.name) && (
-                            <CheckCircle className="w-4 h-4 text-blue-600 ml-auto" />
-                          )}
-                        </button>
-                      ))}
+                      {tagsLoading ? (
+                        <div className="text-center py-4 text-gray-500 text-sm">Carregando...</div>
+                      ) : availableTags.length === 0 ? (
+                        <div className="text-center py-4 text-gray-500 text-sm">Nenhuma tag</div>
+                      ) : (
+                        availableTags.map((tag) => (
+                          <button
+                            key={tag.id}
+                            onClick={() => toggleTag(tag.name)}
+                            className={cn(
+                              "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm",
+                              "hover:bg-gray-50 transition-colors text-left",
+                              selectedTags.includes(tag.name) && "bg-blue-50"
+                            )}
+                          >
+                            <span
+                              className="w-2 h-2 rounded-full"
+                              style={{
+                                backgroundColor:
+                                  tag.color === "blue"
+                                    ? "#3b82f6"
+                                    : tag.color === "purple"
+                                    ? "#8b5cf6"
+                                    : tag.color === "green"
+                                    ? "#22c55e"
+                                    : tag.color === "amber"
+                                    ? "#f59e0b"
+                                    : tag.color === "pink"
+                                    ? "#ec4899"
+                                    : tag.color === "indigo"
+                                    ? "#6366f1"
+                                    : tag.color === "red"
+                                    ? "#ef4444"
+                                    : "#10b981",
+                              }}
+                            />
+                            <span>{tag.name}</span>
+                            {selectedTags.includes(tag.name) && (
+                              <CheckCircle className="w-4 h-4 text-blue-600 ml-auto" />
+                            )}
+                          </button>
+                        ))
+                      )}
                     </div>
                   </div>
                 )}
