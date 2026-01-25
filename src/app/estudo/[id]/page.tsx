@@ -37,7 +37,8 @@ export default function StudyPage({ params }: StudyPageProps) {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showTagDropdown, setShowTagDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentContent, setCurrentContent] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [currentContent, setCurrentContent] = useState<string | any>("");
 
   // Estado de edição
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -106,9 +107,19 @@ export default function StudyPage({ params }: StudyPageProps) {
     setIsSaving(true);
 
     try {
+      // Parsear content de string JSON para objeto
+      let contentToSave = currentContent;
+      if (typeof currentContent === "string" && currentContent.trim().startsWith("{")) {
+        try {
+          contentToSave = JSON.parse(currentContent);
+        } catch {
+          // Se falhar, mantém como string (HTML)
+        }
+      }
+
       await saveStudy(study.id, {
         title,
-        content: currentContent,
+        content: contentToSave,
         tags: selectedTags,
       });
       setHasUnsavedChanges(false);
