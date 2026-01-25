@@ -54,12 +54,13 @@ const TEXT_COLORS = [
 ];
 
 const QUOTE_COLORS = [
-  { name: "Azul", color: "#3b82f6", bg: "#f0f9ff" },
-  { name: "Verde", color: "#16a34a", bg: "#f0fdf4" },
-  { name: "Roxo", color: "#9333ea", bg: "#faf5ff" },
-  { name: "Laranja", color: "#ea580c", bg: "#fff7ed" },
-  { name: "Rosa", color: "#db2777", bg: "#fdf2f8" },
-  { name: "Cinza", color: "#6b7280", bg: "#f9fafb" },
+  { name: "Amarelo", color: "#ca8a04" },
+  { name: "Azul", color: "#3b82f6" },
+  { name: "Verde", color: "#16a34a" },
+  { name: "Roxo", color: "#9333ea" },
+  { name: "Laranja", color: "#ea580c" },
+  { name: "Rosa", color: "#db2777" },
+  { name: "Cinza", color: "#6b7280" },
 ];
 
 export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
@@ -121,14 +122,11 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
   }, [editor]);
 
   const handleSetBlockquote = useCallback((color: string) => {
-    // First set the blockquote
-    if (!editor.isActive("blockquote")) {
-      editor.chain().focus().toggleBlockquote().run();
-    }
-    // Apply color via CSS variable (we'll handle this in CSS)
-    const element = document.querySelector('.tiptap blockquote');
-    if (element) {
-      (element as HTMLElement).style.borderLeftColor = color;
+    // Se já é blockquote, atualiza a cor; senão, cria com a cor
+    if (editor.isActive("blockquote")) {
+      editor.chain().focus().updateAttributes("blockquote", { borderColor: color }).run();
+    } else {
+      editor.chain().focus().toggleBlockquote().updateAttributes("blockquote", { borderColor: color }).run();
     }
     setMode("default");
   }, [editor]);
@@ -149,18 +147,18 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
 
   const isLinkActive = editor.isActive("link");
 
-  // Base button style with black icons - larger touch targets
-  const buttonBase = "p-2.5 rounded hover:bg-gray-100 transition-colors text-gray-700";
+  // Base button style with black icons - compact for horizontal fit
+  const buttonBase = "p-1.5 rounded hover:bg-gray-100 transition-colors text-gray-700";
   const buttonActive = "text-blue-600 bg-blue-50";
 
   return (
     <BubbleMenu
       editor={editor}
       tippyOptions={{ duration: 100, placement: "top" }}
-      className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
+      className="bg-white rounded-lg shadow-lg border border-gray-200"
     >
       {mode === "default" && (
-        <div className="flex items-center gap-1 p-2">
+        <div className="flex items-center gap-0.5 p-1.5 flex-nowrap">
           {/* Formatting Group */}
           <button
             onClick={() => editor.chain().focus().toggleBold().run()}
@@ -202,7 +200,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
             <Code className="w-4 h-4" />
           </button>
 
-          <div className="w-px h-7 bg-gray-300 mx-1.5" />
+          <div className="w-px h-5 bg-gray-300 mx-1" />
 
           {/* Headings */}
           <button
@@ -243,7 +241,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
             <Quote className="w-4 h-4" />
           </button>
 
-          <div className="w-px h-7 bg-gray-300 mx-1.5" />
+          <div className="w-px h-5 bg-gray-300 mx-1" />
 
           {/* Colors & Highlight */}
           <button
@@ -265,7 +263,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
             <Palette className="w-4 h-4" />
           </button>
 
-          <div className="w-px h-7 bg-gray-300 mx-1.5" />
+          <div className="w-px h-5 bg-gray-300 mx-1" />
 
           {/* Links */}
           <button
@@ -294,7 +292,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
             </button>
           )}
 
-          <div className="w-px h-7 bg-gray-300 mx-1.5" />
+          <div className="w-px h-5 bg-gray-300 mx-1" />
 
           {/* Clear Formatting */}
           <button
@@ -557,13 +555,13 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
       )}
 
       {mode === "quote" && (
-        <div className="p-3 w-52">
+        <div className="p-3 w-60">
           <div className="flex items-center gap-2 mb-3">
             <Quote className="w-4 h-4 text-gray-900" />
-            <span className="text-sm font-medium text-gray-900">Citação</span>
+            <span className="text-sm font-medium text-gray-900">Cor da citação</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-4 gap-2">
             {QUOTE_COLORS.map((qc) => (
               <button
                 key={qc.color}

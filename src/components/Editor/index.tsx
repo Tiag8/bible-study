@@ -9,6 +9,7 @@ import Highlight from "@tiptap/extension-highlight";
 import TextStyle from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import Underline from "@tiptap/extension-underline";
+import { ColoredBlockquote } from "./ColoredBlockquote";
 import { BubbleMenuComponent } from "./BubbleMenu";
 import { SlashMenu } from "./SlashMenu";
 import { useSlashMenu } from "./useSlashMenu";
@@ -21,7 +22,10 @@ interface EditorProps {
 export function Editor({ initialContent = "", onChange }: EditorProps) {
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        blockquote: false, // Usar nossa extensão customizada
+      }),
+      ColoredBlockquote,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
