@@ -37,8 +37,8 @@ export default function StudyPage({ params }: StudyPageProps) {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showTagDropdown, setShowTagDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [currentContent, setCurrentContent] = useState<string | any>("");
+  // Sempre string JSON para consistência
+  const [currentContent, setCurrentContent] = useState<string>("");
 
   // Estado de edição
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -74,7 +74,13 @@ export default function StudyPage({ params }: StudyPageProps) {
         setStudy(studyData);
         setTitle(studyData.title);
         setSelectedTags(studyData.tags || []);
-        setCurrentContent(studyData.content || "");
+        // Normalizar content para sempre ser string JSON
+        const contentStr = studyData.content
+          ? (typeof studyData.content === 'string'
+              ? studyData.content
+              : JSON.stringify(studyData.content))
+          : "";
+        setCurrentContent(contentStr);
         setIsInitialLoad(true); // Marca que acabou de carregar
       } catch (error) {
         console.error("[ESTUDO] loadStudy ERROR:", error);
@@ -107,13 +113,14 @@ export default function StudyPage({ params }: StudyPageProps) {
     setIsSaving(true);
 
     try {
-      // Parsear content de string JSON para objeto
-      let contentToSave = currentContent;
-      if (typeof currentContent === "string" && currentContent.trim().startsWith("{")) {
+      // Parsear content de string JSON para objeto (currentContent é sempre string agora)
+      let contentToSave: unknown = currentContent;
+      if (currentContent && currentContent.trim().startsWith("{")) {
         try {
           contentToSave = JSON.parse(currentContent);
-        } catch {
-          // Se falhar, mantém como string (HTML)
+        } catch (e) {
+          console.error("[ESTUDO] JSON parse error:", e);
+          // Se falhar, mantém como string (HTML legacy)
         }
       }
 

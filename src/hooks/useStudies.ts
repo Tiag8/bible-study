@@ -162,19 +162,31 @@ export function useStudies() {
     
     try {
       console.log('[STUDIES] saveStudy UPDATE BEFORE');
-      const { data, error } = await supabase
+      // Fazer UPDATE sem .select().single() (evita hang com RLS)
+      const { error: updateError } = await supabase
         .from('bible_studies')
         .update({
           ...updates,
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
-        .select()
+        .eq('user_id', user.id); // Explícito para RLS
+
+      console.log('[STUDIES] saveStudy UPDATE AFTER - error:', updateError);
+
+      if (updateError) throw updateError;
+
+      // Buscar row atualizado separadamente
+      console.log('[STUDIES] saveStudy SELECT BEFORE');
+      const { data, error: selectError } = await supabase
+        .from('bible_studies')
+        .select('*')
+        .eq('id', id)
         .single();
 
-      console.log('[STUDIES] saveStudy UPDATE AFTER - data:', data, 'error:', error);
+      console.log('[STUDIES] saveStudy SELECT AFTER - data:', data, 'error:', selectError);
 
-      if (error) throw error;
+      if (selectError) throw selectError;
 
       // Atualizar lista local
       setStudies(prev => prev.map(s => s.id === id ? data : s));
