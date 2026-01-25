@@ -19,9 +19,13 @@ interface EditorProps {
   onChange?: (content: string) => void;
 }
 
-// Função para parsear conteúdo: JSON string ou HTML
-function parseContent(content: string): string | object {
+// Função para parsear conteúdo: JSON string, objeto JSON ou HTML
+function parseContent(content: unknown): string | object {
   if (!content) return "";
+  // Se já for objeto, retorna diretamente
+  if (typeof content === "object") return content;
+  // Se não for string, retorna vazio
+  if (typeof content !== "string") return "";
   // Tenta parsear como JSON se começa com {
   if (content.trim().startsWith("{")) {
     try {
