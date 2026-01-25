@@ -1,0 +1,220 @@
+"use client";
+
+import { BubbleMenu } from "@tiptap/react";
+import type { Editor } from "@tiptap/react";
+import { useState, useCallback } from "react";
+import { Link2, Unlink, BookOpen, ExternalLink } from "lucide-react";
+import { mockStudies } from "@/lib/mock-data";
+import { cn } from "@/lib/utils";
+
+interface BubbleMenuComponentProps {
+  editor: Editor;
+}
+
+type MenuMode = "default" | "link" | "reference";
+
+export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
+  const [mode, setMode] = useState<MenuMode>("default");
+  const [linkUrl, setLinkUrl] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSetLink = useCallback(() => {
+    if (linkUrl) {
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange("link")
+        .setLink({ href: linkUrl })
+        .run();
+      setLinkUrl("");
+      setMode("default");
+    }
+  }, [editor, linkUrl]);
+
+  const handleRemoveLink = useCallback(() => {
+    editor.chain().focus().unsetLink().run();
+  }, [editor]);
+
+  const handleReference = useCallback((studyId: string, studyTitle: string) => {
+    // Cria um link interno para o estudo referenciado
+    const referenceUrl = `bible-graph://study/${studyId}`;
+    editor
+      .chain()
+      .focus()
+      .extendMarkRange("link")
+      .setLink({ href: referenceUrl, target: "_self" })
+      .run();
+    setSearchQuery("");
+    setMode("default");
+
+    // TODO: Aqui seria feita a chamada para criar o link bidirecional no banco
+    console.log(`Referência criada para: ${studyTitle} (ID: ${studyId})`);
+  }, [editor]);
+
+  const filteredStudies = mockStudies.filter((study) =>
+    study.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    study.book.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const isLinkActive = editor.isActive("link");
+
+  return (
+    <BubbleMenu
+      editor={editor}
+      tippyOptions={{ duration: 100, placement: "top" }}
+      className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
+    >
+      {mode === "default" && (
+        <div className="flex items-center gap-1 p-1">
+          <button
+            onClick={() => setMode("link")}
+            className={cn(
+              "p-2 rounded hover:bg-gray-100 transition-colors",
+              isLinkActive && "text-blue-600 bg-blue-50"
+            )}
+            title="Adicionar link externo"
+          >
+            <Link2 className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => setMode("reference")}
+            className="p-2 rounded hover:bg-gray-100 transition-colors"
+            title="Referenciar outro estudo"
+          >
+            <BookOpen className="w-4 h-4" />
+          </button>
+
+          {isLinkActive && (
+            <button
+              onClick={handleRemoveLink}
+              className="p-2 rounded hover:bg-gray-100 text-red-600 transition-colors"
+              title="Remover link"
+            >
+              <Unlink className="w-4 h-4" />
+            </button>
+          )}
+
+          <div className="w-px h-6 bg-gray-200 mx-1" />
+
+          <button
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            className={cn(
+              "p-2 rounded hover:bg-gray-100 transition-colors font-bold",
+              editor.isActive("bold") && "text-blue-600 bg-blue-50"
+            )}
+          >
+            B
+          </button>
+
+          <button
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            className={cn(
+              "p-2 rounded hover:bg-gray-100 transition-colors italic",
+              editor.isActive("italic") && "text-blue-600 bg-blue-50"
+            )}
+          >
+            I
+          </button>
+        </div>
+      )}
+
+      {mode === "link" && (
+        <div className="p-2 w-72">
+          <div className="flex items-center gap-2">
+            <ExternalLink className="w-4 h-4 text-gray-400" />
+            <input
+              type="url"
+              placeholder="https://..."
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSetLink();
+                }
+                if (e.key === "Escape") {
+                  setMode("default");
+                  setLinkUrl("");
+                }
+              }}
+              className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              autoFocus
+            />
+            <button
+              onClick={handleSetLink}
+              disabled={!linkUrl}
+              className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              OK
+            </button>
+          </div>
+          <button
+            onClick={() => {
+              setMode("default");
+              setLinkUrl("");
+            }}
+            className="mt-2 text-xs text-gray-500 hover:text-gray-700"
+          >
+            ← Voltar
+          </button>
+        </div>
+      )}
+
+      {mode === "reference" && (
+        <div className="p-2 w-80">
+          <div className="flex items-center gap-2 mb-2">
+            <BookOpen className="w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Buscar estudo para referenciar..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  setMode("default");
+                  setSearchQuery("");
+                }
+              }}
+              className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              autoFocus
+            />
+          </div>
+
+          <div className="max-h-48 overflow-y-auto">
+            {filteredStudies.length > 0 ? (
+              filteredStudies.map((study) => (
+                <button
+                  key={study.id}
+                  onClick={() => handleReference(study.id, study.title)}
+                  className="w-full text-left px-2 py-2 text-sm hover:bg-gray-100 rounded transition-colors"
+                >
+                  <div className="font-medium text-gray-900 truncate">
+                    {study.title}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {study.book} {study.chapter} • {study.status === "completed" ? "Concluído" : "Rascunho"}
+                  </div>
+                </button>
+              ))
+            ) : (
+              <div className="text-sm text-gray-500 text-center py-4">
+                Nenhum estudo encontrado
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={() => {
+              setMode("default");
+              setSearchQuery("");
+            }}
+            className="mt-2 text-xs text-gray-500 hover:text-gray-700"
+          >
+            ← Voltar
+          </button>
+        </div>
+      )}
+    </BubbleMenu>
+  );
+}
