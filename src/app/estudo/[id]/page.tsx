@@ -37,6 +37,7 @@ export default function StudyPage({ params }: StudyPageProps) {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showTagDropdown, setShowTagDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentContent, setCurrentContent] = useState<string>("");
 
   // Estado de edição
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -72,6 +73,7 @@ export default function StudyPage({ params }: StudyPageProps) {
         setStudy(studyData);
         setTitle(studyData.title);
         setSelectedTags(studyData.tags || []);
+        setCurrentContent(studyData.content || "");
         setIsInitialLoad(true); // Marca que acabou de carregar
       } catch (error) {
         console.error("[ESTUDO] loadStudy ERROR:", error);
@@ -85,13 +87,15 @@ export default function StudyPage({ params }: StudyPageProps) {
 
   // Salvar automaticamente (debounced)
   // Ignora a primeira chamada (mount do editor)
-  const handleContentChange = useCallback(() => {
+  const handleContentChange = useCallback((content: string) => {
     if (isInitialLoad) {
       console.log("[ESTUDO] handleContentChange - ignoring initial load");
       setIsInitialLoad(false);
+      setCurrentContent(content);
       return;
     }
     console.log("[ESTUDO] handleContentChange - marking unsaved");
+    setCurrentContent(content);
     setHasUnsavedChanges(true);
   }, [isInitialLoad]);
 
@@ -104,7 +108,7 @@ export default function StudyPage({ params }: StudyPageProps) {
     try {
       await saveStudy(study.id, {
         title,
-        content: study.content,
+        content: currentContent,
         tags: selectedTags,
       });
       setHasUnsavedChanges(false);
@@ -114,7 +118,7 @@ export default function StudyPage({ params }: StudyPageProps) {
     } finally {
       setIsSaving(false);
     }
-  }, [study, title, selectedTags, saveStudy]);
+  }, [study, title, currentContent, selectedTags, saveStudy]);
 
   // Auto-save a cada 30 segundos se houver alterações
   useEffect(() => {

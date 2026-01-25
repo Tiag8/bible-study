@@ -16,10 +16,27 @@ import { useSlashMenu } from "./useSlashMenu";
 
 interface EditorProps {
   initialContent?: string;
-  onChange?: () => void;
+  onChange?: (content: string) => void;
+}
+
+// Função para parsear conteúdo: JSON string ou HTML
+function parseContent(content: string): string | object {
+  if (!content) return "";
+  // Tenta parsear como JSON se começa com {
+  if (content.trim().startsWith("{")) {
+    try {
+      return JSON.parse(content);
+    } catch {
+      // Se falhar, retorna como HTML
+      return content;
+    }
+  }
+  return content;
 }
 
 export function Editor({ initialContent = "", onChange }: EditorProps) {
+  const parsedInitialContent = parseContent(initialContent);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -45,22 +62,22 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
       Color,
       Underline,
     ],
-    content: initialContent,
+    content: parsedInitialContent,
     immediatelyRender: false, // Fix SSR hydration mismatch
     editorProps: {
       attributes: {
         class: "tiptap prose prose-sm max-w-none p-4 focus:outline-none min-h-[300px]",
       },
     },
-    onUpdate: () => {
-      onChange?.();
+    onUpdate: ({ editor }) => {
+      onChange?.(JSON.stringify(editor.getJSON()));
     },
   });
 
   // Atualizar conteúdo quando initialContent mudar
   useEffect(() => {
     if (editor && initialContent && editor.isEmpty) {
-      editor.commands.setContent(initialContent);
+      editor.commands.setContent(parseContent(initialContent));
     }
   }, [editor, initialContent]);
 
