@@ -110,3 +110,17 @@ body {
   padding: 0;
   color: inherit;
 }
+
+/* Highlight / Marca-texto */
+.tiptap mark {
+  padding: 0.125em 0.25em;
+  border-radius: 0.125rem;
+}
+
+/* Cores default dos highlights */
+.tiptap mark[data-color="#fef08a"] { background-color: #fef08a; } /* Amarelo */
+.tiptap mark[data-color="#bbf7d0"] { background-color: #bbf7d0; } /* Verde */
+.tiptap mark[data-color="#bfdbfe"] { background-color: #bfdbfe; } /* Azul */
+.tiptap mark[data-color="#fbcfe8"] { background-color: #fbcfe8; } /* Rosa */
+.tiptap mark[data-color="#fed7aa"] { background-color: #fed7aa; } /* Laranja */
+.tiptap mark[data-color="#ddd6fe"] { background-color: #ddd6fe; } /* Roxo */

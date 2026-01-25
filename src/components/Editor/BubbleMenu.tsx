@@ -3,7 +3,7 @@
 import { BubbleMenu } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
 import { useState, useCallback } from "react";
-import { Link2, Unlink, BookOpen, ExternalLink, Loader2 } from "lucide-react";
+import { Link2, Unlink, BookOpen, ExternalLink, Loader2, Highlighter } from "lucide-react";
 import { useStudies } from "@/hooks";
 import { cn } from "@/lib/utils";
 
@@ -11,7 +11,16 @@ interface BubbleMenuComponentProps {
   editor: Editor;
 }
 
-type MenuMode = "default" | "link" | "reference";
+type MenuMode = "default" | "link" | "reference" | "highlight";
+
+const HIGHLIGHT_COLORS = [
+  { name: "Amarelo", color: "#fef08a", textColor: "#000" },
+  { name: "Verde", color: "#bbf7d0", textColor: "#000" },
+  { name: "Azul", color: "#bfdbfe", textColor: "#000" },
+  { name: "Rosa", color: "#fbcfe8", textColor: "#000" },
+  { name: "Laranja", color: "#fed7aa", textColor: "#000" },
+  { name: "Roxo", color: "#ddd6fe", textColor: "#000" },
+];
 
 export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
   const [mode, setMode] = useState<MenuMode>("default");
@@ -54,6 +63,16 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
     console.log(`Referência criada para: ${studyTitle} (ID: ${studyId})`);
   }, [editor]);
 
+  const handleHighlight = useCallback((color: string) => {
+    editor.chain().focus().toggleHighlight({ color }).run();
+    setMode("default");
+  }, [editor]);
+
+  const handleRemoveHighlight = useCallback(() => {
+    editor.chain().focus().unsetHighlight().run();
+    setMode("default");
+  }, [editor]);
+
   const filteredStudies = studies.filter((study) =>
     study.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     study.book_name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -86,6 +105,17 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
             title="Referenciar outro estudo"
           >
             <BookOpen className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => setMode("highlight")}
+            className={cn(
+              "p-2 rounded hover:bg-gray-100 transition-colors",
+              editor.isActive("highlight") && "text-yellow-600 bg-yellow-50"
+            )}
+            title="Marca-texto"
+          >
+            <Highlighter className="w-4 h-4" />
           </button>
 
           {isLinkActive && (
@@ -217,6 +247,43 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
               setMode("default");
               setSearchQuery("");
             }}
+            className="mt-2 text-xs text-gray-500 hover:text-gray-700"
+          >
+            ← Voltar
+          </button>
+        </div>
+      )}
+
+      {mode === "highlight" && (
+        <div className="p-2 w-48">
+          <div className="flex items-center gap-2 mb-2">
+            <Highlighter className="w-4 h-4 text-gray-400" />
+            <span className="text-sm font-medium text-gray-700">Marca-texto</span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            {HIGHLIGHT_COLORS.map((hl) => (
+              <button
+                key={hl.color}
+                onClick={() => handleHighlight(hl.color)}
+                className="w-full aspect-square rounded-md border-2 border-transparent hover:border-gray-400 transition-colors"
+                style={{ backgroundColor: hl.color }}
+                title={hl.name}
+              />
+            ))}
+          </div>
+
+          {editor.isActive("highlight") && (
+            <button
+              onClick={handleRemoveHighlight}
+              className="w-full mt-2 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded transition-colors"
+            >
+              Remover marca-texto
+            </button>
+          )}
+
+          <button
+            onClick={() => setMode("default")}
             className="mt-2 text-xs text-gray-500 hover:text-gray-700"
           >
             ← Voltar
