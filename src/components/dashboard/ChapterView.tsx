@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { BibleBook, formatRelativeDate } from "@/lib/mock-data";
 import { useStudies } from "@/hooks";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,8 @@ interface ChapterViewProps {
 }
 
 export function ChapterView({ book, onBack }: ChapterViewProps) {
+  const router = useRouter();
+
   // Hook Supabase
   const { loading, getStudiesByBook } = useStudies();
 
@@ -211,7 +214,11 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
           <p className="text-gray-500">
             Nenhum estudo criado para este livro ainda
           </p>
-          <Button variant="default" className="mt-4">
+          <Button
+            variant="default"
+            className="mt-4"
+            onClick={() => router.push(`/estudo/${book.id}-1`)}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Criar Primeiro Estudo
           </Button>
