@@ -163,9 +163,10 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
           </h2>
           <div className="space-y-3">
             {bookStudies.slice(0, 5).map((study) => (
-              <div
+              <Link
                 key={study.id}
-                className="bg-white rounded-lg p-4 border border-gray-200 hover:border-blue-200 transition-colors cursor-pointer"
+                href={`/estudo/${book.id}-${study.chapter_number}`}
+                className="block bg-white rounded-lg p-4 border border-gray-200 hover:border-blue-200 transition-colors cursor-pointer"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
@@ -201,7 +202,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                     <span>{formatRelativeDate(study.updated_at)}</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

@@ -382,7 +382,10 @@ export default function StudyPage({ params }: StudyPageProps) {
       {/* Editor */}
       <main className="max-w-5xl mx-auto px-4 py-6">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <Editor onChange={handleContentChange} />
+          <Editor
+            initialContent={study.content || ""}
+            onChange={handleContentChange}
+          />
         </div>
 
         {/* Dicas */}

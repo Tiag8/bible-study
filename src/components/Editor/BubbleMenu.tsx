@@ -158,7 +158,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
       className="bg-white rounded-lg shadow-lg border border-gray-200"
     >
       {mode === "default" && (
-        <div className="flex items-center gap-0.5 p-1.5 flex-nowrap">
+        <div className="flex items-center gap-0.5 p-1.5 flex-nowrap min-w-max">
           {/* Formatting Group */}
           <button
             onClick={() => editor.chain().focus().toggleBold().run()}
