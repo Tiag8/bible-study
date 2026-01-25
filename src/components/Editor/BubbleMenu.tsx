@@ -3,7 +3,27 @@
 import { BubbleMenu } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
 import { useState, useCallback } from "react";
-import { Link2, Unlink, BookOpen, ExternalLink, Loader2, Highlighter, Palette, Quote } from "lucide-react";
+import {
+  Link2,
+  Unlink,
+  BookOpen,
+  ExternalLink,
+  Loader2,
+  Highlighter,
+  Palette,
+  Quote,
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  List,
+  ListOrdered,
+  Code,
+  Heading1,
+  Heading2,
+  Heading3,
+  RemoveFormatting,
+} from "lucide-react";
 import { useStudies } from "@/hooks";
 import { cn } from "@/lib/utils";
 
@@ -11,7 +31,7 @@ interface BubbleMenuComponentProps {
   editor: Editor;
 }
 
-type MenuMode = "default" | "link" | "reference" | "highlight" | "textColor";
+type MenuMode = "default" | "link" | "reference" | "highlight" | "textColor" | "heading";
 
 const HIGHLIGHT_COLORS = [
   { name: "Amarelo", color: "#fef08a" },
@@ -59,7 +79,6 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
   }, [editor]);
 
   const handleReference = useCallback((studyId: string, studyTitle: string) => {
-    // Cria um link interno para o estudo referenciado
     const referenceUrl = `bible-graph://study/${studyId}`;
     editor
       .chain()
@@ -69,8 +88,6 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
       .run();
     setSearchQuery("");
     setMode("default");
-
-    // TODO: Aqui seria feita a chamada para criar o link bidirecional no banco
     console.log(`Referência criada para: ${studyTitle} (ID: ${studyId})`);
   }, [editor]);
 
@@ -98,12 +115,20 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
     editor.chain().focus().toggleBlockquote().run();
   }, [editor]);
 
+  const handleClearFormatting = useCallback(() => {
+    editor.chain().focus().clearNodes().unsetAllMarks().run();
+  }, [editor]);
+
   const filteredStudies = studies.filter((study) =>
     study.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     study.book_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const isLinkActive = editor.isActive("link");
+
+  // Base button style with black icons
+  const buttonBase = "p-2 rounded hover:bg-gray-100 transition-colors text-gray-700";
+  const buttonActive = "text-blue-600 bg-blue-50";
 
   return (
     <BubbleMenu
@@ -112,30 +137,96 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
       className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
     >
       {mode === "default" && (
-        <div className="flex items-center gap-1 p-1">
+        <div className="flex items-center gap-0.5 p-1.5">
+          {/* Formatting Group */}
           <button
-            onClick={() => setMode("link")}
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            className={cn(buttonBase, editor.isActive("bold") && buttonActive)}
+            title="Negrito (Ctrl+B)"
+          >
+            <Bold className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            className={cn(buttonBase, editor.isActive("italic") && buttonActive)}
+            title="Itálico (Ctrl+I)"
+          >
+            <Italic className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            className={cn(buttonBase, editor.isActive("underline") && buttonActive)}
+            title="Sublinhado (Ctrl+U)"
+          >
+            <Underline className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => editor.chain().focus().toggleStrike().run()}
+            className={cn(buttonBase, editor.isActive("strike") && buttonActive)}
+            title="Tachado"
+          >
+            <Strikethrough className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => editor.chain().focus().toggleCode().run()}
+            className={cn(buttonBase, editor.isActive("code") && buttonActive)}
+            title="Código"
+          >
+            <Code className="w-4 h-4" />
+          </button>
+
+          <div className="w-px h-6 bg-gray-200 mx-1" />
+
+          {/* Headings */}
+          <button
+            onClick={() => setMode("heading")}
             className={cn(
-              "p-2 rounded hover:bg-gray-100 transition-colors",
-              isLinkActive && "text-blue-600 bg-blue-50"
+              buttonBase,
+              (editor.isActive("heading", { level: 1 }) ||
+                editor.isActive("heading", { level: 2 }) ||
+                editor.isActive("heading", { level: 3 })) && buttonActive
             )}
-            title="Adicionar link externo"
+            title="Títulos"
           >
-            <Link2 className="w-4 h-4" />
+            <Heading1 className="w-4 h-4" />
+          </button>
+
+          {/* Lists */}
+          <button
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            className={cn(buttonBase, editor.isActive("bulletList") && buttonActive)}
+            title="Lista com marcadores"
+          >
+            <List className="w-4 h-4" />
           </button>
 
           <button
-            onClick={() => setMode("reference")}
-            className="p-2 rounded hover:bg-gray-100 transition-colors"
-            title="Referenciar outro estudo"
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            className={cn(buttonBase, editor.isActive("orderedList") && buttonActive)}
+            title="Lista numerada"
           >
-            <BookOpen className="w-4 h-4" />
+            <ListOrdered className="w-4 h-4" />
           </button>
 
+          <button
+            onClick={handleToggleBlockquote}
+            className={cn(buttonBase, editor.isActive("blockquote") && buttonActive)}
+            title="Citação"
+          >
+            <Quote className="w-4 h-4" />
+          </button>
+
+          <div className="w-px h-6 bg-gray-200 mx-1" />
+
+          {/* Colors & Highlight */}
           <button
             onClick={() => setMode("highlight")}
             className={cn(
-              "p-2 rounded hover:bg-gray-100 transition-colors",
+              buttonBase,
               editor.isActive("highlight") && "text-yellow-600 bg-yellow-50"
             )}
             title="Marca-texto"
@@ -145,21 +236,29 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
 
           <button
             onClick={() => setMode("textColor")}
-            className="p-2 rounded hover:bg-gray-100 transition-colors"
+            className={cn(buttonBase)}
             title="Cor do texto"
           >
             <Palette className="w-4 h-4" />
           </button>
 
+          <div className="w-px h-6 bg-gray-200 mx-1" />
+
+          {/* Links */}
           <button
-            onClick={handleToggleBlockquote}
-            className={cn(
-              "p-2 rounded hover:bg-gray-100 transition-colors",
-              editor.isActive("blockquote") && "text-blue-600 bg-blue-50"
-            )}
-            title="Citação"
+            onClick={() => setMode("link")}
+            className={cn(buttonBase, isLinkActive && buttonActive)}
+            title="Adicionar link externo"
           >
-            <Quote className="w-4 h-4" />
+            <Link2 className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => setMode("reference")}
+            className={cn(buttonBase)}
+            title="Referenciar outro estudo"
+          >
+            <BookOpen className="w-4 h-4" />
           </button>
 
           {isLinkActive && (
@@ -174,24 +273,86 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
 
           <div className="w-px h-6 bg-gray-200 mx-1" />
 
+          {/* Clear Formatting */}
           <button
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            className={cn(
-              "p-2 rounded hover:bg-gray-100 transition-colors font-bold",
-              editor.isActive("bold") && "text-blue-600 bg-blue-50"
-            )}
+            onClick={handleClearFormatting}
+            className={cn(buttonBase)}
+            title="Limpar formatação"
           >
-            B
+            <RemoveFormatting className="w-4 h-4" />
           </button>
+        </div>
+      )}
+
+      {mode === "heading" && (
+        <div className="p-2 w-48">
+          <div className="flex items-center gap-2 mb-2">
+            <Heading1 className="w-4 h-4 text-gray-700" />
+            <span className="text-sm font-medium text-gray-700">Títulos</span>
+          </div>
+
+          <div className="space-y-1">
+            <button
+              onClick={() => {
+                editor.chain().focus().toggleHeading({ level: 1 }).run();
+                setMode("default");
+              }}
+              className={cn(
+                "w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center gap-2",
+                editor.isActive("heading", { level: 1 }) && "bg-blue-50 text-blue-600"
+              )}
+            >
+              <Heading1 className="w-5 h-5" />
+              <span className="text-lg font-bold">Título 1</span>
+            </button>
+
+            <button
+              onClick={() => {
+                editor.chain().focus().toggleHeading({ level: 2 }).run();
+                setMode("default");
+              }}
+              className={cn(
+                "w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center gap-2",
+                editor.isActive("heading", { level: 2 }) && "bg-blue-50 text-blue-600"
+              )}
+            >
+              <Heading2 className="w-5 h-5" />
+              <span className="text-base font-semibold">Título 2</span>
+            </button>
+
+            <button
+              onClick={() => {
+                editor.chain().focus().toggleHeading({ level: 3 }).run();
+                setMode("default");
+              }}
+              className={cn(
+                "w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center gap-2",
+                editor.isActive("heading", { level: 3 }) && "bg-blue-50 text-blue-600"
+              )}
+            >
+              <Heading3 className="w-5 h-5" />
+              <span className="text-sm font-semibold">Título 3</span>
+            </button>
+
+            <button
+              onClick={() => {
+                editor.chain().focus().setParagraph().run();
+                setMode("default");
+              }}
+              className={cn(
+                "w-full text-left px-3 py-2 rounded hover:bg-gray-100",
+                !editor.isActive("heading") && "bg-blue-50 text-blue-600"
+              )}
+            >
+              <span className="text-sm">Parágrafo normal</span>
+            </button>
+          </div>
 
           <button
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={cn(
-              "p-2 rounded hover:bg-gray-100 transition-colors italic",
-              editor.isActive("italic") && "text-blue-600 bg-blue-50"
-            )}
+            onClick={() => setMode("default")}
+            className="mt-2 text-xs text-gray-500 hover:text-gray-700"
           >
-            I
+            ← Voltar
           </button>
         </div>
       )}
@@ -199,7 +360,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
       {mode === "link" && (
         <div className="p-2 w-72">
           <div className="flex items-center gap-2">
-            <ExternalLink className="w-4 h-4 text-gray-400" />
+            <ExternalLink className="w-4 h-4 text-gray-700" />
             <input
               type="url"
               placeholder="https://..."
@@ -241,7 +402,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
       {mode === "reference" && (
         <div className="p-2 w-80">
           <div className="flex items-center gap-2 mb-2">
-            <BookOpen className="w-4 h-4 text-gray-400" />
+            <BookOpen className="w-4 h-4 text-gray-700" />
             <input
               type="text"
               placeholder="Buscar estudo para referenciar..."
@@ -261,7 +422,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
           <div className="max-h-48 overflow-y-auto">
             {studiesLoading ? (
               <div className="flex items-center justify-center py-4">
-                <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+                <Loader2 className="w-4 h-4 text-gray-700 animate-spin" />
                 <span className="ml-2 text-sm text-gray-500">Carregando...</span>
               </div>
             ) : filteredStudies.length > 0 ? (
@@ -301,7 +462,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
       {mode === "highlight" && (
         <div className="p-2 w-48">
           <div className="flex items-center gap-2 mb-2">
-            <Highlighter className="w-4 h-4 text-gray-400" />
+            <Highlighter className="w-4 h-4 text-gray-700" />
             <span className="text-sm font-medium text-gray-700">Marca-texto</span>
           </div>
 
@@ -338,7 +499,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
       {mode === "textColor" && (
         <div className="p-2 w-48">
           <div className="flex items-center gap-2 mb-2">
-            <Palette className="w-4 h-4 text-gray-400" />
+            <Palette className="w-4 h-4 text-gray-700" />
             <span className="text-sm font-medium text-gray-700">Cor do texto</span>
           </div>
 

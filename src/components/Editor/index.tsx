@@ -8,6 +8,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Highlight from "@tiptap/extension-highlight";
 import TextStyle from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
+import Underline from "@tiptap/extension-underline";
 import { BubbleMenuComponent } from "./BubbleMenu";
 import { SlashMenu } from "./SlashMenu";
 import { useSlashMenu } from "./useSlashMenu";
@@ -38,6 +39,7 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
       }),
       TextStyle,
       Color,
+      Underline,
     ],
     content: initialContent,
     immediatelyRender: false, // Fix SSR hydration mismatch
