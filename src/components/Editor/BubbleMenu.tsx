@@ -31,7 +31,7 @@ interface BubbleMenuComponentProps {
   editor: Editor;
 }
 
-type MenuMode = "default" | "link" | "reference" | "highlight" | "textColor" | "heading";
+type MenuMode = "default" | "link" | "reference" | "highlight" | "textColor" | "heading" | "quote";
 
 const HIGHLIGHT_COLORS = [
   { name: "Amarelo", color: "#fef08a" },
@@ -51,6 +51,15 @@ const TEXT_COLORS = [
   { name: "Azul", color: "#2563eb" },
   { name: "Roxo", color: "#9333ea" },
   { name: "Rosa", color: "#db2777" },
+];
+
+const QUOTE_COLORS = [
+  { name: "Azul", color: "#3b82f6", bg: "#f0f9ff" },
+  { name: "Verde", color: "#16a34a", bg: "#f0fdf4" },
+  { name: "Roxo", color: "#9333ea", bg: "#faf5ff" },
+  { name: "Laranja", color: "#ea580c", bg: "#fff7ed" },
+  { name: "Rosa", color: "#db2777", bg: "#fdf2f8" },
+  { name: "Cinza", color: "#6b7280", bg: "#f9fafb" },
 ];
 
 export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
@@ -111,8 +120,22 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
     setMode("default");
   }, [editor]);
 
-  const handleToggleBlockquote = useCallback(() => {
+  const handleSetBlockquote = useCallback((color: string) => {
+    // First set the blockquote
+    if (!editor.isActive("blockquote")) {
+      editor.chain().focus().toggleBlockquote().run();
+    }
+    // Apply color via CSS variable (we'll handle this in CSS)
+    const element = document.querySelector('.tiptap blockquote');
+    if (element) {
+      (element as HTMLElement).style.borderLeftColor = color;
+    }
+    setMode("default");
+  }, [editor]);
+
+  const handleRemoveBlockquote = useCallback(() => {
     editor.chain().focus().toggleBlockquote().run();
+    setMode("default");
   }, [editor]);
 
   const handleClearFormatting = useCallback(() => {
@@ -126,8 +149,8 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
 
   const isLinkActive = editor.isActive("link");
 
-  // Base button style with black icons
-  const buttonBase = "p-2 rounded hover:bg-gray-100 transition-colors text-gray-700";
+  // Base button style with black icons - larger touch targets
+  const buttonBase = "p-2.5 rounded hover:bg-gray-100 transition-colors text-gray-700";
   const buttonActive = "text-blue-600 bg-blue-50";
 
   return (
@@ -137,7 +160,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
       className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
     >
       {mode === "default" && (
-        <div className="flex items-center gap-0.5 p-1.5">
+        <div className="flex items-center gap-1 p-2">
           {/* Formatting Group */}
           <button
             onClick={() => editor.chain().focus().toggleBold().run()}
@@ -179,7 +202,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
             <Code className="w-4 h-4" />
           </button>
 
-          <div className="w-px h-6 bg-gray-200 mx-1" />
+          <div className="w-px h-7 bg-gray-300 mx-1.5" />
 
           {/* Headings */}
           <button
@@ -213,14 +236,14 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
           </button>
 
           <button
-            onClick={handleToggleBlockquote}
+            onClick={() => setMode("quote")}
             className={cn(buttonBase, editor.isActive("blockquote") && buttonActive)}
             title="Citação"
           >
             <Quote className="w-4 h-4" />
           </button>
 
-          <div className="w-px h-6 bg-gray-200 mx-1" />
+          <div className="w-px h-7 bg-gray-300 mx-1.5" />
 
           {/* Colors & Highlight */}
           <button
@@ -242,7 +265,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
             <Palette className="w-4 h-4" />
           </button>
 
-          <div className="w-px h-6 bg-gray-200 mx-1" />
+          <div className="w-px h-7 bg-gray-300 mx-1.5" />
 
           {/* Links */}
           <button
@@ -271,7 +294,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
             </button>
           )}
 
-          <div className="w-px h-6 bg-gray-200 mx-1" />
+          <div className="w-px h-7 bg-gray-300 mx-1.5" />
 
           {/* Clear Formatting */}
           <button
@@ -285,10 +308,10 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
       )}
 
       {mode === "heading" && (
-        <div className="p-2 w-48">
-          <div className="flex items-center gap-2 mb-2">
-            <Heading1 className="w-4 h-4 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">Títulos</span>
+        <div className="p-3 w-56">
+          <div className="flex items-center gap-2 mb-3">
+            <Heading1 className="w-4 h-4 text-gray-900" />
+            <span className="text-sm font-medium text-gray-900">Títulos</span>
           </div>
 
           <div className="space-y-1">
@@ -298,7 +321,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
                 setMode("default");
               }}
               className={cn(
-                "w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center gap-2",
+                "w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center gap-2 text-gray-900",
                 editor.isActive("heading", { level: 1 }) && "bg-blue-50 text-blue-600"
               )}
             >
@@ -312,7 +335,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
                 setMode("default");
               }}
               className={cn(
-                "w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center gap-2",
+                "w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center gap-2 text-gray-900",
                 editor.isActive("heading", { level: 2 }) && "bg-blue-50 text-blue-600"
               )}
             >
@@ -326,7 +349,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
                 setMode("default");
               }}
               className={cn(
-                "w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center gap-2",
+                "w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center gap-2 text-gray-900",
                 editor.isActive("heading", { level: 3 }) && "bg-blue-50 text-blue-600"
               )}
             >
@@ -340,7 +363,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
                 setMode("default");
               }}
               className={cn(
-                "w-full text-left px-3 py-2 rounded hover:bg-gray-100",
+                "w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-gray-900",
                 !editor.isActive("heading") && "bg-blue-50 text-blue-600"
               )}
             >
@@ -350,7 +373,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
 
           <button
             onClick={() => setMode("default")}
-            className="mt-2 text-xs text-gray-500 hover:text-gray-700"
+            className="mt-3 text-xs text-gray-500 hover:text-gray-700"
           >
             ← Voltar
           </button>
@@ -358,9 +381,9 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
       )}
 
       {mode === "link" && (
-        <div className="p-2 w-72">
+        <div className="p-3 w-80">
           <div className="flex items-center gap-2">
-            <ExternalLink className="w-4 h-4 text-gray-700" />
+            <ExternalLink className="w-4 h-4 text-gray-900" />
             <input
               type="url"
               placeholder="https://..."
@@ -392,7 +415,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
               setMode("default");
               setLinkUrl("");
             }}
-            className="mt-2 text-xs text-gray-500 hover:text-gray-700"
+            className="mt-3 text-xs text-gray-500 hover:text-gray-700"
           >
             ← Voltar
           </button>
@@ -400,9 +423,9 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
       )}
 
       {mode === "reference" && (
-        <div className="p-2 w-80">
-          <div className="flex items-center gap-2 mb-2">
-            <BookOpen className="w-4 h-4 text-gray-700" />
+        <div className="p-3 w-80">
+          <div className="flex items-center gap-2 mb-3">
+            <BookOpen className="w-4 h-4 text-gray-900" />
             <input
               type="text"
               placeholder="Buscar estudo para referenciar..."
@@ -460,10 +483,10 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
       )}
 
       {mode === "highlight" && (
-        <div className="p-2 w-48">
-          <div className="flex items-center gap-2 mb-2">
-            <Highlighter className="w-4 h-4 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">Marca-texto</span>
+        <div className="p-3 w-52">
+          <div className="flex items-center gap-2 mb-3">
+            <Highlighter className="w-4 h-4 text-gray-900" />
+            <span className="text-sm font-medium text-gray-900">Marca-texto</span>
           </div>
 
           <div className="grid grid-cols-3 gap-2">
@@ -489,7 +512,7 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
 
           <button
             onClick={() => setMode("default")}
-            className="mt-2 text-xs text-gray-500 hover:text-gray-700"
+            className="mt-3 text-xs text-gray-500 hover:text-gray-700"
           >
             ← Voltar
           </button>
@@ -497,10 +520,10 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
       )}
 
       {mode === "textColor" && (
-        <div className="p-2 w-48">
-          <div className="flex items-center gap-2 mb-2">
-            <Palette className="w-4 h-4 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">Cor do texto</span>
+        <div className="p-3 w-52">
+          <div className="flex items-center gap-2 mb-3">
+            <Palette className="w-4 h-4 text-gray-900" />
+            <span className="text-sm font-medium text-gray-900">Cor do texto</span>
           </div>
 
           <div className="grid grid-cols-4 gap-2">
@@ -526,7 +549,50 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
 
           <button
             onClick={() => setMode("default")}
-            className="mt-2 text-xs text-gray-500 hover:text-gray-700"
+            className="mt-3 text-xs text-gray-500 hover:text-gray-700"
+          >
+            ← Voltar
+          </button>
+        </div>
+      )}
+
+      {mode === "quote" && (
+        <div className="p-3 w-52">
+          <div className="flex items-center gap-2 mb-3">
+            <Quote className="w-4 h-4 text-gray-900" />
+            <span className="text-sm font-medium text-gray-900">Citação</span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            {QUOTE_COLORS.map((qc) => (
+              <button
+                key={qc.color}
+                onClick={() => handleSetBlockquote(qc.color)}
+                className="w-full aspect-square rounded-md border-2 border-gray-200 hover:border-gray-400 transition-colors flex items-center justify-center"
+                style={{
+                  backgroundColor: '#f3f4f6',
+                  borderLeftWidth: '4px',
+                  borderLeftColor: qc.color
+                }}
+                title={qc.name}
+              >
+                <Quote className="w-4 h-4" style={{ color: qc.color }} />
+              </button>
+            ))}
+          </div>
+
+          {editor.isActive("blockquote") && (
+            <button
+              onClick={handleRemoveBlockquote}
+              className="w-full mt-2 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded transition-colors"
+            >
+              Remover citação
+            </button>
+          )}
+
+          <button
+            onClick={() => setMode("default")}
+            className="mt-3 text-xs text-gray-500 hover:text-gray-700"
           >
             ← Voltar
           </button>
