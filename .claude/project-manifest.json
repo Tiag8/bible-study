@@ -1,0 +1,38 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "Bible Study (Segundo Cérebro)",
+    "slug": "bible-study",
+    "type": "web-app",
+    "description": "Aplicativo de estudo bíblico com editor rico e visualização em grafo"
+  },
+  "variables": {
+    "PROJECT_PREFIX": "bible_",
+    "PROJECT_NAME": "Bible Study",
+    "SUPABASE_PROJECT_REF": "vcqgalxnapxerqcycieu"
+  },
+  "stack": {
+    "frontend": "React 19 + TypeScript + Next.js 15",
+    "styling": "TailwindCSS + shadcn/ui",
+    "database": "Supabase PostgreSQL",
+    "editor": "Tiptap",
+    "graph": "react-force-graph-2d"
+  },
+  "sync": {
+    "enabled": true,
+    "layers": [
+      "core",
+      "workflows",
+      "stack-react-supabase",
+      "quality-gates",
+      "context-system"
+    ]
+  },
+  "aios": {
+    "version": "4.31.0",
+    "installed": "2026-01-26",
+    "agents_enabled": true,
+    "workflows_enabled": true,
+    "commands_enabled": true
+  }
+}
