@@ -77,7 +77,7 @@ export function useGraph() {
           chapter: study.chapter_number,
           category,
           color: bookCategoryColors[category],
-          val: study.status === 'completed' ? 8 : 5,
+          val: study.status === 'concluído' ? 8 : 5,
         };
       });
 

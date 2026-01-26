@@ -1,0 +1,200 @@
+# Page snapshot
+
+```yaml
+- generic:
+  - button "Open Next.js Dev Tools" [ref=e6] [cursor=pointer]:
+    - img [ref=e7]
+  - alert
+  - generic:
+    - complementary:
+      - generic:
+        - link:
+          - /url: /
+          - img
+          - generic: Bible Graph
+      - navigation:
+        - link:
+          - /url: /
+          - img
+          - generic: Início
+        - link:
+          - /url: /grafo
+          - img
+          - generic: Grafo
+        - link:
+          - /url: /settings
+          - img
+          - generic: Configurações
+      - generic:
+        - generic:
+          - generic:
+            - generic: T
+            - generic:
+              - paragraph: Olá, Tiago
+              - generic: Admin
+        - button:
+          - img
+          - generic: Sair
+      - generic:
+        - button:
+          - img
+          - generic: Recolher
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - img
+            - textbox:
+              - /placeholder: Buscar livros, capítulos ou tags...
+          - generic:
+            - button:
+              - img
+              - text: Tags
+          - button:
+            - img
+            - text: Visão do Grafo
+      - main:
+        - generic:
+          - generic:
+            - generic:
+              - button:
+                - img
+                - text: Voltar
+              - generic:
+                - generic:
+                  - img
+                - generic:
+                  - heading [level=1]: 2 Samuel
+                  - paragraph: 9 de 24 capítulos estudados
+            - generic: Antigo Testamento
+          - generic:
+            - generic:
+              - generic: Progresso Geral
+              - generic: 38%
+          - generic:
+            - heading [level=2]: Capítulos
+            - generic:
+              - generic: "1"
+              - generic: "2"
+              - generic: "3"
+              - generic: "4"
+              - generic: "5"
+              - generic: "6"
+              - generic: "7"
+              - generic: "8"
+              - generic: "9"
+              - generic:
+                - text: "10"
+                - generic: "8"
+              - generic: "11"
+              - generic: "12"
+              - generic: "13"
+              - generic: "14"
+              - generic: "15"
+              - generic: "16"
+              - generic: "17"
+              - generic: "18"
+              - generic: "19"
+              - generic: "20"
+              - generic: "21"
+              - generic: "22"
+              - generic: "23"
+              - generic: "24"
+          - generic:
+            - heading [level=2]: Estudos Recentes
+            - generic:
+              - link:
+                - /url: /estudo/b2073b30-3113-4910-8743-f122008786c7
+                - generic:
+                  - generic:
+                    - generic:
+                      - heading [level=3]: 2 Samuel 10
+                      - generic: • Capítulo 10
+                  - generic:
+                    - img
+                    - generic: Hoje
+              - link:
+                - /url: /estudo/1846ab32-18e1-4eaa-99fc-6ec630ef5cad
+                - generic:
+                  - generic:
+                    - generic:
+                      - heading [level=3]: 2 Samuel 10
+                      - generic: • Capítulo 10
+                  - generic:
+                    - img
+                    - generic: Hoje
+              - link:
+                - /url: /estudo/3ce732c5-9f65-4d23-afbb-997714b7b199
+                - generic:
+                  - generic:
+                    - generic:
+                      - heading [level=3]: 2 Samuel 10
+                      - generic: • Capítulo 10
+                  - generic:
+                    - img
+                    - generic: Hoje
+              - link:
+                - /url: /estudo/e97c6aaa-6d7d-4144-ae0f-48c4e3b216cb
+                - generic:
+                  - generic:
+                    - generic:
+                      - heading [level=3]: 2 Samuel 10
+                      - generic: • Capítulo 10
+                  - generic:
+                    - img
+                    - generic: Hoje
+              - link:
+                - /url: /estudo/9f0ab001-9d63-43d4-83d7-2e0d594b1fff
+                - generic:
+                  - generic:
+                    - generic:
+                      - heading [level=3]: 2 Samuel 10
+                      - generic: • Capítulo 10
+                  - generic:
+                    - img
+                    - generic: Hoje
+    - complementary:
+      - generic:
+        - generic:
+          - generic:
+            - img
+            - heading [level=2]: Backlog de Estudos
+          - generic: "0"
+        - button:
+          - img
+          - text: Adicionar Estudo
+      - generic:
+        - generic:
+          - img
+          - paragraph: Nenhum item no backlog
+          - paragraph: Use / no editor para adicionar
+      - generic:
+        - button:
+          - text: Ver Todos os Estudos
+          - img
+  - dialog "2 Samuel 11" [ref=e11]:
+    - generic [ref=e12]:
+      - heading "2 Samuel 11" [level=2] [ref=e13]
+      - paragraph [ref=e14]: Você tem 1 estudo para este capítulo. Selecione um para editar ou crie um novo.
+    - generic [ref=e15]:
+      - button "Criar Novo Estudo Adicionar mais um estudo para este capítulo" [active] [ref=e16] [cursor=pointer]:
+        - img [ref=e17]
+        - generic [ref=e18]:
+          - generic [ref=e19]: Criar Novo Estudo
+          - generic [ref=e20]: Adicionar mais um estudo para este capítulo
+      - 'button "2 Samuel - Trabalhar com propósito Rascunho #Sabedoria #Fidelidade Hoje" [ref=e22] [cursor=pointer]':
+        - img [ref=e23]
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - heading "2 Samuel - Trabalhar com propósito" [level=3] [ref=e28]
+            - generic [ref=e29]: Rascunho
+          - generic [ref=e30]:
+            - generic [ref=e31]: "#Sabedoria"
+            - generic [ref=e32]: "#Fidelidade"
+          - generic [ref=e33]:
+            - img [ref=e34]
+            - generic [ref=e37]: Hoje
+    - button "Close" [ref=e38] [cursor=pointer]:
+      - img [ref=e39]
+      - generic [ref=e42]: Close
+```

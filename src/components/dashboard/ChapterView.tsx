@@ -1,15 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BibleBook, formatRelativeDate } from "@/lib/mock-data";
-import { useStudies } from "@/hooks";
+import { useStudies, useTags } from "@/hooks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StudySelectionModal } from "./StudySelectionModal";
 import {
   ArrowLeft,
   BookOpen,
-  Check,
   Clock,
   Plus,
   Loader2,
@@ -25,7 +26,14 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
   const router = useRouter();
 
   // Hook Supabase
-  const { loading, getStudiesByBook } = useStudies();
+  const { loading, getStudiesByBook, getStudiesByChapter } = useStudies();
+  const { tags: availableTags } = useTags();
+
+  // Modal state
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    chapter: number | null;
+  }>({ isOpen: false, chapter: null });
 
   // Generate chapters array
   const chapters = Array.from({ length: book.totalChapters }, (_, i) => i + 1);
@@ -35,6 +43,26 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
 
   const getChapterStudy = (chapter: number) => {
     return bookStudies.find((s) => s.chapter_number === chapter);
+  };
+
+  // Helper para buscar cor da tag
+  const getTagColor = (tagName: string): string => {
+    const tag = availableTags.find((t) => t.name === tagName);
+    if (!tag) return "#6b7280"; // gray-500 default
+
+    const colorMap: Record<string, string> = {
+      blue: "#3b82f6",
+      purple: "#8b5cf6",
+      green: "#22c55e",
+      orange: "#f97316",
+      pink: "#ec4899",
+      cyan: "#06b6d4",
+      red: "#ef4444",
+      yellow: "#eab308",
+      "dark-green": "#15803d",
+    };
+
+    return colorMap[tag.color] || "#6b7280";
   };
 
   // Calcular capítulos estudados dinamicamente
@@ -120,35 +148,45 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
         </h2>
         <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
           {chapters.map((chapter) => {
-            const isStudied = studiedChapters.includes(chapter);
-            const study = getChapterStudy(chapter);
-            const studyId = `${book.id}-${chapter}`;
+            const chapterStudies = getStudiesByChapter(book.name, chapter);
+            const studyCount = chapterStudies.length;
+            const hasMultiple = studyCount >= 2;
+
+            const handleChapterClick = () => {
+              if (studyCount === 0) {
+                // Nenhum estudo: criar novo
+                router.push(`/estudo/new?book=${book.id}&chapter=${chapter}`);
+              } else {
+                // 1+ estudos: abrir modal para escolher ou criar novo
+                setModalState({ isOpen: true, chapter });
+              }
+            };
 
             return (
-              <Link
+              <div
                 key={chapter}
-                href={`/estudo/${studyId}`}
+                onClick={handleChapterClick}
                 className={cn(
                   "relative aspect-square rounded-lg flex items-center justify-center",
-                  "text-sm font-medium transition-all",
+                  "text-sm font-medium transition-all cursor-pointer",
                   "hover:scale-105 hover:shadow-md",
-                  isStudied
+                  studyCount > 0
                     ? "bg-blue-600 text-white"
                     : "bg-white border border-gray-200 text-gray-700 hover:border-blue-300"
                 )}
                 title={
-                  study
-                    ? `${study.title} - ${
-                        study.status === "completed" ? "Concluído" : "Rascunho"
-                      }`
+                  studyCount > 0
+                    ? `${studyCount} estudo${studyCount !== 1 ? 's' : ''}`
                     : `Capítulo ${chapter}`
                 }
               >
                 {chapter}
-                {isStudied && (
-                  <Check className="w-3 h-3 absolute top-1 right-1" />
+                {hasMultiple && (
+                  <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {studyCount}
+                  </span>
                 )}
-              </Link>
+              </div>
             );
           })}
         </div>
@@ -164,25 +202,41 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
             {bookStudies.slice(0, 5).map((study) => (
               <Link
                 key={study.id}
-                href={`/estudo/${book.id}-${study.chapter_number}`}
+                href={`/estudo/${study.id}`}
                 className="block bg-white rounded-lg p-4 border border-gray-200 hover:border-blue-200 transition-colors cursor-pointer"
               >
                 <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-medium text-gray-900">
                         {study.title}
                       </h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        {study.tags.slice(0, 2).map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-xs">
-                            #{tag}
-                          </Badge>
-                        ))}
-                      </div>
+                      <span className="text-xs text-gray-500">
+                        • Capítulo {study.chapter_number}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      {study.tags.slice(0, 3).map((tagName) => {
+                        const tagColor = getTagColor(tagName);
+                        return (
+                          <span
+                            key={tagName}
+                            className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
+                            style={{
+                              borderWidth: '1px',
+                              borderStyle: 'solid',
+                              borderColor: tagColor,
+                              color: tagColor,
+                              backgroundColor: 'transparent',
+                            }}
+                          >
+                            #{tagName}
+                          </span>
+                        );
+                      })}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <div className="flex items-center gap-1 text-xs text-gray-500 ml-4">
                     <Clock className="w-3 h-3" />
                     <span>{formatRelativeDate(study.updated_at)}</span>
                   </div>
@@ -203,12 +257,24 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
           <Button
             variant="default"
             className="mt-4"
-            onClick={() => router.push(`/estudo/${book.id}-1`)}
+            onClick={() => router.push(`/estudo/new?book=${book.id}&chapter=1`)}
           >
             <Plus className="w-4 h-4 mr-2" />
             Criar Primeiro Estudo
           </Button>
         </div>
+      )}
+
+      {/* Study Selection Modal */}
+      {modalState.isOpen && modalState.chapter !== null && (
+        <StudySelectionModal
+          isOpen={modalState.isOpen}
+          onClose={() => setModalState({ isOpen: false, chapter: null })}
+          studies={getStudiesByChapter(book.name, modalState.chapter)}
+          bookId={book.id}
+          bookName={book.name}
+          chapter={modalState.chapter}
+        />
       )}
     </div>
   );

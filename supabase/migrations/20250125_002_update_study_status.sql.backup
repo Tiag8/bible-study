@@ -1,0 +1,27 @@
+-- Migration: Atualizar status de estudos para 3 estados (estudando, revisando, concluído)
+-- Created: 2025-01-25
+
+-- 1. Adicionar novos valores ao CHECK constraint
+ALTER TABLE bible_studies
+DROP CONSTRAINT IF EXISTS bible_studies_status_check;
+
+ALTER TABLE bible_studies
+ADD CONSTRAINT bible_studies_status_check
+CHECK (status IN ('estudando', 'revisando', 'concluído'));
+
+-- 2. Migrar dados existentes
+-- 'draft' → 'estudando' (default)
+-- 'completed' → 'concluído'
+UPDATE bible_studies
+SET status = CASE
+  WHEN status = 'draft' THEN 'estudando'
+  WHEN status = 'completed' THEN 'concluído'
+  ELSE 'estudando'  -- fallback para valores inesperados
+END;
+
+-- 3. Atualizar default para novos estudos
+ALTER TABLE bible_studies
+ALTER COLUMN status SET DEFAULT 'estudando';
+
+-- 4. Comentário para documentação
+COMMENT ON COLUMN bible_studies.status IS 'Status do estudo: estudando (azul), revisando (roxo), concluído (verde)';

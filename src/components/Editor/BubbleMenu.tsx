@@ -457,7 +457,11 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
                     {study.title}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {study.book_name} {study.chapter_number} • {study.status === "completed" ? "Concluído" : "Rascunho"}
+                    {study.book_name} {study.chapter_number} • {
+                      study.status === 'estudando' ? 'Estudando' :
+                      study.status === 'revisando' ? 'Revisando' :
+                      'Concluído'
+                    }
                   </div>
                 </button>
               ))

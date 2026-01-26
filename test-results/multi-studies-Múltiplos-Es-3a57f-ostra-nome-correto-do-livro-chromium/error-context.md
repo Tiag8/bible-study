@@ -1,0 +1,162 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+    - img [ref=e8]
+  - alert [ref=e11]
+  - generic [ref=e12]:
+    - complementary [ref=e13]:
+      - link "Bible Graph" [ref=e15] [cursor=pointer]:
+        - /url: /
+        - img [ref=e16]
+        - generic [ref=e18]: Bible Graph
+      - navigation [ref=e19]:
+        - link "Início" [ref=e20] [cursor=pointer]:
+          - /url: /
+          - img [ref=e21]
+          - generic [ref=e24]: Início
+        - link "Grafo" [ref=e25] [cursor=pointer]:
+          - /url: /grafo
+          - img [ref=e26]
+          - generic [ref=e31]: Grafo
+        - link "Configurações" [ref=e32] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e33]
+          - generic [ref=e36]: Configurações
+      - generic [ref=e37]:
+        - generic [ref=e39]:
+          - generic [ref=e40]: T
+          - generic [ref=e41]:
+            - paragraph [ref=e42]: Olá, Tiago
+            - generic [ref=e43]: Admin
+        - button "Sair" [ref=e44] [cursor=pointer]:
+          - img [ref=e45]
+          - generic [ref=e48]: Sair
+      - button "Recolher" [ref=e50] [cursor=pointer]:
+        - img [ref=e51]
+        - generic [ref=e53]: Recolher
+    - generic [ref=e54]:
+      - generic [ref=e56]:
+        - generic [ref=e57]:
+          - img [ref=e58]
+          - textbox "Buscar livros, capítulos ou tags..." [ref=e61]
+        - button "Tags" [ref=e63] [cursor=pointer]:
+          - img [ref=e64]
+          - text: Tags
+        - button "Visão do Grafo" [ref=e66] [cursor=pointer]:
+          - img [ref=e67]
+          - text: Visão do Grafo
+      - main [ref=e72]:
+        - generic [ref=e73]:
+          - generic [ref=e74]:
+            - generic [ref=e75]:
+              - button "Voltar" [ref=e76] [cursor=pointer]:
+                - img [ref=e77]
+                - text: Voltar
+              - generic [ref=e79]:
+                - img [ref=e81]
+                - generic [ref=e83]:
+                  - heading "2 Samuel" [level=1] [ref=e84]
+                  - paragraph [ref=e85]: 11 de 24 capítulos estudados
+            - generic [ref=e86]: Antigo Testamento
+          - generic [ref=e88]:
+            - generic [ref=e89]: Progresso Geral
+            - generic [ref=e90]: 46%
+          - generic [ref=e93]:
+            - heading "Capítulos" [level=2] [ref=e94]
+            - generic [ref=e95]:
+              - generic "Capítulo 1" [ref=e96] [cursor=pointer]: "1"
+              - generic "Capítulo 2" [ref=e97] [cursor=pointer]: "2"
+              - generic "Capítulo 3" [ref=e98] [cursor=pointer]: "3"
+              - generic "Capítulo 4" [ref=e99] [cursor=pointer]: "4"
+              - generic "Capítulo 5" [ref=e100] [cursor=pointer]: "5"
+              - generic "Capítulo 6" [ref=e101] [cursor=pointer]: "6"
+              - generic "Capítulo 7" [ref=e102] [cursor=pointer]: "7"
+              - generic "Capítulo 8" [ref=e103] [cursor=pointer]: "8"
+              - generic "Capítulo 9" [ref=e104] [cursor=pointer]: "9"
+              - generic "8 estudos" [ref=e105] [cursor=pointer]:
+                - text: "10"
+                - generic [ref=e106]: "8"
+              - generic "3 estudos" [ref=e107] [cursor=pointer]:
+                - text: "11"
+                - generic [ref=e108]: "3"
+              - generic "Capítulo 12" [ref=e109] [cursor=pointer]: "12"
+              - generic "Capítulo 13" [ref=e110] [cursor=pointer]: "13"
+              - generic "Capítulo 14" [ref=e111] [cursor=pointer]: "14"
+              - generic "Capítulo 15" [ref=e112] [cursor=pointer]: "15"
+              - generic "Capítulo 16" [ref=e113] [cursor=pointer]: "16"
+              - generic "Capítulo 17" [ref=e114] [cursor=pointer]: "17"
+              - generic "Capítulo 18" [ref=e115] [cursor=pointer]: "18"
+              - generic "Capítulo 19" [ref=e116] [cursor=pointer]: "19"
+              - generic "Capítulo 20" [ref=e117] [cursor=pointer]: "20"
+              - generic "Capítulo 21" [ref=e118] [cursor=pointer]: "21"
+              - generic "Capítulo 22" [ref=e119] [cursor=pointer]: "22"
+              - generic "Capítulo 23" [ref=e120] [cursor=pointer]: "23"
+              - generic "Capítulo 24" [ref=e121] [cursor=pointer]: "24"
+          - generic [ref=e122]:
+            - heading "Estudos Recentes" [level=2] [ref=e123]
+            - generic [ref=e124]:
+              - link "2 Samuel 11 • Capítulo 11 Hoje" [ref=e125] [cursor=pointer]:
+                - /url: /estudo/538dbc43-b7d1-4d1d-9e05-91008e358ed1
+                - generic [ref=e126]:
+                  - generic [ref=e128]:
+                    - heading "2 Samuel 11" [level=3] [ref=e129]
+                    - generic [ref=e130]: • Capítulo 11
+                  - generic [ref=e131]:
+                    - img [ref=e132]
+                    - generic [ref=e135]: Hoje
+              - link "2 Samuel 11 • Capítulo 11 Hoje" [ref=e136] [cursor=pointer]:
+                - /url: /estudo/1de6a185-7b85-4b09-b9f6-c939c46aab3f
+                - generic [ref=e137]:
+                  - generic [ref=e139]:
+                    - heading "2 Samuel 11" [level=3] [ref=e140]
+                    - generic [ref=e141]: • Capítulo 11
+                  - generic [ref=e142]:
+                    - img [ref=e143]
+                    - generic [ref=e146]: Hoje
+              - link "2 Samuel 10 • Capítulo 10 Hoje" [ref=e147] [cursor=pointer]:
+                - /url: /estudo/b2073b30-3113-4910-8743-f122008786c7
+                - generic [ref=e148]:
+                  - generic [ref=e150]:
+                    - heading "2 Samuel 10" [level=3] [ref=e151]
+                    - generic [ref=e152]: • Capítulo 10
+                  - generic [ref=e153]:
+                    - img [ref=e154]
+                    - generic [ref=e157]: Hoje
+              - link "2 Samuel 10 • Capítulo 10 Hoje" [ref=e158] [cursor=pointer]:
+                - /url: /estudo/1846ab32-18e1-4eaa-99fc-6ec630ef5cad
+                - generic [ref=e159]:
+                  - generic [ref=e161]:
+                    - heading "2 Samuel 10" [level=3] [ref=e162]
+                    - generic [ref=e163]: • Capítulo 10
+                  - generic [ref=e164]:
+                    - img [ref=e165]
+                    - generic [ref=e168]: Hoje
+              - link "2 Samuel 10 • Capítulo 10 Hoje" [ref=e169] [cursor=pointer]:
+                - /url: /estudo/3ce732c5-9f65-4d23-afbb-997714b7b199
+                - generic [ref=e170]:
+                  - generic [ref=e172]:
+                    - heading "2 Samuel 10" [level=3] [ref=e173]
+                    - generic [ref=e174]: • Capítulo 10
+                  - generic [ref=e175]:
+                    - img [ref=e176]
+                    - generic [ref=e179]: Hoje
+    - complementary [ref=e180]:
+      - generic [ref=e181]:
+        - generic [ref=e182]:
+          - generic [ref=e183]:
+            - img [ref=e184]
+            - heading "Backlog de Estudos" [level=2] [ref=e187]
+          - generic [ref=e188]: "0"
+        - button "Adicionar Estudo" [ref=e189] [cursor=pointer]:
+          - img [ref=e190]
+          - text: Adicionar Estudo
+      - generic [ref=e192]:
+        - img [ref=e193]
+        - paragraph [ref=e196]: Nenhum item no backlog
+        - paragraph [ref=e197]: Use / no editor para adicionar
+      - button "Ver Todos os Estudos" [ref=e199] [cursor=pointer]:
+        - text: Ver Todos os Estudos
+        - img [ref=e200]
+```
