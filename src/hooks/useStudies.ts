@@ -153,17 +153,19 @@ export function useStudies() {
     id: string,
     updates: Partial<StudyUpdate>
   ): Promise<Study | null> => {
-    console.log('[STUDIES] saveStudy - id:', id, 'updates:', updates, 'userId:', user?.id);
-    
+    const VERSION_TAG = '2025-01-25-001';
+    console.log(`[STUDIES v${VERSION_TAG}] saveStudy - id:`, id, 'updates:', updates, 'userId:', user?.id);
+
     if (!user?.id) {
       console.log('[STUDIES] saveStudy SKIP - no user');
       return null;
     }
-    
+
     try {
       console.log('[STUDIES] saveStudy UPDATE BEFORE');
-      // Fazer UPDATE sem .select().single() (evita hang com RLS)
-      const { error: updateError } = await supabase
+      // PATTERN: Seguir exatamente o padrão de completeStudy() que funciona
+      // Apenas UPDATE, sem SELECT (evita hang com RLS + JSONB)
+      const { error } = await supabase
         .from('bible_studies')
         .update({
           ...updates,
@@ -172,26 +174,14 @@ export function useStudies() {
         .eq('id', id)
         .eq('user_id', user.id); // Explícito para RLS
 
-      console.log('[STUDIES] saveStudy UPDATE AFTER - error:', updateError);
+      console.log('[STUDIES] saveStudy UPDATE AFTER - error:', error);
 
-      if (updateError) throw updateError;
+      if (error) throw error;
 
-      // Buscar row atualizado separadamente
-      console.log('[STUDIES] saveStudy SELECT BEFORE');
-      const { data, error: selectError } = await supabase
-        .from('bible_studies')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      console.log('[STUDIES] saveStudy SELECT AFTER - data:', data, 'error:', selectError);
-
-      if (selectError) throw selectError;
-
-      // Atualizar lista local
-      setStudies(prev => prev.map(s => s.id === id ? data : s));
-      console.log('[STUDIES] saveStudy SUCCESS');
-      return data;
+      // NÃO fazer SELECT separado (pode travar com JSONB grande)
+      // UI já tem o estado atualizado via currentContent
+      console.log('[STUDIES] saveStudy SUCCESS - no SELECT needed');
+      return null; // Retornar null OK (página não usa retorno)
     } catch (err) {
       console.error('[STUDIES] saveStudy ERROR:', err);
       throw err;
