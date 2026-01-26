@@ -63,6 +63,11 @@ export default function StudyPage({ params }: StudyPageProps) {
 
   // Estado para guardar o bookId
   const [bookId, setBookId] = useState<string>("");
+  // Estado para guardar info de novo estudo (quando id === 'new')
+  const [newStudyInfo, setNewStudyInfo] = useState<{
+    bookName: string;
+    chapterNumber: number;
+  } | null>(null);
 
   // Carregar estudo
   useEffect(() => {
@@ -92,9 +97,18 @@ export default function StudyPage({ params }: StudyPageProps) {
           }
 
           const chapter = parseInt(chapterParam, 10);
-          console.log("[ESTUDO] Creating new study:", book.name, chapter);
-          studyData = await createStudy(book.name, chapter, `${book.name} ${chapter}`);
+          console.log("[ESTUDO] Preparando novo estudo:", book.name, chapter);
+
+          // NÃO criar estudo aqui - apenas preparar o estado
+          // O estudo será criado no primeiro save com conteúdo
           setBookId(bookParam);
+          setTitle(`${book.name} ${chapter}`);
+          setNewStudyInfo({ bookName: book.name, chapterNumber: chapter });
+          setStudy(null); // Explicitamente null para novo estudo
+          setCurrentContent("");
+          setIsLoading(false);
+          setIsInitialLoad(true);
+          return;
         } else {
           // Rota de edição: /estudo/{uuid}
           console.log("[ESTUDO] Loading study by ID:", id);
@@ -170,11 +184,22 @@ export default function StudyPage({ params }: StudyPageProps) {
 
   // Função de salvamento
   const handleSave = useCallback(async () => {
-    if (!study) return;
-
     setIsSaving(true);
 
     try {
+      // Verificar se o conteúdo está vazio
+      const isEmpty = !currentContent ||
+                     currentContent === '""' ||
+                     currentContent === '{}' ||
+                     currentContent.trim() === '';
+
+      // Se for novo estudo (study === null) e não tem conteúdo, avisar usuário
+      if (!study?.id && isEmpty) {
+        alert("Adicione conteúdo antes de salvar o estudo");
+        setIsSaving(false);
+        return;
+      }
+
       // Parsear content de string JSON para objeto (currentContent é sempre string agora)
       let contentToSave: StudyWithContent["content"] | undefined;
       if (currentContent && currentContent.trim().startsWith("{")) {
@@ -186,19 +211,44 @@ export default function StudyPage({ params }: StudyPageProps) {
         }
       }
 
-      await saveStudy(study.id, {
-        title,
-        ...(contentToSave ? { content: contentToSave } : {}),
-        tags: selectedTags,
-      });
-      setHasUnsavedChanges(false);
-      setLastSaved(new Date());
+      // Se é novo estudo (study?.id === null), criar primeiro
+      if (!study?.id && newStudyInfo) {
+        console.log("[ESTUDO] Criando novo estudo no primeiro save:", newStudyInfo.bookName, newStudyInfo.chapterNumber);
+        const newStudy = await createStudy(
+          newStudyInfo.bookName,
+          newStudyInfo.chapterNumber,
+          title
+        );
+
+        if (newStudy) {
+          // Salvar conteúdo e tags no estudo recém-criado
+          await saveStudy(newStudy.id, {
+            title,
+            ...(contentToSave ? { content: contentToSave } : {}),
+            tags: selectedTags,
+          });
+
+          console.log("[ESTUDO] Estudo criado e salvo. Redirecionando para:", newStudy.id);
+          // Redirecionar para o estudo criado
+          router.replace(`/estudo/${newStudy.id}`);
+          return;
+        }
+      } else if (study?.id) {
+        // Estudo já existe - save normal
+        await saveStudy(study.id, {
+          title,
+          ...(contentToSave ? { content: contentToSave } : {}),
+          tags: selectedTags,
+        });
+        setHasUnsavedChanges(false);
+        setLastSaved(new Date());
+      }
     } catch (error) {
       console.error("Erro ao salvar estudo:", error);
     } finally {
       setIsSaving(false);
     }
-  }, [study, title, currentContent, selectedTags, saveStudy]);
+  }, [study, title, currentContent, selectedTags, saveStudy, newStudyInfo, createStudy, router]);
 
   // Auto-save a cada 30 segundos se houver alterações
   useEffect(() => {
@@ -319,6 +369,11 @@ export default function StudyPage({ params }: StudyPageProps) {
         { label: study.book_name, href: bookId ? `/?book=${bookId}` : '/' },
         { label: `Capítulo ${study.chapter_number}` },
       ]
+    : newStudyInfo
+    ? [
+        { label: newStudyInfo.bookName, href: bookId ? `/?book=${bookId}` : '/' },
+        { label: `Capítulo ${newStudyInfo.chapterNumber}` },
+      ]
     : [];
 
   if (isLoading) {
@@ -330,7 +385,8 @@ export default function StudyPage({ params }: StudyPageProps) {
     );
   }
 
-  if (loadError || !study) {
+  // Mostrar erro apenas se houver erro real OU se não tem study E não é novo estudo
+  if (loadError || (!study && !newStudyInfo)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -462,24 +518,24 @@ export default function StudyPage({ params }: StudyPageProps) {
 
               {/* Dropdown de status */}
               <div className="relative">
-                <Button
-                  variant="outline"
-                  size="sm"
+                <button
                   onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                  disabled={!study?.id}
+                  className={cn(
+                    "px-3 py-1.5 text-sm rounded-md font-medium transition-colors",
+                    "focus:outline-none focus:ring-2 focus:ring-offset-2",
+                    "text-white",
+                    !study?.id && "bg-gray-300 cursor-not-allowed",
+                    study?.status === 'estudando' && "bg-blue-500 hover:bg-blue-600 focus:ring-blue-500",
+                    study?.status === 'revisando' && "bg-purple-500 hover:bg-purple-600 focus:ring-purple-500",
+                    study?.status === 'concluído' && "bg-green-500 hover:bg-green-600 focus:ring-green-500"
+                  )}
                 >
-                  <Badge
-                    className={cn(
-                      "mr-2",
-                      study?.status === 'estudando' && "bg-blue-500 hover:bg-blue-600",
-                      study?.status === 'revisando' && "bg-purple-500 hover:bg-purple-600",
-                      study?.status === 'concluído' && "bg-green-500 hover:bg-green-600"
-                    )}
-                  >
-                    {study?.status === 'estudando' && 'Estudando'}
-                    {study?.status === 'revisando' && 'Revisando'}
-                    {study?.status === 'concluído' && 'Concluído'}
-                  </Badge>
-                </Button>
+                  {!study?.id && 'Novo'}
+                  {study?.status === 'estudando' && 'Estudando'}
+                  {study?.status === 'revisando' && 'Revisando'}
+                  {study?.status === 'concluído' && 'Concluído'}
+                </button>
 
                 {showStatusDropdown && study && (
                   <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
@@ -497,7 +553,7 @@ export default function StudyPage({ params }: StudyPageProps) {
                         )}
                       >
                         <span className="w-3 h-3 rounded-full bg-blue-500" />
-                        <span>Estudando</span>
+                        <span className="text-gray-900">Estudando</span>
                       </button>
 
                       <button
@@ -513,7 +569,7 @@ export default function StudyPage({ params }: StudyPageProps) {
                         )}
                       >
                         <span className="w-3 h-3 rounded-full bg-purple-500" />
-                        <span>Revisando</span>
+                        <span className="text-gray-900">Revisando</span>
                       </button>
 
                       <button
@@ -529,7 +585,7 @@ export default function StudyPage({ params }: StudyPageProps) {
                         )}
                       >
                         <span className="w-3 h-3 rounded-full bg-green-500" />
-                        <span>Concluído</span>
+                        <span className="text-gray-900">Concluído</span>
                       </button>
                     </div>
                   </div>
@@ -661,7 +717,7 @@ export default function StudyPage({ params }: StudyPageProps) {
       <main className="max-w-5xl mx-auto px-4 py-6">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <Editor
-            initialContent={study.content || ""}
+            initialContent={study?.content || ""}
             onChange={handleContentChange}
           />
         </div>

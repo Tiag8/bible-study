@@ -14,6 +14,7 @@ import {
   Clock,
   Plus,
   Loader2,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +27,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
   const router = useRouter();
 
   // Hook Supabase
-  const { loading, getStudiesByBook, getStudiesByChapter } = useStudies();
+  const { loading, getStudiesByBook, getStudiesByChapter, deleteStudy } = useStudies();
   const { tags: availableTags } = useTags();
 
   // Modal state
@@ -34,6 +35,9 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
     isOpen: boolean;
     chapter: number | null;
   }>({ isOpen: false, chapter: null });
+
+  // Delete state
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Generate chapters array
   const chapters = Array.from({ length: book.totalChapters }, (_, i) => i + 1);
@@ -67,6 +71,24 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
 
   // Calcular capítulos estudados dinamicamente
   const studiedChapters = bookStudies.map(s => s.chapter_number);
+
+  // Deletar estudo
+  const handleDelete = async (studyId: string, studyTitle: string, e: React.MouseEvent) => {
+    e.preventDefault(); // Prevenir navegação do Link
+    e.stopPropagation();
+
+    if (!confirm(`Tem certeza que deseja deletar "${studyTitle}"?`)) {
+      return;
+    }
+
+    setDeletingId(studyId);
+    const success = await deleteStudy(studyId);
+
+    if (!success) {
+      alert('Erro ao deletar estudo. Tente novamente.');
+    }
+    setDeletingId(null);
+  };
 
   if (loading) {
     return (
@@ -200,48 +222,83 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
           </h2>
           <div className="space-y-3">
             {bookStudies.slice(0, 5).map((study) => (
-              <Link
+              <div
                 key={study.id}
-                href={`/estudo/${study.id}`}
-                className="block bg-white rounded-lg p-4 border border-gray-200 hover:border-blue-200 transition-colors cursor-pointer"
+                className="relative group"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-medium text-gray-900">
-                        {study.title}
-                      </h3>
-                      <span className="text-xs text-gray-500">
-                        • Capítulo {study.chapter_number}
-                      </span>
+                {/* Linha vermelha do lado esquerdo (aparece no hover) */}
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity rounded-l-lg" />
+
+                <div
+                  onClick={() => router.push(`/estudo/${study.id}`)}
+                  className="block bg-white rounded-lg p-4 border border-gray-200 hover:border-blue-200 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-medium text-gray-900">
+                          {study.title}
+                        </h3>
+                        <span className="text-xs text-gray-500">
+                          • Capítulo {study.chapter_number}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        {study.tags.slice(0, 3).map((tagName) => {
+                          const tagColor = getTagColor(tagName);
+                          return (
+                            <span
+                              key={tagName}
+                              className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
+                              style={{
+                                borderWidth: '1px',
+                                borderStyle: 'solid',
+                                borderColor: tagColor,
+                                color: tagColor,
+                                backgroundColor: 'transparent',
+                              }}
+                            >
+                              #{tagName}
+                            </span>
+                          );
+                        })}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      {study.tags.slice(0, 3).map((tagName) => {
-                        const tagColor = getTagColor(tagName);
-                        return (
-                          <span
-                            key={tagName}
-                            className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
-                            style={{
-                              borderWidth: '1px',
-                              borderStyle: 'solid',
-                              borderColor: tagColor,
-                              color: tagColor,
-                              backgroundColor: 'transparent',
-                            }}
-                          >
-                            #{tagName}
-                          </span>
-                        );
-                      })}
+                    <div className="flex flex-col items-end gap-2 ml-4">
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <Clock className="w-3 h-3" />
+                        <span>{formatRelativeDate(study.updated_at)}</span>
+                      </div>
+                      <Badge
+                        className={cn(
+                          "text-white text-xs",
+                          study.status === 'estudando' && "bg-blue-500",
+                          study.status === 'revisando' && "bg-purple-500",
+                          study.status === 'concluído' && "bg-green-500"
+                        )}
+                      >
+                        {study.status === 'estudando' && 'Estudando'}
+                        {study.status === 'revisando' && 'Revisando'}
+                        {study.status === 'concluído' && 'Concluído'}
+                      </Badge>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-gray-500 ml-4">
-                    <Clock className="w-3 h-3" />
-                    <span>{formatRelativeDate(study.updated_at)}</span>
                   </div>
                 </div>
-              </Link>
+
+                {/* Botão de deletar (aparece no hover) */}
+                <button
+                  onClick={(e) => handleDelete(study.id, study.title, e)}
+                  disabled={deletingId === study.id}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-md bg-red-50 text-red-600 hover:bg-red-100 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                  title="Deletar estudo"
+                >
+                  {deletingId === study.id ? (
+                    <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
             ))}
           </div>
         </div>

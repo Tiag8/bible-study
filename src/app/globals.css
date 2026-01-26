@@ -20,6 +20,12 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
+@layer base {
+  * {
+    @apply text-gray-900;
+  }
+}
+
 /* Tiptap Editor Styles */
 .tiptap {
   outline: none;
