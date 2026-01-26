@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isFetchingProfileRef = useRef(false);
 
   const fetchProfile = async (userId: string, force = false) => {
-    console.log('[AUTH] fetchProfile BEFORE - userId:', userId, 'isFetching:', isFetchingProfileRef.current, 'force:', force);
+    const fetchStart = Date.now();
 
     // Prevenir chamadas concorrentes (a menos que seja forçado)
     if (isFetchingProfileRef.current && !force) {
@@ -42,15 +42,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     isFetchingProfileRef.current = true;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
     try {
-      const { data, error } = await supabase
+      const timeoutMs = 10000;
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new Error('[AUTH] fetchProfile timeout'));
+        }, timeoutMs);
+      });
+
+      const queryPromise = supabase
         .from('bible_profiles')
         .select('*')
         .eq('id', userId)
         .single();
 
-      console.log('[AUTH] fetchProfile QUERY RESULT - data:', data, 'error:', error);
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+
 
       if (error) {
         console.error('Erro ao buscar profile:', error);
@@ -60,72 +69,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       setProfile(data);
-      console.log('[AUTH] fetchProfile AFTER - profile set to:', data);
     } catch (err) {
       console.error('Erro inesperado ao buscar profile:', err);
       setProfile(null);
-      console.log('[AUTH] fetchProfile AFTER - profile set to NULL (exception)');
     } finally {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       isFetchingProfileRef.current = false;
-      console.log('[AUTH] fetchProfile FINALLY - isFetching reset to false');
     }
   };
 
   useEffect(() => {
-    console.log('[AUTH] useEffect START');
-    
     // Get initial session
-    console.log('[AUTH] getSession BEFORE');
     supabase.auth.getSession()
-      .then(async ({ data: { session } }) => {
-        console.log('[AUTH] getSession AFTER - session:', session ? 'EXISTS' : 'NULL');
-        console.log('[AUTH] getSession AFTER - user:', session?.user ? 'EXISTS' : 'NULL');
-        
+      .then(({ data: { session } }) => {
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          console.log('[AUTH] Calling fetchProfile with userId:', session.user.id);
-          await fetchProfile(session.user.id);
+          fetchProfile(session.user.id);
         } else {
-          console.log('[AUTH] No session/user - skipping fetchProfile');
         }
         
-        console.log('[AUTH] setLoading FALSE (initial session)');
         setLoading(false);
       })
       .catch((error) => {
         console.error('Erro ao obter sessão:', error);
-        console.log('[AUTH] setLoading FALSE (error getting session)');
         setLoading(false);
       });
 
     // Listen for auth changes
-    console.log('[AUTH] Setting up onAuthStateChange listener');
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        console.log('[AUTH] onAuthStateChange TRIGGERED - event:', _event);
-        console.log('[AUTH] onAuthStateChange - session:', session ? 'EXISTS' : 'NULL');
+      (_event, session) => {
+        try {
+          setSession(session);
+          setUser(session?.user ?? null);
 
-        setSession(session);
-        setUser(session?.user ?? null);
+          // Pular fetchProfile para USER_UPDATED - será chamado manualmente via refreshProfile
+          if (_event === 'USER_UPDATED') {
+            return;
+          }
 
-        // Pular fetchProfile para USER_UPDATED - será chamado manualmente via refreshProfile
-        if (_event === 'USER_UPDATED') {
-          console.log('[AUTH] onAuthStateChange - USER_UPDATED event, skipping fetchProfile (will be called by refreshProfile)');
-          return;
+          if (session?.user) {
+            fetchProfile(session.user.id);
+          } else {
+            setProfile(null);
+          }
+        } catch (err) {
+          console.error('[AUTH] onAuthStateChange ERROR:', err);
+        } finally {
+          setLoading(false);
         }
-
-        if (session?.user) {
-          console.log('[AUTH] onAuthStateChange - calling fetchProfile with userId:', session.user.id);
-          await fetchProfile(session.user.id);
-        } else {
-          console.log('[AUTH] onAuthStateChange - no session/user, setting profile to NULL');
-          setProfile(null);
-        }
-
-        console.log('[AUTH] setLoading FALSE (onAuthStateChange)');
-        setLoading(false);
       }
     );
 
@@ -133,18 +128,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = async () => {
-    console.log('[AUTH] signOut CALLED');
     await supabase.auth.signOut();
-    console.log('[AUTH] signOut COMPLETE');
   };
 
   const refreshProfile = async () => {
-    console.log('[AUTH] refreshProfile CALLED - user?.id:', user?.id);
     if (user?.id) {
       // force=true para garantir que busca mesmo se outra chamada estiver em andamento
       await fetchProfile(user.id, true);
     } else {
-      console.log('[AUTH] refreshProfile - no user.id, skipping');
     }
   };
 

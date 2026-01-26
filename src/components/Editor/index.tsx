@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
@@ -13,9 +13,10 @@ import { ColoredBlockquote } from "./ColoredBlockquote";
 import { BubbleMenuComponent } from "./BubbleMenu";
 import { SlashMenu } from "./SlashMenu";
 import { useSlashMenu } from "./useSlashMenu";
+import type { TiptapContent } from "@/types/database";
 
 interface EditorProps {
-  initialContent?: string;
+  initialContent?: string | TiptapContent | null;
   onChange?: (content: string) => void;
 }
 
@@ -39,6 +40,7 @@ function parseContent(content: unknown): string | object {
 }
 
 export function Editor({ initialContent = "", onChange }: EditorProps) {
+  const lastAppliedContentRef = useRef<string | null>(null);
   const parsedInitialContent = parseContent(initialContent);
 
   const editor = useEditor({
@@ -80,9 +82,17 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
 
   // Atualizar conteúdo quando initialContent mudar
   useEffect(() => {
-    if (editor && initialContent && editor.isEmpty) {
-      editor.commands.setContent(parseContent(initialContent));
-    }
+    if (!editor) return;
+    const normalizedContent = parseContent(initialContent);
+    const contentKey =
+      typeof normalizedContent === "string"
+        ? normalizedContent
+        : JSON.stringify(normalizedContent);
+
+    if (lastAppliedContentRef.current === contentKey) return;
+
+    editor.commands.setContent(normalizedContent);
+    lastAppliedContentRef.current = contentKey;
   }, [editor, initialContent]);
 
   const slashMenu = useSlashMenu(editor);

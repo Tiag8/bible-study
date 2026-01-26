@@ -15,8 +15,8 @@ export function useBacklog() {
   const fetchBacklog = useCallback(async () => {
     console.log('[BACKLOG] fetchBacklog START - authLoading:', authLoading, 'userId:', user?.id);
     
-    // Se auth ainda está carregando, aguardar
-    if (authLoading) {
+    // Se auth ainda está carregando e não temos user, aguardar
+    if (authLoading && !user?.id) {
       console.log('[BACKLOG] fetchBacklog SKIP - authLoading is true');
       return;
     }

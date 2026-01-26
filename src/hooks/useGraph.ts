@@ -36,8 +36,8 @@ export function useGraph() {
 
   // Buscar dados do grafo
   const fetchGraphData = useCallback(async () => {
-    // Se auth ainda está carregando, aguardar
-    if (authLoading) return;
+    // Se auth ainda está carregando e não temos user, aguardar
+    if (authLoading && !user?.id) return;
 
     // Se não tem usuário após auth carregar, parar loading
     if (!user?.id) {

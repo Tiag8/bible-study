@@ -114,19 +114,19 @@ export default function StudyPage({ params }: StudyPageProps) {
 
     try {
       // Parsear content de string JSON para objeto (currentContent é sempre string agora)
-      let contentToSave: unknown = currentContent;
+      let contentToSave: StudyWithContent["content"] | undefined;
       if (currentContent && currentContent.trim().startsWith("{")) {
         try {
-          contentToSave = JSON.parse(currentContent);
+          contentToSave = JSON.parse(currentContent) as StudyWithContent["content"];
         } catch (e) {
           console.error("[ESTUDO] JSON parse error:", e);
-          // Se falhar, mantém como string (HTML legacy)
+          // Se falhar, não atualiza content para evitar gravar dado inválido
         }
       }
 
       await saveStudy(study.id, {
         title,
-        content: contentToSave,
+        ...(contentToSave ? { content: contentToSave } : {}),
         tags: selectedTags,
       });
       setHasUnsavedChanges(false);
