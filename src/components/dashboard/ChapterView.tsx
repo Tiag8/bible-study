@@ -1,19 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BibleBook, formatRelativeDate } from "@/lib/mock-data";
-import { useStudies } from "@/hooks";
+import { useStudies, useTags } from "@/hooks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StudySelectionModal } from "./StudySelectionModal";
 import {
   ArrowLeft,
   BookOpen,
-  Check,
   Clock,
-  Edit3,
   Plus,
   Loader2,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +27,17 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
   const router = useRouter();
 
   // Hook Supabase
-  const { loading, getStudiesByBook } = useStudies();
+  const { loading, getStudiesByBook, getStudiesByChapter, deleteStudy } = useStudies();
+  const { tags: availableTags } = useTags();
+
+  // Modal state
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    chapter: number | null;
+  }>({ isOpen: false, chapter: null });
+
+  // Delete state
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Generate chapters array
   const chapters = Array.from({ length: book.totalChapters }, (_, i) => i + 1);
@@ -38,8 +49,46 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
     return bookStudies.find((s) => s.chapter_number === chapter);
   };
 
+  // Helper para buscar cor da tag
+  const getTagColor = (tagName: string): string => {
+    const tag = availableTags.find((t) => t.name === tagName);
+    if (!tag) return "#6b7280"; // gray-500 default
+
+    const colorMap: Record<string, string> = {
+      blue: "#3b82f6",
+      purple: "#8b5cf6",
+      green: "#22c55e",
+      orange: "#f97316",
+      pink: "#ec4899",
+      cyan: "#06b6d4",
+      red: "#ef4444",
+      yellow: "#eab308",
+      "dark-green": "#15803d",
+    };
+
+    return colorMap[tag.color] || "#6b7280";
+  };
+
   // Calcular capítulos estudados dinamicamente
   const studiedChapters = bookStudies.map(s => s.chapter_number);
+
+  // Deletar estudo
+  const handleDelete = async (studyId: string, studyTitle: string, e: React.MouseEvent) => {
+    e.preventDefault(); // Prevenir navegação do Link
+    e.stopPropagation();
+
+    if (!confirm(`Tem certeza que deseja deletar "${studyTitle}"?`)) {
+      return;
+    }
+
+    setDeletingId(studyId);
+    const success = await deleteStudy(studyId);
+
+    if (!success) {
+      alert('Erro ao deletar estudo. Tente novamente.');
+    }
+    setDeletingId(null);
+  };
 
   if (loading) {
     return (
@@ -121,35 +170,45 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
         </h2>
         <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
           {chapters.map((chapter) => {
-            const isStudied = studiedChapters.includes(chapter);
-            const study = getChapterStudy(chapter);
-            const studyId = `${book.id}-${chapter}`;
+            const chapterStudies = getStudiesByChapter(book.name, chapter);
+            const studyCount = chapterStudies.length;
+            const hasMultiple = studyCount >= 2;
+
+            const handleChapterClick = () => {
+              if (studyCount === 0) {
+                // Nenhum estudo: criar novo
+                router.push(`/estudo/new?book=${book.id}&chapter=${chapter}`);
+              } else {
+                // 1+ estudos: abrir modal para escolher ou criar novo
+                setModalState({ isOpen: true, chapter });
+              }
+            };
 
             return (
-              <Link
+              <div
                 key={chapter}
-                href={`/estudo/${studyId}`}
+                onClick={handleChapterClick}
                 className={cn(
                   "relative aspect-square rounded-lg flex items-center justify-center",
-                  "text-sm font-medium transition-all",
+                  "text-sm font-medium transition-all cursor-pointer",
                   "hover:scale-105 hover:shadow-md",
-                  isStudied
+                  studyCount > 0
                     ? "bg-blue-600 text-white"
                     : "bg-white border border-gray-200 text-gray-700 hover:border-blue-300"
                 )}
                 title={
-                  study
-                    ? `${study.title} - ${
-                        study.status === "completed" ? "Concluído" : "Rascunho"
-                      }`
+                  studyCount > 0
+                    ? `${studyCount} estudo${studyCount !== 1 ? 's' : ''}`
                     : `Capítulo ${chapter}`
                 }
               >
                 {chapter}
-                {isStudied && (
-                  <Check className="w-3 h-3 absolute top-1 right-1" />
+                {hasMultiple && (
+                  <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {studyCount}
+                  </span>
                 )}
-              </Link>
+              </div>
             );
           })}
         </div>
@@ -163,46 +222,83 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
           </h2>
           <div className="space-y-3">
             {bookStudies.slice(0, 5).map((study) => (
-              <Link
+              <div
                 key={study.id}
-                href={`/estudo/${book.id}-${study.chapter_number}`}
-                className="block bg-white rounded-lg p-4 border border-gray-200 hover:border-blue-200 transition-colors cursor-pointer"
+                className="relative group"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={cn(
-                        "p-2 rounded-lg",
-                        study.status === "completed"
-                          ? "bg-green-50"
-                          : "bg-amber-50"
-                      )}
-                    >
-                      {study.status === "completed" ? (
-                        <Check className="w-4 h-4 text-green-600" />
-                      ) : (
-                        <Edit3 className="w-4 h-4 text-amber-600" />
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-gray-900">
-                        {study.title}
-                      </h3>
+                {/* Linha vermelha do lado esquerdo (aparece no hover) */}
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity rounded-l-lg" />
+
+                <div
+                  onClick={() => router.push(`/estudo/${study.id}`)}
+                  className="block bg-white rounded-lg p-4 border border-gray-200 hover:border-blue-200 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-medium text-gray-900">
+                          {study.title}
+                        </h3>
+                        <span className="text-xs text-gray-500">
+                          • Capítulo {study.chapter_number}
+                        </span>
+                      </div>
                       <div className="flex items-center gap-2 mt-1">
-                        {study.tags.slice(0, 2).map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-xs">
-                            #{tag}
-                          </Badge>
-                        ))}
+                        {study.tags.slice(0, 3).map((tagName) => {
+                          const tagColor = getTagColor(tagName);
+                          return (
+                            <span
+                              key={tagName}
+                              className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
+                              style={{
+                                borderWidth: '1px',
+                                borderStyle: 'solid',
+                                borderColor: tagColor,
+                                color: tagColor,
+                                backgroundColor: 'transparent',
+                              }}
+                            >
+                              #{tagName}
+                            </span>
+                          );
+                        })}
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
-                    <Clock className="w-3 h-3" />
-                    <span>{formatRelativeDate(study.updated_at)}</span>
+                    <div className="flex flex-col items-end gap-2 ml-4">
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <Clock className="w-3 h-3" />
+                        <span>{formatRelativeDate(study.updated_at)}</span>
+                      </div>
+                      <Badge
+                        className={cn(
+                          "text-white text-xs",
+                          study.status === 'estudando' && "bg-blue-500",
+                          study.status === 'revisando' && "bg-purple-500",
+                          study.status === 'concluído' && "bg-green-500"
+                        )}
+                      >
+                        {study.status === 'estudando' && 'Estudando'}
+                        {study.status === 'revisando' && 'Revisando'}
+                        {study.status === 'concluído' && 'Concluído'}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
-              </Link>
+
+                {/* Botão de deletar (aparece no hover) */}
+                <button
+                  onClick={(e) => handleDelete(study.id, study.title, e)}
+                  disabled={deletingId === study.id}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-md bg-red-50 text-red-600 hover:bg-red-100 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                  title="Deletar estudo"
+                >
+                  {deletingId === study.id ? (
+                    <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
             ))}
           </div>
         </div>
@@ -218,12 +314,24 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
           <Button
             variant="default"
             className="mt-4"
-            onClick={() => router.push(`/estudo/${book.id}-1`)}
+            onClick={() => router.push(`/estudo/new?book=${book.id}&chapter=1`)}
           >
             <Plus className="w-4 h-4 mr-2" />
             Criar Primeiro Estudo
           </Button>
         </div>
+      )}
+
+      {/* Study Selection Modal */}
+      {modalState.isOpen && modalState.chapter !== null && (
+        <StudySelectionModal
+          isOpen={modalState.isOpen}
+          onClose={() => setModalState({ isOpen: false, chapter: null })}
+          studies={getStudiesByChapter(book.name, modalState.chapter)}
+          bookId={book.id}
+          bookName={book.name}
+          chapter={modalState.chapter}
+        />
       )}
     </div>
   );

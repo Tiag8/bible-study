@@ -1,0 +1,41 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+    - img [ref=e8]
+  - alert [ref=e11]
+  - generic [ref=e12]:
+    - banner [ref=e13]:
+      - generic [ref=e14]:
+        - navigation "Breadcrumb" [ref=e16]:
+          - link "Home" [ref=e17] [cursor=pointer]:
+            - /url: /
+            - img [ref=e18]
+            - generic [ref=e21]: Home
+          - generic [ref=e22]:
+            - img [ref=e23]
+            - link "2 Samuel" [ref=e25] [cursor=pointer]:
+              - /url: /?book=2sa
+          - generic [ref=e26]:
+            - img [ref=e27]
+            - generic [ref=e29]: Capítulo 11
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - heading "2 Samuel 11" [level=1] [ref=e32]
+            - button [ref=e33] [cursor=pointer]:
+              - img [ref=e34]
+          - generic [ref=e37]:
+            - button "Salvar" [disabled] [ref=e38]:
+              - img [ref=e39]
+              - text: Salvar
+            - button "Tags" [ref=e44] [cursor=pointer]:
+              - img [ref=e45]
+              - text: Tags
+            - button "Voltar" [ref=e48] [cursor=pointer]
+    - main [ref=e49]:
+      - paragraph [ref=e54]: Este é o segundo estudo de 2 Samuel 11
+      - paragraph [ref=e56]:
+        - strong [ref=e57]: "Dicas:"
+        - text: Use / para adicionar ao backlog de estudos. Selecione texto e clique em "Referenciar" para criar links entre notas.
+```

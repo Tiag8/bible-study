@@ -17,9 +17,13 @@ interface StudiesContextValue {
   loading: boolean;
   error: string | null;
   fetchStudies: () => Promise<void>;
+  getStudyById: (id: string) => Promise<StudyWithContent | null>;
   getStudyByBookAndChapter: (bookName: string, chapter: number) => Promise<StudyWithContent | null>;
+  getStudiesByChapter: (bookName: string, chapter: number) => StudySummary[];
   getOrCreateStudy: (bookName: string, chapter: number, title?: string) => Promise<StudyWithContent>;
+  createStudy: (bookName: string, chapter: number, title?: string) => Promise<StudyWithContent>;
   saveStudy: (id: string, updates: Partial<StudyUpdate>) => Promise<Study | null>;
+  updateStudyStatus: (id: string, status: 'estudando' | 'revisando' | 'concluído') => Promise<boolean>;
   completeStudy: (id: string) => Promise<boolean>;
   deleteStudy: (id: string) => Promise<boolean>;
   getStudiesByBook: (bookName: string) => StudySummary[];
@@ -92,12 +96,34 @@ function useStudiesInternal(): StudiesContextValue {
     }
   }, [user?.id, authLoading]);
 
+  // Buscar estudo por ID (UUID)
+  const getStudyById = useCallback(async (id: string): Promise<StudyWithContent | null> => {
+    if (!user?.id) {
+      return null;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('bible_studies')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows returned
+      return data as StudyWithContent | null;
+    } catch (err) {
+      console.error('[STUDIES] getStudyById ERROR:', err);
+      return null;
+    }
+  }, [user?.id]);
+
   // Buscar estudo por livro e capítulo
   const getStudyByBookAndChapter = useCallback(async (bookName: string, chapter: number): Promise<StudyWithContent | null> => {
     if (!user?.id) {
       return null;
     }
-    
+
     try {
       const { data, error } = await supabase
         .from('bible_studies')
@@ -125,7 +151,7 @@ function useStudiesInternal(): StudiesContextValue {
       console.error('[STUDIES] getOrCreateStudy ERROR - no user');
       throw new Error('Usuário não autenticado');
     }
-    
+
     // Tenta buscar existente
     const existing = await getStudyByBookAndChapter(bookName, chapter);
     if (existing) {
@@ -139,7 +165,7 @@ function useStudiesInternal(): StudiesContextValue {
       book_name: bookName,
       chapter_number: chapter,
       content: { type: 'doc', content: [{ type: 'paragraph' }] },
-      status: 'draft',
+      status: 'estudando',
       tags: [],
     };
 
@@ -152,6 +178,39 @@ function useStudiesInternal(): StudiesContextValue {
     if (error) throw error;
     return data as StudyWithContent;
   }, [user?.id, getStudyByBookAndChapter]);
+
+  // Criar estudo (SEMPRE cria novo, independente de existir)
+  const createStudy = useCallback(async (
+    bookName: string,
+    chapter: number,
+    title?: string
+  ): Promise<StudyWithContent> => {
+    if (!user?.id) {
+      console.error('[STUDIES] createStudy ERROR - no user');
+      throw new Error('Usuário não autenticado');
+    }
+
+    // SEMPRE cria novo, não busca existente
+    const newStudy: StudyInsert = {
+      user_id: user.id,
+      title: title || `${bookName} ${chapter}`,
+      book_name: bookName,
+      chapter_number: chapter,
+      content: { type: 'doc', content: [{ type: 'paragraph' }] },
+      status: 'estudando',
+      tags: [],
+    };
+
+    const { data, error } = await supabase
+      .from('bible_studies')
+      .insert(newStudy)
+      .select()
+      .single();
+
+    if (error) throw error;
+    await fetchStudies(); // Atualizar lista
+    return data as StudyWithContent;
+  }, [user?.id, fetchStudies]);
 
   // Salvar conteúdo do estudo
   const saveStudy = useCallback(async (
@@ -174,11 +233,12 @@ function useStudiesInternal(): StudiesContextValue {
         }, timeoutMs);
       });
 
+      const now = new Date().toISOString();
       const queryPromise = supabase
         .from('bible_studies')
         .update({
           ...updates,
-          updated_at: new Date().toISOString(),
+          updated_at: now,
         })
         .eq('id', id)
         .eq('user_id', user.id); // Explícito para RLS
@@ -186,6 +246,20 @@ function useStudiesInternal(): StudiesContextValue {
       const { error } = await Promise.race([queryPromise, timeoutPromise]);
 
       if (error) throw error;
+
+      // Atualizar state local (sem incluir 'content' que é pesado)
+      setStudies(prev => prev.map(study => {
+        if (study.id === id) {
+          // Criar objeto atualizado sem 'content' (StudySummary)
+          const { content, ...updateWithoutContent } = updates;
+          return {
+            ...study,
+            ...updateWithoutContent,
+            updated_at: now,
+          };
+        }
+        return study;
+      }));
 
       // NÃO fazer SELECT separado (pode travar com JSONB grande)
       // UI já tem o estado atualizado via currentContent
@@ -200,32 +274,46 @@ function useStudiesInternal(): StudiesContextValue {
     }
   }, [user?.id]);
 
-  // Marcar como completo
-  const completeStudy = useCallback(async (id: string): Promise<boolean> => {
+  // Atualizar status do estudo
+  const updateStudyStatus = useCallback(async (
+    id: string,
+    status: 'estudando' | 'revisando' | 'concluído'
+  ): Promise<boolean> => {
     if (!user?.id) {
       return false;
     }
-    
+
     try {
+      const updateData: Partial<StudyUpdate> = {
+        status,
+        updated_at: new Date().toISOString(),
+      };
+
+      // Se mudando para concluído, setar completed_at
+      if (status === 'concluído') {
+        updateData.completed_at = new Date().toISOString();
+      }
+
       const { error } = await supabase
         .from('bible_studies')
-        .update({
-          status: 'completed',
-          completed_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq('id', id)
         .eq('user_id', user.id);
 
       if (error) throw error;
-      
+
       await fetchStudies();
       return true;
     } catch (err) {
-      console.error('[STUDIES] completeStudy ERROR:', err);
+      console.error('[STUDIES] updateStudyStatus ERROR:', err);
       return false;
     }
   }, [user?.id, fetchStudies]);
+
+  // Marcar como completo (wrapper para updateStudyStatus)
+  const completeStudy = useCallback(async (id: string): Promise<boolean> => {
+    return updateStudyStatus(id, 'concluído');
+  }, [updateStudyStatus]);
 
   // Deletar estudo
   const deleteStudy = useCallback(async (id: string): Promise<boolean> => {
@@ -252,6 +340,11 @@ function useStudiesInternal(): StudiesContextValue {
   // Buscar estudos por livro
   const getStudiesByBook = useCallback((bookName: string): StudySummary[] => {
     return studies.filter(s => s.book_name === bookName);
+  }, [studies]);
+
+  // Buscar estudos por capítulo específico (retorna array para múltiplos estudos)
+  const getStudiesByChapter = useCallback((bookName: string, chapter: number): StudySummary[] => {
+    return studies.filter(s => s.book_name === bookName && s.chapter_number === chapter);
   }, [studies]);
 
   // Reset quando usuário mudar (logout/login com outro usuário)
@@ -281,9 +374,13 @@ function useStudiesInternal(): StudiesContextValue {
     loading,
     error,
     fetchStudies,
+    getStudyById,
     getStudyByBookAndChapter,
+    getStudiesByChapter,
     getOrCreateStudy,
+    createStudy,
     saveStudy,
+    updateStudyStatus,
     completeStudy,
     deleteStudy,
     getStudiesByBook,

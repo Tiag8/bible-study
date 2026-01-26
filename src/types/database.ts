@@ -30,7 +30,7 @@ export interface Database {
           content: TiptapContent;
           book_name: string;
           chapter_number: number;
-          status: 'draft' | 'completed';
+          status: 'estudando' | 'revisando' | 'concluído';
           tags: string[];
           created_at: string;
           updated_at: string;
@@ -43,7 +43,7 @@ export interface Database {
           content?: TiptapContent;
           book_name: string;
           chapter_number: number;
-          status?: 'draft' | 'completed';
+          status?: 'estudando' | 'revisando' | 'concluído';
           tags?: string[];
           created_at?: string;
           updated_at?: string;
@@ -56,7 +56,7 @@ export interface Database {
           content?: TiptapContent;
           book_name?: string;
           chapter_number?: number;
-          status?: 'draft' | 'completed';
+          status?: 'estudando' | 'revisando' | 'concluído';
           tags?: string[];
           created_at?: string;
           updated_at?: string;
@@ -147,7 +147,7 @@ export interface Database {
           title: string;
           book_name: string;
           chapter_number: number;
-          status: 'draft' | 'completed';
+          status: 'estudando' | 'revisando' | 'concluído';
           tags: string[];
           outgoing_links: Array<{ target_id: string }>;
         };

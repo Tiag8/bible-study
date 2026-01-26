@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { BookGrid } from "@/components/dashboard/BookGrid";
@@ -12,8 +12,9 @@ import { useStudies } from "@/hooks";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
-export default function DashboardPage() {
+function DashboardContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Auth check
   const { user, loading: authLoading } = useAuth();
@@ -57,16 +58,34 @@ export default function DashboardPage() {
     });
   }, [studies]);
 
+  // Ler query param 'book' e abrir automaticamente o ChapterView
+  useEffect(() => {
+    const bookId = searchParams.get('book');
+    if (bookId && enrichedBooks.length > 0) {
+      const book = enrichedBooks.find((b) => b.id === bookId);
+      if (book) {
+        setSelectedBook(book);
+      }
+    } else if (!bookId) {
+      // Se não tem query param, voltar para BookGrid
+      setSelectedBook(null);
+    }
+  }, [searchParams, enrichedBooks]);
+
   // Handlers
   const handleBookClick = (bookId: string) => {
     const book = enrichedBooks.find((b) => b.id === bookId);
     if (book) {
       setSelectedBook(book);
+      // Atualizar URL com query param
+      router.push(`/?book=${bookId}`);
     }
   };
 
   const handleBackToBooks = () => {
     setSelectedBook(null);
+    // Remover query param
+    router.push('/');
   };
 
   const handleGraphClick = () => {
@@ -158,5 +177,18 @@ export default function DashboardPage() {
       {/* Backlog Panel */}
       <BacklogPanel onStudyClick={handleBacklogStudyClick} />
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+        <span className="ml-3 text-gray-500">Carregando...</span>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }
