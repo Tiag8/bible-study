@@ -92,12 +92,23 @@ export default function StudyPage({ params }: StudyPageProps) {
     loadStudy();
   }, [id, router, getOrCreateStudy]);
 
+  // Resetar isInitialLoad quando editor estiver pronto (após carregar estudo)
+  useEffect(() => {
+    if (!isLoading && study && isInitialLoad) {
+      // Aguardar próximo tick para garantir que Editor montou e aplicou conteúdo
+      const timer = setTimeout(() => {
+        console.log("[ESTUDO] Editor ready - resetting isInitialLoad");
+        setIsInitialLoad(false);
+      }, 100); // 100ms é suficiente para o editor aplicar o conteúdo
+
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, study, isInitialLoad]);
+
   // Salvar automaticamente (debounced)
-  // Ignora a primeira chamada (mount do editor)
   const handleContentChange = useCallback((content: string) => {
     if (isInitialLoad) {
-      console.log("[ESTUDO] handleContentChange - ignoring initial load");
-      setIsInitialLoad(false);
+      console.log("[ESTUDO] handleContentChange - ignoring initial load (editor not ready yet)");
       setCurrentContent(content);
       return;
     }

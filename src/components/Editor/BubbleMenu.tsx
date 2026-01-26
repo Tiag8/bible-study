@@ -154,11 +154,11 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
   return (
     <BubbleMenu
       editor={editor}
-      tippyOptions={{ duration: 100, placement: "top" }}
+      tippyOptions={{ duration: 100, placement: "top", maxWidth: "none" }}
       className="bg-white rounded-lg shadow-lg border border-gray-200"
     >
       {mode === "default" && (
-        <div className="flex items-center gap-0.5 p-1.5 flex-nowrap min-w-max">
+        <div className="flex items-center gap-0.5 p-1.5 flex-nowrap w-max">
           {/* Formatting Group */}
           <button
             onClick={() => editor.chain().focus().toggleBold().run()}
