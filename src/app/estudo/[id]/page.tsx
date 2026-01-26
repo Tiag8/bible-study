@@ -16,8 +16,13 @@ import {
   Tag,
   AlertTriangle,
   Loader2,
+  Plus,
+  Pencil,
+  Check,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CreateTagModal } from "@/components/CreateTagModal";
 
 interface StudyPageProps {
   params: Promise<{ id: string }>;
@@ -29,13 +34,16 @@ export default function StudyPage({ params }: StudyPageProps) {
 
   // Hooks Supabase
   const { getOrCreateStudy, saveStudy } = useStudies();
-  const { tags: availableTags, loading: tagsLoading } = useTags();
+  const { tags: availableTags, loading: tagsLoading, createTag } = useTags();
 
   // Estado do estudo
   const [study, setStudy] = useState<StudyWithContent | null>(null);
   const [title, setTitle] = useState("");
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [tempTitle, setTempTitle] = useState(""); // Título temporário durante edição
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showTagDropdown, setShowTagDropdown] = useState(false);
+  const [showCreateTagModal, setShowCreateTagModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   // Sempre string JSON para consistência
   const [currentContent, setCurrentContent] = useState<string>("");
@@ -51,6 +59,9 @@ export default function StudyPage({ params }: StudyPageProps) {
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
+  // Estado para guardar o bookId
+  const [bookId, setBookId] = useState<string>("");
+
   // Carregar estudo
   useEffect(() => {
     async function loadStudy() {
@@ -58,9 +69,10 @@ export default function StudyPage({ params }: StudyPageProps) {
       // Parse do ID: formato "bookId-chapter" (ex: "gen-1", "pro-16")
       const parts = id.split("-");
       const chapter = parseInt(parts.pop() || "1", 10);
-      const bookId = parts.join("-");
+      const extractedBookId = parts.join("-");
+      setBookId(extractedBookId); // Guardar para usar na navegação
 
-      const book = getBookById(bookId);
+      const book = getBookById(extractedBookId);
       if (!book) {
         // Se livro não encontrado, redireciona para home
         router.push("/");
@@ -173,6 +185,12 @@ export default function StudyPage({ params }: StudyPageProps) {
     [hasUnsavedChanges, router]
   );
 
+  // Voltar para o livro
+  const handleBackToBook = useCallback(() => {
+    const backHref = bookId ? `/?book=${bookId}` : '/';
+    handleNavigate(backHref);
+  }, [bookId, handleNavigate]);
+
   // Confirmar saída sem salvar
   const confirmExit = () => {
     setShowExitConfirm(false);
@@ -206,10 +224,40 @@ export default function StudyPage({ params }: StudyPageProps) {
     setHasUnsavedChanges(true);
   };
 
+  // Criar nova tag
+  const handleCreateTag = async (
+    name: string,
+    type: 'Versículos' | 'Temas' | 'Princípios',
+    color: string
+  ) => {
+    const newTag = await createTag(name, type, color);
+    if (newTag) {
+      // Adicionar automaticamente a tag ao estudo atual
+      toggleTag(newTag.name);
+    }
+  };
+
+  // Edição de título
+  const startEditingTitle = () => {
+    setTempTitle(title);
+    setIsEditingTitle(true);
+  };
+
+  const saveTitle = () => {
+    setTitle(tempTitle);
+    setHasUnsavedChanges(true);
+    setIsEditingTitle(false);
+  };
+
+  const cancelEditingTitle = () => {
+    setTempTitle("");
+    setIsEditingTitle(false);
+  };
+
   // Breadcrumbs
-  const breadcrumbItems: BreadcrumbItem[] = study
+  const breadcrumbItems: BreadcrumbItem[] = study && bookId
     ? [
-        { label: study.book_name, href: "/" },
+        { label: study.book_name, href: `/?book=${bookId}` },
         { label: `Capítulo ${study.chapter_number}` },
       ]
     : [];
@@ -277,17 +325,49 @@ export default function StudyPage({ params }: StudyPageProps) {
 
           {/* Toolbar */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 flex-1">
-              {/* Título editável */}
-              <Input
-                value={title}
-                onChange={(e) => {
-                  setTitle(e.target.value);
-                  setHasUnsavedChanges(true);
-                }}
-                placeholder="Título do estudo..."
-                className="text-lg font-semibold border-none shadow-none px-0 h-auto focus-visible:ring-0"
-              />
+            <div className="flex items-center gap-2 flex-1">
+              {/* Título - modo display ou edição */}
+              {isEditingTitle ? (
+                <>
+                  <Input
+                    value={tempTitle}
+                    onChange={(e) => setTempTitle(e.target.value)}
+                    placeholder="Título do estudo..."
+                    className="text-lg font-semibold border-gray-300 shadow-sm px-3 h-10 focus-visible:ring-2 focus-visible:ring-blue-500"
+                    autoFocus
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={saveTitle}
+                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                  >
+                    <Check className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={cancelEditingTitle}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <h1 className="text-lg font-semibold text-gray-900">
+                    {title || "Sem título"}
+                  </h1>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={startEditingTitle}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                </>
+              )}
             </div>
 
             <div className="flex items-center gap-3">
@@ -365,24 +445,41 @@ export default function StudyPage({ params }: StudyPageProps) {
                                     ? "#8b5cf6"
                                     : tag.color === "green"
                                     ? "#22c55e"
-                                    : tag.color === "amber"
-                                    ? "#f59e0b"
+                                    : tag.color === "orange"
+                                    ? "#f97316"
                                     : tag.color === "pink"
                                     ? "#ec4899"
-                                    : tag.color === "indigo"
-                                    ? "#6366f1"
+                                    : tag.color === "cyan"
+                                    ? "#06b6d4"
                                     : tag.color === "red"
                                     ? "#ef4444"
-                                    : "#10b981",
+                                    : tag.color === "yellow"
+                                    ? "#eab308"
+                                    : tag.color === "dark-green"
+                                    ? "#15803d"
+                                    : "#22c55e",
                               }}
                             />
-                            <span>{tag.name}</span>
+                            <span className="text-gray-900">{tag.name}</span>
                             {selectedTags.includes(tag.name) && (
                               <CheckCircle className="w-4 h-4 text-blue-600 ml-auto" />
                             )}
                           </button>
                         ))
                       )}
+
+                      {/* Botão "Nova Tag" */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowTagDropdown(false);
+                          setShowCreateTagModal(true);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm mt-2 border-t border-gray-200 pt-3 hover:bg-gray-50 transition-colors text-blue-600 font-medium"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Nova Tag</span>
+                      </button>
                     </div>
                   </div>
                 )}
@@ -392,7 +489,7 @@ export default function StudyPage({ params }: StudyPageProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleNavigate("/")}
+                onClick={handleBackToBook}
               >
                 Voltar
               </Button>
@@ -431,6 +528,13 @@ export default function StudyPage({ params }: StudyPageProps) {
           </p>
         </div>
       </main>
+
+      {/* Modal de criar tag */}
+      <CreateTagModal
+        isOpen={showCreateTagModal}
+        onClose={() => setShowCreateTagModal(false)}
+        onCreateTag={handleCreateTag}
+      />
     </div>
   );
 }

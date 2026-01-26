@@ -174,11 +174,12 @@ function useStudiesInternal(): StudiesContextValue {
         }, timeoutMs);
       });
 
+      const now = new Date().toISOString();
       const queryPromise = supabase
         .from('bible_studies')
         .update({
           ...updates,
-          updated_at: new Date().toISOString(),
+          updated_at: now,
         })
         .eq('id', id)
         .eq('user_id', user.id); // Explícito para RLS
@@ -186,6 +187,20 @@ function useStudiesInternal(): StudiesContextValue {
       const { error } = await Promise.race([queryPromise, timeoutPromise]);
 
       if (error) throw error;
+
+      // Atualizar state local (sem incluir 'content' que é pesado)
+      setStudies(prev => prev.map(study => {
+        if (study.id === id) {
+          // Criar objeto atualizado sem 'content' (StudySummary)
+          const { content, ...updateWithoutContent } = updates;
+          return {
+            ...study,
+            ...updateWithoutContent,
+            updated_at: now,
+          };
+        }
+        return study;
+      }));
 
       // NÃO fazer SELECT separado (pode travar com JSONB grande)
       // UI já tem o estado atualizado via currentContent

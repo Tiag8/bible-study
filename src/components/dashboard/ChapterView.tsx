@@ -11,7 +11,6 @@ import {
   BookOpen,
   Check,
   Clock,
-  Edit3,
   Plus,
   Loader2,
 } from "lucide-react";
@@ -170,20 +169,6 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
-                    <div
-                      className={cn(
-                        "p-2 rounded-lg",
-                        study.status === "completed"
-                          ? "bg-green-50"
-                          : "bg-amber-50"
-                      )}
-                    >
-                      {study.status === "completed" ? (
-                        <Check className="w-4 h-4 text-green-600" />
-                      ) : (
-                        <Edit3 className="w-4 h-4 text-amber-600" />
-                      )}
-                    </div>
                     <div>
                       <h3 className="font-medium text-gray-900">
                         {study.title}
