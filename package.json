@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean": "rm -rf .next",
+    "clean:full": "rm -rf .next node_modules package-lock.json && npm install",
+    "restart": "./scripts/clean-restart.sh",
+    "restart:full": "./scripts/clean-restart.sh --full"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

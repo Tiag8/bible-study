@@ -31,6 +31,14 @@ npm run dev
 
 Acesse http://localhost:3000
 
+### ⚠️ Após Git Pull/Merge
+```bash
+# SEMPRE executar após pull/merge para evitar erros 404
+npm run restart
+```
+
+Ver: [Guia de Desenvolvimento](./docs/DEVELOPMENT.md) | [Troubleshooting](./docs/TROUBLESHOOTING.md)
+
 ## Estrutura
 
 ```
