@@ -1,4 +1,5 @@
 import { Circle, RefreshCw, CheckCircle, BookOpen, LucideIcon } from 'lucide-react'
+import shadows from '@/styles/shadows.module.css'
 
 /**
  * Centralized Design Tokens
@@ -152,6 +153,19 @@ export const BORDER_RADIUS = {
 // SHADOWS
 // ============================================
 
+/**
+ * Shadow classes mapped from CSS modules
+ * Use SHADOW_CLASSES for all new code
+ * SHADOWS_LEGACY kept for backward compatibility (1 sprint only)
+ */
+export const SHADOW_CLASSES = {
+  none: shadows.shadowNone,
+  sm: shadows.shadowSm,
+  md: shadows.shadowMd,
+  lg: shadows.shadowLg,
+} as const
+
+// Legacy - for backward compatibility during transition
 export const SHADOWS = {
   none: 'shadow-none',
   sm: 'shadow-sm',

@@ -11,7 +11,7 @@ import React, { useState } from "react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import type { Editor } from "@tiptap/react";
 import { cn } from "@/lib/utils";
-import { BORDERS, SHADOWS } from "@/lib/design-tokens";
+import { BORDERS, SHADOW_CLASSES } from "@/lib/design-tokens";
 
 import { useBubbleMenuHandlers } from "./useBubbleMenuHandlers";
 import { BubbleMenuToolbar } from "./BubbleMenuToolbar";
@@ -58,7 +58,7 @@ function BubbleMenuComponentBase({ editor }: BubbleMenuComponentProps) {
       }}
       className={cn(
         "bg-white rounded-lg",
-        SHADOWS.lg,
+        SHADOW_CLASSES.lg,
         BORDERS.gray,
         "max-w-[min(calc(100vw-2rem),40rem)]"
       )}

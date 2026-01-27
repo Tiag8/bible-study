@@ -5,7 +5,7 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { COLORS, BORDERS, SHADOWS } from '@/lib/design-tokens';
+import { COLORS, BORDERS, SHADOW_CLASSES } from '@/lib/design-tokens';
 
 interface CreateTagModalProps {
   isOpen: boolean;
@@ -83,7 +83,7 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
 
       {/* Modal */}
       <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md">
-        <div className={cn("bg-white rounded-lg p-6", SHADOWS.lg, BORDERS.gray)}>
+        <div className={cn("bg-white rounded-lg p-6", SHADOW_CLASSES.lg, BORDERS.gray)}>
           {/* TOKENS: COLORS.primary, COLORS.danger, COLORS.neutral */}
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
