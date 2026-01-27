@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { COLORS, BORDERS } from "@/lib/design-tokens";
 import { formatRelativeDate } from "@/lib/mock-data";
 import { useBacklog, useStudies } from "@/hooks";
 import { Badge } from "@/components/ui/badge";
@@ -64,13 +66,14 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
   };
 
   return (
-    <aside className="w-80 bg-white border-l border-gray-200 flex flex-col h-full">
+    <aside className={cn("w-80 bg-white flex flex-col h-full", BORDERS.gray.replace('border', 'border-l'))}>
+      {/* TOKENS: COLORS.primary, COLORS.success, COLORS.danger, COLORS.neutral, BORDERS */}
       {/* Header */}
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <BookMarked className="w-5 h-5 text-blue-600" />
-            <h2 className="font-semibold text-gray-900">Backlog de Estudos</h2>
+            <BookMarked className={cn("w-5 h-5", COLORS.primary.text)} />
+            <h2 className={cn("font-semibold", COLORS.neutral.text.primary)}>Backlog de Estudos</h2>
           </div>
           <Badge variant="secondary">{pendingItems.length}</Badge>
         </div>
@@ -129,12 +132,12 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
       <div className="flex-1 overflow-y-auto">
         {backlogLoading ? (
           <div className="flex items-center justify-center h-32">
-            <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
-            <span className="ml-2 text-gray-500">Carregando...</span>
+            <Loader2 className={cn("w-6 h-6 animate-spin", COLORS.neutral.text.light)} />
+            <span className={cn("ml-2", COLORS.neutral.text.muted)}>Carregando...</span>
           </div>
         ) : pendingItems.length > 0 ? (
           <div className="p-3 space-y-2">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider px-1">
+            <p className={cn("text-xs font-medium uppercase tracking-wider px-1", COLORS.neutral.text.muted)}>
               Para Estudar ({pendingItems.length})
             </p>
             {pendingItems.map((item) => {
@@ -142,29 +145,29 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
               return (
                 <div
                   key={item.id}
-                  className="group bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors"
+                  className={cn("group rounded-lg p-3 transition-colors", COLORS.neutral[50], `hover:${COLORS.neutral[100]}`)}
                 >
                   <div className="flex items-start gap-2">
                     <button
                       onClick={() => handleToggleStatus(item.id)}
-                      className="mt-0.5 w-5 h-5 rounded-full border-2 border-gray-300 hover:border-blue-500 transition-colors flex-shrink-0"
+                      className={cn("mt-0.5 w-5 h-5 rounded-full border-2 transition-colors flex-shrink-0", BORDERS.gray.replace('border', 'border-'), `hover:border-blue-500`)}
                     />
                     <div className="flex-1 min-w-0">
                       <button
                         onClick={() => onStudyClick?.(item.reference_label)}
                         className="text-left w-full"
                       >
-                        <p className="font-medium text-gray-900 text-sm truncate">
+                        <p className={cn("font-medium text-sm truncate", COLORS.neutral.text.primary)}>
                           {item.reference_label}
                         </p>
                       </button>
                       <div className="flex items-center gap-2 mt-1">
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <div className={cn("flex items-center gap-1 text-xs", COLORS.neutral.text.muted)}>
                           <Clock className="w-3 h-3" />
                           <span>{formatRelativeDate(item.created_at)}</span>
                         </div>
                         {sourceStudy && (
-                          <div className="flex items-center gap-1 text-xs text-blue-600">
+                          <div className={cn("flex items-center gap-1 text-xs", COLORS.primary.text)}>
                             <Link2 className="w-3 h-3" />
                             <span className="truncate max-w-[100px]">
                               {sourceStudy.title.split(" - ")[0]}
@@ -175,7 +178,7 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
                     </div>
                     <button
                       onClick={() => handleRemoveItem(item.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-all"
+                      className={cn("opacity-0 group-hover:opacity-100 p-1 transition-all", COLORS.neutral.text.light, `hover:${COLORS.danger.text}`)}
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -185,11 +188,11 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
             })}
           </div>
         ) : (
-          <div className="p-6 text-center text-gray-500">
-            <BookMarked className="w-10 h-10 mx-auto mb-2 text-gray-300" />
+          <div className={cn("p-6 text-center", COLORS.neutral.text.muted)}>
+            <BookMarked className={cn("w-10 h-10 mx-auto mb-2", COLORS.neutral[300])} />
             <p className="text-sm">Nenhum item no backlog</p>
             <p className="text-xs mt-1">
-              Use <kbd className="px-1 py-0.5 bg-gray-100 rounded">/</kbd> no
+              Use <kbd className={cn("px-1 py-0.5 rounded", COLORS.neutral[100])}>/</kbd> no
               editor para adicionar
             </p>
           </div>
@@ -198,13 +201,13 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
         {/* Completed Items */}
         {completedItems.length > 0 && (
           <div className="p-3 border-t border-gray-100">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider px-1 mb-2">
+            <p className={cn("text-xs font-medium uppercase tracking-wider px-1 mb-2", COLORS.neutral.text.muted)}>
               Concluídos ({completedItems.length})
             </p>
             {completedItems.map((item) => (
               <div
                 key={item.id}
-                className="group flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50"
+                className={cn("group flex items-center gap-2 p-2 rounded-lg", `hover:${COLORS.neutral[50]}`)}
               >
                 <button
                   onClick={() => handleToggleStatus(item.id)}
@@ -212,12 +215,12 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
                 >
                   <Check className="w-3 h-3" />
                 </button>
-                <span className="text-sm text-gray-500 line-through truncate flex-1">
+                <span className={cn("text-sm line-through truncate flex-1", COLORS.neutral.text.muted)}>
                   {item.reference_label}
                 </span>
                 <button
                   onClick={() => handleRemoveItem(item.id)}
-                  className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500"
+                  className={cn("opacity-0 group-hover:opacity-100 p-1", COLORS.neutral.text.light, `hover:${COLORS.danger.text}`)}
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -229,7 +232,7 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
 
       {/* Footer */}
       <div className="p-3 border-t border-gray-100">
-        <button className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-blue-600 transition-colors py-2">
+        <button className={cn("w-full flex items-center justify-center gap-2 text-sm transition-colors py-2", COLORS.neutral.text.secondary, `hover:${COLORS.primary.text}`)}>
           Ver Todos os Estudos
           <ChevronRight className="w-4 h-4" />
         </button>
