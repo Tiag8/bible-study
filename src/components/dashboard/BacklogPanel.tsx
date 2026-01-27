@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { BacklogAddStudyModal } from "./BacklogAddStudyModal";
+import { toast } from "sonner";
 import {
   BookMarked,
   Plus,
@@ -55,11 +56,31 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
   };
 
   const handleToggleStatus = async (itemId: string) => {
-    await toggleBacklogStatus(itemId);
+    try {
+      const success = await toggleBacklogStatus(itemId);
+      if (success) {
+        toast.success("Status atualizado");
+      } else {
+        toast.error("Erro ao atualizar status.");
+      }
+    } catch (error) {
+      console.error("[BACKLOG] handleToggleStatus ERROR:", error);
+      toast.error("Erro ao atualizar status.");
+    }
   };
 
   const handleRemoveItem = async (itemId: string) => {
-    await deleteFromBacklog(itemId);
+    try {
+      const success = await deleteFromBacklog(itemId);
+      if (success) {
+        toast.success("Item removido do backlog");
+      } else {
+        toast.error("Erro ao remover item. Tente novamente.");
+      }
+    } catch (error) {
+      console.error("[BACKLOG] handleRemoveItem ERROR:", error);
+      toast.error("Erro ao remover item. Tente novamente.");
+    }
   };
 
   const handleOpenStudy = (studyId: string | null) => {
