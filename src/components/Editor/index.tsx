@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
+import { useEffect, useRef, forwardRef, useImperativeHandle, useMemo } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { History } from "@tiptap/extension-history";
 import { Placeholder } from "@tiptap/extensions";
 import { Highlight } from "@tiptap/extension-highlight";
 import { TextStyle } from "@tiptap/extension-text-style";
@@ -58,8 +57,11 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
   // Ref para prevenir sync loops (evita setContent quando conteúdo já é o mesmo)
   const lastSyncedContentRef = useRef<string | null>(null);
 
-  // Parse + sanitize inicial (suporta JSON, HTML, objeto)
-  const parsedInitialContent = parseContent(initialContent);
+  // ✅ Memoizar parsed content para evitar remontagem do editor
+  const parsedInitialContent = useMemo(
+    () => parseContent(initialContent),
+    [initialContent]
+  );
   /* TOKENS: COLORS.neutral */
 
   // ✅ PERFORMANCE: Debounce onChange - reduz de 60 calls/s para ~3 calls/s
@@ -69,17 +71,17 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
     EDITOR_DEBOUNCE_DELAY
   );
 
-  const editor = useEditor({
-    extensions: [
-      // IMPORTANTE: History ANTES de StarterKit para evitar conflito de keyed plugins
-      // StarterKit inclui History com depth: 10, mas queremos depth: 5 (Story 3.8)
-      History.configure({
-        depth: 5, // Máximo de 5 passos de undo/redo
-      }),
+  // ✅ PERFORMANCE: Memoizar extensões para evitar recriação a cada render
+  // Evita "Adding different instances of a keyed plugin" erro
+  const extensions = useMemo(
+    () => [
       StarterKit.configure({
         blockquote: false, // Usar nossa extensão customizada ColoredBlockquote
+        history: {
+          depth: 5, // Máximo de 5 passos de undo/redo (Story 3.8)
+        },
       }),
-      ColoredBlockquote,
+      ColoredBlockquote, // Extensão customizada com suporte a cores de blockquote
       Placeholder.configure({
         placeholder: "Comece a escrever suas anotações... Use / para comandos.",
       }),
@@ -109,6 +111,11 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
         },
       }),
     ],
+    []
+  );
+
+  const editor = useEditor({
+    extensions,
     content: parsedInitialContent,
     immediatelyRender: false, // Fix SSR hydration mismatch
     editorProps: {
