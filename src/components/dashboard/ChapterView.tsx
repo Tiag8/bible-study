@@ -192,16 +192,24 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
             };
 
             // Determinar cor baseado no percentual de conclusão
-            let chapterBgColor = `bg-white ${BORDERS.gray}`;
-            let chapterTextColor = COLORS.neutral.text.secondary;
-            let hoverColor = 'hover:border-blue-300';
             let tooltipText = `Capítulo ${chapter}`;
+
+            // Classes base
+            const baseClasses = "relative aspect-square rounded-lg flex items-center justify-center text-sm font-medium transition-all cursor-pointer hover:scale-105 hover:shadow-md";
+
+            // Determinar classes de cor
+            let colorClasses = cn(
+              'bg-white',
+              BORDERS.gray,
+              'text-gray-600',
+              'hover:border-blue-300'
+            );
 
             if (studyCount > 0) {
               const aggregated = getAggregatedChapterStatus(chapterStudies);
-              chapterBgColor = aggregated.color;
-              chapterTextColor = aggregated.textColor;
-              hoverColor = '';
+
+              // Aplicar cor baseada em agregação
+              colorClasses = cn(aggregated.color, aggregated.textColor);
 
               // Melhorar tooltip com percentual de conclusão
               tooltipText = `${studyCount} estudo${studyCount !== 1 ? 's' : ''} (${aggregated.completionPercentage}%)`;
@@ -211,14 +219,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
               <div
                 key={chapter}
                 onClick={handleChapterClick}
-                className={cn(
-                  "relative aspect-square rounded-lg flex items-center justify-center",
-                  "text-sm font-medium transition-all cursor-pointer",
-                  "hover:scale-105 hover:shadow-md",
-                  studyCount > 0
-                    ? `${chapterBgColor} ${chapterTextColor}`
-                    : `${chapterBgColor} ${chapterTextColor} ${hoverColor}`
-                )}
+                className={cn(baseClasses, colorClasses)}
                 title={tooltipText}
               >
                 {chapter}

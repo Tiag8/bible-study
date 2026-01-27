@@ -109,6 +109,7 @@ commands:
   - correct-course: Analyze and correct deviations
 
   # Utilities
+  - status: Show current project and session status
   - session-info: Show current session details (agent history, commands)
   - guide: Show comprehensive usage guide for this agent
   - yolo: Toggle confirmation skipping
@@ -143,6 +144,10 @@ dependencies:
 **Strategic Analysis:**
 - `*create-epic` - Create epic for brownfield
 - `*research {topic}` - Deep research prompt
+
+**Utilities:**
+- `*status` - Show current project and session status
+- `*help` - List all available commands
 
 Type `*help` to see all commands, or `*yolo` to skip confirmations.
 
