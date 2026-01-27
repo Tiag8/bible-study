@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { bibleBooks } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { COLORS, BORDERS, SHADOWS } from "@/lib/design-tokens";
 
 interface SlashMenuProps {
   editor: Editor;
@@ -233,12 +234,13 @@ export function SlashMenu({
   return (
     <div
       ref={menuRef}
-      className="fixed z-50 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-[min(18rem,calc(100vw-2rem))]"
+      className={cn("fixed z-50 bg-white rounded-lg overflow-hidden w-[min(18rem,calc(100vw-2rem))]", SHADOWS.lg, BORDERS.gray)}
       style={{
         top: position.top,
         left: Math.min(position.left, typeof window !== 'undefined' ? window.innerWidth - 300 : position.left)
       }}
     >
+      {/* TOKENS: COLORS.primary, COLORS.neutral, BORDERS */}
       {!showBacklogForm ? (
         <>
           <div className="p-2 border-b border-gray-100">
@@ -265,14 +267,14 @@ export function SlashMenu({
                   className={cn(
                     "w-full flex items-start gap-3 px-3 py-2 text-left transition-colors",
                     selectedIndex === index
-                      ? "bg-blue-50 text-blue-700"
-                      : "hover:bg-gray-50"
+                      ? `${COLORS.primary.light} ${COLORS.primary.text}`
+                      : `hover:${COLORS.neutral[50]}`
                   )}
                 >
                   <span
                     className={cn(
                       "mt-0.5",
-                      selectedIndex === index ? "text-blue-600" : "text-gray-400"
+                      selectedIndex === index ? COLORS.primary.text : COLORS.neutral.text.light
                     )}
                   >
                     {item.icon}
@@ -286,7 +288,7 @@ export function SlashMenu({
                 </button>
               ))
             ) : (
-              <div className="px-3 py-4 text-sm text-gray-500 text-center">
+              <div className={cn("px-3 py-4 text-sm text-center", COLORS.neutral.text.muted)}>
                 Nenhum comando encontrado
               </div>
             )}
@@ -295,7 +297,7 @@ export function SlashMenu({
       ) : (
         <div className="p-3">
           <div className="flex items-center gap-2 mb-2">
-            <BookMarked className="w-4 h-4 text-blue-600" />
+            <BookMarked className={cn("w-4 h-4", COLORS.primary.text)} />
             <span className="font-medium text-sm">Adicionar ao Backlog</span>
           </div>
 
@@ -314,7 +316,7 @@ export function SlashMenu({
                 setBacklogReference("");
               }
             }}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={cn("w-full px-3 py-2 text-sm rounded-md focus:outline-none focus:ring-2", BORDERS.gray, "focus:ring-blue-500")}
             autoFocus
           />
 
@@ -324,7 +326,7 @@ export function SlashMenu({
                 <button
                   key={book}
                   onClick={() => handleSuggestionSelect(book)}
-                  className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+                  className={cn("px-2 py-1 text-xs rounded transition-colors", COLORS.neutral[100], `hover:${COLORS.neutral[200]}`)}
                 >
                   {book}
                 </button>
@@ -338,14 +340,14 @@ export function SlashMenu({
                 setShowBacklogForm(false);
                 setBacklogReference("");
               }}
-              className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800"
+              className={cn("px-3 py-1.5 text-sm transition-colors", COLORS.neutral.text.secondary, `hover:${COLORS.neutral.text.primary}`)}
             >
               Cancelar
             </button>
             <button
               onClick={handleBacklogSubmit}
               disabled={!backlogReference.trim()}
-              className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className={cn("px-3 py-1.5 text-sm text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed", COLORS.primary.default, `hover:${COLORS.primary.dark}`)}
             >
               Adicionar
             </button>
