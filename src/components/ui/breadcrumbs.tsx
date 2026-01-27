@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ChevronRight, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { COLORS } from "@/lib/design-tokens";
 
 export interface BreadcrumbItem {
   label: string;
@@ -14,6 +15,7 @@ interface BreadcrumbsProps {
   className?: string;
 }
 
+/* TOKENS: COLORS.primary, COLORS.neutral */
 export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
   return (
     <nav
@@ -22,7 +24,7 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
     >
       <Link
         href="/"
-        className="flex items-center gap-1 text-gray-500 hover:text-blue-600 transition-colors"
+        className={cn("flex items-center gap-1 transition-colors", COLORS.neutral.text.secondary, `hover:${COLORS.primary.text}`)}
       >
         <Home className="w-4 h-4" />
         <span className="sr-only">Home</span>
@@ -30,16 +32,16 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
 
       {items.map((item, index) => (
         <div key={index} className="flex items-center gap-1">
-          <ChevronRight className="w-4 h-4 text-gray-400" />
+          <ChevronRight className={cn("w-4 h-4", COLORS.neutral.text.light)} />
           {item.href ? (
             <Link
               href={item.href}
-              className="text-gray-500 hover:text-blue-600 transition-colors"
+              className={cn("transition-colors", COLORS.neutral.text.secondary, `hover:${COLORS.primary.text}`)}
             >
               {item.label}
             </Link>
           ) : (
-            <span className="text-gray-900 font-medium">{item.label}</span>
+            <span className={cn("font-medium", COLORS.neutral.text.primary)}>{item.label}</span>
           )}
         </div>
       ))}

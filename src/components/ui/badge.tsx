@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { COLORS, BORDERS } from "@/lib/design-tokens";
 
 interface BadgeProps {
   children: React.ReactNode;
@@ -6,10 +7,11 @@ interface BadgeProps {
   className?: string;
 }
 
+/* TOKENS: COLORS.primary, COLORS.neutral, BORDERS */
 const variantStyles = {
-  default: "bg-blue-600 text-white",
-  secondary: "bg-gray-100 text-gray-800",
-  outline: "border border-gray-300 text-gray-700 bg-transparent",
+  default: `${COLORS.primary.default} text-white`,
+  secondary: `${COLORS.neutral[100]} text-gray-800`,
+  outline: `${BORDERS.gray} text-gray-700 bg-transparent`,
 };
 
 export function Badge({ children, variant = "default", className }: BadgeProps) {
