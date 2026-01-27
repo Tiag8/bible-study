@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { TAG_COLORS, COLORS } from "@/lib/design-tokens";
+import { TAG_COLORS, COLORS, BORDERS } from "@/lib/design-tokens";
 import { StudySelectionModal } from "./StudySelectionModal";
 import {
   ArrowLeft,
@@ -98,8 +98,9 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-        <span className="ml-3 text-gray-500">Carregando...</span>
+        {/* TOKENS: COLORS.primary, COLORS.neutral */}
+        <Loader2 className={cn("w-8 h-8 animate-spin", COLORS.primary.text)} />
+        <span className={cn("ml-3", COLORS.neutral.text.muted)}>Carregando...</span>
       </div>
     );
   }
@@ -134,7 +135,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
       {/* Tags */}
       {book.tags.length > 0 && (
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">Tags:</span>
+          <span className={cn("text-sm", COLORS.neutral.text.muted)}>Tags:</span>
           {book.tags.map((tag) => (
             <Badge key={tag} variant="outline">
               #{tag}
@@ -144,7 +145,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
       )}
 
       {/* Progress Bar */}
-      <div className={cn("bg-white rounded-lg p-4 border", COLORS.neutral[200])}>
+      <div className={cn("bg-white rounded-lg p-4", BORDERS.gray)}>
         <div className="flex items-center justify-between mb-2">
           <span className={cn("text-sm font-medium", COLORS.neutral.text.secondary)}>
             Progresso Geral
@@ -199,7 +200,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                   "hover:scale-105 hover:shadow-md",
                   studyCount > 0
                     ? `${COLORS.primary.default} text-white`
-                    : `bg-white border ${COLORS.neutral.text.secondary} hover:border-blue-300`
+                    : `bg-white ${BORDERS.gray} ${COLORS.neutral.text.secondary} hover:border-blue-300`
                 )}
                 title={
                   studyCount > 0
@@ -236,7 +237,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
 
                 <div
                   onClick={() => router.push(`/estudo/${study.id}`)}
-                  className={cn("block bg-white rounded-lg p-4 border transition-colors cursor-pointer", COLORS.neutral[200], "hover:border-blue-200")}
+                  className={cn("block bg-white rounded-lg p-4 transition-colors cursor-pointer", BORDERS.gray, "hover:border-blue-200")}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
