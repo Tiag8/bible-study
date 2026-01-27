@@ -16,6 +16,8 @@ import { ColoredBlockquote } from "./ColoredBlockquote";
 import { BubbleMenuComponent } from "./BubbleMenu"; // Agora aponta para BubbleMenu/index
 import { SlashMenu } from "./SlashMenu";
 import { useSlashMenu } from "./useSlashMenu";
+import { EmojiMenu } from "./EmojiMenu";
+import { useEmojiSuggestion } from "./useEmojiSuggestion";
 import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
 import type { TiptapContent } from "@/types/database";
 
@@ -139,6 +141,7 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
   }, [editor, initialContent]);
 
   const slashMenu = useSlashMenu(editor);
+  const emojiMenu = useEmojiSuggestion(editor);
 
   if (!editor) {
     return (
@@ -204,6 +207,14 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
         position={slashMenu.position}
         onClose={slashMenu.close}
         onSelect={slashMenu.handleSelect}
+      />
+      <EmojiMenu
+        isOpen={emojiMenu.isOpen}
+        position={emojiMenu.position}
+        emojis={emojiMenu.emojis}
+        selectedIndex={emojiMenu.selectedIndex}
+        query={emojiMenu.query}
+        onSelect={emojiMenu.selectEmoji}
       />
     </div>
   );
