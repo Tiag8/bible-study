@@ -2,6 +2,8 @@
 
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { COLORS } from '@/lib/design-tokens';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,11 +54,12 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center p-4">
+      {/* TOKENS: COLORS.primary, COLORS.danger, COLORS.neutral */}
       <div className="w-full max-w-md">
         <div className="bg-gray-900/80 backdrop-blur rounded-lg p-8 shadow-2xl border border-gray-800">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600/20 rounded-full mb-4">
-              <BookOpen className="w-8 h-8 text-blue-400" />
+            <div className={cn("inline-flex items-center justify-center w-16 h-16 rounded-full mb-4", `bg-blue-600/20`)}>
+              <BookOpen className={cn("w-8 h-8", `text-blue-400`)} />
             </div>
             <h1 className="text-2xl font-bold mb-2">Bible Graph</h1>
             <p className="text-gray-400 text-sm">
@@ -157,14 +160,14 @@ export default function LoginPage() {
 
             {error && (
               <div className="bg-red-500/10 border border-red-500/50 rounded-md p-3">
-                <p className="text-sm text-red-400">{error}</p>
+                <p className={cn("text-sm", COLORS.danger.text)}>{error}</p>
               </div>
             )}
 
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5"
+              className={cn("w-full text-white font-medium py-2.5", COLORS.primary.default, `hover:${COLORS.primary.dark}`)}
             >
               {loading ? (
                 <>
