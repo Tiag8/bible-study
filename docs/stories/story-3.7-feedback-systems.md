@@ -147,15 +147,22 @@ Maps to: **FE-13 (Salvando toast)** from EPIC-001
 ## 🔒 CodeRabbit Integration
 
 **Pre-commit Check:**
-- [ ] Run: `wsl bash -c 'cd /mnt/c/.../@synkra/aios-core && ~/.local/bin/coderabbit --prompt-only -t uncommitted'`
-- [ ] CRITICAL issues: 0 (block story completion)
-- [ ] HIGH issues: Document in Dev Notes
+- [x] Run: `coderabbit --prompt-only --base main`
+- [x] CRITICAL issues: 0 ✅ (none found)
+- [x] HIGH issues: Document in Dev Notes ✅ (see below)
 
-**Focus Areas for Review:**
-- Accessibility: ARIA labels, focus management, keyboard nav
-- Performance: No memory leaks in toast stacking
-- Security: No user input directly in toast (prevent XSS)
-- Types: Proper TypeScript for toast props
+**CodeRabbit Results (2026-01-27):**
+- ✅ No CRITICAL issues found
+- ⚠️ 1 HIGH issue: Missing aria-label on delete button
+  - Fixed: Added aria-label with study title for screen reader
+  - Commit: `9e0fc58`
+- ℹ️ Other HIGH issues in PR are from other stories (3.5, 3.6, 3.8, 4.1, 4.2), not 3.7
+
+**Focus Areas Reviewed:**
+- ✅ Accessibility: aria-label added to delete button, Radix UI handles focus/keyboard
+- ✅ Performance: No memory leaks detected, toast stacking via sonner
+- ✅ Security: No user input in toast messages
+- ✅ Types: Proper TypeScript for all components
 
 ---
 
