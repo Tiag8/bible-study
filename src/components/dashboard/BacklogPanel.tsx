@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { COLORS, BORDERS } from "@/lib/design-tokens";
 import { formatRelativeDate } from "@/lib/mock-data";
 import { useBacklog, useStudies } from "@/hooks";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { BacklogAddStudyModal } from "./BacklogAddStudyModal";
 import {
@@ -24,6 +26,7 @@ interface BacklogPanelProps {
 }
 
 export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
+  const router = useRouter();
   const [showAddStudyModal, setShowAddStudyModal] = useState(false);
 
   // Hooks Supabase
@@ -57,6 +60,12 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
 
   const handleRemoveItem = async (itemId: string) => {
     await deleteFromBacklog(itemId);
+  };
+
+  const handleOpenStudy = (studyId: string | null) => {
+    if (studyId) {
+      router.push(`/estudo/${studyId}`);
+    }
   };
 
   return (
@@ -100,22 +109,34 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
               return (
                 <div
                   key={item.id}
-                  className={cn("group rounded-lg p-3 transition-colors", COLORS.neutral[50], `hover:${COLORS.neutral[100]}`)}
+                  onClick={() => handleOpenStudy(item.source_study_id)}
+                  className={cn("group rounded-lg p-3 transition-colors cursor-pointer", COLORS.neutral[50], `hover:${COLORS.neutral[100]}`)}
                 >
                   <div className="flex items-start gap-2">
                     <button
-                      onClick={() => handleToggleStatus(item.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleStatus(item.id);
+                      }}
                       className={cn("mt-0.5 w-5 h-5 rounded-full border-2 transition-colors flex-shrink-0", BORDERS.gray.replace('border', 'border-'), `hover:border-blue-500`)}
                     />
                     <div className="flex-1 min-w-0">
-                      <button
-                        onClick={() => onStudyClick?.(item.reference_label)}
-                        className="text-left w-full"
-                      >
-                        <p className={cn("font-medium text-sm truncate", COLORS.neutral.text.primary)}>
-                          {item.reference_label}
-                        </p>
-                      </button>
+                      <div className="flex items-center gap-2 mb-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onStudyClick?.(item.reference_label);
+                          }}
+                          className="text-left flex-1"
+                        >
+                          <p className={cn("font-medium text-sm truncate", COLORS.neutral.text.primary)}>
+                            {item.reference_label}
+                          </p>
+                        </button>
+                        {sourceStudy && (
+                          <StatusBadge status={sourceStudy.status} size="sm" />
+                        )}
+                      </div>
                       <div className="flex items-center gap-2 mt-1">
                         <div className={cn("flex items-center gap-1 text-xs", COLORS.neutral.text.muted)}>
                           <Clock className="w-3 h-3" />
@@ -132,7 +153,10 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
                       </div>
                     </div>
                     <button
-                      onClick={() => handleRemoveItem(item.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveItem(item.id);
+                      }}
                       className={cn("opacity-0 group-hover:opacity-100 p-1 transition-all", COLORS.neutral.text.light, `hover:${COLORS.danger.text}`)}
                     >
                       <X className="w-4 h-4" />
