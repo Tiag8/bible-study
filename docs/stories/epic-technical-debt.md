@@ -91,14 +91,14 @@ Transformar o Bible Study de um MVP funcional em um produto de qualidade product
 | 2.3 | Centralizar design tokens | 3 | 📋 Ready |
 | 2.4 | Adicionar trigger de validação em links | 3 | 📋 Ready |
 
-### Sprint 3: Features
+### Sprint 3: Design & Enhancement
 
 | ID | Story | Pontos | Status |
 |----|-------|--------|--------|
-| 3.1 | UI para múltiplos estudos por capítulo | 5 | 📋 Ready |
-| 3.2 | UI para links entre estudos | 5 | 📋 Ready |
-| 3.3 | Feedback visual completo (salvando, undo) | 3 | 📋 Ready |
-| 3.4 | Testes E2E para fluxos críticos | 5 | 📋 Ready |
+| 3.1 | Estender design tokens para componentes restantes | 5 | 📋 Ready |
+| 3.2 | Documentar padrões de uso de design tokens | 3 | 📋 Ready |
+| 3.3 | Implementar sistema de variantes de tema (Dark Mode) | 8 | 📋 Ready |
+| 3.4 | Extrair shadow tokens para CSS Modules | 3 | 📋 Ready |
 
 ---
 
