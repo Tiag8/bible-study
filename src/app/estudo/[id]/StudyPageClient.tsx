@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, use, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef, use } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { COLORS } from "@/lib/design-tokens";
-import { Editor } from "@/components/Editor";
+import { Editor, EditorHandle } from "@/components/Editor";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ import {
   Check,
   X,
   Trash2,
+  Undo2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { CreateTagModal } from "@/components/CreateTagModal";
@@ -68,6 +69,10 @@ export function StudyPageClient({ params }: StudyPageProps) {
   // Confirmação de delete
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Undo/Redo state
+  const editorRef = useRef<EditorHandle>(null);
+  const [canUndo, setCanUndo] = useState(false);
 
   // Estado para guardar o bookId
   const [bookId, setBookId] = useState<string>("");
@@ -200,15 +205,23 @@ export function StudyPageClient({ params }: StudyPageProps) {
     const toastId = toast.loading("Salvando...");
 
     try {
-      // Verificar se o conteúdo está vazio
+      // Verificar se o conteúdo está vazio (Story 3.8 validation)
       const isEmpty = !currentContent ||
                      currentContent === '""' ||
                      currentContent === '{}' ||
-                     currentContent.trim() === '';
+                     currentContent.trim() === '' ||
+                     currentContent === '{"type":"doc","content":[]}';
 
       // Se for novo estudo (study === null) e não tem conteúdo, avisar usuário
       if (!study?.id && isEmpty) {
-        toast.warning("Adicione conteúdo antes de salvar o estudo", { id: toastId });
+        toast.error("Estudo não pode estar vazio", { id: toastId });
+        setIsSaving(false);
+        return;
+      }
+
+      // Se for estudo existente e fica vazio após edição, rejeitar
+      if (study?.id && isEmpty) {
+        toast.error("Estudo não pode estar vazio", { id: toastId });
         setIsSaving(false);
         return;
       }
@@ -345,6 +358,11 @@ export function StudyPageClient({ params }: StudyPageProps) {
       setIsDeleting(false);
     }
   }, [study?.id, deleteStudy, router, bookId]);
+
+  // Undo ação
+  const handleUndo = useCallback(() => {
+    editorRef.current?.undo();
+  }, []);
 
   // Toggle tag
   const toggleTag = (tagName: string) => {
@@ -562,6 +580,17 @@ export function StudyPageClient({ params }: StudyPageProps) {
                   </>
                 ) : null}
               </div>
+
+              {/* Botão de undo */}
+              <Button
+                onClick={handleUndo}
+                disabled={!canUndo}
+                variant="ghost"
+                size="sm"
+                title="Desfazer (Ctrl+Z)"
+              >
+                <Undo2 className="w-4 h-4" />
+              </Button>
 
               {/* Botão de salvar */}
               <Button
@@ -806,8 +835,10 @@ export function StudyPageClient({ params }: StudyPageProps) {
       <main className="max-w-5xl mx-auto px-4 py-6">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <Editor
+            ref={editorRef}
             initialContent={study?.content || ""}
             onChange={handleContentChange}
+            onUndoRedoChange={(canUndo) => setCanUndo(canUndo)}
           />
         </div>
 

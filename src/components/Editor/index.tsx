@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import History from "@tiptap/extension-history";
 import { Placeholder } from "@tiptap/extensions";
 import { Highlight } from "@tiptap/extension-highlight";
 import { TextStyle } from "@tiptap/extension-text-style";
@@ -24,6 +25,14 @@ import type { TiptapContent } from "@/types/database";
 interface EditorProps {
   initialContent?: string | TiptapContent | null;
   onChange?: (content: string) => void;
+  onUndoRedoChange?: (canUndo: boolean, canRedo: boolean) => void;
+}
+
+export interface EditorHandle {
+  undo: () => void;
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
 }
 
 /**
@@ -37,11 +46,15 @@ interface EditorProps {
  * - Slash commands (/ para menu)
  * - Notion-style shortcuts (> para toggle, | para quote)
  * - Auto-save com debounce (300ms)
+ * - Undo/Redo com histórico limitado a 5 passos
  *
  * @param initialContent - Conteúdo inicial (JSON | HTML | objeto TiptapContent)
  * @param onChange - Callback quando conteúdo muda (formato: JSON string)
+ * @param onUndoRedoChange - Callback quando status undo/redo muda
+ * @ref Editor - Expõe métodos undo() e redo() e status canUndo/canRedo
  */
-export function Editor({ initialContent = "", onChange }: EditorProps) {
+export const Editor = forwardRef<EditorHandle, EditorProps>(
+  function Editor({ initialContent = "", onChange, onUndoRedoChange }: EditorProps, ref) {
   // Ref para prevenir sync loops (evita setContent quando conteúdo já é o mesmo)
   const lastSyncedContentRef = useRef<string | null>(null);
 
@@ -60,6 +73,10 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
     extensions: [
       StarterKit.configure({
         blockquote: false, // Usar nossa extensão customizada
+      }),
+      // History com depth: 5 (máximo de passos undo/redo)
+      History.configure({
+        depth: 5,
       }),
       ColoredBlockquote,
       Placeholder.configure({
@@ -103,6 +120,14 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
     },
   });
 
+  // Expor métodos undo/redo via ref
+  useImperativeHandle(ref, () => ({
+    undo: () => editor?.commands.undo(),
+    redo: () => editor?.commands.redo(),
+    canUndo: editor?.can().undo() ?? false,
+    canRedo: editor?.can().redo() ?? false,
+  }), [editor]);
+
   /**
    * Sincroniza initialContent externo com estado interno do editor
    *
@@ -139,6 +164,33 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
     editor.commands.setContent(normalizedContent);
     lastSyncedContentRef.current = contentKey;
   }, [editor, initialContent]);
+
+  /**
+   * Notifica pai sobre mudanças no status undo/redo
+   * Dispara quando usuário faz undo/redo ou digita novo conteúdo
+   */
+  useEffect(() => {
+    if (!editor) return;
+
+    const updateUndoRedoStatus = () => {
+      onUndoRedoChange?.(
+        editor.can().undo(),
+        editor.can().redo()
+      );
+    };
+
+    // Atualiza imediatamente quando editor muda
+    updateUndoRedoStatus();
+
+    // Listen para mudanças (digitação, undo, redo, etc)
+    editor.on("update", updateUndoRedoStatus);
+    editor.on("selectionUpdate", updateUndoRedoStatus);
+
+    return () => {
+      editor.off("update", updateUndoRedoStatus);
+      editor.off("selectionUpdate", updateUndoRedoStatus);
+    };
+  }, [editor, onUndoRedoChange]);
 
   const slashMenu = useSlashMenu(editor);
   const emojiMenu = useEmojiSuggestion(editor);
@@ -218,4 +270,5 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
       />
     </div>
   );
-}
+  }
+);
