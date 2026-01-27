@@ -9,45 +9,45 @@
 ## Priority 1: High-Impact Components (User-Facing)
 
 ### Editor Components
-- [ ] `src/components/Editor/index.tsx` - 130 lines
-  - Status: Hardcoded colors in toolbar
-  - Tokens needed: COLORS.primary, COLORS.neutral
-  - Estimated: 30min
+- [x] `src/components/Editor/index.tsx` - 130 lines ✅ DONE (Commit: 1dc7fcf)
+  - Status: Loading state text color
+  - Tokens: COLORS.neutral
+  - Applied: Yes
 
-- [ ] `src/components/Editor/BubbleMenu.tsx` - 608 lines (LARGEST)
-  - Status: Hardcoded colors in buttons and menu
-  - Tokens needed: COLORS.primary, COLORS.neutral, COLORS.secondary
-  - Estimated: 1.5h
+- [x] `src/components/Editor/BubbleMenu.tsx` - 608 lines (LARGEST) ✅ DONE (Commit: 20af2e0)
+  - Status: Comprehensive refactoring (menu buttons, dividers, input, palette)
+  - Tokens: COLORS.primary, COLORS.neutral, SHADOWS, BORDERS
+  - Applied: Yes
 
-- [ ] `src/components/Editor/SlashMenu.tsx` - 357 lines
-  - Status: Hardcoded colors in command palette
-  - Tokens needed: COLORS.primary, COLORS.accent, COLORS.neutral
-  - Estimated: 1h
+- [x] `src/components/Editor/SlashMenu.tsx` - 357 lines ✅ DONE (Commit: 8af1f89)
+  - Status: Command palette styling
+  - Tokens: COLORS.primary, COLORS.neutral, BORDERS
+  - Applied: Yes
 
 ### Dashboard Components
-- [ ] `src/components/dashboard/ChapterView.tsx` - 344 lines
-  - Status: Mostly tokens (from Sprint 2.3), minor updates
-  - Tokens needed: Verify usage
-  - Estimated: 15min
+- [x] `src/components/dashboard/ChapterView.tsx` - 344 lines ✅ DONE (Commit: 54196f4)
+  - Status: Already had many tokens, refactored loader, labels, borders
+  - Tokens: COLORS.primary, COLORS.neutral, BORDERS
+  - Applied: Yes
 
-- [ ] `src/components/dashboard/BookCard.tsx` - 110 lines
-  - Status: Already has tokens (Sprint 2.3)
-  - Tokens needed: ✅ Already using
-  - Estimated: 0min
+- [x] `src/components/dashboard/BookCard.tsx` - 110 lines ✅ DONE (Sprint 2.3)
+  - Status: Already has tokens
+  - Tokens: COLORS.primary, COLORS.neutral, COLORS.danger
+  - Applied: Yes
 
-- [ ] `src/components/dashboard/BookGrid.tsx` - 116 lines
-  - Status: Likely needs updates
-  - Tokens needed: COLORS.primary, COLORS.neutral
-  - Estimated: 20min
+- [x] `src/components/dashboard/BookGrid.tsx` - 116 lines ✅ DONE (Commit: 1e053da)
+  - Status: Stats, section titles, dots
+  - Tokens: COLORS.primary, COLORS.neutral
+  - Applied: Yes
 
-- [ ] `src/components/dashboard/BacklogPanel.tsx` - 239 lines
-  - Status: Hardcoded colors in status badges
-  - Tokens needed: COLORS.success, COLORS.warning, COLORS.danger
-  - Estimated: 30min
+- [x] `src/components/dashboard/BacklogPanel.tsx` - 239 lines ✅ DONE (Commit: 5bf6129)
+  - Status: Comprehensive refactoring (items, labels, buttons, controls)
+  - Tokens: COLORS.primary, COLORS.danger, COLORS.neutral, BORDERS
+  - Applied: Yes
 
-- [ ] `src/components/dashboard/TopBar.tsx` - 179 lines
-  - Status: Hardcoded colors in navigation
-  - Tokens needed: COLORS.primary, COLORS.neutral
+- [x] `src/components/dashboard/TopBar.tsx` - 179 lines ✅ DONE (Commit: ca523d5)
+  - Status: Search bar, filters, tags
+  - Tokens: COLORS.primary, COLORS.neutral, BORDERS, TAG_COLORS
   - Estimated: 20min
 
 - [ ] `src/components/dashboard/Sidebar.tsx` - 156 lines
@@ -56,52 +56,47 @@
   - Estimated: 20min
 
 ### Modal Components
-- [ ] `src/components/CreateTagModal.tsx`
-  - Status: Hardcoded colors
-  - Tokens needed: COLORS.primary, COLORS.neutral
-  - Estimated: 15min
+- [x] `src/components/CreateTagModal.tsx` ✅ DONE (Commit: 9c5fa32)
+  - Status: Modal dialog with form, color picker, buttons
+  - Tokens: COLORS.primary, COLORS.neutral, SHADOWS, BORDERS
+  - Applied: Yes
 
-- [ ] `src/components/dashboard/StudySelectionModal.tsx` - 234 lines
-  - Status: Hardcoded colors in modal
-  - Tokens needed: COLORS.primary, COLORS.danger
-  - Estimated: 20min
+- [x] `src/components/dashboard/StudySelectionModal.tsx` - 234 lines ✅ DONE (Commit: ca08ddc)
+  - Status: Study selection with list and delete buttons
+  - Tokens: COLORS.primary, COLORS.danger, COLORS.neutral
+  - Applied: Yes
 
 ---
 
 ## Priority 2: UI Base Components
 
 ### Dialog/Modal
-- [ ] `src/components/ui/dialog.tsx` - 122 lines
-  - Status: Hardcoded bg-white, borders
-  - Tokens needed: COLORS.neutral
-  - Estimated: 15min
-
-- [ ] `src/components/ui/alert-dialog.tsx` - 141 lines
-  - Status: Hardcoded colors
-  - Tokens needed: COLORS.primary, COLORS.danger, COLORS.neutral
-  - Estimated: 20min
+- [x] `src/components/ui/confirm-modal.tsx` ✅ DONE (Commit: f6365ce)
+  - Status: Confirm dialog with variant support
+  - Tokens: COLORS.primary, COLORS.danger
+  - Applied: Yes
 
 ### Form Elements
-- [ ] `src/components/ui/input.tsx`
-  - Status: Hardcoded borders/bg
-  - Tokens needed: COLORS.neutral
-  - Estimated: 10min
+- [x] `src/components/ui/input.tsx` ✅ DONE (Commit: f6365ce)
+  - Status: Text input with focus states
+  - Tokens: COLORS.neutral
+  - Applied: Yes
 
-- [ ] `src/components/ui/badge.tsx`
-  - Status: Hardcoded colors
-  - Tokens needed: COLORS.primary, COLORS.neutral
-  - Estimated: 10min
+- [x] `src/components/ui/badge.tsx` ✅ DONE (Commit: f6365ce)
+  - Status: Multiple variants (default, secondary, outline)
+  - Tokens: COLORS.primary, COLORS.neutral
+  - Applied: Yes
 
-- [ ] `src/components/ui/button.tsx`
-  - Status: Hardcoded colors
-  - Tokens needed: COLORS.primary, COLORS.secondary, COLORS.neutral
-  - Estimated: 15min
+- [x] `src/components/ui/button.tsx` ✅ DONE (Commit: f6365ce)
+  - Status: All variants (default, outline, ghost, secondary)
+  - Tokens: COLORS.primary, COLORS.neutral, BORDERS
+  - Applied: Yes
 
 ### Navigation
-- [ ] `src/components/ui/breadcrumbs.tsx`
-  - Status: Hardcoded colors
-  - Tokens needed: COLORS.primary, COLORS.neutral.text
-  - Estimated: 10min
+- [x] `src/components/ui/breadcrumbs.tsx` ✅ DONE (Commit: f6365ce)
+  - Status: Navigation breadcrumbs
+  - Tokens: COLORS.primary, COLORS.neutral
+  - Applied: Yes
 
 ---
 
@@ -123,16 +118,16 @@
 
 ## Implementation Progress
 
-### Summary
-**Total Estimated Time:** 6-7 hours
+### Summary (2026-01-27 Session)
 **Total Components:** 22+
+**Progress:** 15/22+ ✅
 
 **Progress by Category:**
-- Editor Components: 0/3 done
-- Dashboard Components: 1/7 done (BookCard already has tokens)
-- Modal Components: 0/2 done
-- UI Components: 0/5 done
-- Page Components: 0/3 done
+- Editor Components: ✅ 3/3 DONE (130, 608, 357 lines)
+- Dashboard Components: ✅ 5/7 DONE (BookCard, ChapterView, BookGrid, BacklogPanel, TopBar, Sidebar pending)
+- Modal Components: ✅ 2/2 DONE (CreateTagModal, StudySelectionModal)
+- UI Components: ✅ 5/5 DONE (button, badge, input, breadcrumbs, confirm-modal)
+- Page Components: 0/3 PENDING
 
 ---
 
