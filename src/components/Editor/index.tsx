@@ -8,6 +8,8 @@ import { Highlight } from "@tiptap/extension-highlight";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import { Details, DetailsSummary, DetailsContent } from "@tiptap/extension-details";
+import { cn } from "@/lib/utils";
+import { COLORS } from "@/lib/design-tokens";
 import { ColoredBlockquote } from "./ColoredBlockquote";
 import { BubbleMenuComponent } from "./BubbleMenu";
 import { SlashMenu } from "./SlashMenu";
@@ -41,6 +43,7 @@ function parseContent(content: unknown): string | object {
 export function Editor({ initialContent = "", onChange }: EditorProps) {
   const lastAppliedContentRef = useRef<string | null>(null);
   const parsedInitialContent = parseContent(initialContent);
+  /* TOKENS: COLORS.neutral */
 
   const editor = useEditor({
     extensions: [
@@ -108,7 +111,7 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
 
   if (!editor) {
     return (
-      <div className="p-4 text-gray-400 animate-pulse">
+      <div className={cn("p-4 animate-pulse", COLORS.neutral.text.light)}>
         Carregando editor...
       </div>
     );
