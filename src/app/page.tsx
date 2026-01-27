@@ -2,6 +2,8 @@
 
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { COLORS } from "@/lib/design-tokens";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { BookGrid } from "@/components/dashboard/BookGrid";
@@ -101,8 +103,9 @@ function DashboardContent() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-        <span className="ml-3 text-gray-500">Verificando autenticação...</span>
+        {/* TOKENS: COLORS.primary, COLORS.neutral */}
+        <Loader2 className={cn("w-8 h-8 animate-spin", COLORS.primary.text)} />
+        <span className={cn("ml-3", COLORS.neutral.text.muted)}>Verificando autenticação...</span>
       </div>
     );
   }
@@ -111,8 +114,8 @@ function DashboardContent() {
   if (!user) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-        <span className="ml-3 text-gray-500">Redirecionando...</span>
+        <Loader2 className={cn("w-8 h-8 animate-spin", COLORS.primary.text)} />
+        <span className={cn("ml-3", COLORS.neutral.text.muted)}>Redirecionando...</span>
       </div>
     );
   }
@@ -147,10 +150,10 @@ function DashboardContent() {
             <div>
               {/* Page Header */}
               <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className={cn("text-2xl font-bold", COLORS.neutral.text.primary)}>
                   Biblioteca Bíblica
                 </h1>
-                <p className="text-gray-600 mt-1">
+                <p className={cn("mt-1", COLORS.neutral.text.secondary)}>
                   Navegue pelos livros e gerencie seus estudos
                 </p>
               </div>
@@ -158,8 +161,8 @@ function DashboardContent() {
               {/* Book Grid */}
               {studiesLoading ? (
                 <div className="flex items-center justify-center h-64">
-                  <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-                  <span className="ml-3 text-gray-500">Carregando estudos...</span>
+                  <Loader2 className={cn("w-8 h-8 animate-spin", COLORS.primary.text)} />
+                  <span className={cn("ml-3", COLORS.neutral.text.muted)}>Carregando estudos...</span>
                 </div>
               ) : (
                 <BookGrid
@@ -184,8 +187,8 @@ export default function DashboardPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center h-screen bg-gray-50">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-        <span className="ml-3 text-gray-500">Carregando...</span>
+        <Loader2 className={cn("w-8 h-8 animate-spin", COLORS.primary.text)} />
+        <span className={cn("ml-3", COLORS.neutral.text.muted)}>Carregando...</span>
       </div>
     }>
       <DashboardContent />
