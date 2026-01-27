@@ -2,6 +2,8 @@
 
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { COLORS, BORDERS } from "@/lib/design-tokens";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -153,23 +155,25 @@ export default function SettingsPage() {
 
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         <div className="p-6 max-w-4xl mx-auto w-full">
+          {/* TOKENS: COLORS.neutral */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Configurações</h1>
-            <p className="text-gray-600 mt-2">
+            <h1 className={cn("text-3xl font-bold", COLORS.neutral.text.primary)}>Configurações</h1>
+            <p className={cn("mt-2", COLORS.neutral.text.secondary)}>
               Gerencie suas preferências e informações da conta
             </p>
           </div>
 
-          <section className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+          <section className={cn("bg-white rounded-lg p-6 mb-6", BORDERS.gray)}>
+            {/* TOKENS: COLORS.primary, COLORS.neutral, BORDERS */}
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                <User className="w-5 h-5 text-blue-600" />
+              <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", COLORS.primary.light)}>
+                <User className={cn("w-5 h-5", COLORS.primary.text)} />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className={cn("text-xl font-semibold", COLORS.neutral.text.primary)}>
                   Meu Perfil
                 </h2>
-                <p className="text-sm text-gray-500">
+                <p className={cn("text-sm", COLORS.neutral.text.muted)}>
                   Informações básicas da sua conta
                 </p>
               </div>
@@ -179,7 +183,7 @@ export default function SettingsPage() {
               <div>
                 <label
                   htmlFor="fullName"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className={cn("block text-sm font-medium mb-1", COLORS.neutral.text.primary)}
                 >
                   Nome Completo
                 </label>
@@ -195,7 +199,7 @@ export default function SettingsPage() {
                   <Button
                     type="submit"
                     disabled={isUpdatingProfile}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className={cn(COLORS.primary.default, `hover:${COLORS.primary.dark}`)}
                   >
                     {isUpdatingProfile ? (
                       <>
@@ -212,11 +216,11 @@ export default function SettingsPage() {
                 </div>
                 {profileMessage && (
                   <div
-                    className={`flex items-center gap-2 mt-2 p-2 rounded-md ${
+                    className={cn("flex items-center gap-2 mt-2 p-2 rounded-md",
                       profileMessage.includes("sucesso")
                         ? "bg-green-50 text-green-700"
                         : "bg-red-50 text-red-700"
-                    }`}
+                    )}
                   >
                     {profileMessage.includes("sucesso") && (
                       <CheckCircle className="w-4 h-4" />
@@ -227,21 +231,21 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={cn("block text-sm font-medium mb-1", COLORS.neutral.text.primary)}>
                   E-mail
                 </label>
-                <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-md">
-                  <Mail className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-600">{user?.email}</span>
+                <div className={cn("flex items-center gap-2 px-3 py-2 rounded-md", "bg-gray-50", BORDERS.gray)}>
+                  <Mail className={cn("w-4 h-4", COLORS.neutral.text.muted)} />
+                  <span className={COLORS.neutral.text.secondary}>{user?.email}</span>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={cn("block text-sm font-medium mb-1", COLORS.neutral.text.primary)}>
                   Plano
                 </label>
                 <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-gray-400" />
+                  <Shield className={cn("w-4 h-4", COLORS.neutral.text.muted)} />
                   <Badge
                     variant={userRole === "Admin" ? "default" : "secondary"}
                   >
@@ -252,20 +256,21 @@ export default function SettingsPage() {
             </form>
           </section>
 
-          <section className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <section className={cn("bg-white rounded-lg p-6 mb-6", BORDERS.gray)}>
+            {/* TOKENS: COLORS.neutral, BORDERS */}
+            <h2 className={cn("text-xl font-semibold mb-4", COLORS.neutral.text.primary)}>
               Ações da Conta
             </h2>
 
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+              <div className={cn("flex items-center justify-between p-4 rounded-lg", BORDERS.gray)}>
                 <div className="flex items-center gap-3">
-                  <Key className="w-5 h-5 text-gray-400" />
+                  <Key className={cn("w-5 h-5", COLORS.neutral.text.muted)} />
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className={cn("font-medium", COLORS.neutral.text.primary)}>
                       Redefinir Senha
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className={cn("text-sm", COLORS.neutral.text.muted)}>
                       Enviar email para redefinição de senha
                     </p>
                   </div>
@@ -284,22 +289,22 @@ export default function SettingsPage() {
               </div>
               {passwordMessage && (
                 <p
-                  className={
+                  className={cn("text-sm",
                     passwordMessage.includes("enviado")
-                      ? "text-sm text-green-600"
-                      : "text-sm text-red-600"
-                  }
+                      ? "text-green-600"
+                      : "text-red-600"
+                  )}
                 >
                   {passwordMessage}
                 </p>
               )}
 
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+              <div className={cn("flex items-center justify-between p-4 rounded-lg", BORDERS.gray)}>
                 <div className="flex items-center gap-3">
-                  <LogOut className="w-5 h-5 text-gray-400" />
+                  <LogOut className={cn("w-5 h-5", COLORS.neutral.text.muted)} />
                   <div>
-                    <p className="font-medium text-gray-900">Sair</p>
-                    <p className="text-sm text-gray-500">
+                    <p className={cn("font-medium", COLORS.neutral.text.primary)}>Sair</p>
+                    <p className={cn("text-sm", COLORS.neutral.text.muted)}>
                       Encerrar sua sessão atual
                     </p>
                   </div>
@@ -312,8 +317,9 @@ export default function SettingsPage() {
           </section>
 
           <section className="bg-red-50 rounded-lg border border-red-200 p-6">
+            {/* TOKENS: COLORS.danger */}
             <div className="flex items-center gap-2 mb-4">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
+              <AlertTriangle className={cn("w-5 h-5", COLORS.danger.text)} />
               <h2 className="text-xl font-semibold text-red-900">
                 Zona de Perigo
               </h2>
@@ -326,7 +332,7 @@ export default function SettingsPage() {
 
             <Button
               onClick={() => setShowDeleteModal(true)}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className={cn("text-white", COLORS.danger.default, `hover:${COLORS.danger.dark}`)}
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Excluir Minha Conta
@@ -337,22 +343,23 @@ export default function SettingsPage() {
 
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          {/* TOKENS: COLORS.danger, COLORS.neutral */}
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
+              <div className={cn("w-12 h-12 rounded-full flex items-center justify-center", COLORS.danger.light)}>
+                <AlertTriangle className={cn("w-6 h-6", COLORS.danger.text)} />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className={cn("text-lg font-semibold", COLORS.neutral.text.primary)}>
                   Confirmar Exclusão
                 </h3>
-                <p className="text-sm text-gray-500">Esta ação é irreversível</p>
+                <p className={cn("text-sm", COLORS.neutral.text.muted)}>Esta ação é irreversível</p>
               </div>
             </div>
 
-            <p className="text-gray-600 mb-4">
+            <p className={cn("mb-4", COLORS.neutral.text.secondary)}>
               Para confirmar a exclusão da sua conta, digite{" "}
-              <span className="font-mono font-bold text-red-600">EXCLUIR</span>{" "}
+              <span className={cn("font-mono font-bold", COLORS.danger.text)}>EXCLUIR</span>{" "}
               abaixo:
             </p>
 
@@ -379,7 +386,7 @@ export default function SettingsPage() {
               <Button
                 onClick={handleDeleteAccount}
                 disabled={deleteConfirmText !== "EXCLUIR" || isDeletingAccount}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                className={cn("flex-1 text-white disabled:opacity-50 disabled:cursor-not-allowed", COLORS.danger.default, `hover:${COLORS.danger.dark}`)}
               >
                 {isDeletingAccount ? (
                   <>

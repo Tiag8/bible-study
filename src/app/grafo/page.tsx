@@ -3,6 +3,8 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { cn } from "@/lib/utils";
+import { COLORS, BORDERS } from "@/lib/design-tokens";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,8 +29,9 @@ const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center h-full">
-      <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-      <span className="ml-3 text-gray-400">Carregando grafo...</span>
+      {/* TOKENS: COLORS.primary, COLORS.neutral */}
+      <Loader2 className={cn("w-8 h-8 animate-spin", COLORS.primary.text)} />
+      <span className={cn("ml-3", COLORS.neutral.text.muted)}>Carregando grafo...</span>
     </div>
   ),
 });
@@ -115,21 +118,22 @@ export default function GrafoPage() {
   // Estado de carregamento
   if (loading) {
     return (
-      <div className="flex h-screen bg-gray-950">
+      <div className="flex h-screen" style={{ backgroundColor: '#030712' }}>
         <Sidebar
           collapsed={sidebarCollapsed}
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
         <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
-          <span className="ml-4 text-xl text-gray-400">Carregando grafo...</span>
+          {/* TOKENS: COLORS.primary, COLORS.neutral */}
+          <Loader2 className={cn("w-12 h-12 animate-spin", COLORS.primary.text)} />
+          <span className={cn("ml-4 text-xl", COLORS.neutral.text.muted)}>Carregando grafo...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-gray-950">
+    <div className="flex h-screen" style={{ backgroundColor: '#030712' }}>
       {/* Sidebar */}
       <Sidebar
         collapsed={sidebarCollapsed}
@@ -139,24 +143,25 @@ export default function GrafoPage() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 relative">
         {/* Header */}
-        <header className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-gray-950 via-gray-950/90 to-transparent">
+        <header className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-[#030712] via-[#030712]/90 to-transparent">
           <div className="px-6 py-4">
+            {/* TOKENS: COLORS.neutral, COLORS.primary */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => router.push("/")}
-                  className="text-gray-400 hover:text-white hover:bg-gray-800"
+                  className={cn(COLORS.neutral.text.muted, `hover:${COLORS.neutral.text.primary}`, "hover:bg-gray-800")}
                 >
                   <Home className="w-4 h-4 mr-2" />
                   Dashboard
                 </Button>
                 <div>
-                  <h1 className="text-xl font-bold text-white">
+                  <h1 className={cn("text-xl font-bold", COLORS.neutral.text.primary)}>
                     Segundo Cérebro
                   </h1>
-                  <p className="text-sm text-gray-400">
+                  <p className={cn("text-sm", COLORS.neutral.text.muted)}>
                     {graphData.nodes.length} estudos • {graphData.links.length}{" "}
                     conexões
                   </p>
@@ -168,7 +173,7 @@ export default function GrafoPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowLegend(!showLegend)}
-                  className="text-gray-400 hover:text-white hover:bg-gray-800"
+                  className={cn(COLORS.neutral.text.muted, `hover:${COLORS.neutral.text.primary}`, "hover:bg-gray-800")}
                 >
                   <Info className="w-4 h-4 mr-2" />
                   Legenda
@@ -180,11 +185,12 @@ export default function GrafoPage() {
 
         {/* Zoom Controls */}
         <div className="absolute bottom-6 left-6 z-20 flex flex-col gap-2">
+          {/* TOKENS: COLORS.neutral, BORDERS */}
           <Button
             variant="outline"
             size="icon"
             onClick={handleZoomIn}
-            className="bg-gray-900 border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white"
+            className={cn("bg-gray-900", BORDERS.gray, COLORS.neutral.text.secondary, `hover:${COLORS.neutral[800]}`, "hover:text-white")}
           >
             <ZoomIn className="w-4 h-4" />
           </Button>
@@ -192,7 +198,7 @@ export default function GrafoPage() {
             variant="outline"
             size="icon"
             onClick={handleZoomOut}
-            className="bg-gray-900 border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white"
+            className={cn("bg-gray-900", BORDERS.gray, COLORS.neutral.text.secondary, `hover:${COLORS.neutral[800]}`, "hover:text-white")}
           >
             <ZoomOut className="w-4 h-4" />
           </Button>
@@ -200,7 +206,7 @@ export default function GrafoPage() {
             variant="outline"
             size="icon"
             onClick={handleCenter}
-            className="bg-gray-900 border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white"
+            className={cn("bg-gray-900", BORDERS.gray, COLORS.neutral.text.secondary, `hover:${COLORS.neutral[800]}`, "hover:text-white")}
           >
             <Maximize2 className="w-4 h-4" />
           </Button>
@@ -208,14 +214,15 @@ export default function GrafoPage() {
 
         {/* Legend Panel */}
         {showLegend && (
-          <div className="absolute top-20 right-6 z-20 bg-gray-900/95 backdrop-blur-sm rounded-lg border border-gray-800 p-4 w-64">
+          <div className={cn("absolute top-20 right-6 z-20 bg-gray-900/95 backdrop-blur-sm rounded-lg p-4 w-64", BORDERS.gray)}>
+            {/* TOKENS: COLORS.neutral, BORDERS */}
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-white">
+              <h3 className={cn("text-sm font-medium", COLORS.neutral.text.primary)}>
                 Categorias Bíblicas
               </h3>
               <button
                 onClick={() => setShowLegend(false)}
-                className="text-gray-400 hover:text-white"
+                className={cn(COLORS.neutral.text.muted, `hover:${COLORS.neutral.text.primary}`)}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -227,14 +234,14 @@ export default function GrafoPage() {
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: bookCategoryColors[category] }}
                   />
-                  <span className="text-sm text-gray-300">
+                  <span className={cn("text-sm", COLORS.neutral.text.secondary)}>
                     {categoryLabels[category]}
                   </span>
                 </div>
               ))}
             </div>
-            <div className="mt-4 pt-3 border-t border-gray-800">
-              <p className="text-xs text-gray-500">
+            <div className={cn("mt-4 pt-3", BORDERS.gray)}>
+              <p className={cn("text-xs", COLORS.neutral.text.muted)}>
                 Clique em um nó para abrir o estudo
               </p>
             </div>
@@ -243,22 +250,23 @@ export default function GrafoPage() {
 
         {/* Hover Info */}
         {hoveredNode && (
-          <div className="absolute bottom-6 right-6 z-20 bg-gray-900/95 backdrop-blur-sm rounded-lg border border-gray-800 p-4 max-w-xs">
+          <div className={cn("absolute bottom-6 right-6 z-20 bg-gray-900/95 backdrop-blur-sm rounded-lg p-4 max-w-xs", BORDERS.gray)}>
+            {/* TOKENS: COLORS.neutral */}
             <div className="flex items-center gap-2 mb-2">
               <div
                 className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: hoveredNode.color }}
               />
-              <span className="text-sm font-medium text-white">
+              <span className={cn("text-sm font-medium", COLORS.neutral.text.primary)}>
                 {hoveredNode.name}
               </span>
             </div>
-            <p className="text-xs text-gray-400">
+            <p className={cn("text-xs", COLORS.neutral.text.muted)}>
               {hoveredNode.book} {hoveredNode.chapter}
             </p>
             <Badge
               variant="secondary"
-              className="mt-2 bg-gray-800 text-gray-300"
+              className={cn("mt-2", COLORS.neutral[800], COLORS.neutral.text.secondary)}
             >
               {categoryLabels[hoveredNode.category]}
             </Badge>
