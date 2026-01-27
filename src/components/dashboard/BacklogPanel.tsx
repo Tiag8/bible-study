@@ -31,6 +31,7 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
     loading: backlogLoading,
     toggleBacklogStatus,
     deleteFromBacklog,
+    fetchBacklog,
     getPending,
     getCompleted
   } = useBacklog();
@@ -38,6 +39,12 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
 
   const pendingItems = getPending();
   const completedItems = getCompleted();
+
+  const handleModalClose = async () => {
+    // Refetch backlog após modal fechar (em caso de novo item adicionado)
+    await fetchBacklog();
+    setShowAddStudyModal(false);
+  };
 
   const getSourceStudy = (sourceId: string | null) => {
     if (!sourceId) return null;
@@ -190,6 +197,7 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
       <BacklogAddStudyModal
         isOpen={showAddStudyModal}
         onClose={() => setShowAddStudyModal(false)}
+        onSuccess={handleModalClose}
       />
     </aside>
   );

@@ -20,9 +20,10 @@ import { toast } from 'sonner';
 interface BacklogAddStudyModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => Promise<void>;
 }
 
-export function BacklogAddStudyModal({ isOpen, onClose }: BacklogAddStudyModalProps) {
+export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddStudyModalProps) {
   const { createStudy } = useStudies();
   const { addToBacklog } = useBacklog();
 
@@ -98,6 +99,11 @@ export function BacklogAddStudyModal({ isOpen, onClose }: BacklogAddStudyModalPr
       );
 
       toast.success(`Estudo criado: ${book.name} ${selectedChapter}`);
+
+      // Refetch backlog data
+      if (onSuccess) {
+        await onSuccess();
+      }
       handleClose();
     } catch (error) {
       console.error('[BACKLOG_MODAL] Create error:', error);
