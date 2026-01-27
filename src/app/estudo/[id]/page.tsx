@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, use } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { COLORS } from "@/lib/design-tokens";
 import { Editor } from "@/components/Editor";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
@@ -21,7 +23,6 @@ import {
   Check,
   X,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { CreateTagModal } from "@/components/CreateTagModal";
 
@@ -390,8 +391,9 @@ export default function StudyPage({ params }: StudyPageProps) {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-        <span className="ml-3 text-gray-500">Carregando estudo...</span>
+        {/* TOKENS: COLORS.primary, COLORS.neutral */}
+        <Loader2 className={cn("w-8 h-8 animate-spin", COLORS.primary.text)} />
+        <span className={cn("ml-3", COLORS.neutral.text.muted)}>Carregando estudo...</span>
       </div>
     );
   }
@@ -402,8 +404,8 @@ export default function StudyPage({ params }: StudyPageProps) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Erro ao carregar estudo</h2>
-          <p className="text-gray-600 mb-4">{loadError || "Estudo não encontrado"}</p>
+          <h2 className={cn("text-lg font-semibold mb-2", COLORS.neutral.text.primary)}>Erro ao carregar estudo</h2>
+          <p className={cn("mb-4", COLORS.neutral.text.secondary)}>{loadError || "Estudo não encontrado"}</p>
           <Button onClick={() => router.push("/")}>Voltar para início</Button>
         </div>
       </div>
