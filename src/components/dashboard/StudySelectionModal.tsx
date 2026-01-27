@@ -1,6 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { COLORS } from '@/lib/design-tokens';
 import type { StudySummary } from '@/hooks/useStudies';
 import { formatRelativeDate } from '@/lib/mock-data';
 import { useTags, useStudies } from '@/hooks';
@@ -112,9 +114,10 @@ export function StudySelectionModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-gray-900">
+          <DialogTitle className={cn("text-xl font-bold", COLORS.neutral.text.primary)}>
             {bookName} {chapter}
           </DialogTitle>
+          {/* TOKENS: COLORS.primary, COLORS.danger, COLORS.neutral */}
           <DialogDescription>
             Você tem {studies.length} estudo{studies.length !== 1 ? 's' : ''} para este capítulo.
             Selecione um para editar ou crie um novo.
@@ -153,10 +156,10 @@ export function StudySelectionModal({
                   disabled={deletingId === study.id}
                   className="w-full justify-start gap-3 h-auto py-4 pr-12"
                 >
-                  <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                  <FileText className={cn("w-5 h-5 flex-shrink-0", COLORS.primary.text)} />
                   <div className="flex-1 text-left min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-medium text-gray-900 truncate">
+                      <h3 className={cn("font-medium truncate", COLORS.neutral.text.primary)}>
                         {study.title}
                       </h3>
                       <StatusBadge status={study.status} className="flex-shrink-0" />
@@ -184,7 +187,7 @@ export function StudySelectionModal({
                           );
                         })}
                         {study.tags.length > 3 && (
-                          <span className="text-xs text-gray-500">
+                          <span className={cn("text-xs", COLORS.neutral.text.muted)}>
                             +{study.tags.length - 3}
                           </span>
                         )}
@@ -192,7 +195,7 @@ export function StudySelectionModal({
                     )}
 
                     {/* Data de atualização */}
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                    <div className={cn("flex items-center gap-1 text-xs", COLORS.neutral.text.muted)}>
                       <Clock className="w-3 h-3" />
                       <span>{formatRelativeDate(study.updated_at)}</span>
                     </div>
@@ -203,7 +206,7 @@ export function StudySelectionModal({
                 <button
                   onClick={(e) => handleDeleteClick(study.id, study.title, e)}
                   disabled={deletingId === study.id}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] p-2 rounded-md bg-red-50 text-red-600 hover:bg-red-100 opacity-40 hover:opacity-100 focus:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center"
+                  className={cn("absolute right-3 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] p-2 rounded-md opacity-40 hover:opacity-100 focus:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center", `bg-red-50 ${COLORS.danger.text} hover:bg-red-100`)}
                   aria-label="Deletar estudo"
                 >
                   {deletingId === study.id ? (
