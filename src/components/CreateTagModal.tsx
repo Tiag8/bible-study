@@ -5,6 +5,7 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { COLORS, BORDERS, SHADOWS } from '@/lib/design-tokens';
 
 interface CreateTagModalProps {
   isOpen: boolean;
@@ -82,13 +83,14 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
 
       {/* Modal */}
       <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-xl border border-gray-200 p-6">
+        <div className={cn("bg-white rounded-lg p-6", SHADOWS.lg, BORDERS.gray)}>
+          {/* TOKENS: COLORS.primary, COLORS.danger, COLORS.neutral */}
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Nova Tag</h2>
+            <h2 className={cn("text-lg font-semibold", COLORS.neutral.text.primary)}>Nova Tag</h2>
             <button
               onClick={handleCancel}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className={cn("transition-colors", COLORS.neutral.text.light, `hover:${COLORS.neutral.text.secondary}`)}
             >
               <X className="w-5 h-5" />
             </button>
@@ -98,7 +100,7 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
           <div className="space-y-4">
             {/* Nome da tag */}
             <div>
-              <label htmlFor="tag-name" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="tag-name" className={cn("block text-sm font-medium mb-1", COLORS.neutral.text.secondary)}>
                 Nome da Tag
               </label>
               <Input
@@ -114,7 +116,7 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
 
             {/* Tipo */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cn("block text-sm font-medium mb-2", COLORS.neutral.text.secondary)}>
                 Tipo
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -124,11 +126,10 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
                     type="button"
                     onClick={() => setSelectedType(type)}
                     className={cn(
-                      "px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                      "border border-gray-300",
+                      "px-3 py-2 rounded-md text-sm font-medium transition-colors border",
                       selectedType === type
-                        ? "bg-blue-50 border-blue-500 text-blue-700"
-                        : "bg-white text-gray-700 hover:bg-gray-50"
+                        ? `${COLORS.primary.light} border-blue-500 ${COLORS.primary.text}`
+                        : `bg-white ${COLORS.neutral.text.secondary} hover:${COLORS.neutral[50]} ${BORDERS.gray.replace('border', 'border')}`
                     )}
                   >
                     {type}
@@ -139,7 +140,7 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
 
             {/* Cor */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={cn("block text-sm font-medium mb-2", COLORS.neutral.text.secondary)}>
                 Cor
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -149,11 +150,10 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
                     type="button"
                     onClick={() => setSelectedColor(color.name)}
                     className={cn(
-                      "flex items-center justify-center gap-2 px-3 py-2 rounded-md transition-all",
-                      "border-2",
+                      "flex items-center justify-center gap-2 px-3 py-2 rounded-md transition-all border-2",
                       selectedColor === color.name
-                        ? "border-gray-900 ring-2 ring-gray-900 ring-offset-2"
-                        : "border-transparent hover:border-gray-300"
+                        ? `border-gray-900 ring-2 ring-gray-900 ring-offset-2`
+                        : `border-transparent hover:border-gray-300`
                     )}
                     title={color.label}
                   >
@@ -161,7 +161,7 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
                       className="w-4 h-4 rounded-full"
                       style={{ backgroundColor: color.hex }}
                     />
-                    <span className="text-xs text-gray-900">{color.label}</span>
+                    <span className={cn("text-xs", COLORS.neutral.text.primary)}>{color.label}</span>
                   </button>
                 ))}
               </div>
@@ -169,7 +169,7 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
 
             {/* Error */}
             {error && (
-              <div className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-md">
+              <div className={cn("text-sm px-3 py-2 rounded-md", COLORS.danger.text, `bg-red-50`)}>
                 {error}
               </div>
             )}
