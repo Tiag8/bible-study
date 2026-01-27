@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { TAG_COLORS, COLORS, BORDERS } from "@/lib/design-tokens";
+import { TAG_COLORS, COLORS, BORDERS, STATUS_CONFIG } from "@/lib/design-tokens";
+import { getHighestPriorityStatus } from "@/lib/utils";
 import { StudySelectionModal } from "./StudySelectionModal";
 import {
   ArrowLeft,
@@ -190,6 +191,29 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
               }
             };
 
+            // Determinar cor baseado no status mais urgente (maior prioridade)
+            let chapterBgColor = `bg-white ${BORDERS.gray}`;
+            let chapterTextColor = COLORS.neutral.text.secondary;
+            let hoverColor = 'hover:border-blue-300';
+
+            if (studyCount > 0) {
+              const highestStatus = getHighestPriorityStatus(chapterStudies);
+              const statusConfig = STATUS_CONFIG[highestStatus as keyof typeof STATUS_CONFIG];
+
+              if (statusConfig) {
+                // Mapear cores baseado no status
+                const statusColorMap: Record<string, string> = {
+                  'estudar': COLORS.warning.default,      // Laranja
+                  'estudando': COLORS.primary.default,    // Azul
+                  'revisando': COLORS.secondary.default,  // Roxo
+                  'concluído': COLORS.success.default,    // Verde
+                };
+                chapterBgColor = statusColorMap[highestStatus] || COLORS.primary.default;
+                chapterTextColor = 'text-white';
+                hoverColor = '';
+              }
+            }
+
             return (
               <div
                 key={chapter}
@@ -199,8 +223,8 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                   "text-sm font-medium transition-all cursor-pointer",
                   "hover:scale-105 hover:shadow-md",
                   studyCount > 0
-                    ? `${COLORS.primary.default} text-white`
-                    : `bg-white ${BORDERS.gray} ${COLORS.neutral.text.secondary} hover:border-blue-300`
+                    ? `${chapterBgColor} ${chapterTextColor}`
+                    : `${chapterBgColor} ${chapterTextColor} ${hoverColor}`
                 )}
                 title={
                   studyCount > 0
@@ -210,7 +234,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
               >
                 {chapter}
                 {hasMultiple && (
-                  <span className={cn("absolute -top-1 -right-1 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center", COLORS.warning.default)}>
+                  <span className={cn("absolute -top-1 -right-1 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center", COLORS.danger.default)}>
                     {studyCount}
                   </span>
                 )}

@@ -1,4 +1,4 @@
-import { Circle, RefreshCw, CheckCircle, LucideIcon } from 'lucide-react'
+import { Circle, RefreshCw, CheckCircle, BookOpen, LucideIcon } from 'lucide-react'
 
 /**
  * Centralized Design Tokens
@@ -173,7 +173,7 @@ export const BORDERS = {
 // STATUS CONFIG (Study status indicators)
 // ============================================
 
-export type StudyStatus = 'estudando' | 'revisando' | 'concluído'
+export type StudyStatus = 'estudar' | 'estudando' | 'revisando' | 'concluído'
 
 export interface StatusConfig {
   icon: LucideIcon
@@ -183,6 +183,12 @@ export interface StatusConfig {
 }
 
 export const STATUS_CONFIG: Record<StudyStatus, StatusConfig> = {
+  estudar: {
+    icon: BookOpen,
+    color: COLORS.warning.text,
+    bg: COLORS.warning.light,
+    label: 'Estudar'
+  },
   estudando: {
     icon: Circle,
     color: COLORS.primary.text,

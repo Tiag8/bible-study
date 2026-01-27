@@ -7,7 +7,7 @@ import { formatRelativeDate } from "@/lib/mock-data";
 import { useBacklog, useStudies } from "@/hooks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { BacklogAddStudyModal } from "./BacklogAddStudyModal";
 import {
   BookMarked,
   Plus,
@@ -24,14 +24,11 @@ interface BacklogPanelProps {
 }
 
 export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [newReference, setNewReference] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
+  const [showAddStudyModal, setShowAddStudyModal] = useState(false);
 
   // Hooks Supabase
   const {
     loading: backlogLoading,
-    addToBacklog,
     toggleBacklogStatus,
     deleteFromBacklog,
     getPending,
@@ -45,16 +42,6 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
   const getSourceStudy = (sourceId: string | null) => {
     if (!sourceId) return null;
     return studies.find((s) => s.id === sourceId);
-  };
-
-  const handleAddItem = async () => {
-    if (newReference.trim()) {
-      setIsAdding(true);
-      await addToBacklog(newReference.trim());
-      setNewReference("");
-      setShowAddForm(false);
-      setIsAdding(false);
-    }
   };
 
   const handleToggleStatus = async (itemId: string) => {
@@ -78,54 +65,15 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
           <Badge variant="secondary">{pendingItems.length}</Badge>
         </div>
 
-        {!showAddForm ? (
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full"
-            onClick={() => setShowAddForm(true)}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Adicionar Estudo
-          </Button>
-        ) : (
-          <div className="space-y-2">
-            <Input
-              placeholder="Ex: Êxodo 20 ou Mateus 5-7"
-              value={newReference}
-              onChange={(e) => setNewReference(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleAddItem();
-                if (e.key === "Escape") {
-                  setShowAddForm(false);
-                  setNewReference("");
-                }
-              }}
-              autoFocus
-            />
-            <div className="flex gap-2">
-              <Button
-                variant="default"
-                size="sm"
-                className="flex-1"
-                onClick={handleAddItem}
-                disabled={!newReference.trim() || isAdding}
-              >
-                {isAdding ? "Adicionando..." : "Adicionar"}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setShowAddForm(false);
-                  setNewReference("");
-                }}
-              >
-                Cancelar
-              </Button>
-            </div>
-          </div>
-        )}
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full"
+          onClick={() => setShowAddStudyModal(true)}
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Adicionar Estudo
+        </Button>
       </div>
 
       {/* Pending Items */}
@@ -237,6 +185,12 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Modal para criar estudo via backlog */}
+      <BacklogAddStudyModal
+        isOpen={showAddStudyModal}
+        onClose={() => setShowAddStudyModal(false)}
+      />
     </aside>
   );
 }

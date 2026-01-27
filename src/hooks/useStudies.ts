@@ -23,7 +23,7 @@ interface StudiesContextValue {
   getOrCreateStudy: (bookName: string, chapter: number, title?: string) => Promise<StudyWithContent>;
   createStudy: (bookName: string, chapter: number, title?: string) => Promise<StudyWithContent>;
   saveStudy: (id: string, updates: Partial<StudyUpdate>) => Promise<Study | null>;
-  updateStudyStatus: (id: string, status: 'estudando' | 'revisando' | 'concluído') => Promise<boolean>;
+  updateStudyStatus: (id: string, status: 'estudar' | 'estudando' | 'revisando' | 'concluído') => Promise<boolean>;
   completeStudy: (id: string) => Promise<boolean>;
   deleteStudy: (id: string) => Promise<boolean>;
   getStudiesByBook: (bookName: string) => StudySummary[];
@@ -312,7 +312,7 @@ function useStudiesInternal(): StudiesContextValue {
   // Atualizar status do estudo
   const updateStudyStatus = useCallback(async (
     id: string,
-    status: 'estudando' | 'revisando' | 'concluído'
+    status: 'estudar' | 'estudando' | 'revisando' | 'concluído'
   ): Promise<boolean> => {
     if (!user?.id) {
       return false;
