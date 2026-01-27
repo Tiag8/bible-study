@@ -2,7 +2,8 @@
 
 **Epic ID:** EPIC-001
 **Data:** 2026-01-26
-**Status:** ✅ SPRINT 2 COMPLETED (4/4 Stories Done, All Migrations Deployed)
+**Last Updated:** 2026-01-27 14:30 (PM Approval for Parallel Execution)
+**Status:** 🔄 SPRINT 3 IN PROGRESS (3.1 Done ✅ | 3.2+3.4 Approved for Parallel ✅)
 
 ---
 
@@ -91,14 +92,14 @@ Transformar o Bible Study de um MVP funcional em um produto de qualidade product
 | 2.3 | Centralizar design tokens | 3 | ✅ COMPLETED | 🚀 DEPLOYED (2026-01-26) |
 | 2.4 | Adicionar trigger de validação em links | 3 | ✅ COMPLETED | 🚀 DEPLOYED (2026-01-27) |
 
-### Sprint 3: Design & Enhancement
+### Sprint 3: Design & Enhancement - 🔄 IN PROGRESS
 
-| ID | Story | Pontos | Status |
-|----|-------|--------|--------|
-| 3.1 | Estender design tokens para componentes restantes | 5 | 📋 Ready |
-| 3.2 | Documentar padrões de uso de design tokens | 3 | 📋 Ready |
-| 3.3 | Implementar sistema de variantes de tema (Dark Mode) | 8 | 📋 Ready |
-| 3.4 | Extrair shadow tokens para CSS Modules | 3 | 📋 Ready |
+| ID | Story | Pontos | Status | Notes |
+|----|-------|--------|--------|-------|
+| 3.1 | Estender design tokens para componentes restantes | 5 | ✅ **DONE** (2026-01-27) | QA approved, merged to main |
+| 3.2 | Documentar padrões de uso de design tokens | 3 | ✅ **APPROVED FOR PARALLEL** (2026-01-27) | ETA: EOD 2026-01-29 |
+| 3.3 | Implementar sistema de variantes de tema (Dark Mode) | 8 | ⏳ **READY** | Depends on 3.2 completion |
+| 3.4 | Extrair shadow tokens para CSS Modules | 3 | ✅ **APPROVED FOR PARALLEL** (2026-01-27) | ETA: EOD 2026-01-29 |
 
 ---
 
