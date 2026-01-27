@@ -15,7 +15,7 @@ import {
 import DOMPurify from "isomorphic-dompurify";
 import { bibleBooks } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
-import { COLORS, BORDERS, SHADOWS } from "@/lib/design-tokens";
+import { COLORS, BORDERS, SHADOW_CLASSES } from "@/lib/design-tokens";
 
 interface SlashMenuProps {
   editor: Editor;
@@ -234,7 +234,7 @@ function SlashMenuBase({
   return (
     <div
       ref={menuRef}
-      className={cn("fixed z-50 bg-white rounded-lg overflow-hidden w-[min(18rem,calc(100vw-2rem))]", SHADOWS.lg, BORDERS.gray)}
+      className={cn("fixed z-50 bg-white rounded-lg overflow-hidden w-[min(18rem,calc(100vw-2rem))]", SHADOW_CLASSES.lg, BORDERS.gray)}
       style={{
         top: position.top,
         left: Math.min(position.left, typeof window !== 'undefined' ? window.innerWidth - 300 : position.left)
