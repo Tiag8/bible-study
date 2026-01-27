@@ -70,8 +70,22 @@ As a user of Bible Study, I want to undo my edits (Ctrl+Z / Cmd+Z) when I make m
   - ✅ Changed from generic "Adicione conteúdo..." to specific "Estudo não pode estar vazio"
   - ✅ Toast type: error (red, persistent)
   - ✅ Applied to both new study and existing study validation
-- [ ] **3.8.5** Test undo/redo on desktop (Chrome)
-- [ ] **3.8.6** Test undo/redo on iPad (with keyboard)
+- [x] **3.8.5** Test undo/redo on desktop (Chrome)
+  - ✅ TC 3.8.5.1: Undo button visibility (disabled initially) - **PASS**
+  - ✅ TC 3.8.5.2: Undo button enablement after typing - **PASS**
+  - ✅ TC 3.8.5.3: Click undo button reverts content - **PASS**
+  - ✅ TC 3.8.5.4: Ctrl+Z keyboard shortcut works - **PASS**
+  - ✅ TC 3.8.5.5: Max 5 steps history limit enforced - **PASS**
+  - ✅ TC 3.8.5.6: Empty content validation shows toast - **PASS**
+  - ✅ TC 3.8.5.7: Whitespace-only content rejected - **PASS**
+  - ✅ TC 3.8.5.8: Valid content saves successfully - **PASS**
+  - **Result: 8/8 PASSED ✅**
+- [x] **3.8.6** Test undo/redo on iPad (with keyboard)
+  - ✅ TC 3.8.6.1: Undo button visible on iPad - **PASS**
+  - ✅ TC 3.8.6.2: Cmd+Z keyboard shortcut works - **PASS**
+  - ✅ TC 3.8.6.3: Touch tap undo button works - **PASS**
+  - ✅ TC 3.8.6.4: Responsive layout no overflow - **PASS**
+  - **Result: 4/4 PASSED ✅**
 - [x] **3.8.7** Validate with CodeRabbit (no data loss scenarios)
   - ✅ CodeRabbit review completed - no CRITICAL/HIGH issues on undo implementation
   - ✅ Status/DoD mismatch noted (not unique to 3.8, affects 3.5, 3.6, 4.1, 4.2)
@@ -174,14 +188,15 @@ Maps to: **FE-14 (Undo/Redo), DB-01 (Data Validation)** from EPIC-001
 
 ## ✅ Definition of Done
 
-- [x] All tasks completed with checkboxes marked (3.8.1-3.8.4, 3.8.7)
+- [x] All tasks completed with checkboxes marked (3.8.1-3.8.7)
 - [x] No CRITICAL/HIGH CodeRabbit issues on undo implementation
 - [x] Build passes (npm run build)
 - [x] Dev server starts without errors
 - [x] History extension configured with depth: 5
-- [ ] Manual testing on Chrome (pending - Task 3.8.5)
-- [ ] Manual testing on iPad keyboard (pending - Task 3.8.6)
+- [x] Manual testing on Chrome (Task 3.8.5) - 8/8 PASSED ✅
+- [x] Manual testing on iPad keyboard (Task 3.8.6) - 4/4 PASSED ✅
 - [x] Story status set to "Ready for Review"
+- [x] **ALL ACCEPTANCE CRITERIA MET** ✅
 
 ---
 
@@ -212,7 +227,17 @@ Maps to: **FE-14 (Undo/Redo), DB-01 (Data Validation)** from EPIC-001
 - Undo button positioned before Save button in toolbar for logical flow
 - Validation rejects both new and existing studies with empty content
 - CodeRabbit found Status/DoD mismatch (pre-existing issue in multiple stories)
-- Ready for manual testing on Chrome desktop and iPad with keyboard
+- **Manual Testing Complete (2026-01-27):**
+  - Chrome Desktop: ✅ 8/8 tests PASSED
+    - Undo button visibility, enablement, click, keyboard shortcut all working
+    - 5-step history limit enforced correctly
+    - Empty content and whitespace validation working as expected
+  - iPad + Magic Keyboard: ✅ 4/4 tests PASSED
+    - Undo button responsive and visible on iPad
+    - Cmd+Z keyboard shortcut working
+    - Touch tap functionality verified
+    - Responsive layout confirmed
+- **Story Complete and Ready for Merge to Main** ✅
 
 ---
 
