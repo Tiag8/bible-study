@@ -10,10 +10,13 @@ import { Color } from "@tiptap/extension-color";
 import { Details, DetailsSummary, DetailsContent } from "@tiptap/extension-details";
 import { cn } from "@/lib/utils";
 import { COLORS } from "@/lib/design-tokens";
+import { EDITOR_DEBOUNCE_DELAY } from "@/lib/editor-constants";
+import { parseContent } from "@/lib/editor-utils";
 import { ColoredBlockquote } from "./ColoredBlockquote";
-import { BubbleMenuComponent } from "./BubbleMenu";
+import { BubbleMenuComponent } from "./BubbleMenu"; // Agora aponta para BubbleMenu/index
 import { SlashMenu } from "./SlashMenu";
 import { useSlashMenu } from "./useSlashMenu";
+import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
 import type { TiptapContent } from "@/types/database";
 
 interface EditorProps {
@@ -21,29 +24,35 @@ interface EditorProps {
   onChange?: (content: string) => void;
 }
 
-// Função para parsear conteúdo: JSON string, objeto JSON ou HTML
-function parseContent(content: unknown): string | object {
-  if (!content) return "";
-  // Se já for objeto, retorna diretamente
-  if (typeof content === "object") return content;
-  // Se não for string, retorna vazio
-  if (typeof content !== "string") return "";
-  // Tenta parsear como JSON se começa com {
-  if (content.trim().startsWith("{")) {
-    try {
-      return JSON.parse(content);
-    } catch {
-      // Se falhar, retorna como HTML
-      return content;
-    }
-  }
-  return content;
-}
-
+/**
+ * Editor de texto rico usando Tiptap (extensível, headless)
+ *
+ * **Features:**
+ * - Formatação rica (bold, italic, headings, lists, etc.)
+ * - Blockquotes coloridos (7 cores)
+ * - Highlight (6 cores marca-texto)
+ * - Links externos + referências internas (bible-graph://)
+ * - Slash commands (/ para menu)
+ * - Notion-style shortcuts (> para toggle, | para quote)
+ * - Auto-save com debounce (300ms)
+ *
+ * @param initialContent - Conteúdo inicial (JSON | HTML | objeto TiptapContent)
+ * @param onChange - Callback quando conteúdo muda (formato: JSON string)
+ */
 export function Editor({ initialContent = "", onChange }: EditorProps) {
-  const lastAppliedContentRef = useRef<string | null>(null);
+  // Ref para prevenir sync loops (evita setContent quando conteúdo já é o mesmo)
+  const lastSyncedContentRef = useRef<string | null>(null);
+
+  // Parse + sanitize inicial (suporta JSON, HTML, objeto)
   const parsedInitialContent = parseContent(initialContent);
   /* TOKENS: COLORS.neutral */
+
+  // ✅ PERFORMANCE: Debounce onChange - reduz de 60 calls/s para ~3 calls/s
+  // Evita sobrecarga de auto-save em digitação rápida
+  const debouncedOnChange = useDebouncedCallback(
+    (content: string) => onChange?.(content),
+    EDITOR_DEBOUNCE_DELAY
+  );
 
   const editor = useEditor({
     extensions: [
@@ -88,23 +97,45 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
       },
     },
     onUpdate: ({ editor }) => {
-      onChange?.(JSON.stringify(editor.getJSON()));
+      debouncedOnChange(JSON.stringify(editor.getJSON()));
     },
   });
 
-  // Atualizar conteúdo quando initialContent mudar
+  /**
+   * Sincroniza initialContent externo com estado interno do editor
+   *
+   * **Quando dispara:**
+   * - Quando initialContent prop muda (ex: após carregar do DB)
+   * - Quando editor é inicializado
+   *
+   * **Prevenção de loops:**
+   * - Usa lastSyncedContentRef para evitar setContent quando conteúdo já é o mesmo
+   * - Compara contentKey (string normalizada) ao invés de referências
+   *
+   * **Suporta formatos:**
+   * - String JSON → parseado
+   * - String HTML → sanitizado
+   * - Objeto TiptapContent → usado direto
+   */
   useEffect(() => {
+    // Aguarda editor estar pronto
     if (!editor) return;
+
+    // Normaliza conteúdo (parse + sanitize)
     const normalizedContent = parseContent(initialContent);
+
+    // Cria chave única para comparação (evita setContent desnecessário)
     const contentKey =
       typeof normalizedContent === "string"
         ? normalizedContent
         : JSON.stringify(normalizedContent);
 
-    if (lastAppliedContentRef.current === contentKey) return;
+    // SKIP se conteúdo já foi aplicado (previne loop infinito)
+    if (lastSyncedContentRef.current === contentKey) return;
 
+    // Atualiza editor + marca como sincronizado
     editor.commands.setContent(normalizedContent);
-    lastAppliedContentRef.current = contentKey;
+    lastSyncedContentRef.current = contentKey;
   }, [editor, initialContent]);
 
   const slashMenu = useSlashMenu(editor);
@@ -119,6 +150,52 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
 
   return (
     <div className="relative">
+      <style>{`
+        /* Details (Toggle/Collapsible) Styling */
+        .details-block {
+          border: 1px solid #e5e7eb;
+          border-radius: 0.5rem;
+          padding: 0.75rem;
+          margin: 0.5rem 0;
+          background-color: #f9fafb;
+        }
+
+        .details-summary {
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          font-weight: 500;
+          color: #1f2937;
+          user-select: none;
+          padding: 0.5rem;
+          border-radius: 0.375rem;
+          transition: background-color 0.2s;
+          list-style: none;
+        }
+
+        .details-summary::-webkit-details-marker {
+          margin-right: 0.5rem;
+          color: #6b7280;
+        }
+
+        .details-summary:hover {
+          background-color: #ede9fe;
+        }
+
+        .details-content {
+          margin-top: 0.5rem;
+          padding-left: 1rem;
+          color: #374151;
+          border-left: 2px solid #dbeafe;
+          padding: 0.5rem 0.75rem 0.5rem 1rem;
+        }
+
+        /* Open state styling */
+        details[open] .details-summary {
+          color: #2563eb;
+        }
+      `}</style>
+
       <BubbleMenuComponent editor={editor} />
       <EditorContent editor={editor} />
       <SlashMenu

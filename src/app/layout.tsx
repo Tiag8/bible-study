@@ -18,6 +18,21 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Bible Graph - Segundo Cérebro para Estudos Bíblicos",
   description: "Sistema de organização de estudos bíblicos com interconexões e revisão inteligente",
+  // ✅ SECURITY: Content Security Policy (previne XSS e clickjacking)
+  other: {
+    'Content-Security-Policy': [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Tiptap + Next.js requerem unsafe-inline/eval
+      "style-src 'self' 'unsafe-inline'",  // TailwindCSS e Tiptap styles
+      "img-src 'self' data: https:",       // Data URIs e HTTPS images
+      "font-src 'self' data:",
+      "connect-src 'self' https://*.supabase.co", // API Supabase
+      "frame-ancestors 'none'",            // Previne clickjacking
+      "base-uri 'self'",
+      "form-action 'self'",
+      "object-src 'none'",                 // Bloqueia Flash/plugins
+    ].join('; '),
+  },
 };
 
 export default function RootLayout({

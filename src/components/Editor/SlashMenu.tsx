@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import type { Editor } from "@tiptap/react";
 import {
   BookMarked,
@@ -10,10 +10,9 @@ import {
   Heading3,
   List,
   ListOrdered,
-  Quote,
   Code,
-  ChevronRight,
 } from "lucide-react";
+import DOMPurify from "isomorphic-dompurify";
 import { bibleBooks } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { COLORS, BORDERS, SHADOWS } from "@/lib/design-tokens";
@@ -85,20 +84,6 @@ const menuItems: MenuItem[] = [
     type: "command",
   },
   {
-    id: "toggle",
-    label: "Lista de Alternantes",
-    description: "Cria uma lista que expande/colapsa",
-    icon: <ChevronRight className="w-4 h-4" />,
-    type: "command",
-  },
-  {
-    id: "quote",
-    label: "Citação",
-    description: "Adiciona um bloco de citação",
-    icon: <Quote className="w-4 h-4" />,
-    type: "command",
-  },
-  {
     id: "code",
     label: "Código",
     description: "Adiciona um bloco de código",
@@ -107,7 +92,8 @@ const menuItems: MenuItem[] = [
   },
 ];
 
-export function SlashMenu({
+// ✅ PERFORMANCE: React.memo previne re-renders desnecessários
+function SlashMenuBase({
   editor,
   isOpen,
   position,
@@ -121,11 +107,15 @@ export function SlashMenu({
   const [bookSuggestions, setBookSuggestions] = useState<string[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const filteredItems = menuItems.filter(
-    (item) =>
-      item.label.toLowerCase().includes(query.toLowerCase()) ||
-      item.description.toLowerCase().includes(query.toLowerCase())
-  );
+  // ✅ PERFORMANCE: useMemo previne re-filtro em toda re-render
+  const filteredItems = useMemo(() => {
+    const queryLower = query.toLowerCase();
+    return menuItems.filter(
+      (item) =>
+        item.label.toLowerCase().includes(queryLower) ||
+        item.description.toLowerCase().includes(queryLower)
+    );
+  }, [query]);
 
   // Atualiza sugestões de livros conforme digita
   useEffect(() => {
@@ -207,16 +197,26 @@ export function SlashMenu({
 
   const handleBacklogSubmit = useCallback(() => {
     if (backlogReference.trim()) {
-      onSelect("backlog", { reference: backlogReference.trim() });
+      // ✅ SECURITY: Sanitiza input (remove HTML/scripts)
+      const sanitizedRef = DOMPurify.sanitize(backlogReference.trim(), {
+        ALLOWED_TAGS: [], // Apenas texto, sem tags HTML
+      });
+
+      onSelect("backlog", { reference: sanitizedRef });
 
       // TODO: Aqui seria feita a chamada para adicionar ao backlog no banco
-      console.log(`Adicionado ao backlog: ${backlogReference.trim()}`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Adicionado ao backlog: ${sanitizedRef}`);
+      }
 
-      // Insere um marcador no editor
+      // ✅ SECURITY: Insere como texto puro (não HTML) para prevenir XSS
       editor
         .chain()
         .focus()
-        .insertContent(`📖 [Backlog: ${backlogReference.trim()}]`)
+        .insertContent({
+          type: 'text',
+          text: `📖 [Backlog: ${sanitizedRef}]`
+        })
         .run();
 
       setBacklogReference("");
@@ -357,3 +357,6 @@ export function SlashMenu({
     </div>
   );
 }
+
+// ✅ PERFORMANCE: Exporta com React.memo
+export const SlashMenu = React.memo(SlashMenuBase);

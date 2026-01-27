@@ -147,36 +147,50 @@ function useStudiesInternal(): StudiesContextValue {
     chapter: number,
     title?: string
   ): Promise<StudyWithContent> => {
+    // ✅ ERROR HANDLING: Verificação de autenticação com mensagem user-friendly
     if (!user?.id) {
       console.error('[STUDIES] getOrCreateStudy ERROR - no user');
-      throw new Error('Usuário não autenticado');
+      throw new Error('Você precisa estar autenticado para criar estudos');
     }
 
-    // Tenta buscar existente
-    const existing = await getStudyByBookAndChapter(bookName, chapter);
-    if (existing) {
-      return existing;
+    try {
+      // Tenta buscar existente
+      const existing = await getStudyByBookAndChapter(bookName, chapter);
+      if (existing) {
+        return existing;
+      }
+
+      // Cria novo
+      const newStudy: StudyInsert = {
+        user_id: user.id,
+        title: title || `${bookName} ${chapter}`,
+        book_name: bookName,
+        chapter_number: chapter,
+        content: { type: 'doc', content: [{ type: 'paragraph' }] },
+        status: 'estudando',
+        tags: [],
+      };
+
+      const { data, error } = await supabase
+        .from('bible_studies')
+        .insert(newStudy)
+        .select()
+        .single();
+
+      // ✅ ERROR HANDLING: Mensagem específica para falha de criação
+      if (error) {
+        console.error('[STUDIES] getOrCreateStudy INSERT ERROR:', error);
+        throw new Error(`Erro ao criar estudo: ${error.message}`);
+      }
+
+      return data as StudyWithContent;
+    } catch (err) {
+      // ✅ ERROR HANDLING: Captura qualquer erro não esperado
+      if (err instanceof Error) {
+        throw err; // Re-throw com mensagem original
+      }
+      throw new Error('Erro inesperado ao criar estudo');
     }
-
-    // Cria novo
-    const newStudy: StudyInsert = {
-      user_id: user.id,
-      title: title || `${bookName} ${chapter}`,
-      book_name: bookName,
-      chapter_number: chapter,
-      content: { type: 'doc', content: [{ type: 'paragraph' }] },
-      status: 'estudando',
-      tags: [],
-    };
-
-    const { data, error } = await supabase
-      .from('bible_studies')
-      .insert(newStudy)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as StudyWithContent;
   }, [user?.id, getStudyByBookAndChapter]);
 
   // Criar estudo (SEMPRE cria novo, independente de existir)
@@ -185,31 +199,45 @@ function useStudiesInternal(): StudiesContextValue {
     chapter: number,
     title?: string
   ): Promise<StudyWithContent> => {
+    // ✅ ERROR HANDLING: Verificação de autenticação com mensagem user-friendly
     if (!user?.id) {
       console.error('[STUDIES] createStudy ERROR - no user');
-      throw new Error('Usuário não autenticado');
+      throw new Error('Você precisa estar autenticado para criar estudos');
     }
 
-    // SEMPRE cria novo, não busca existente
-    const newStudy: StudyInsert = {
-      user_id: user.id,
-      title: title || `${bookName} ${chapter}`,
-      book_name: bookName,
-      chapter_number: chapter,
-      content: { type: 'doc', content: [{ type: 'paragraph' }] },
-      status: 'estudando',
-      tags: [],
-    };
+    try {
+      // SEMPRE cria novo, não busca existente
+      const newStudy: StudyInsert = {
+        user_id: user.id,
+        title: title || `${bookName} ${chapter}`,
+        book_name: bookName,
+        chapter_number: chapter,
+        content: { type: 'doc', content: [{ type: 'paragraph' }] },
+        status: 'estudando',
+        tags: [],
+      };
 
-    const { data, error } = await supabase
-      .from('bible_studies')
-      .insert(newStudy)
-      .select()
-      .single();
+      const { data, error } = await supabase
+        .from('bible_studies')
+        .insert(newStudy)
+        .select()
+        .single();
 
-    if (error) throw error;
-    await fetchStudies(); // Atualizar lista
-    return data as StudyWithContent;
+      // ✅ ERROR HANDLING: Mensagem específica para falha de criação
+      if (error) {
+        console.error('[STUDIES] createStudy INSERT ERROR:', error);
+        throw new Error(`Erro ao criar estudo: ${error.message}`);
+      }
+
+      await fetchStudies(); // Atualizar lista
+      return data as StudyWithContent;
+    } catch (err) {
+      // ✅ ERROR HANDLING: Captura qualquer erro não esperado
+      if (err instanceof Error) {
+        throw err; // Re-throw com mensagem original
+      }
+      throw new Error('Erro inesperado ao criar estudo');
+    }
   }, [user?.id, fetchStudies]);
 
   // Salvar conteúdo do estudo
@@ -266,8 +294,14 @@ function useStudiesInternal(): StudiesContextValue {
       // UI já tem o estado atualizado via currentContent
       return null; // Retornar null OK (página não usa retorno)
     } catch (err) {
-      console.error('[STUDIES] saveStudy ERROR:', err);
-      throw err;
+      // ✅ ERROR HANDLING: Log detalhado + mensagem user-friendly
+      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      console.error('[STUDIES] saveStudy ERROR:', { id, error: errorMessage, err });
+
+      // ✅ ERROR HANDLING: Não crashar UI - retornar null gracefully
+      // A página deve checar se retorno é null e mostrar toast de erro
+      setError(`Erro ao salvar estudo: ${errorMessage}`);
+      return null;
     } finally {
       if (timeoutId) {
         clearTimeout(timeoutId);
