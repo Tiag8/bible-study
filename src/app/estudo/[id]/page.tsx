@@ -539,12 +539,14 @@ export default function StudyPage({ params }: StudyPageProps) {
                     "focus:outline-none focus:ring-2 focus:ring-offset-2",
                     "text-white",
                     !study?.id && "bg-gray-300 cursor-not-allowed",
+                    study?.status === 'estudar' && "bg-orange-500 hover:bg-orange-600 focus:ring-orange-500",
                     study?.status === 'estudando' && "bg-blue-500 hover:bg-blue-600 focus:ring-blue-500",
                     study?.status === 'revisando' && "bg-purple-500 hover:bg-purple-600 focus:ring-purple-500",
                     study?.status === 'concluído' && "bg-green-500 hover:bg-green-600 focus:ring-green-500"
                   )}
                 >
                   {!study?.id && 'Novo'}
+                  {study?.status === 'estudar' && 'Estudar'}
                   {study?.status === 'estudando' && 'Estudando'}
                   {study?.status === 'revisando' && 'Revisando'}
                   {study?.status === 'concluído' && 'Concluído'}
@@ -553,6 +555,22 @@ export default function StudyPage({ params }: StudyPageProps) {
                 {showStatusDropdown && study && (
                   <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                     <div className="p-2">
+                      <button
+                        onClick={async () => {
+                          await updateStudyStatus(study.id, 'estudar');
+                          setStudy({ ...study, status: 'estudar' });
+                          setShowStatusDropdown(false);
+                        }}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm",
+                          "hover:bg-gray-50 transition-colors text-left",
+                          study.status === 'estudar' && "bg-orange-50"
+                        )}
+                      >
+                        <span className="w-3 h-3 rounded-full bg-orange-500" />
+                        <span className="text-gray-900">Estudar</span>
+                      </button>
+
                       <button
                         onClick={async () => {
                           await updateStudyStatus(study.id, 'estudando');

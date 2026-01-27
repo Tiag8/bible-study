@@ -167,7 +167,7 @@ function useStudiesInternal(): StudiesContextValue {
         book_name: bookName,
         chapter_number: chapter,
         content: { type: 'doc', content: [{ type: 'paragraph' }] },
-        status: 'estudando',
+        status: 'estudar',
         tags: [],
       };
 
@@ -213,7 +213,7 @@ function useStudiesInternal(): StudiesContextValue {
         book_name: bookName,
         chapter_number: chapter,
         content: { type: 'doc', content: [{ type: 'paragraph' }] },
-        status: 'estudando',
+        status: 'estudar',
         tags: [],
       };
 
