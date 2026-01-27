@@ -33,8 +33,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isFetchingProfileRef = useRef(false);
 
   const fetchProfile = async (userId: string, force = false) => {
-    const fetchStart = Date.now();
-
     // Prevenir chamadas concorrentes (a menos que seja forçado)
     if (isFetchingProfileRef.current && !force) {
       console.log('[AUTH] fetchProfile SKIP - already fetching');

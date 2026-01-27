@@ -251,6 +251,7 @@ function useStudiesInternal(): StudiesContextValue {
       setStudies(prev => prev.map(study => {
         if (study.id === id) {
           // Criar objeto atualizado sem 'content' (StudySummary)
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { content, ...updateWithoutContent } = updates;
           return {
             ...study,

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BibleBook, formatRelativeDate } from "@/lib/mock-data";
 import { useStudies, useTags } from "@/hooks";
@@ -55,10 +54,6 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
 
   // Get studies for this book
   const bookStudies = getStudiesByBook(book.name);
-
-  const getChapterStudy = (chapter: number) => {
-    return bookStudies.find((s) => s.chapter_number === chapter);
-  };
 
   // Helper para buscar cor da tag
   const getTagColor = (tagName: string): string => {
