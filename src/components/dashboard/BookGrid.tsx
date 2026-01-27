@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
+import { cn } from "@/lib/utils";
+import { COLORS } from "@/lib/design-tokens";
 import { BibleBook } from "@/lib/mock-data";
 import { BookCard } from "./BookCard";
 
@@ -42,7 +44,7 @@ export function BookGrid({
 
   if (filteredBooks.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+      <div className={cn("flex flex-col items-center justify-center py-16", COLORS.neutral.text.muted)}>
         <p className="text-lg">Nenhum livro encontrado</p>
         <p className="text-sm mt-1">
           Tente ajustar sua busca ou filtros
@@ -53,15 +55,16 @@ export function BookGrid({
 
   return (
     <div className="space-y-8">
+      {/* TOKENS: COLORS.primary, COLORS.neutral */}
       {/* Stats */}
-      <div className="flex items-center gap-4 text-sm text-gray-600">
+      <div className={cn("flex items-center gap-4 text-sm", COLORS.neutral.text.secondary)}>
         <span>
-          <strong className="text-gray-900">{filteredBooks.length}</strong> de{" "}
+          <strong className={COLORS.neutral.text.primary}>{filteredBooks.length}</strong> de{" "}
           {books.length} livros
         </span>
-        <span className="text-gray-300">|</span>
+        <span className={COLORS.neutral[300]}>|</span>
         <span>
-          <strong className="text-gray-900">
+          <strong className={COLORS.neutral.text.primary}>
             {filteredBooks.reduce((acc, b) => acc + b.studiedChapters.length, 0)}
           </strong>{" "}
           capítulos estudados
@@ -71,10 +74,10 @@ export function BookGrid({
       {/* Old Testament */}
       {oldTestament.length > 0 && (
         <section>
-          <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-gray-400" />
+          <h2 className={cn("text-lg font-semibold mb-4 flex items-center gap-2", COLORS.neutral.text.primary)}>
+            <span className={cn("w-2 h-2 rounded-full", COLORS.neutral[400])} />
             Antigo Testamento
-            <span className="text-sm font-normal text-gray-500">
+            <span className={cn("text-sm font-normal", COLORS.neutral.text.muted)}>
               ({oldTestament.length} livros)
             </span>
           </h2>
@@ -93,10 +96,10 @@ export function BookGrid({
       {/* New Testament */}
       {newTestament.length > 0 && (
         <section>
-          <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-blue-500" />
+          <h2 className={cn("text-lg font-semibold mb-4 flex items-center gap-2", COLORS.neutral.text.primary)}>
+            <span className={cn("w-2 h-2 rounded-full", COLORS.primary.default)} />
             Novo Testamento
-            <span className="text-sm font-normal text-gray-500">
+            <span className={cn("text-sm font-normal", COLORS.neutral.text.muted)}>
               ({newTestament.length} livros)
             </span>
           </h2>
