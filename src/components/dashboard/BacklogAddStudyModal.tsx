@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { mockBibleBooks } from '@/lib/mock-data';
 import { COLORS, BORDERS } from '@/lib/design-tokens';
-import { useStudies } from '@/hooks';
+import { useStudies, useBacklog } from '@/hooks';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, Loader2, Search } from 'lucide-react';
 import { toast } from 'sonner';
@@ -24,6 +24,7 @@ interface BacklogAddStudyModalProps {
 
 export function BacklogAddStudyModal({ isOpen, onClose }: BacklogAddStudyModalProps) {
   const { createStudy } = useStudies();
+  const { addToBacklog } = useBacklog();
 
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedBook, setSelectedBook] = useState<string>('');
@@ -88,7 +89,13 @@ export function BacklogAddStudyModal({ isOpen, onClose }: BacklogAddStudyModalPr
       }
 
       // Create study with status 'estudar' (empty study from backlog)
-      await createStudy(book.name, parseInt(selectedChapter));
+      const newStudy = await createStudy(book.name, parseInt(selectedChapter));
+
+      // Add to backlog list
+      await addToBacklog(
+        `${book.name} ${selectedChapter}`,
+        newStudy.id
+      );
 
       toast.success(`Estudo criado: ${book.name} ${selectedChapter}`);
       handleClose();
