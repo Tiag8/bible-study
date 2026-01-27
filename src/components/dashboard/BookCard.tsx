@@ -4,6 +4,7 @@ import { BibleBook, formatRelativeDate } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { COLORS } from "@/lib/design-tokens";
 
 interface BookCardProps {
   book: BibleBook;
@@ -22,8 +23,8 @@ export function BookCard({ book, onClick }: BookCardProps) {
       onClick={onClick}
       className={cn(
         "bg-white rounded-xl p-5 border transition-all cursor-pointer",
-        "hover:shadow-md hover:border-blue-200",
-        hasStudies ? "border-gray-200" : "border-gray-100 opacity-75"
+        "hover:shadow-md",
+        hasStudies ? `border-gray-200 ${COLORS.primary.text} hover:border-blue-200` : `border-gray-100 opacity-75 ${COLORS.neutral[100]} hover:border-gray-200`
       )}
     >
       {/* Header */}
@@ -32,19 +33,19 @@ export function BookCard({ book, onClick }: BookCardProps) {
           <div
             className={cn(
               "p-2 rounded-lg",
-              hasStudies ? "bg-blue-50" : "bg-gray-50"
+              hasStudies ? COLORS.primary.light : COLORS.neutral[50]
             )}
           >
             <BookOpen
               className={cn(
                 "w-5 h-5",
-                hasStudies ? "text-blue-600" : "text-gray-400"
+                hasStudies ? COLORS.primary.text : COLORS.neutral.text.light
               )}
             />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">{book.name}</h3>
-            <p className="text-xs text-gray-500">
+            <h3 className={cn("font-semibold", COLORS.neutral.text.primary)}>{book.name}</h3>
+            <p className={cn("text-xs", COLORS.neutral.text.muted)}>
               {book.totalChapters} capítulos
             </p>
           </div>
@@ -64,15 +65,15 @@ export function BookCard({ book, onClick }: BookCardProps) {
             {Math.round(progress)}%
           </span>
         </div>
-        <div className="w-full bg-gray-100 rounded-full h-2">
+        <div className={cn("w-full rounded-full h-2", COLORS.neutral[100])}>
           <div
             className={cn(
               "h-2 rounded-full transition-all",
               progress === 100
-                ? "bg-green-500"
+                ? COLORS.success.default
                 : progress > 0
-                ? "bg-blue-500"
-                : "bg-gray-200"
+                ? COLORS.primary.default
+                : COLORS.neutral[200]
             )}
             style={{ width: `${progress}%` }}
           />
@@ -96,7 +97,7 @@ export function BookCard({ book, onClick }: BookCardProps) {
       )}
 
       {/* Last Update */}
-      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+      <div className={cn("flex items-center gap-1.5 text-xs", COLORS.neutral.text.muted)}>
         <Clock className="w-3.5 h-3.5" />
         <span>
           {book.lastUpdate

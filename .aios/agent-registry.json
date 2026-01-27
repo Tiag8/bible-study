@@ -1,0 +1,130 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-01-27T00:15:00Z",
+  "active_agents": {
+    "aios-master": {
+      "name": "AIOS Master",
+      "id": "aios-master",
+      "activation": "/AIOS:agents:aios-master",
+      "status": "ready",
+      "role": "Orquestrador principal do sistema"
+    },
+    "dev": {
+      "name": "Dex (Builder)",
+      "id": "dev",
+      "activation": "/AIOS:agents:dev",
+      "status": "ready",
+      "role": "Full Stack Developer - implementação"
+    },
+    "qa": {
+      "name": "Quinn (Guardian)",
+      "id": "qa",
+      "activation": "/AIOS:agents:qa",
+      "status": "ready",
+      "role": "Test Architect - quality gates"
+    },
+    "architect": {
+      "name": "Aria (Visionary)",
+      "id": "architect",
+      "activation": "/AIOS:agents:architect",
+      "status": "ready",
+      "role": "System Architect - design técnico"
+    },
+    "pm": {
+      "name": "PM Agent",
+      "id": "pm",
+      "activation": "/AIOS:agents:pm",
+      "status": "ready",
+      "role": "Product Manager - requisitos"
+    },
+    "po": {
+      "name": "PO Agent",
+      "id": "po",
+      "activation": "/AIOS:agents:po",
+      "status": "ready",
+      "role": "Product Owner - backlog/stories"
+    },
+    "sm": {
+      "name": "River (Facilitator)",
+      "id": "sm",
+      "activation": "/AIOS:agents:sm",
+      "status": "ready",
+      "role": "Scrum Master - facilitação"
+    },
+    "devops": {
+      "name": "Gage (Operator)",
+      "id": "devops",
+      "activation": "/AIOS:agents:devops",
+      "status": "ready",
+      "role": "GitHub/Deploy - git push/PRs"
+    },
+    "analyst": {
+      "name": "Analyst Agent",
+      "id": "analyst",
+      "activation": "/AIOS:agents:analyst",
+      "status": "ready",
+      "role": "Business Analyst - pesquisa"
+    },
+    "data-engineer": {
+      "name": "Data Engineer",
+      "id": "data-engineer",
+      "activation": "/AIOS:agents:data-engineer",
+      "status": "ready",
+      "role": "Database specialist"
+    },
+    "ux-design-expert": {
+      "name": "UX Expert",
+      "id": "ux-design-expert",
+      "activation": "/AIOS:agents:ux-design-expert",
+      "status": "ready",
+      "role": "UX/UI Designer"
+    },
+    "squad-creator": {
+      "name": "Squad Creator",
+      "id": "squad-creator",
+      "activation": "/AIOS:agents:squad-creator",
+      "status": "ready",
+      "role": "Criação de squads"
+    }
+  },
+  "current_sprint": {
+    "name": "Sprint 2 - Technical Debt Resolution",
+    "status": "in_progress",
+    "tasks": [
+      {
+        "id": 1,
+        "story": "2.1: Full-Text Search",
+        "status": "completed",
+        "assigned_to": "dev",
+        "qa_status": "passed"
+      },
+      {
+        "id": 2,
+        "story": "2.2: Soft Delete",
+        "status": "completed",
+        "assigned_to": "dev",
+        "qa_status": "passed"
+      },
+      {
+        "id": 3,
+        "story": "2.3: Centralizar Design Tokens",
+        "status": "pending",
+        "assigned_to": "dev",
+        "qa_status": "pending"
+      },
+      {
+        "id": 4,
+        "story": "2.4: Trigger de Validação em Links",
+        "status": "pending",
+        "assigned_to": "dev",
+        "qa_status": "pending"
+      }
+    ]
+  },
+  "context_persistence": {
+    "last_active_agent": "qa",
+    "last_task_completed": "2.2-soft-delete",
+    "session_token": "sess_bible-study_2026-01-27",
+    "restore_on_activation": true
+  }
+}

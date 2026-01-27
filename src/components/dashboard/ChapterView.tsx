@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { TAG_COLORS, COLORS } from "@/lib/design-tokens";
 import { StudySelectionModal } from "./StudySelectionModal";
 import {
   ArrowLeft,
@@ -64,19 +65,8 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
     const tag = availableTags.find((t) => t.name === tagName);
     if (!tag) return "#6b7280"; // gray-500 default
 
-    const colorMap: Record<string, string> = {
-      blue: "#3b82f6",
-      purple: "#8b5cf6",
-      green: "#22c55e",
-      orange: "#f97316",
-      pink: "#ec4899",
-      cyan: "#06b6d4",
-      red: "#ef4444",
-      yellow: "#eab308",
-      "dark-green": "#15803d",
-    };
-
-    return colorMap[tag.color] || "#6b7280";
+    // Use centralized TAG_COLORS from design tokens
+    return TAG_COLORS[tag.color] || "#6b7280";
   };
 
   // Calcular capítulos estudados dinamicamente
@@ -129,12 +119,12 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
             Voltar
           </Button>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 rounded-lg">
-              <BookOpen className="w-6 h-6 text-blue-600" />
+            <div className={cn("p-2 rounded-lg", COLORS.primary.light)}>
+              <BookOpen className={cn("w-6 h-6", COLORS.primary.text)} />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{book.name}</h1>
-              <p className="text-sm text-gray-500">
+              <h1 className={cn("text-2xl font-bold", COLORS.neutral.text.primary)}>{book.name}</h1>
+              <p className={cn("text-sm", COLORS.neutral.text.muted)}>
                 {studiedChapters.length} de {book.totalChapters} capítulos
                 estudados
               </p>
@@ -159,21 +149,21 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
       )}
 
       {/* Progress Bar */}
-      <div className="bg-white rounded-lg p-4 border border-gray-200">
+      <div className={cn("bg-white rounded-lg p-4 border", COLORS.neutral[200])}>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">
+          <span className={cn("text-sm font-medium", COLORS.neutral.text.secondary)}>
             Progresso Geral
           </span>
-          <span className="text-sm font-bold text-blue-600">
+          <span className={cn("text-sm font-bold", COLORS.primary.text)}>
             {Math.round(
               (studiedChapters.length / book.totalChapters) * 100
             )}
             %
           </span>
         </div>
-        <div className="w-full bg-gray-100 rounded-full h-3">
+        <div className={cn("w-full rounded-full h-3", COLORS.neutral[100])}>
           <div
-            className="bg-blue-600 h-3 rounded-full transition-all"
+            className={cn("h-3 rounded-full transition-all", COLORS.primary.default)}
             style={{
               width: `${
                 (studiedChapters.length / book.totalChapters) * 100
@@ -185,7 +175,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
 
       {/* Chapters Grid */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">
+        <h2 className={cn("text-lg font-semibold mb-4", COLORS.neutral.text.primary)}>
           Capítulos
         </h2>
         <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
@@ -213,8 +203,8 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                   "text-sm font-medium transition-all cursor-pointer",
                   "hover:scale-105 hover:shadow-md",
                   studyCount > 0
-                    ? "bg-blue-600 text-white"
-                    : "bg-white border border-gray-200 text-gray-700 hover:border-blue-300"
+                    ? `${COLORS.primary.default} text-white`
+                    : `bg-white border ${COLORS.neutral.text.secondary} hover:border-blue-300`
                 )}
                 title={
                   studyCount > 0
@@ -224,7 +214,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
               >
                 {chapter}
                 {hasMultiple && (
-                  <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className={cn("absolute -top-1 -right-1 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center", COLORS.warning.default)}>
                     {studyCount}
                   </span>
                 )}
@@ -237,7 +227,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
       {/* Recent Studies */}
       {bookStudies.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+          <h2 className={cn("text-lg font-semibold mb-4", COLORS.neutral.text.primary)}>
             Estudos Recentes
           </h2>
           <div className="space-y-3">
@@ -247,19 +237,19 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                 className="relative group"
               >
                 {/* Linha vermelha do lado esquerdo (aparece no hover) */}
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity rounded-l-lg" />
+                <div className={cn("absolute left-0 top-0 bottom-0 w-1 opacity-0 group-hover:opacity-100 transition-opacity rounded-l-lg", COLORS.danger.default)} />
 
                 <div
                   onClick={() => router.push(`/estudo/${study.id}`)}
-                  className="block bg-white rounded-lg p-4 border border-gray-200 hover:border-blue-200 transition-colors cursor-pointer"
+                  className={cn("block bg-white rounded-lg p-4 border transition-colors cursor-pointer", COLORS.neutral[200], "hover:border-blue-200")}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium text-gray-900">
+                        <h3 className={cn("font-medium", COLORS.neutral.text.primary)}>
                           {study.title}
                         </h3>
-                        <span className="text-xs text-gray-500">
+                        <span className={cn("text-xs", COLORS.neutral.text.muted)}>
                           • Capítulo {study.chapter_number}
                         </span>
                       </div>
@@ -285,7 +275,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2 ml-4">
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <div className={cn("flex items-center gap-1 text-xs", COLORS.neutral.text.muted)}>
                         <Clock className="w-3 h-3" />
                         <span>{formatRelativeDate(study.updated_at)}</span>
                       </div>
@@ -298,7 +288,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                 <button
                   onClick={(e) => handleDeleteClick(study.id, study.title, e)}
                   disabled={deletingId === study.id}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] p-2 rounded-md bg-red-50 text-red-600 hover:bg-red-100 opacity-40 hover:opacity-100 focus:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center"
+                  className={cn("absolute right-3 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] p-2 rounded-md", COLORS.danger.light, COLORS.danger.text, `hover:${COLORS.danger.lighter}`, "opacity-40 hover:opacity-100 focus:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center")}
                   aria-label="Deletar estudo"
                 >
                   {deletingId === study.id ? (
@@ -316,8 +306,8 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
       {/* Empty State */}
       {bookStudies.length === 0 && (
         <div className="text-center py-8">
-          <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">
+          <BookOpen className={cn("w-12 h-12 mx-auto mb-3", COLORS.neutral[300])} />
+          <p className={COLORS.neutral.text.muted}>
             Nenhum estudo criado para este livro ainda
           </p>
           <Button
