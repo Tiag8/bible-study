@@ -127,6 +127,42 @@ export function useEmojiSuggestion(editor: Editor | null) {
     [editor, state.isOpen, state.selectedIndex, state.emojis, selectEmoji]
   );
 
+  /**
+   * Calcula posição do menu com bounds checking
+   * Garante que o menu não saia da tela em mobile/desktop
+   */
+  const calculateMenuPosition = useCallback(
+    (editorCoords: { top: number; bottom: number; left: number; right: number }) => {
+      const menuWidth = 288; // w-72 = 18rem = 288px
+      const menuMaxHeight = 160 + 60; // max-h-40 (overflow items) + padding/header/footer
+      const padding = 8; // Espaço mínimo da borda
+
+      let top = editorCoords.bottom + 8;
+      let left = editorCoords.left;
+
+      // Verificar se sai da direita
+      const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 1024;
+      if (left + menuWidth + padding > viewportWidth) {
+        left = Math.max(padding, viewportWidth - menuWidth - padding);
+      }
+
+      // Verificar se sai da esquerda
+      if (left < padding) {
+        left = padding;
+      }
+
+      // Verificar se sai da parte inferior
+      const viewportHeight = typeof window !== "undefined" ? window.innerHeight : 768;
+      if (top + menuMaxHeight + padding > viewportHeight) {
+        // Posicionar acima do cursor
+        top = editorCoords.top - menuMaxHeight - 8;
+      }
+
+      return { top, left };
+    },
+    []
+  );
+
   // Detecta digitação normal e atualiza query
   const handleInput = useCallback(() => {
     if (!editor) return;
@@ -155,12 +191,17 @@ export function useEmojiSuggestion(editor: Editor | null) {
       const coords = view.coordsAtPos(from);
       triggerPosRef.current = from;
 
+      // Calcular posição com bounds checking
+      const position = calculateMenuPosition({
+        top: coords.top,
+        bottom: coords.bottom,
+        left: coords.left,
+        right: coords.right || coords.left + 1,
+      });
+
       setState({
         isOpen: true,
-        position: {
-          top: coords.bottom + 8,
-          left: coords.left,
-        },
+        position,
         emojis: searchEmojis(newQuery),
         query: newQuery,
         selectedIndex: 0,
@@ -174,7 +215,7 @@ export function useEmojiSuggestion(editor: Editor | null) {
         selectedIndex: 0,
       }));
     }
-  }, [editor, state.isOpen]);
+  }, [editor, state.isOpen, calculateMenuPosition]);
 
   // Fecha menu ao clicar fora
   useEffect(() => {
