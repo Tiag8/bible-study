@@ -3,7 +3,7 @@
 import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import History from "@tiptap/extension-history";
+import { History } from "@tiptap/extension-history";
 import { Placeholder } from "@tiptap/extensions";
 import { Highlight } from "@tiptap/extension-highlight";
 import { TextStyle } from "@tiptap/extension-text-style";
@@ -71,12 +71,13 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        blockquote: false, // Usar nossa extensão customizada
-      }),
-      // History com depth: 5 (máximo de passos undo/redo)
+      // IMPORTANTE: History ANTES de StarterKit para evitar conflito de keyed plugins
+      // StarterKit inclui History com depth: 10, mas queremos depth: 5 (Story 3.8)
       History.configure({
-        depth: 5,
+        depth: 5, // Máximo de 5 passos de undo/redo
+      }),
+      StarterKit.configure({
+        blockquote: false, // Usar nossa extensão customizada ColoredBlockquote
       }),
       ColoredBlockquote,
       Placeholder.configure({
