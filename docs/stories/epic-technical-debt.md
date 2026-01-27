@@ -2,7 +2,7 @@
 
 **Epic ID:** EPIC-001
 **Data:** 2026-01-26
-**Status:** 📋 READY FOR DEVELOPMENT
+**Status:** 🚀 IN PROGRESS (Sprint 2: 95% Complete - Awaiting Migration Deployment)
 
 ---
 
@@ -86,10 +86,10 @@ Transformar o Bible Study de um MVP funcional em um produto de qualidade product
 
 | ID | Story | Pontos | Status |
 |----|-------|--------|--------|
-| 2.1 | Implementar Full-Text Search | 5 | 📋 Ready |
-| 2.2 | Implementar soft delete | 5 | 📋 Ready |
-| 2.3 | Centralizar design tokens | 3 | 📋 Ready |
-| 2.4 | Adicionar trigger de validação em links | 3 | 📋 Ready |
+| 2.1 | Implementar Full-Text Search | 5 | ✅ DONE (Ready to Deploy) |
+| 2.2 | Implementar soft delete | 5 | ✅ DONE (Awaiting RLS update) |
+| 2.3 | Centralizar design tokens | 3 | ✅ DEPLOYED |
+| 2.4 | Adicionar trigger de validação em links | 3 | ✅ DONE (Ready to Deploy) |
 
 ### Sprint 3: Design & Enhancement
 
