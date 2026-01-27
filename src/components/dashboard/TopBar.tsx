@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useTags } from "@/hooks";
 import { cn } from "@/lib/utils";
+import { COLORS, BORDERS, TAG_COLORS } from "@/lib/design-tokens";
 
 interface TopBarProps {
   searchQuery: string;
@@ -39,11 +40,12 @@ export function TopBar({
   };
 
   return (
-    <div className="bg-white border-b border-gray-200 px-6 py-4">
+    <div className={cn("bg-white px-6 py-4", BORDERS.gray.replace('border', 'border-b'))}>
+      {/* TOKENS: COLORS.primary, COLORS.neutral, BORDERS */}
       <div className="flex items-center gap-4">
         {/* Search Input */}
         <div className="flex-1 relative max-w-lg">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4", COLORS.neutral.text.light)} />
           <Input
             placeholder="Buscar livros, capítulos ou tags..."
             value={searchQuery}
@@ -53,7 +55,7 @@ export function TopBar({
           {searchQuery && (
             <button
               onClick={() => onSearchChange("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className={cn("absolute right-3 top-1/2 -translate-y-1/2 transition-colors", COLORS.neutral.text.light, `hover:${COLORS.neutral.text.secondary}`)}
             >
               <X className="w-4 h-4" />
             </button>
@@ -78,15 +80,15 @@ export function TopBar({
 
           {/* Tag Dropdown */}
           {showTagDropdown && (
-            <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+            <div className={cn("absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-lg z-50", BORDERS.gray)}>
               <div className="p-2 border-b border-gray-100 flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">
+                <span className={cn("text-sm font-medium", COLORS.neutral.text.secondary)}>
                   Filtrar por Tags
                 </span>
                 {selectedTags.length > 0 && (
                   <button
                     onClick={clearTags}
-                    className="text-xs text-blue-600 hover:text-blue-700"
+                    className={cn("text-xs transition-colors", COLORS.primary.text, `hover:${COLORS.primary.dark}`)}
                   >
                     Limpar
                   </button>
@@ -94,49 +96,31 @@ export function TopBar({
               </div>
               <div className="p-2 max-h-64 overflow-y-auto">
                 {tagsLoading ? (
-                  <div className="text-center py-4 text-gray-500 text-sm">Carregando...</div>
+                  <div className={cn("text-center py-4 text-sm", COLORS.neutral.text.muted)}>Carregando...</div>
                 ) : tags.length === 0 ? (
-                  <div className="text-center py-4 text-gray-500 text-sm">Nenhuma tag</div>
+                  <div className={cn("text-center py-4 text-sm", COLORS.neutral.text.muted)}>Nenhuma tag</div>
                 ) : (
                   tags.map((tag) => (
                     <button
                       key={tag.id}
                       onClick={() => toggleTag(tag.name)}
                       className={cn(
-                        "w-full flex items-center justify-between px-3 py-2 rounded-md text-sm",
-                        "hover:bg-gray-50 transition-colors",
-                        selectedTags.includes(tag.name) && "bg-blue-50"
+                        "w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors",
+                        `hover:${COLORS.neutral[50]}`,
+                        selectedTags.includes(tag.name) && COLORS.primary.light
                       )}
                     >
                       <div className="flex items-center gap-2">
                         <span
-                          className={cn(
-                            "w-2 h-2 rounded-full",
-                            `bg-${tag.color}-500`
-                          )}
+                          className="w-2 h-2 rounded-full"
                           style={{
-                            backgroundColor:
-                              tag.color === "blue"
-                                ? "#3b82f6"
-                                : tag.color === "purple"
-                                ? "#8b5cf6"
-                                : tag.color === "green"
-                                ? "#22c55e"
-                                : tag.color === "amber"
-                                ? "#f59e0b"
-                                : tag.color === "pink"
-                                ? "#ec4899"
-                                : tag.color === "indigo"
-                                ? "#6366f1"
-                                : tag.color === "red"
-                                ? "#ef4444"
-                                : "#10b981",
+                            backgroundColor: TAG_COLORS[tag.color] || TAG_COLORS.blue,
                           }}
                         />
                         <span>{tag.name}</span>
                       </div>
                       {selectedTags.includes(tag.name) && (
-                        <Check className="w-4 h-4 text-blue-600" />
+                        <Check className={cn("w-4 h-4", COLORS.primary.text)} />
                       )}
                     </button>
                   ))
@@ -156,7 +140,7 @@ export function TopBar({
       {/* Active Tag Filters */}
       {selectedTags.length > 0 && (
         <div className="flex items-center gap-2 mt-3">
-          <span className="text-sm text-gray-500">Filtros ativos:</span>
+          <span className={cn("text-sm", COLORS.neutral.text.muted)}>Filtros ativos:</span>
           {selectedTags.map((tag) => (
             <Badge
               key={tag}

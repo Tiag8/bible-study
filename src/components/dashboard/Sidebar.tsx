@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import { COLORS, BORDERS } from "@/lib/design-tokens";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -41,20 +42,22 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "bg-white border-r border-gray-200 flex flex-col transition-all duration-300",
+        "bg-white border-r flex flex-col transition-all duration-300",
+        `${BORDERS.gray}`,
         collapsed ? "w-16" : "w-64"
       )}
     >
-      <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100">
+      {/* TOKENS: COLORS.primary, COLORS.neutral */}
+      <div className={cn("h-16 flex items-center justify-between px-4 border-b border-gray-100")} >
         {!collapsed && (
           <Link href="/" className="flex items-center gap-2">
-            <BookOpen className="w-6 h-6 text-blue-600" />
-            <span className="font-semibold text-gray-900">Bible Graph</span>
+            <BookOpen className={cn("w-6 h-6", COLORS.primary.text)} />
+            <span className={cn("font-semibold", COLORS.neutral.text.primary)}>Bible Graph</span>
           </Link>
         )}
         {collapsed && (
           <Link href="/" className="mx-auto">
-            <BookOpen className="w-6 h-6 text-blue-600" />
+            <BookOpen className={cn("w-6 h-6", COLORS.primary.text)} />
           </Link>
         )}
       </div>
@@ -73,7 +76,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           >
             <item.icon className="w-5 h-5 flex-shrink-0" />
             {!collapsed && (
-              <span className="font-medium text-sm">{item.label}</span>
+              <span className={cn("font-medium text-sm", COLORS.neutral.text.secondary)}>{item.label}</span>
             )}
           </Link>
         ))}
@@ -84,20 +87,17 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           {!collapsed && (
             <div className="px-3 py-2 mb-2">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm">
+                <div className={cn("w-8 h-8 rounded-full text-white flex items-center justify-center font-semibold text-sm", COLORS.primary.default)}>
                   {firstLetter}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                  <p className={cn("text-sm font-medium truncate", COLORS.neutral.text.primary)}>
                     Olá, {firstName}
                   </p>
                   {profile?.role && (
-                    <Badge 
+                    <Badge
                       variant={profile.role === 'admin' ? 'default' : 'secondary'}
-                      className={cn(
-                        "text-xs mt-1",
-                        profile.role === 'admin' ? 'bg-blue-600' : 'bg-gray-400'
-                      )}
+                      className="text-xs mt-1"
                     >
                       {profile.role === 'admin' ? 'Admin' : 'Free'}
                     </Badge>
@@ -109,8 +109,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
           {collapsed && (
             <div className="flex justify-center mb-2">
-              <div 
-                className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm"
+              <div
+                className={cn("w-8 h-8 rounded-full text-white flex items-center justify-center font-semibold text-sm", COLORS.primary.default)}
                 title={`${firstName} (${profile?.role || 'free'})`}
               >
                 {firstLetter}
@@ -121,8 +121,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           <button
             onClick={handleLogout}
             className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-lg w-full",
-              "text-red-600 hover:bg-red-50 transition-colors",
+              "flex items-center gap-2 px-3 py-2 rounded-lg w-full transition-colors",
+              `${COLORS.danger.text} hover:${COLORS.danger.light}`,
               collapsed && "justify-center"
             )}
             title={collapsed ? "Sair" : undefined}
@@ -137,8 +137,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <button
           onClick={onToggle}
           className={cn(
-            "flex items-center gap-2 px-3 py-2 rounded-lg w-full",
-            "text-gray-500 hover:bg-gray-100 transition-colors",
+            "flex items-center gap-2 px-3 py-2 rounded-lg w-full transition-colors",
+            `${COLORS.neutral.text.muted} hover:${COLORS.neutral[100]}`,
             collapsed && "justify-center"
           )}
         >
