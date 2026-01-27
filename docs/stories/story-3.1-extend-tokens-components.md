@@ -4,7 +4,7 @@
 **Epic:** EPIC-001 (Resolução de Débitos Técnicos)
 **Sprint:** 3
 **Pontos:** 5
-**Status:** 📋 Ready for Review (Dev completed - 24/24 components refactored)
+**Status:** ✅ DONE - Merged to main (2026-01-27)
 
 ---
 
@@ -190,6 +190,18 @@ Estender o uso de design tokens criados em Story 2.3 para os componentes restant
 3. `1d9d8b6` - refactor(page): aplicar design tokens em dashboard page
 4. `ba43f67` - refactor(pages): aplicar design tokens em grafo e settings pages
 5. `c74f401` - docs: marcar Story 3.1 como 100% COMPLETO
+
+### Final Commits (DevOps - 2026-01-27)
+1. `ae3709f` - feat(backlog): Adicionar onClick para abrir estudo e badge de status no card
+2. `5e095ab` - fix(backlog): Refetch backlog após adicionar novo estudo via modal
+3. `9233104` - fix(backlog): Adicionar estudo ao backlog após criar via modal
+4. `034909b` - fix(backlog): Corrigir status padrão e dropdown de status para 'estudar'
+5. `c693394` - feat(backlog): Implementar criação de estudos via modal com status "estudar" (laranja)
+6. `9b8b576` - fix(database): correct book_id references in migrations
+7. `39dbba4` - refactor(editor): 4-phase enhancement - Security, Performance, Quality, Architecture
+
+**Push executed by:** @github-devops (Gage)
+**Merge Status:** ✅ Direct push to main (all quality gates passed)
 
 ### Notes
 - All components maintain exact visual appearance with tokens
