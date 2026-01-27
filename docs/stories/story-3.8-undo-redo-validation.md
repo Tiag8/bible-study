@@ -194,14 +194,17 @@ Maps to: **FE-14 (Undo/Redo), DB-01 (Data Validation)** from EPIC-001
 **Debug Log:**
 - ✅ Analyzed Editor component: Found StarterKit includes History by default
 - ✅ Installed @tiptap/extension-history package (v3.17.1)
-- ✅ Configured History with explicit depth: 5 configuration
+- ⚠️ **ERROR 1: "Adding different instances of a keyed plugin (history$)"**
+  - **Cause:** History.configure() added AFTER StarterKit (which already includes History)
+  - **Fix:** Moved History.configure({depth: 5}) BEFORE StarterKit in extensions array
+  - **Solution:** Explicit History plugin takes precedence when ordered first
 - ✅ Created EditorHandle interface to expose undo/redo methods via ref
 - ✅ Implemented useImperativeHandle for ref forwarding
 - ✅ Added onUndoRedoChange callback to track canUndo state in parent
 - ✅ Enhanced isEmpty validation to handle Tiptap empty doc: `{"type":"doc","content":[]}`
 - ✅ Added specific error message: "Estudo não pode estar vazio"
 - ✅ Added Undo2 button in toolbar with disabled state when canUndo is false
-- ✅ Build passes with no errors
+- ✅ Build passes with no errors (after fixing History plugin ordering)
 - ✅ Dev server starts correctly
 
 **Completion Notes:**
