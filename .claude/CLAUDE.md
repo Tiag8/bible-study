@@ -369,6 +369,53 @@ chore: manutenção
 
 ---
 
+## DESIGN TOKENS - Sistema de Design
+
+> **REGRA ABSOLUTA**: Sempre usar design tokens para cores, sombras, espaçamento, tipografia.
+
+### Documentação Completa
+- **Guia Detalhado**: [DESIGN_TOKENS_GUIDE.md](../../docs/guides/DESIGN_TOKENS_GUIDE.md)
+- **Referência Rápida**: [TOKEN_QUICK_REFERENCE.md](../../docs/guides/TOKEN_QUICK_REFERENCE.md)
+
+### Categorias de Tokens
+
+| Categoria | Arquivo | Uso |
+|-----------|---------|-----|
+| **COLORS** | `src/lib/design-tokens.ts` | Cores semânticas (primary, success, warning, danger, etc) |
+| **TAG_COLORS** | `src/lib/design-tokens.ts` | Valores hex diretos para tags |
+| **TYPOGRAPHY** | `src/lib/design-tokens.ts` | Tamanhos e pesos de fonte |
+| **SPACING** | `src/lib/design-tokens.ts` | Padding, margin, gaps |
+| **BORDER_RADIUS** | `src/lib/design-tokens.ts` | Cantos arredondados |
+| **BORDERS** | `src/lib/design-tokens.ts` | Cores de bordas |
+| **SHADOW_CLASSES** | `src/lib/design-tokens.ts` | Sombras/elevação (CSS Modules) |
+| **STATUS_CONFIG** | `src/lib/design-tokens.ts` | Configuração de status de estudos |
+
+### ❌ NUNCA fazer:
+```tsx
+// ❌ ERRADO - Hardcoded classes
+<button className="bg-blue-600 text-white shadow-lg">Botão</button>
+
+// ❌ ERRADO - Misturar tokens e hardcoded
+<div className={cn(COLORS.primary.default, "bg-green-500")}>
+```
+
+### ✅ SEMPRE fazer:
+```tsx
+// ✅ CORRETO - Usar apenas tokens
+import { COLORS, SHADOW_CLASSES } from '@/lib/design-tokens';
+import { cn } from '@/lib/utils';
+
+<button className={cn(
+  COLORS.primary.default,
+  "text-white",
+  SHADOW_CLASSES.md
+)}>
+  Botão
+</button>
+```
+
+---
+
 ## ROTAS DA APLICAÇÃO
 
 | Rota | Descrição |

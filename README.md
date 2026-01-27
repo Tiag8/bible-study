@@ -37,7 +37,7 @@ Acesse http://localhost:3000
 npm run restart
 ```
 
-Ver: [Guia de Desenvolvimento](./docs/DEVELOPMENT.md) | [Troubleshooting](./docs/TROUBLESHOOTING.md)
+Ver: [Guia de Desenvolvimento](./docs/DEVELOPMENT.md) | [Troubleshooting](./docs/TROUBLESHOOTING.md) | [Design Tokens Guide](./docs/guides/DESIGN_TOKENS_GUIDE.md)
 
 ## Estrutura
 
