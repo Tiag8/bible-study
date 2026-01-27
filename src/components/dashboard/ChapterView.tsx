@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { TAG_COLORS, COLORS, BORDERS, STATUS_CONFIG } from "@/lib/design-tokens";
-import { getHighestPriorityStatus } from "@/lib/utils";
+import { TAG_COLORS, COLORS, BORDERS } from "@/lib/design-tokens";
+import { getAggregatedChapterStatus } from "@/lib/utils";
 import { StudySelectionModal } from "./StudySelectionModal";
 import {
   ArrowLeft,
@@ -191,27 +191,20 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
               }
             };
 
-            // Determinar cor baseado no status mais urgente (maior prioridade)
+            // Determinar cor baseado no percentual de conclusão
             let chapterBgColor = `bg-white ${BORDERS.gray}`;
             let chapterTextColor = COLORS.neutral.text.secondary;
             let hoverColor = 'hover:border-blue-300';
+            let tooltipText = `Capítulo ${chapter}`;
 
             if (studyCount > 0) {
-              const highestStatus = getHighestPriorityStatus(chapterStudies);
-              const statusConfig = STATUS_CONFIG[highestStatus as keyof typeof STATUS_CONFIG];
+              const aggregated = getAggregatedChapterStatus(chapterStudies);
+              chapterBgColor = aggregated.color;
+              chapterTextColor = aggregated.textColor;
+              hoverColor = '';
 
-              if (statusConfig) {
-                // Mapear cores baseado no status
-                const statusColorMap: Record<string, string> = {
-                  'estudar': COLORS.warning.default,      // Laranja
-                  'estudando': COLORS.primary.default,    // Azul
-                  'revisando': COLORS.secondary.default,  // Roxo
-                  'concluído': COLORS.success.default,    // Verde
-                };
-                chapterBgColor = statusColorMap[highestStatus] || COLORS.primary.default;
-                chapterTextColor = 'text-white';
-                hoverColor = '';
-              }
+              // Melhorar tooltip com percentual de conclusão
+              tooltipText = `${studyCount} estudo${studyCount !== 1 ? 's' : ''} (${aggregated.completionPercentage}%)`;
             }
 
             return (
@@ -226,11 +219,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                     ? `${chapterBgColor} ${chapterTextColor}`
                     : `${chapterBgColor} ${chapterTextColor} ${hoverColor}`
                 )}
-                title={
-                  studyCount > 0
-                    ? `${studyCount} estudo${studyCount !== 1 ? 's' : ''}`
-                    : `Capítulo ${chapter}`
-                }
+                title={tooltipText}
               >
                 {chapter}
                 {hasMultiple && (
