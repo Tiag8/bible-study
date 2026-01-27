@@ -12,6 +12,7 @@ import {
   ListOrdered,
   Quote,
   Code,
+  ChevronRight,
 } from "lucide-react";
 import { bibleBooks } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
@@ -80,6 +81,13 @@ const menuItems: MenuItem[] = [
     label: "Lista de Tarefas",
     description: "Cria uma lista com checkboxes",
     icon: <ListTodo className="w-4 h-4" />,
+    type: "command",
+  },
+  {
+    id: "toggle",
+    label: "Lista de Alternantes",
+    description: "Cria uma lista que expande/colapsa",
+    icon: <ChevronRight className="w-4 h-4" />,
     type: "command",
   },
   {
@@ -225,8 +233,11 @@ export function SlashMenu({
   return (
     <div
       ref={menuRef}
-      className="fixed z-50 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-72"
-      style={{ top: position.top, left: position.left }}
+      className="fixed z-50 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-[min(18rem,calc(100vw-2rem))]"
+      style={{
+        top: position.top,
+        left: Math.min(position.left, typeof window !== 'undefined' ? window.innerWidth - 300 : position.left)
+      }}
     >
       {!showBacklogForm ? (
         <>

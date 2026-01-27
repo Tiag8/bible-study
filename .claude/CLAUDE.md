@@ -1,10 +1,98 @@
-# Claude Code - Bible Study (Segundo Cérebro)
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
+
+# Bible Study - Segundo Cérebro
 
 > Aplicativo de estudo bíblico com editor rico e visualização em grafo estilo "Segundo Cérebro" (Obsidian/Roam Research).
 
 ---
 
-## 🔴 REGRA #0: READ-BEFORE-EDIT (ABSOLUTA PRIORIDADE)
+## Development Commands
+
+```bash
+npm run dev          # Start dev server (port 3000)
+npm run build        # Production build (run before commits)
+npm run lint         # ESLint check
+npm run restart      # Clean .next cache and restart (use after git pull)
+npm run restart:full # Full clean with node_modules reinstall
+```
+
+**After git pull/merge:** Always run `npm run restart` to avoid 404 errors from stale cache.
+
+---
+
+## Synkra AIOS Development Rules
+
+You are working with Synkra AIOS, an AI-Orchestrated System for Full Stack Development.
+
+### Agent System
+
+**Agent Activation:**
+- Agents are activated with @agent-name syntax: @dev, @qa, @architect, @pm, @po, @sm, @analyst
+- The master agent is activated with @aios-master
+- Agent commands use the * prefix: *help, *create-story, *task, *exit
+
+**Agent Context:**
+When an agent is active:
+- Follow that agent's specific persona and expertise
+- Use the agent's designated workflow patterns
+- Maintain the agent's perspective throughout the interaction
+
+### Development Methodology
+
+**Story-Driven Development:**
+1. **Work from stories** - All development starts with a story in `docs/stories/`
+2. **Update progress** - Mark checkboxes as tasks complete: [ ] → [x]
+3. **Track changes** - Maintain the File List section in the story
+4. **Follow criteria** - Implement exactly what the acceptance criteria specify
+
+### AIOS Framework Structure
+
+```
+aios-core/
+├── agents/         # Agent persona definitions (YAML/Markdown)
+├── tasks/          # Executable task workflows
+├── workflows/      # Multi-step workflow definitions
+├── templates/      # Document and code templates
+├── checklists/     # Validation and review checklists
+└── rules/          # Framework rules and patterns
+
+docs/
+├── stories/        # Development stories (numbered)
+├── prd/            # Product requirement documents
+├── architecture/   # System architecture documentation
+└── guides/         # User and developer guides
+```
+
+### AIOS Commands
+
+**AIOS Master Commands:**
+- `*help` - Show available commands
+- `*create-story` - Create new story
+- `*task {name}` - Execute specific task
+- `*workflow {name}` - Run workflow
+
+### Workflow Execution
+
+**Task Execution Pattern:**
+1. Read the complete task/workflow definition
+2. Understand all elicitation points
+3. Execute steps sequentially
+4. Handle errors gracefully
+5. Provide clear feedback
+
+**Interactive Workflows:**
+- Workflows with `elicit: true` require user input
+- Present options clearly
+- Validate user responses
+- Provide helpful defaults
+
+---
+
+## REGRA #0: READ-BEFORE-EDIT (ABSOLUTA PRIORIDADE)
 
 **Ver completo**: `~/.claude/rules/00-read-before-edit.md`
 
@@ -20,19 +108,35 @@
 
 ---
 
-## 🎯 VISÃO DO PROJETO
+## REGRAS COMPORTAMENTAIS (NEVER / ALWAYS)
 
-Ferramenta para estudo bíblico pessoal que permite:
-- Navegar pelos 66 livros da Bíblia
-- Criar anotações ricas por capítulo
-- Visualizar conexões entre estudos em grafo interativo
-- Manter backlog de referências para estudo futuro
+### NEVER
+- Implement without showing options first (always 1, 2, 3 format)
+- Delete/remove content without asking first
+- Delete anything created in the last 7 days without explicit approval
+- Change something that was already working
+- Pretend work is done when it isn't
+- Process batch without validating one first
+- Add features that weren't requested
+- Use mock data when real data exists in database
+- Explain/justify when receiving criticism (just fix)
+- Trust AI/subagent output without verification
+- Create from scratch when similar exists in squads/
+
+### ALWAYS
+- Present options as "1. X, 2. Y, 3. Z" format
+- Use AskUserQuestion tool for clarifications
+- Check squads/ and existing components before creating new
+- Read COMPLETE schema before proposing database changes
+- Investigate root cause when error persists
+- Commit before moving to next task
+- Create handoff in `docs/sessions/YYYY-MM/` at end of session
 
 ---
 
-## 🗄️ REGRA DE INFRAESTRUTURA SUPABASE
+## REGRA DE INFRAESTRUTURA SUPABASE
 
-> **🚨 REGRA ABSOLUTA 🚨**
+> **REGRA ABSOLUTA**
 >
 > Todos os recursos criados no Supabase DEVEM obrigatoriamente utilizar o prefixo **`bible_`**
 
@@ -45,7 +149,7 @@ Ferramenta para estudo bíblico pessoal que permite:
 
 ### Exemplos:
 ```sql
--- ✅ CORRETO
+-- CORRETO
 CREATE TABLE bible_studies (
   id UUID PRIMARY KEY,
   book_id TEXT NOT NULL,
@@ -54,15 +158,8 @@ CREATE TABLE bible_studies (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE bible_study_links (
-  id UUID PRIMARY KEY,
-  source_study_id UUID REFERENCES bible_studies(id),
-  target_study_id UUID REFERENCES bible_studies(id)
-);
-
--- ❌ INCORRETO (sem prefixo)
+-- INCORRETO (sem prefixo)
 CREATE TABLE studies (...);
-CREATE TABLE study_links (...);
 ```
 
 ### Checklist Pré-Migration:
@@ -73,9 +170,9 @@ CREATE TABLE study_links (...);
 
 ---
 
-## 🔐 REGRA DE AUTENTICAÇÃO E SEGURANÇA
+## REGRA DE AUTENTICAÇÃO E SEGURANÇA
 
-> **🚨 REGRA ABSOLUTA 🚨**
+> **REGRA ABSOLUTA**
 >
 > TODAS as queries ao Supabase DEVEM utilizar o contexto de usuário autenticado (`user_id = auth.uid()`)
 
@@ -141,7 +238,7 @@ export function useMyHook() {
 
 ---
 
-## 👤 SISTEMA DE PERFIS E ROLES
+## SISTEMA DE PERFIS E ROLES
 
 ### Tabela `bible_profiles`:
 ```sql
@@ -176,17 +273,6 @@ profile?.role       // 'free' | 'admin'
 await refreshProfile();
 ```
 
-### Signup com Nome:
-```typescript
-await supabase.auth.signUp({
-  email,
-  password,
-  options: {
-    data: { full_name: 'Nome Completo' }
-  }
-});
-```
-
 ### Checklist Pré-Implementação:
 - [ ] Hook usa `useAuth()` para obter user?
 - [ ] Query SELECT tem `.eq('user_id', user?.id)`?
@@ -196,10 +282,10 @@ await supabase.auth.signUp({
 
 ---
 
-## 🛠️ STACK TÉCNICO
+## STACK TÉCNICO
 
 - **Framework**: Next.js 15 (App Router)
-- **UI**: React 18 + TypeScript + TailwindCSS
+- **UI**: React 19 + TypeScript + TailwindCSS
 - **Componentes**: shadcn/ui (Radix UI)
 - **Editor**: Tiptap (rich text)
 - **Grafo**: react-force-graph-2d
@@ -208,7 +294,7 @@ await supabase.auth.signUp({
 
 ---
 
-## 📁 ESTRUTURA DO PROJETO
+## ESTRUTURA DO PROJETO
 
 ```
 src/
@@ -241,7 +327,7 @@ middleware.ts                 # Proteção de rotas Next.js
 
 ---
 
-## 📖 DADOS BÍBLICOS
+## DADOS BÍBLICOS
 
 ### 66 Livros Organizados por Categoria:
 
@@ -260,7 +346,7 @@ middleware.ts                 # Proteção de rotas Next.js
 
 ---
 
-## 📐 CONVENÇÕES DE CÓDIGO
+## CONVENÇÕES DE CÓDIGO
 
 ### Naming:
 - **Variáveis/funções**: camelCase
@@ -270,29 +356,40 @@ middleware.ts                 # Proteção de rotas Next.js
 
 ### Comentários:
 - **Código**: Português
-- **Commits**: Português + Conventional Commits (`feat:`, `fix:`, `refactor:`)
+- **Commits**: Português + Conventional Commits (`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`)
+
+### Git Commit Convention:
+```bash
+feat: nova funcionalidade
+fix: correção de bug
+refactor: refatoração
+docs: documentação
+chore: manutenção
+```
 
 ---
 
-## 🔄 ROTAS DA APLICAÇÃO
+## ROTAS DA APLICAÇÃO
 
 | Rota | Descrição |
 |------|-----------|
 | `/` | Dashboard com grid de 66 livros |
 | `/login` | Login/Signup com Nome Completo |
-| `/estudo/[id]` | Editor de estudo (id = `{bookId}-{chapter}`, ex: `gen-1`) |
+| `/estudo/[id]` | Editor de estudo (id = UUID) |
 | `/grafo` | Visualização do grafo de conexões |
 | `/settings` | Configurações e Gestão de Conta |
 
 ---
 
-## 🎨 FEATURES IMPLEMENTADAS
+## FEATURES IMPLEMENTADAS
 
 ### Dashboard
 - Grid de livros organizados por categoria
 - Barra de busca e filtro por tags
 - Visualização de capítulos ao clicar em um livro
 - Painel de backlog lateral
+- Sistema de 3 status (estudando, revisando, concluído)
+- Múltiplos estudos por capítulo
 
 ### Editor de Estudo
 - Tiptap Editor com formatação rica
@@ -301,6 +398,7 @@ middleware.ts                 # Proteção de rotas Next.js
 - Auto-save a cada 30 segundos
 - Proteção contra perda de dados (modal de confirmação)
 - Breadcrumbs de navegação
+- Botão de delete com confirmação
 
 ### Grafo (Segundo Cérebro)
 - Visualização force-directed dos estudos
@@ -318,16 +416,14 @@ middleware.ts                 # Proteção de rotas Next.js
 - Sidebar com nome do usuário e badge de role
 - Proteção de rotas via middleware
 
-### Configurações (/settings)
-- Edição de nome e email
-- Alteração de senha
-- Logout da conta
-- Exclusão de conta (com confirmação)
-- Badge de role (Admin/Free)
+### Tags
+- Sistema completo de criação e edição de tags
+- 3 tipos: Versículos, Temas, Princípios
+- Cores customizáveis
 
 ---
 
-## ⚠️ PADRÃO AUTHLOADING NOS HOOKS
+## PADRÃO AUTHLOADING NOS HOOKS
 
 **CRÍTICO**: Todos os hooks que dependem de autenticação DEVEM seguir este padrão para evitar loading infinito:
 
@@ -372,20 +468,39 @@ export function useMyHook() {
 
 ---
 
-## 📝 PRÓXIMOS PASSOS (Roadmap)
+## Environment Variables
 
-1. [x] ~~Integração com Supabase (persistência real)~~ ✅
-2. [x] ~~Autenticação de usuários~~ ✅
-3. [x] ~~Sistema de perfis e gestão de conta~~ ✅
-4. [ ] Criação de links entre estudos
-5. [ ] Busca full-text nos estudos
-6. [ ] Tags e categorização manual
-7. [ ] Exportação (PDF, Markdown)
-8. [ ] Modo offline (PWA)
+Required in `.env.local`:
+```
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY
+DATABASE_URL
+```
 
 ---
 
-**Última atualização**: 2026-01-25
-**Versão**: 2.1.0 (Profiles + Settings)
+## Claude Code Specific Configuration
+
+### Tool Usage Guidelines
+- Always use the Grep tool for searching, never `grep` or `rg` in bash
+- Use the Task tool for complex multi-step operations
+- Batch file reads/writes when processing multiple files
+- Prefer editing existing files over creating new ones
+
+### Session Management
+- Track story progress throughout the session
+- Update checkboxes immediately after completing tasks
+- Maintain context of the current story being worked on
+
+### Testing Strategy
+- Run `npm run build` before commits
+- Always verify `npm run lint` passes
+- Test edge cases for each new feature
+
+---
+
+**Última atualização**: 2026-01-26
+**Versão**: 3.0.0 (AIOS Integration)
 **Projeto**: Bible Study (Segundo Cérebro)
-**Stack Core**: Next.js 15 + React 18 + TypeScript + TailwindCSS + Tiptap + react-force-graph-2d
+**Stack Core**: Next.js 15 + React 19 + TypeScript + TailwindCSS + Tiptap + react-force-graph-2d + Supabase

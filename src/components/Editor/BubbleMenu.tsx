@@ -1,6 +1,6 @@
 "use client";
 
-import { BubbleMenu } from "@tiptap/react";
+import { BubbleMenu } from "@tiptap/react/menus";
 import type { Editor } from "@tiptap/react";
 import { useState, useCallback } from "react";
 import {
@@ -154,11 +154,14 @@ export function BubbleMenuComponent({ editor }: BubbleMenuComponentProps) {
   return (
     <BubbleMenu
       editor={editor}
-      tippyOptions={{ duration: 100, placement: "top", maxWidth: "none" }}
-      className="bg-white rounded-lg shadow-lg border border-gray-200"
+      options={{
+        placement: "top",
+        offset: 8,
+      }}
+      className="bg-white rounded-lg shadow-lg border border-gray-200 max-w-[min(calc(100vw-2rem),40rem)]"
     >
       {mode === "default" && (
-        <div className="flex items-center gap-0.5 p-1.5 flex-nowrap w-max">
+        <div className="flex items-center gap-0.5 p-1.5 flex-wrap sm:flex-nowrap overflow-x-auto">
           {/* Formatting Group */}
           <button
             onClick={() => editor.chain().focus().toggleBold().run()}

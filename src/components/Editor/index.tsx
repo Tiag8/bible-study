@@ -3,12 +3,11 @@
 import { useEffect, useRef } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Link from "@tiptap/extension-link";
-import Placeholder from "@tiptap/extension-placeholder";
-import Highlight from "@tiptap/extension-highlight";
-import TextStyle from "@tiptap/extension-text-style";
-import Color from "@tiptap/extension-color";
-import Underline from "@tiptap/extension-underline";
+import { Placeholder } from "@tiptap/extensions";
+import { Highlight } from "@tiptap/extension-highlight";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { Color } from "@tiptap/extension-color";
+import { Details, DetailsSummary, DetailsContent } from "@tiptap/extension-details";
 import { ColoredBlockquote } from "./ColoredBlockquote";
 import { BubbleMenuComponent } from "./BubbleMenu";
 import { SlashMenu } from "./SlashMenu";
@@ -49,12 +48,6 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
         blockquote: false, // Usar nossa extensão customizada
       }),
       ColoredBlockquote,
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class: "text-blue-600 underline hover:text-blue-800",
-        },
-      }),
       Placeholder.configure({
         placeholder: "Comece a escrever suas anotações... Use / para comandos.",
       }),
@@ -66,7 +59,23 @@ export function Editor({ initialContent = "", onChange }: EditorProps) {
       }),
       TextStyle,
       Color,
-      Underline,
+      // Extensão oficial de Details (Toggle List)
+      Details.configure({
+        persist: true,
+        HTMLAttributes: {
+          class: "details-block",
+        },
+      }),
+      DetailsSummary.configure({
+        HTMLAttributes: {
+          class: "details-summary",
+        },
+      }),
+      DetailsContent.configure({
+        HTMLAttributes: {
+          class: "details-content",
+        },
+      }),
     ],
     content: parsedInitialContent,
     immediatelyRender: false, // Fix SSR hydration mismatch

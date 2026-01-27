@@ -132,3 +132,55 @@ body {
 .tiptap mark[data-color="#fbcfe8"] { background-color: #fbcfe8; } /* Rosa */
 .tiptap mark[data-color="#fed7aa"] { background-color: #fed7aa; } /* Laranja */
 .tiptap mark[data-color="#ddd6fe"] { background-color: #ddd6fe; } /* Roxo */
+
+/* Toggle List / Lista de Alternantes (details-summary-tiptap-extension) */
+.tiptap details {
+  margin: 0.5rem 0;
+  border-left: 2px solid #e5e7eb;
+  border-radius: 0.25rem;
+}
+
+.tiptap details > summary {
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  font-weight: 500;
+  list-style: none;
+  user-select: none;
+  border-radius: 0.25rem;
+  transition: background-color 0.15s ease;
+}
+
+.tiptap details > summary:hover {
+  background-color: #f3f4f6;
+}
+
+.tiptap details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.tiptap details > summary::marker {
+  display: none;
+}
+
+.tiptap details > summary::before {
+  content: "▶";
+  font-size: 0.625rem;
+  margin-right: 0.5rem;
+  transition: transform 0.15s ease;
+  color: #6b7280;
+  display: inline-block;
+}
+
+.tiptap details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.tiptap details > p {
+  padding: 0 0.75rem 0.5rem 1.5rem;
+}
+
+/* Nested toggle lists */
+.tiptap details details {
+  margin-left: 0.5rem;
+  border-left-color: #d1d5db;
+}

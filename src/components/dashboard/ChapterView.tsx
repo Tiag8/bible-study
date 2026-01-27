@@ -7,6 +7,8 @@ import { BibleBook, formatRelativeDate } from "@/lib/mock-data";
 import { useStudies, useTags } from "@/hooks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { StudySelectionModal } from "./StudySelectionModal";
 import {
   ArrowLeft,
@@ -17,6 +19,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface ChapterViewProps {
   book: BibleBook;
@@ -38,6 +41,13 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
 
   // Delete state
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Confirm modal state
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    studyId: string;
+    studyTitle: string;
+  }>({ isOpen: false, studyId: "", studyTitle: "" });
 
   // Generate chapters array
   const chapters = Array.from({ length: book.totalChapters }, (_, i) => i + 1);
@@ -72,22 +82,32 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
   // Calcular capítulos estudados dinamicamente
   const studiedChapters = bookStudies.map(s => s.chapter_number);
 
-  // Deletar estudo
-  const handleDelete = async (studyId: string, studyTitle: string, e: React.MouseEvent) => {
-    e.preventDefault(); // Prevenir navegação do Link
+  // Abrir modal de confirmação
+  const handleDeleteClick = (studyId: string, studyTitle: string, e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
+    setConfirmModal({ isOpen: true, studyId, studyTitle });
+  };
 
-    if (!confirm(`Tem certeza que deseja deletar "${studyTitle}"?`)) {
-      return;
-    }
-
+  // Confirmar deleção
+  const handleConfirmDelete = async () => {
+    const { studyId } = confirmModal;
     setDeletingId(studyId);
+    setConfirmModal({ isOpen: false, studyId: "", studyTitle: "" });
+
     const success = await deleteStudy(studyId);
 
-    if (!success) {
-      alert('Erro ao deletar estudo. Tente novamente.');
+    if (success) {
+      toast.success('Estudo deletado com sucesso');
+    } else {
+      toast.error('Erro ao deletar estudo. Tente novamente.');
     }
     setDeletingId(null);
+  };
+
+  // Cancelar deleção
+  const handleCancelDelete = () => {
+    setConfirmModal({ isOpen: false, studyId: "", studyTitle: "" });
   };
 
   if (loading) {
@@ -269,28 +289,17 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                         <Clock className="w-3 h-3" />
                         <span>{formatRelativeDate(study.updated_at)}</span>
                       </div>
-                      <Badge
-                        className={cn(
-                          "text-white text-xs",
-                          study.status === 'estudando' && "bg-blue-500",
-                          study.status === 'revisando' && "bg-purple-500",
-                          study.status === 'concluído' && "bg-green-500"
-                        )}
-                      >
-                        {study.status === 'estudando' && 'Estudando'}
-                        {study.status === 'revisando' && 'Revisando'}
-                        {study.status === 'concluído' && 'Concluído'}
-                      </Badge>
+                      <StatusBadge status={study.status} />
                     </div>
                   </div>
                 </div>
 
-                {/* Botão de deletar (aparece no hover) */}
+                {/* Botão de deletar (sempre visível, mais opaco no hover) */}
                 <button
-                  onClick={(e) => handleDelete(study.id, study.title, e)}
+                  onClick={(e) => handleDeleteClick(study.id, study.title, e)}
                   disabled={deletingId === study.id}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-md bg-red-50 text-red-600 hover:bg-red-100 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
-                  title="Deletar estudo"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] p-2 rounded-md bg-red-50 text-red-600 hover:bg-red-100 opacity-40 hover:opacity-100 focus:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center"
+                  aria-label="Deletar estudo"
                 >
                   {deletingId === study.id ? (
                     <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
@@ -333,6 +342,18 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
           chapter={modalState.chapter}
         />
       )}
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        open={confirmModal.isOpen}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        title="Deletar Estudo"
+        description={`Tem certeza que deseja deletar "${confirmModal.studyTitle}"? Esta ação não pode ser desfeita.`}
+        confirmText="Deletar"
+        cancelText="Cancelar"
+        variant="destructive"
+      />
     </div>
   );
 }

@@ -106,6 +106,10 @@ export function useSlashMenu(editor: Editor | null): SlashMenuState {
         case "code":
           editor.chain().focus().toggleCodeBlock().run();
           break;
+        case "toggle":
+          // Extensão oficial Details do Tiptap v3
+          editor.chain().focus().setDetails().run();
+          break;
         case "backlog":
           // O texto do backlog é inserido pelo SlashMenu component
           // Aqui poderíamos fazer chamadas de API

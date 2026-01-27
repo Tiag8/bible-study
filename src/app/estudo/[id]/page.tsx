@@ -22,6 +22,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { CreateTagModal } from "@/components/CreateTagModal";
 
 interface StudyPageProps {
@@ -157,9 +158,13 @@ export default function StudyPage({ params }: StudyPageProps) {
     loadStudy();
   }, [id, router, getStudyById, createStudy, searchParams]);
 
-  // Resetar isInitialLoad quando editor estiver pronto (após carregar estudo)
+  // Resetar isInitialLoad quando editor estiver pronto (após carregar estudo OU novo estudo)
   useEffect(() => {
-    if (!isLoading && study && isInitialLoad) {
+    // Para estudos existentes: esperar study carregar
+    // Para novos estudos: esperar newStudyInfo estar definido
+    const isReady = !isLoading && (study || newStudyInfo) && isInitialLoad;
+
+    if (isReady) {
       // Aguardar próximo tick para garantir que Editor montou e aplicou conteúdo
       const timer = setTimeout(() => {
         console.log("[ESTUDO] Editor ready - resetting isInitialLoad");
@@ -168,7 +173,7 @@ export default function StudyPage({ params }: StudyPageProps) {
 
       return () => clearTimeout(timer);
     }
-  }, [isLoading, study, isInitialLoad]);
+  }, [isLoading, study, newStudyInfo, isInitialLoad]);
 
   // Salvar automaticamente (debounced)
   const handleContentChange = useCallback((content: string) => {
@@ -185,6 +190,7 @@ export default function StudyPage({ params }: StudyPageProps) {
   // Função de salvamento
   const handleSave = useCallback(async () => {
     setIsSaving(true);
+    const toastId = toast.loading("Salvando...");
 
     try {
       // Verificar se o conteúdo está vazio
@@ -195,7 +201,7 @@ export default function StudyPage({ params }: StudyPageProps) {
 
       // Se for novo estudo (study === null) e não tem conteúdo, avisar usuário
       if (!study?.id && isEmpty) {
-        alert("Adicione conteúdo antes de salvar o estudo");
+        toast.warning("Adicione conteúdo antes de salvar o estudo", { id: toastId });
         setIsSaving(false);
         return;
       }
@@ -228,10 +234,13 @@ export default function StudyPage({ params }: StudyPageProps) {
             tags: selectedTags,
           });
 
+          toast.success("Estudo criado com sucesso!", { id: toastId });
           console.log("[ESTUDO] Estudo criado e salvo. Redirecionando para:", newStudy.id);
           // Redirecionar para o estudo criado
           router.replace(`/estudo/${newStudy.id}`);
           return;
+        } else {
+          toast.error("Erro ao criar estudo. Tente novamente.", { id: toastId });
         }
       } else if (study?.id) {
         // Estudo já existe - save normal
@@ -242,9 +251,11 @@ export default function StudyPage({ params }: StudyPageProps) {
         });
         setHasUnsavedChanges(false);
         setLastSaved(new Date());
+        toast.success("Salvo com sucesso!", { id: toastId });
       }
     } catch (error) {
       console.error("Erro ao salvar estudo:", error);
+      toast.error("Erro ao salvar. Tente novamente.", { id: toastId });
     } finally {
       setIsSaving(false);
     }

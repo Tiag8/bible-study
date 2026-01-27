@@ -78,3 +78,12 @@ Thumbs.db
 .aios/install-log.txt
 .next
 
+# CodeRabbit Fixes (2026-01-26)
+# Environment reports contain PII and machine-specific data
+.aios/environment-report.yaml
+.aios/environment-report.json
+
+# Backup files should not be committed
+.env.backup.*
+.claude/*.backup.*
+

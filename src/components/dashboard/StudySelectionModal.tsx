@@ -12,9 +12,11 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Plus, Clock, FileText, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { useState } from 'react';
 
 interface StudySelectionModalProps {
@@ -38,6 +40,13 @@ export function StudySelectionModal({
   const { tags: availableTags } = useTags();
   const { deleteStudy } = useStudies();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Confirm modal state
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    studyId: string;
+    studyTitle: string;
+  }>({ isOpen: false, studyId: "", studyTitle: "" });
 
   // Helper para buscar cor da tag
   const getTagColor = (tagName: string): string => {
@@ -69,25 +78,35 @@ export function StudySelectionModal({
     onClose();
   };
 
-  const handleDelete = async (studyId: string, studyTitle: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevenir abertura do estudo
+  // Abrir modal de confirmação
+  const handleDeleteClick = (studyId: string, studyTitle: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setConfirmModal({ isOpen: true, studyId, studyTitle });
+  };
 
-    if (!confirm(`Tem certeza que deseja deletar "${studyTitle}"?`)) {
-      return;
-    }
-
+  // Confirmar deleção
+  const handleConfirmDelete = async () => {
+    const { studyId } = confirmModal;
     setDeletingId(studyId);
+    setConfirmModal({ isOpen: false, studyId: "", studyTitle: "" });
+
     const success = await deleteStudy(studyId);
 
     if (success) {
+      toast.success('Estudo deletado com sucesso');
       // Se era o último estudo, fechar modal
       if (studies.length === 1) {
         onClose();
       }
     } else {
-      alert('Erro ao deletar estudo. Tente novamente.');
+      toast.error('Erro ao deletar estudo. Tente novamente.');
     }
     setDeletingId(null);
+  };
+
+  // Cancelar deleção
+  const handleCancelDelete = () => {
+    setConfirmModal({ isOpen: false, studyId: "", studyTitle: "" });
   };
 
   return (
@@ -141,18 +160,7 @@ export function StudySelectionModal({
                       <h3 className="font-medium text-gray-900 truncate">
                         {study.title}
                       </h3>
-                      <Badge
-                        className={cn(
-                          "flex-shrink-0 text-white",
-                          study.status === 'estudando' && 'bg-blue-500',
-                          study.status === 'revisando' && 'bg-purple-500',
-                          study.status === 'concluído' && 'bg-green-500'
-                        )}
-                      >
-                        {study.status === 'estudando' && 'Estudando'}
-                        {study.status === 'revisando' && 'Revisando'}
-                        {study.status === 'concluído' && 'Concluído'}
-                      </Badge>
+                      <StatusBadge status={study.status} className="flex-shrink-0" />
                     </div>
 
                     {/* Tags */}
@@ -192,12 +200,12 @@ export function StudySelectionModal({
                   </div>
                 </Button>
 
-                {/* Botão de deletar (aparece no hover) */}
+                {/* Botão de deletar (sempre visível, mais opaco no hover) */}
                 <button
-                  onClick={(e) => handleDelete(study.id, study.title, e)}
+                  onClick={(e) => handleDeleteClick(study.id, study.title, e)}
                   disabled={deletingId === study.id}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-md bg-red-50 text-red-600 hover:bg-red-100 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
-                  title="Deletar estudo"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] p-2 rounded-md bg-red-50 text-red-600 hover:bg-red-100 opacity-40 hover:opacity-100 focus:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center"
+                  aria-label="Deletar estudo"
                 >
                   {deletingId === study.id ? (
                     <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
@@ -209,6 +217,18 @@ export function StudySelectionModal({
             ))}
           </div>
         </div>
+
+        {/* Confirm Delete Modal */}
+        <ConfirmModal
+          open={confirmModal.isOpen}
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+          title="Deletar Estudo"
+          description={`Tem certeza que deseja deletar "${confirmModal.studyTitle}"? Esta ação não pode ser desfeita.`}
+          confirmText="Deletar"
+          cancelText="Cancelar"
+          variant="destructive"
+        />
       </DialogContent>
     </Dialog>
   );
