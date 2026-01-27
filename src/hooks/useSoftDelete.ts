@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 export interface DeletedStudy {
   id: string;
   title: string;
-  book_id: string;
+  book_name: string;
   chapter_number: number;
   deleted_at: string;
 }

@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 export interface SearchResult {
   id: string;
   title: string;
-  book_id: string;
+  book_name: string;
   chapter_number: number;
   status: string;
   similarity: number;
