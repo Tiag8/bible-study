@@ -22,9 +22,11 @@ import {
   Pencil,
   Check,
   X,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { CreateTagModal } from "@/components/CreateTagModal";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 interface StudyPageProps {
   params: Promise<{ id: string }>;
@@ -35,7 +37,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
   const router = useRouter();
 
   // Hooks Supabase
-  const { getStudyById, createStudy, saveStudy, updateStudyStatus } = useStudies();
+  const { getStudyById, createStudy, saveStudy, updateStudyStatus, deleteStudy } = useStudies();
   const { tags: availableTags, loading: tagsLoading, createTag } = useTags();
   const searchParams = useSearchParams();
 
@@ -62,6 +64,10 @@ export function StudyPageClient({ params }: StudyPageProps) {
   // Confirmação de saída
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+
+  // Confirmação de delete
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Estado para guardar o bookId
   const [bookId, setBookId] = useState<string>("");
@@ -315,6 +321,31 @@ export function StudyPageClient({ params }: StudyPageProps) {
     setPendingNavigation(null);
   };
 
+  // Deletar estudo
+  const handleDeleteStudy = useCallback(async () => {
+    if (!study?.id) return;
+
+    setIsDeleting(true);
+    const toastId = toast.loading("Deletando estudo...");
+
+    try {
+      const success = await deleteStudy(study.id);
+      if (success) {
+        toast.success("Estudo deletado com sucesso!", { id: toastId });
+        setShowDeleteConfirm(false);
+        // Redirecionar para o livro ou dashboard
+        router.push(bookId ? `/?book=${bookId}` : "/");
+      } else {
+        toast.error("Erro ao deletar estudo. Tente novamente.", { id: toastId });
+      }
+    } catch (error) {
+      console.error("[ESTUDO] deleteStudy ERROR:", error);
+      toast.error("Erro ao deletar estudo. Tente novamente.", { id: toastId });
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [study?.id, deleteStudy, router, bookId]);
+
   // Toggle tag
   const toggleTag = (tagName: string) => {
     setSelectedTags((prev) =>
@@ -442,6 +473,19 @@ export function StudyPageClient({ params }: StudyPageProps) {
           </div>
         </div>
       )}
+
+      {/* Modal de confirmação de delete */}
+      <ConfirmModal
+        open={showDeleteConfirm}
+        onConfirm={handleDeleteStudy}
+        onCancel={() => setShowDeleteConfirm(false)}
+        title="Deletar estudo?"
+        description={`Tem certeza que deseja deletar "${study?.title || 'este estudo'}"? Esta ação não pode ser desfeita.`}
+        confirmText="Deletar"
+        cancelText="Cancelar"
+        variant="destructive"
+        isLoading={isDeleting}
+      />
 
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
@@ -622,6 +666,19 @@ export function StudyPageClient({ params }: StudyPageProps) {
                   </div>
                 )}
               </div>
+
+              {/* Botão de delete */}
+              {study?.id && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              )}
 
               {/* Botão de tags */}
               <div className="relative">
