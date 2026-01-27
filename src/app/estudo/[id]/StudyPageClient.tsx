@@ -675,6 +675,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
                   onClick={() => setShowDeleteConfirm(true)}
                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   disabled={isDeleting}
+                  aria-label={`Deletar estudo "${study.title || 'sem título'}"`}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
