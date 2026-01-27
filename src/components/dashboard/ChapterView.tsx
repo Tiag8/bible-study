@@ -263,7 +263,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                   onClick={() => router.push(`/estudo/${study.id}`)}
                   className={cn("block bg-white rounded-lg p-4 transition-colors cursor-pointer", BORDERS.gray, "hover:border-blue-200")}
                 >
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className={cn("font-medium", COLORS.neutral.text.primary)}>
@@ -294,29 +294,29 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                         })}
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2 ml-4">
+                    <div className="flex flex-col items-end gap-2">
                       <div className={cn("flex items-center gap-1 text-xs", COLORS.neutral.text.muted)}>
                         <Clock className="w-3 h-3" />
                         <span>{formatRelativeDate(study.updated_at)}</span>
                       </div>
-                      <StatusBadge status={study.status} />
+                      <div className="flex items-center gap-2">
+                        <StatusBadge status={study.status} />
+                        <button
+                          onClick={(e) => handleDeleteClick(study.id, study.title, e)}
+                          disabled={deletingId === study.id}
+                          className={cn("p-1.5 rounded-md", COLORS.danger.light, COLORS.danger.text, `hover:${COLORS.danger.lighter}`, "opacity-40 group-hover:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center flex-shrink-0")}
+                          aria-label="Deletar estudo"
+                        >
+                          {deletingId === study.id ? (
+                            <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                {/* Botão de deletar (sempre visível, mais opaco no hover) */}
-                <button
-                  onClick={(e) => handleDeleteClick(study.id, study.title, e)}
-                  disabled={deletingId === study.id}
-                  className={cn("absolute right-3 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] p-2 rounded-md", COLORS.danger.light, COLORS.danger.text, `hover:${COLORS.danger.lighter}`, "opacity-40 hover:opacity-100 focus:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center")}
-                  aria-label="Deletar estudo"
-                >
-                  {deletingId === study.id ? (
-                    <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <Trash2 className="w-4 h-4" />
-                  )}
-                </button>
               </div>
             ))}
           </div>
