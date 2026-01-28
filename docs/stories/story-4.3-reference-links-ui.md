@@ -6,7 +6,7 @@
 **Status:** 🚀 In Progress
 **Priority:** P0 (Polish & Testing)
 **Sprint:** Sprint 4 (Polish + Testing)
-**Last Updated:** 2026-01-29 - Day 2 Complete (Tasks 4.3.3-4.3.4)
+**Last Updated:** 2026-01-29 - Day 3 Complete (Tasks 4.3.5-4.3.6)
 
 ---
 
@@ -106,12 +106,11 @@ As a Bible study user, I want to easily view, add, and manage references (links)
 - [x] **4.3.2** Implement ReferencesSidebar component (display + list) — ✅ Day 1
 - [x] **4.3.3** Implement AddReferenceModal (search + selection) — ✅ Day 2 (debounce + accessibility)
 - [x] **4.3.4** Implement useReferences hook (CRUD operations) — ✅ Day 2 (validation + error handling)
-- [ ] **4.3.4** Implement delete reference flow (confirmation + toast)
-- [ ] **4.3.5** Implement drag-and-drop reordering
-- [ ] **4.3.6** Integrate with useReferences hook (CRUD operations)
+- [x] **4.3.5** Implement delete reference flow (confirmation + toast) — ✅ Day 3 (modal + notifications)
+- [x] **4.3.6** Implement drag-and-drop reordering — ✅ Day 3 (@dnd-kit + keyboard nav)
 - [ ] **4.3.7** Implement responsive mobile behavior
-- [ ] **4.3.8** Add keyboard navigation & accessibility
-- [ ] **4.3.9** Add loading states and error handling
+- [ ] **4.3.8** Add loading states and error handling
+- [ ] **4.3.9** Add accessibility audit (WCAG AA)
 - [ ] **4.3.10** Test on desktop (1920px, 1440px, 1024px)
 - [ ] **4.3.11** Test on tablet (iPad 768px)
 - [ ] **4.3.12** Test on mobile (iPhone 375px, 667px)
@@ -202,8 +201,9 @@ Integration:
 - [x] ReferencesSidebar displays references correctly — ✅ Component implemented & integrated
 - [x] ReferenceCard shows title, book, snippet — ✅ Component created with memoization
 - [x] AddReferenceModal has searchable list — ✅ Day 2 (200ms debounce + aria-labels)
-- [x] CRUD operations working (add/delete/reorder) — ✅ Day 2 (validation + optimistic updates)
-- [ ] Drag-and-drop visual feedback — 🚀 Day 3
+- [x] CRUD operations working (add/delete/reorder) — ✅ Day 2-3 (validation + optimistic updates)
+- [x] Delete confirmation modal with toast — ✅ Day 3 (AlertTriangle icon + notifications)
+- [x] Drag-and-drop reordering functional — ✅ Day 3 (@dnd-kit + keyboard nav + visual feedback)
 - [x] Mobile responsive sidebar/drawer — ✅ Layout ready (w-80, responsive flex)
 - [x] Empty state shows "Nenhuma referência ainda" — ✅ Implemented in ReferencesSidebar
 
