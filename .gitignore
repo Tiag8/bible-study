@@ -87,3 +87,9 @@ Thumbs.db
 .env.backup.*
 .claude/*.backup.*
 
+# Vitest & Testing
+coverage/
+.vitest/
+*.lcov
+test-results/
+
