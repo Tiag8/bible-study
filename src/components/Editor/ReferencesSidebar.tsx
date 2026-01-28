@@ -111,16 +111,20 @@ export function ReferencesSidebar({
         <button
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
-            'flex items-center gap-2 text-sm font-semibold',
+            'flex items-center gap-2 text-sm font-semibold px-2 py-1 rounded',
             COLORS.neutral.text.primary,
-            'hover:opacity-80 transition-opacity'
+            'hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1'
           )}
+          title={isOpen ? 'Fechar painel de referências' : 'Abrir painel de referências'}
+          aria-label={`Referências (${references.length} ${references.length === 1 ? 'referência' : 'referências'}) - ${isOpen ? 'Aberto' : 'Fechado'}`}
+          aria-expanded={isOpen}
         >
           <ChevronDown
             className={cn(
               'w-4 h-4 transition-transform',
               !isOpen && '-rotate-90'
             )}
+            aria-hidden="true"
           />
           Referências ({references.length})
         </button>
@@ -130,22 +134,22 @@ export function ReferencesSidebar({
             <button
               onClick={() => setShowAddModal(true)}
               className={cn(
-                'p-1.5 rounded transition-colors flex-1',
+                'p-2 rounded transition-colors flex-1 min-h-[44px] flex items-center justify-center',
                 COLORS.primary.default,
-                'hover:opacity-90'
+                'hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-opacity-50'
               )}
-              title="Adicionar referência"
-              aria-label="Add reference"
+              title="Adicionar nova referência"
+              aria-label="Adicionar nova referência"
             >
-              <Plus className="w-4 h-4 text-white mx-auto" />
+              <Plus className="w-4 h-4 text-white" />
             </button>
 
             {/* Close button on mobile */}
             <button
               onClick={() => setShowOnMobile(false)}
-              className="md:hidden p-1.5 rounded transition-colors text-gray-500 hover:bg-gray-200"
-              title="Close references"
-              aria-label="Close references drawer"
+              className="md:hidden p-2 rounded transition-colors text-gray-500 hover:bg-gray-200 min-h-[44px] min-w-[44px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+              title="Fechar painel de referências"
+              aria-label="Fechar painel de referências"
             >
               <X className="w-4 h-4" />
             </button>
@@ -194,16 +198,18 @@ export function ReferencesSidebar({
                   onClick={handleRetry}
                   disabled={retrying}
                   className={cn(
-                    'w-full px-3 py-2 rounded text-xs font-medium transition-colors',
+                    'w-full px-3 py-2 rounded text-xs font-medium transition-colors min-h-[44px]',
                     'flex items-center justify-center gap-1',
+                    'focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-1',
                     retrying
                       ? 'bg-red-200 text-red-700 cursor-not-allowed'
-                      : 'bg-red-600 text-white hover:bg-red-700'
+                      : 'bg-red-600 text-white hover:bg-red-700 active:bg-red-800'
                   )}
-                  title="Tentar novamente"
-                  aria-label="Tentar novamente"
+                  title={retrying ? 'Aguarde enquanto tentamos novamente...' : 'Clique para tentar carregar as referências novamente'}
+                  aria-label={retrying ? 'Aguarde enquanto tentamos novamente' : 'Tentar novamente'}
+                  aria-busy={retrying}
                 >
-                  <RotateCw className={cn('w-3 h-3', retrying && 'animate-spin')} />
+                  <RotateCw className={cn('w-3 h-3', retrying && 'animate-spin')} aria-hidden="true" />
                   {retrying ? 'Tentando...' : 'Tentar novamente'}
                 </button>
               </div>
@@ -267,22 +273,38 @@ export function ReferencesSidebar({
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          role="presentation"
+          aria-hidden="false"
+        >
+          <div
+            className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="delete-modal-title"
+            aria-describedby="delete-modal-description"
+          >
             {/* Icon */}
             <div className="flex items-center justify-center mb-4">
               <div className="p-3 bg-red-100 rounded-full">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
+                <AlertTriangle className="w-6 h-6 text-red-600" aria-hidden="true" />
               </div>
             </div>
 
             {/* Title */}
-            <h2 className="text-lg font-semibold text-gray-900 text-center mb-2">
+            <h2
+              id="delete-modal-title"
+              className="text-lg font-semibold text-gray-900 text-center mb-2"
+            >
               Remover referência?
             </h2>
 
             {/* Description */}
-            <p className={cn('text-sm text-center mb-6', COLORS.neutral.text.secondary)}>
+            <p
+              id="delete-modal-description"
+              className={cn('text-sm text-center mb-6', COLORS.neutral.text.secondary)}
+            >
               Tem certeza que deseja remover a referência para{' '}
               <strong>
                 {references.find((ref) => ref.id === deleteConfirm)?.target_title}
@@ -295,9 +317,9 @@ export function ReferencesSidebar({
               <button
                 onClick={handleDeleteCancel}
                 className={cn(
-                  'px-4 py-2 rounded border transition-colors',
+                  'px-4 py-2 rounded border transition-colors min-h-[44px] font-medium',
                   BORDERS.gray,
-                  'hover:bg-gray-50'
+                  'hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-1'
                 )}
                 disabled={deleting !== null}
               >
@@ -307,9 +329,11 @@ export function ReferencesSidebar({
                 onClick={() => handleDeleteConfirm(deleteConfirm)}
                 disabled={deleting !== null}
                 className={cn(
-                  'px-4 py-2 rounded text-white transition-colors',
-                  deleting !== null ? 'opacity-50 cursor-not-allowed bg-red-400' : 'bg-red-600 hover:bg-red-700'
+                  'px-4 py-2 rounded text-white transition-colors min-h-[44px] font-medium',
+                  'focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-1',
+                  deleting !== null ? 'opacity-50 cursor-not-allowed bg-red-400' : 'bg-red-600 hover:bg-red-700 active:bg-red-800'
                 )}
+                aria-busy={deleting !== null}
               >
                 {deleting ? 'Removendo...' : 'Remover'}
               </button>
@@ -319,20 +343,20 @@ export function ReferencesSidebar({
       )}
       </div>
 
-      {/* Floating Action Button on mobile to open references */}
+      {/* Floating Action Button on mobile to open references - Touch target 48x48px */}
       <button
         onClick={() => setShowOnMobile(true)}
         className={cn(
           'fixed bottom-6 right-6 md:hidden z-40',
-          'p-3 rounded-full text-white transition-all',
+          'p-3 rounded-full text-white transition-all min-h-[48px] min-w-[48px] flex items-center justify-center',
           COLORS.primary.default,
-          'hover:shadow-lg hover:scale-110',
+          'hover:shadow-lg hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600',
           'shadow-lg'
         )}
-        title="Open references"
-        aria-label="Open references drawer"
+        title="Abrir painel de referências"
+        aria-label={`Abrir painel de referências (${references.length} ${references.length === 1 ? 'referência' : 'referências'})`}
       >
-        <ChevronDown className="w-6 h-6" />
+        <ChevronDown className="w-6 h-6" aria-hidden="true" />
       </button>
     </>
   );

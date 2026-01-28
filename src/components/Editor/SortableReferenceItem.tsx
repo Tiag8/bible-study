@@ -59,27 +59,29 @@ export const SortableReferenceItem = React.forwardRef<
         ref={setNodeRef}
         style={style}
         className={cn(
-          'p-3 rounded border transition-all',
+          'p-3 rounded border transition-all focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-1',
           BORDERS.gray,
           'hover:bg-white',
           isDragging && 'shadow-lg bg-blue-50 border-blue-300'
         )}
         role="article"
-        aria-label={`Reference to ${reference.target_title}, position ${index + 1} of ${total}`}
+        aria-label={`Referência para ${reference.target_title} (${reference.target_book_name} ${reference.target_chapter_number}), posição ${index + 1} de ${total}`}
       >
         {/* Top row: Grip handle + Title */}
         <div className="flex items-start gap-2 mb-1">
-          {/* Grip Handle */}
+          {/* Grip Handle - Touch target 44x44px */}
           <button
             {...attributes}
             {...listeners}
             className={cn(
-              'flex-shrink-0 p-1 rounded transition-colors',
-              'text-gray-400 hover:text-gray-600 hover:bg-gray-100',
-              isDragging && 'bg-blue-100 text-blue-600'
+              'flex-shrink-0 p-2 rounded transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center',
+              'text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1',
+              isDragging && 'bg-blue-100 text-blue-600',
+              deleting && 'opacity-50 cursor-not-allowed'
             )}
-            title="Drag to reorder"
-            aria-label="Drag handle for reordering"
+            title="Arraste para reordenar (cima/baixo)"
+            aria-label="Alça para reordenar - use setas ou arraste"
+            aria-pressed={isDragging}
             disabled={deleting}
           >
             <GripVertical className="w-4 h-4" />
@@ -103,22 +105,23 @@ export const SortableReferenceItem = React.forwardRef<
           {reference.target_book_name} {reference.target_chapter_number}
         </div>
 
-        {/* Actions: Up/Down/Delete */}
-        <div className="flex gap-1 px-1">
+        {/* Actions: Up/Down/Delete - Touch target 44x44px */}
+        <div className="flex gap-1 px-0">
           {/* Up button */}
           <button
             onClick={() => onReorder(reference.id, 'up')}
             disabled={isFirstItem || deleting}
             className={cn(
-              'p-1 rounded text-xs transition-colors',
+              'p-2 rounded transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1',
               isFirstItem || deleting
                 ? 'opacity-30 cursor-not-allowed'
-                : 'hover:bg-gray-200 text-gray-600 hover:text-gray-900'
+                : 'text-gray-600 hover:bg-gray-200 hover:text-gray-900'
             )}
-            title="Move up"
-            aria-label={`Move ${reference.target_title} up`}
+            title="Mover para cima"
+            aria-label={`Mover ${reference.target_title} para cima${isFirstItem ? ' (já no topo)' : ''}`}
+            aria-disabled={isFirstItem || deleting}
           >
-            <ChevronUp className="w-3 h-3" />
+            <ChevronUp className="w-4 h-4" />
           </button>
 
           {/* Down button */}
@@ -126,15 +129,16 @@ export const SortableReferenceItem = React.forwardRef<
             onClick={() => onReorder(reference.id, 'down')}
             disabled={isLastItem || deleting}
             className={cn(
-              'p-1 rounded text-xs transition-colors',
+              'p-2 rounded transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1',
               isLastItem || deleting
                 ? 'opacity-30 cursor-not-allowed'
-                : 'hover:bg-gray-200 text-gray-600 hover:text-gray-900'
+                : 'text-gray-600 hover:bg-gray-200 hover:text-gray-900'
             )}
-            title="Move down"
-            aria-label={`Move ${reference.target_title} down`}
+            title="Mover para baixo"
+            aria-label={`Mover ${reference.target_title} para baixo${isLastItem ? ' (já no final)' : ''}`}
+            aria-disabled={isLastItem || deleting}
           >
-            <ChevronUp className="w-3 h-3 rotate-180" />
+            <ChevronUp className="w-4 h-4 rotate-180" />
           </button>
 
           {/* Delete button */}
@@ -142,14 +146,15 @@ export const SortableReferenceItem = React.forwardRef<
             onClick={() => onDelete(reference.id)}
             disabled={deleting}
             className={cn(
-              'p-1 rounded text-xs ml-auto transition-colors',
-              'text-red-600 hover:bg-red-50',
+              'p-2 rounded ml-auto transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center',
+              'text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1',
               deleting && 'opacity-50 cursor-not-allowed'
             )}
-            title="Delete reference"
-            aria-label={`Delete reference to ${reference.target_title}`}
+            title="Deletar referência"
+            aria-label={`Deletar referência para ${reference.target_title}`}
+            aria-disabled={deleting}
           >
-            <Trash2 className="w-3 h-3" />
+            <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
