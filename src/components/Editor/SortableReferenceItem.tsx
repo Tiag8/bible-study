@@ -5,8 +5,8 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ChevronUp, ChevronDown, Trash2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { BORDERS, COLORS } from '@/lib/design-tokens';
-import { Reference } from '@/hooks/useReferences';
+import { BORDERS } from '@/lib/design-tokens';
+import { Reference, TagWithColor } from '@/hooks/useReferences';
 
 interface SortableReferenceItemProps {
   reference: Reference;
@@ -112,59 +112,41 @@ export const SortableReferenceItem = React.forwardRef<
           aria-hidden="true"
         />
 
-        {/* Conteúdo principal */}
-        <div className="flex items-start justify-between gap-3">
-          {/* Texto - Título + Tags */}
-          <div className="flex-1 min-w-0 pl-1">
-            {/* Grip handle invisível para drag (mantém acessibilidade) */}
-            <button
-              {...attributes}
-              {...listeners}
-              className={cn(
-                'absolute -left-12 top-2 p-2 rounded transition-colors',
-                'opacity-0 hover:opacity-100 text-gray-400',
-                isDragging && 'opacity-100 text-blue-600'
-              )}
-              title="Arraste para reordenar"
-              aria-label="Alça para reordenar"
-              aria-pressed={isDragging}
-              disabled={deleting}
-            >
-              {/* Hidden grip visual - acessível via drag listeners */}
-            </button>
+        {/* Grip handle invisível para drag (mantém acessibilidade) */}
+        <button
+          {...attributes}
+          {...listeners}
+          className={cn(
+            'absolute -left-12 top-2 p-2 rounded transition-colors',
+            'opacity-0 hover:opacity-100 text-gray-400',
+            isDragging && 'opacity-100 text-blue-600'
+          )}
+          title="Arraste para reordenar"
+          aria-label="Alça para reordenar"
+          aria-pressed={isDragging}
+          disabled={deleting}
+        >
+          {/* Hidden grip visual - acessível via drag listeners */}
+        </button>
 
+        {/* Conteúdo principal - flex column */}
+        <div className="flex flex-col gap-3">
+          {/* Linha 1: Título (esquerda) + Botões (direita) */}
+          <div className="flex items-center justify-between gap-3">
             {/* Link wrapper para navegação */}
             <a
               href={`/estudo/${reference.target_study_id}`}
               data-href={`/estudo/${reference.target_study_id}`}
               className={cn(
-                'block hover:text-blue-600 transition-colors',
+                'flex-1 min-w-0 text-sm font-semibold text-gray-900 leading-tight hover:text-blue-600 transition-colors',
                 deleting && 'opacity-50 pointer-events-none'
               )}
             >
-              {/* Linha 1: Livro + Capítulo (bold) */}
-              <div className="text-sm font-semibold text-gray-900 leading-tight">
-                {bookChapterPart}
-              </div>
-
-              {/* Linha 2: Descrição (normal) - sem line-clamp */}
-              {descriptionPart && (
-                <div className="text-sm font-normal text-gray-900 leading-snug mt-1">
-                  {descriptionPart}
-                </div>
-              )}
+              {bookChapterPart}
             </a>
 
-            {/* Linha 3: Tags */}
-            {tags.length > 0 && (
-              <p className={cn('text-xs mt-2', COLORS.neutral.text.muted)}>
-                {tags.join(' · ')}
-              </p>
-            )}
-          </div>
-
-          {/* Refinement 3: Actions com stagger animation ao hover */}
-          <div className="flex gap-1 flex-shrink-0">
+            {/* Refinement 3: Actions com stagger animation ao hover */}
+            <div className="flex gap-1 flex-shrink-0 items-center">
             {/* Up button - delay-0 (sem delay) */}
             <button
               onClick={() => onReorder(reference.id, 'up')}
@@ -243,7 +225,45 @@ export const SortableReferenceItem = React.forwardRef<
             >
               <ArrowRight size={14} />
             </button>
+            </div>
           </div>
+
+          {/* Linha 2: Descrição (quebra em múltiplas linhas) */}
+          {descriptionPart && (
+            <a
+              href={`/estudo/${reference.target_study_id}`}
+              data-href={`/estudo/${reference.target_study_id}`}
+              className={cn(
+                'text-sm font-normal text-gray-900 leading-snug hover:text-blue-600 transition-colors',
+                deleting && 'opacity-50 pointer-events-none'
+              )}
+            >
+              {descriptionPart}
+            </a>
+          )}
+
+          {/* Linha 3: Tags coloridas (quebra em múltiplas linhas) */}
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {tags.map((tag: TagWithColor, idx: number) => (
+                <span
+                  key={idx}
+                  className={cn(
+                    'px-2.5 py-1 rounded-full text-xs font-medium',
+                    'transition-all duration-150 ease-out'
+                  )}
+                  style={{
+                    backgroundColor: `${tag.color}20`, // 20% opacity
+                    color: tag.color,
+                    border: `1px solid ${tag.color}40`, // 40% opacity border
+                  }}
+                  title={`${tag.type}`}
+                >
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );

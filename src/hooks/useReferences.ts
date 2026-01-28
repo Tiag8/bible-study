@@ -12,6 +12,12 @@ import { supabase } from '@/lib/supabase';
  *
  * @deprecated Use Reference from @/types/reference
  */
+export interface TagWithColor {
+  name: string;
+  type: 'Versículos' | 'Temas' | 'Princípios';
+  color: string;
+}
+
 export interface Reference {
   id: string;
   source_study_id: string;
@@ -19,7 +25,7 @@ export interface Reference {
   target_title: string;
   target_book_name: string;
   target_chapter_number: number;
-  target_tags: string[];
+  target_tags: TagWithColor[];
   created_at: string;
   position?: number;
 }
@@ -56,6 +62,8 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
       // Fetch target study details para cada referência
       if (data && data.length > 0) {
         const targetIds = data.map((ref) => ref.target_study_id);
+
+        // Query 1: Buscar estudos com seus nomes de tags
         const { data: targets, error: targetErr } = await supabase
           .from('bible_studies')
           .select('id, title, book_name, chapter_number, tags')
@@ -64,16 +72,42 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
 
         if (targetErr) throw targetErr;
 
-        // Merge com dados de target
+        // Query 2: Buscar todas as tags do usuário com suas cores e types
+        const { data: allUserTags, error: tagsErr } = await supabase
+          .from('bible_tags')
+          .select('name, type, color')
+          .eq('user_id', user.id);
+
+        if (tagsErr) throw tagsErr;
+
+        // Criar map de tags por nome para lookup rápido
+        const tagsMap = new Map(
+          (allUserTags || []).map((tag) => [tag.name, { type: tag.type, color: tag.color }])
+        );
+
+        // Merge com dados de target e enriquecer tags com cores
         const targetsMap = new Map(targets?.map((t) => [t.id, t]) || []);
         const enrichedRefs = data.map((ref) => {
           const target = targetsMap.get(ref.target_study_id);
+          const tagNames = target?.tags || [];
+
+          // Converter nomes de tags para objetos com color/type
+          const tagsWithColor: TagWithColor[] = tagNames
+            .map((tagName: string) => {
+              const tagInfo = tagsMap.get(tagName);
+              return {
+                name: tagName,
+                type: tagInfo?.type || 'Temas',
+                color: tagInfo?.color || '#6b7280', // fallback cinza
+              };
+            });
+
           return {
             ...ref,
             target_title: target?.title || 'Desconhecido',
             target_book_name: target?.book_name || '',
             target_chapter_number: target?.chapter_number || 0,
-            target_tags: target?.tags || [],
+            target_tags: tagsWithColor,
           };
         });
 
