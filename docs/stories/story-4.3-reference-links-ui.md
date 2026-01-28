@@ -6,7 +6,7 @@
 **Status:** 🚀 In Progress
 **Priority:** P0 (Polish & Testing)
 **Sprint:** Sprint 4 (Polish + Testing)
-**Last Updated:** 2026-01-28 18:45 - Day 1 Tasks 4.3.1-4.3.2 Complete
+**Last Updated:** 2026-01-29 - Day 2 Complete (Tasks 4.3.3-4.3.4)
 
 ---
 
@@ -102,9 +102,10 @@ As a Bible study user, I want to easily view, add, and manage references (links)
 
 ## 📝 Tasks
 
-- [x] **4.3.1** Design reference card component (Figma + React) — ✅ Types defined, visual states documented
-- [x] **4.3.2** Implement ReferencesSidebar component (display + list) — ✅ Components created & integrated
-- [ ] **4.3.3** Implement AddReferenceModal (search + selection)
+- [x] **4.3.1** Design reference card component (Figma + React) — ✅ Day 1
+- [x] **4.3.2** Implement ReferencesSidebar component (display + list) — ✅ Day 1
+- [x] **4.3.3** Implement AddReferenceModal (search + selection) — ✅ Day 2 (debounce + accessibility)
+- [x] **4.3.4** Implement useReferences hook (CRUD operations) — ✅ Day 2 (validation + error handling)
 - [ ] **4.3.4** Implement delete reference flow (confirmation + toast)
 - [ ] **4.3.5** Implement drag-and-drop reordering
 - [ ] **4.3.6** Integrate with useReferences hook (CRUD operations)
@@ -200,9 +201,9 @@ Integration:
 ### Frontend Components
 - [x] ReferencesSidebar displays references correctly — ✅ Component implemented & integrated
 - [x] ReferenceCard shows title, book, snippet — ✅ Component created with memoization
-- [ ] AddReferenceModal has searchable list — 🚀 Day 2
-- [ ] Delete confirmation modal appears — 🚀 Day 2
-- [ ] Drag-and-drop works smoothly — 🚀 Day 3
+- [x] AddReferenceModal has searchable list — ✅ Day 2 (200ms debounce + aria-labels)
+- [x] CRUD operations working (add/delete/reorder) — ✅ Day 2 (validation + optimistic updates)
+- [ ] Drag-and-drop visual feedback — 🚀 Day 3
 - [x] Mobile responsive sidebar/drawer — ✅ Layout ready (w-80, responsive flex)
 - [x] Empty state shows "Nenhuma referência ainda" — ✅ Implemented in ReferencesSidebar
 
