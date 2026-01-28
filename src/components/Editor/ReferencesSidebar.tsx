@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, Plus, Trash2, ChevronUp } from 'lucide-react';
+import { ChevronDown, Plus, Trash2, ChevronUp, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { COLORS, BORDERS } from '@/lib/design-tokens';
 import { Reference } from '@/hooks/useReferences';
 import { AddReferenceModal } from './AddReferenceModal';
+import { toast } from 'sonner';
 
 interface ReferencesSidebarProps {
   references: Reference[];
@@ -25,11 +26,34 @@ export function ReferencesSidebar({
   const [isOpen, setIsOpen] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const handleDelete = async (referenceId: string) => {
+  const handleDeleteClick = (referenceId: string) => {
+    setDeleteConfirm(referenceId);
+  };
+
+  const handleDeleteConfirm = async (referenceId: string) => {
     setDeleting(referenceId);
-    await onDeleteReference(referenceId);
-    setDeleting(null);
+    const refToDelete = references.find((ref) => ref.id === referenceId);
+    const refTitle = refToDelete?.target_title || 'Referência';
+
+    try {
+      const success = await onDeleteReference(referenceId);
+      if (success) {
+        toast.success(`Referência removida: ${refTitle}`);
+      } else {
+        toast.error('Erro ao remover referência');
+      }
+    } catch {
+      toast.error('Erro ao remover referência');
+    } finally {
+      setDeleting(null);
+      setDeleteConfirm(null);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteConfirm(null);
   };
 
   return (
@@ -137,14 +161,15 @@ export function ReferencesSidebar({
 
                   {/* Delete button */}
                   <button
-                    onClick={() => handleDelete(ref.id)}
+                    onClick={() => handleDeleteClick(ref.id)}
                     disabled={deleting === ref.id}
                     className={cn(
                       'p-1 rounded text-xs ml-auto transition-colors',
                       'text-red-600 hover:bg-red-50',
                       deleting === ref.id && 'opacity-50 cursor-not-allowed'
                     )}
-                    title="Deletar referência"
+                    title="Delete reference"
+                    aria-label={`Delete reference to ${ref.target_title}`}
                   >
                     <Trash2 className="w-3 h-3" />
                   </button>
@@ -161,12 +186,68 @@ export function ReferencesSidebar({
           onAdd={async (targetId) => {
             const success = await onAddReference(targetId);
             if (success) {
+              toast.success('Referência adicionada com sucesso');
               setShowAddModal(false);
+            } else {
+              toast.error('Erro ao adicionar referência');
             }
             return success;
           }}
           onClose={() => setShowAddModal(false)}
         />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+            {/* Icon */}
+            <div className="flex items-center justify-center mb-4">
+              <div className="p-3 bg-red-100 rounded-full">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+            </div>
+
+            {/* Title */}
+            <h2 className="text-lg font-semibold text-gray-900 text-center mb-2">
+              Remover referência?
+            </h2>
+
+            {/* Description */}
+            <p className={cn('text-sm text-center mb-6', COLORS.neutral.text.secondary)}>
+              Tem certeza que deseja remover a referência para{' '}
+              <strong>
+                {references.find((ref) => ref.id === deleteConfirm)?.target_title}
+              </strong>
+              ? Esta ação não pode ser desfeita.
+            </p>
+
+            {/* Buttons */}
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={handleDeleteCancel}
+                className={cn(
+                  'px-4 py-2 rounded border transition-colors',
+                  BORDERS.gray,
+                  'hover:bg-gray-50'
+                )}
+                disabled={deleting !== null}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => handleDeleteConfirm(deleteConfirm)}
+                disabled={deleting !== null}
+                className={cn(
+                  'px-4 py-2 rounded text-white transition-colors',
+                  deleting !== null ? 'opacity-50 cursor-not-allowed bg-red-400' : 'bg-red-600 hover:bg-red-700'
+                )}
+              >
+                {deleting ? 'Removendo...' : 'Remover'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
