@@ -212,9 +212,11 @@ export function StudyPageClient({ params }: StudyPageProps) {
 
       if (link instanceof HTMLAnchorElement) {
         const href = link.getAttribute('href');
+        console.log('🔗 Link clicado:', href);
 
         // Caso 1: Link interno novo (/estudo/{id})
         if (href?.startsWith('/estudo/')) {
+          console.log('✅ Navegando para:', href);
           e.preventDefault();
           router.push(href);
           return;
@@ -222,6 +224,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
 
         // Caso 2: Link antigo (bible-graph://study/{id})
         if (href?.startsWith('bible-graph://study/')) {
+          console.log('✅ Convertendo para:', href.replace('bible-graph://study/', ''));
           e.preventDefault();
           const studyId = href.replace('bible-graph://study/', '');
           router.push(`/estudo/${studyId}`);
@@ -230,15 +233,33 @@ export function StudyPageClient({ params }: StudyPageProps) {
       }
     };
 
-    // Registrar listener no editor DOM
-    const editorElement = document.querySelector('.tiptap');
-    if (editorElement) {
-      editorElement.addEventListener('click', handleLinkClick);
+    // Tentar encontrar e registrar listener (com retry)
+    let attempts = 0;
+    const maxAttempts = 5;
 
-      return () => {
-        editorElement.removeEventListener('click', handleLinkClick);
-      };
-    }
+    const tryRegisterListener = () => {
+      const editorElement = document.querySelector('.tiptap');
+      attempts++;
+
+      if (editorElement) {
+        editorElement.addEventListener('click', handleLinkClick);
+        console.log('✅ [Tentativa', attempts + '] Listener registrado no .tiptap');
+      } else if (attempts < maxAttempts) {
+        console.log('⏳ [Tentativa', attempts + '] .tiptap não encontrado, retry em 500ms...');
+        setTimeout(tryRegisterListener, 500);
+      } else {
+        console.warn('❌ .tiptap não encontrado após', maxAttempts, 'tentativas');
+      }
+    };
+
+    tryRegisterListener();
+
+    // Cleanup: quando component unmount, remover listeners de TODOS elementos .tiptap
+    return () => {
+      document.querySelectorAll('.tiptap').forEach((el) => {
+        el.removeEventListener('click', handleLinkClick);
+      });
+    };
   }, [router]);
 
   // Função de salvamento
