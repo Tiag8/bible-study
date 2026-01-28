@@ -3,6 +3,7 @@
 import { useEffect, useRef, forwardRef, useImperativeHandle, useMemo } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { History } from "@tiptap/extension-history";
 import { Placeholder } from "@tiptap/extensions";
 import { Highlight } from "@tiptap/extension-highlight";
 import { TextStyle } from "@tiptap/extension-text-style";
@@ -75,11 +76,13 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
   // Evita "Adding different instances of a keyed plugin" erro
   const extensions = useMemo(
     () => [
+      // History DEVE vir ANTES de StarterKit (que já inclui History com depth: 10)
+      // Colocar History primeiro garante que o depth: 5 seja usado
+      History.configure({
+        depth: 5, // Máximo de 5 passos de undo/redo (Story 3.8)
+      }),
       StarterKit.configure({
         blockquote: false, // Usar nossa extensão customizada ColoredBlockquote
-        history: {
-          depth: 5, // Máximo de 5 passos de undo/redo (Story 3.8)
-        },
       }),
       ColoredBlockquote, // Extensão customizada com suporte a cores de blockquote
       Placeholder.configure({

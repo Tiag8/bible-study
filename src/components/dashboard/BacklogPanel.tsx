@@ -179,6 +179,7 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
                         handleRemoveItem(item.id);
                       }}
                       className={cn("opacity-0 group-hover:opacity-100 p-1 transition-all", COLORS.neutral.text.light, `hover:${COLORS.danger.text}`)}
+                      aria-label={`Deletar item ${item.reference_label} do backlog`}
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -221,6 +222,7 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
                 <button
                   onClick={() => handleRemoveItem(item.id)}
                   className={cn("opacity-0 group-hover:opacity-100 p-1", COLORS.neutral.text.light, `hover:${COLORS.danger.text}`)}
+                  aria-label={`Deletar item concluído ${item.reference_label}`}
                 >
                   <X className="w-3 h-3" />
                 </button>
