@@ -199,50 +199,74 @@ export function StudyPageClient({ params }: StudyPageProps) {
     setHasUnsavedChanges(true);
   }, [isInitialLoad]);
 
-  // Interceptar cliques em links internos (/estudo/)
+  // Interceptar cliques em links internos (/estudo/) + remover href para evitar navegação padrão
   useEffect(() => {
     const handleLinkClick = (e: Event) => {
       if (!(e instanceof MouseEvent)) return;
 
       const target = e.target as HTMLElement;
 
-      // Buscar elemento <a> mais próximo (pode estar em spans filhos)
-      const link = target.closest('a[href^="/estudo/"]');
+      // Buscar elemento <a> mais próximo - pode ter data-href (links internos) ou href (links normais)
+      let link = target.closest('a[data-href^="/estudo/"]') as HTMLAnchorElement | null;
+
+      // Se não encontrou com data-href, procurar com href (links normais)
+      if (!link) {
+        link = target.closest('a[href^="/estudo/"]') as HTMLAnchorElement | null;
+      }
 
       if (link instanceof HTMLAnchorElement) {
-        const href = link.getAttribute('href');
+        // Tentar pegar href do data-href primeiro, depois do href
+        const href = link.getAttribute('data-href') || link.getAttribute('href');
 
         // Link interno (/estudo/{id})
         if (href?.startsWith('/estudo/')) {
+          console.debug('[CLICK_HANDLER] 🔗 Link encontrado', { href });
+
+          // ⚠️ CRÍTICO: Bloquear TUDO
           e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          console.debug('[CLICK_HANDLER] ✅ Navegando para', { href });
+
+          // Navegar
           router.push(href);
-          return;
+
+          return false;
         }
       }
     };
 
-    // Tentar encontrar e registrar listener (com retry)
-    let attempts = 0;
-    const maxAttempts = 5;
+    // Handler global
+    console.debug('[CLICK_HANDLER] 📌 Registrando handler global');
+    document.addEventListener('click', handleLinkClick, true);
 
-    const tryRegisterListener = () => {
-      const editorElement = document.querySelector('.tiptap');
-      attempts++;
-
-      if (editorElement) {
-        editorElement.addEventListener('click', handleLinkClick);
-      } else if (attempts < maxAttempts) {
-        setTimeout(tryRegisterListener, 500);
-      }
+    // 🔥 SOLUÇÃO: Remover href de links internos para evitar navegação padrão do browser
+    // Isso impede que o browser interprete como link navegável
+    const removeHrefFromInternalLinks = () => {
+      document.querySelectorAll('a[href^="/estudo/"]').forEach((link) => {
+        const htmlLink = link as HTMLAnchorElement;
+        htmlLink.setAttribute('data-href', htmlLink.getAttribute('href') || '');
+        htmlLink.removeAttribute('href');
+        htmlLink.style.cursor = 'pointer';
+        console.debug('[CLICK_HANDLER] 🔗 Link modificado - href removido, data-href definido', {
+          'data-href': htmlLink.getAttribute('data-href'),
+          text: htmlLink.textContent
+        });
+      });
     };
 
-    tryRegisterListener();
+    // Executar assim que DOM monta
+    removeHrefFromInternalLinks();
 
-    // Cleanup: quando component unmount, remover listeners de TODOS elementos .tiptap
+    // Executar também periodicamente (em caso de conteúdo dinâmico)
+    const interval = setInterval(removeHrefFromInternalLinks, 500);
+
+    // Cleanup
     return () => {
-      document.querySelectorAll('.tiptap').forEach((el) => {
-        el.removeEventListener('click', handleLinkClick);
-      });
+      console.debug('[CLICK_HANDLER] 🧹 Limpando handler');
+      document.removeEventListener('click', handleLinkClick, true);
+      clearInterval(interval);
     };
   }, [router]);
 
