@@ -199,7 +199,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
     setHasUnsavedChanges(true);
   }, [isInitialLoad]);
 
-  // Interceptar cliques em links internos (bible-graph:// e /estudo/)
+  // Interceptar cliques em links internos (/estudo/)
   useEffect(() => {
     const handleLinkClick = (e: Event) => {
       if (!(e instanceof MouseEvent)) return;
@@ -207,24 +207,15 @@ export function StudyPageClient({ params }: StudyPageProps) {
       const target = e.target as HTMLElement;
 
       // Buscar elemento <a> mais próximo (pode estar em spans filhos)
-      const link = target.closest('a[href^="/estudo/"]') ||
-                   target.closest('a[href^="bible-graph://"]');
+      const link = target.closest('a[href^="/estudo/"]');
 
       if (link instanceof HTMLAnchorElement) {
         const href = link.getAttribute('href');
 
-        // Caso 1: Link interno novo (/estudo/{id})
+        // Link interno (/estudo/{id})
         if (href?.startsWith('/estudo/')) {
           e.preventDefault();
           router.push(href);
-          return;
-        }
-
-        // Caso 2: Link antigo (bible-graph://study/{id})
-        if (href?.startsWith('bible-graph://study/')) {
-          e.preventDefault();
-          const studyId = href.replace('bible-graph://study/', '');
-          router.push(`/estudo/${studyId}`);
           return;
         }
       }

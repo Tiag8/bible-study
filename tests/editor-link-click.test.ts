@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
  * Testes para interceptação de cliques em links internos
  *
  * Simula o comportamento do handler de clique em StudyPageClient.tsx
- * que intercepta links /estudo/* e bible-graph://study/*
+ * que intercepta links /estudo/* (Phase 3 refactoring: removeu bible-graph://)
  */
 
 describe('Editor Link Click Interception', () => {
@@ -68,39 +68,7 @@ describe('Editor Link Click Interception', () => {
     expect(mockRouter.push).toHaveBeenCalledWith('/estudo/uuid-12345');
   });
 
-  // ✅ TEST 2: Intercept bible-graph:// links
-  it('should intercept and convert bible-graph:// links', () => {
-    const link = document.createElement('a');
-    link.href = 'bible-graph://study/uuid-67890';
-    editorElement.appendChild(link);
-
-    const preventDefault = vi.fn();
-    const eventWithMethods = {
-      target: link,
-      preventDefault,
-    } as any;
-
-    const handleLinkClick = (e: any) => {
-      const target = e.target as HTMLElement;
-      const linkEl = target.closest('a[href^="bible-graph://"]');
-
-      if (linkEl instanceof HTMLAnchorElement) {
-        const href = linkEl.getAttribute('href');
-        if (href?.startsWith('bible-graph://study/')) {
-          e.preventDefault();
-          const studyId = href.replace('bible-graph://study/', '');
-          mockRouter.push(`/estudo/${studyId}`);
-        }
-      }
-    };
-
-    handleLinkClick(eventWithMethods);
-
-    expect(preventDefault).toHaveBeenCalled();
-    expect(mockRouter.push).toHaveBeenCalledWith('/estudo/uuid-67890');
-  });
-
-  // ✅ TEST 3: router.push called with correct path
+  // ✅ TEST 2: router.push called with correct path (Phase 3: /estudo/ only)
   it('should call router.push with the correct study path', () => {
     const studyId = 'abc-def-ghi';
     const link = document.createElement('a');
@@ -128,7 +96,7 @@ describe('Editor Link Click Interception', () => {
     expect(mockRouter.push).toHaveBeenCalledTimes(1);
   });
 
-  // ✅ TEST 4: Event delegation (click on nested element)
+  // ✅ TEST 3: Event delegation (click on nested element)
   it('should handle clicks on nested elements inside links', () => {
     const link = document.createElement('a');
     link.href = '/estudo/nested-test';
@@ -162,7 +130,7 @@ describe('Editor Link Click Interception', () => {
     expect(mockRouter.push).toHaveBeenCalledWith('/estudo/nested-test');
   });
 
-  // ✅ TEST 5: Multiple links on same page
+  // ✅ TEST 4: Multiple links on same page
   it('should handle multiple links independently', () => {
     const link1 = document.createElement('a');
     link1.href = '/estudo/link-1';
@@ -196,7 +164,7 @@ describe('Editor Link Click Interception', () => {
     expect(mockRouter.push).toHaveBeenCalledTimes(2);
   });
 
-  // ✅ TEST 6: Non-link clicks are ignored
+  // ✅ TEST 5: Non-link clicks are ignored
   it('should not intercept clicks on non-link elements', () => {
     const nonLink = document.createElement('span');
     nonLink.textContent = 'Not a link';
@@ -223,7 +191,7 @@ describe('Editor Link Click Interception', () => {
     expect(mockRouter.push).not.toHaveBeenCalled();
   });
 
-  // ✅ TEST 7: External links are not intercepted
+  // ✅ TEST 6: External links are not intercepted
   it('should not intercept external http/https links', () => {
     const externalLink = document.createElement('a');
     externalLink.href = 'https://example.com';
@@ -250,7 +218,7 @@ describe('Editor Link Click Interception', () => {
     expect(mockRouter.push).not.toHaveBeenCalled();
   });
 
-  // ✅ TEST 8: Ctrl+Click behavior
+  // ✅ TEST 7: Ctrl+Click behavior
   it('should still intercept even with modifier keys', () => {
     const link = document.createElement('a');
     link.href = '/estudo/ctrl-click-test';
@@ -281,7 +249,7 @@ describe('Editor Link Click Interception', () => {
     expect(mockRouter.push).toHaveBeenCalledWith('/estudo/ctrl-click-test');
   });
 
-  // ✅ TEST 9: Event listener cleanup
+  // ✅ TEST 8: Event listener cleanup
   it('should properly cleanup event listener on unmount', () => {
     const removeSpy = vi.spyOn(Element.prototype, 'removeEventListener');
 
@@ -294,5 +262,34 @@ describe('Editor Link Click Interception', () => {
     expect(removeSpy).toHaveBeenCalledWith('click', handleLinkClick);
 
     removeSpy.mockRestore();
+  });
+
+  // ✅ TEST 9: Legacy bible-graph:// links are no longer intercepted
+  it('should NOT intercept bible-graph:// links (Phase 3 removed)', () => {
+    const link = document.createElement('a');
+    link.href = 'bible-graph://study/uuid-legacy';
+    editorElement.appendChild(link);
+
+    const preventDefault = vi.fn();
+    const eventWithMethods = {
+      target: link,
+      preventDefault,
+    } as any;
+
+    const handleLinkClick = (e: any) => {
+      const target = e.target as HTMLElement;
+      // Phase 3: Only look for /estudo/ links, ignore bible-graph://
+      const linkEl = target.closest('a[href^="/estudo/"]');
+      if (linkEl instanceof HTMLAnchorElement) {
+        e.preventDefault();
+        mockRouter.push(linkEl.getAttribute('href')!);
+      }
+    };
+
+    handleLinkClick(eventWithMethods);
+
+    // Should NOT intercept or prevent default
+    expect(preventDefault).not.toHaveBeenCalled();
+    expect(mockRouter.push).not.toHaveBeenCalled();
   });
 });

@@ -52,12 +52,12 @@ export function useBubbleMenuHandlers({
    * @param studyTitle - Título do estudo (para logs)
    */
   const handleReference = useCallback((studyId: string, studyTitle: string) => {
-    const referenceUrl = `bible-graph://study/${studyId}`;
+    const referenceUrl = `/estudo/${studyId}`;
     editor
       .chain()
       .focus()
       .extendMarkRange("link")
-      .setLink({ href: referenceUrl, target: "_self" })
+      .setLink({ href: referenceUrl })
       .run();
     setSearchQuery("");
     setMode("default");

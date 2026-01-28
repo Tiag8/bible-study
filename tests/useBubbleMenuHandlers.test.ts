@@ -64,8 +64,8 @@ describe('useBubbleMenuHandlers', () => {
     expect(setMode).toHaveBeenCalledWith('default');
   });
 
-  // ✅ TEST 2: Create internal reference with bible-graph:// format
-  it('should create reference with bible-graph:// protocol format', () => {
+  // ✅ TEST 2: Create internal reference with /estudo/ format (Phase 3 refactoring)
+  it('should create reference with /estudo/ URL format', () => {
     const { result } = renderHook(() =>
       useBubbleMenuHandlers({
         editor: mockEditor as unknown as Editor,
@@ -83,8 +83,7 @@ describe('useBubbleMenuHandlers', () => {
     });
 
     expect(chainMock.setLink).toHaveBeenCalledWith({
-      href: `bible-graph://study/${studyId}`,
-      target: '_self',
+      href: `/estudo/${studyId}`,
     });
     expect(setSearchQuery).toHaveBeenCalledWith('');
     expect(setMode).toHaveBeenCalledWith('default');
