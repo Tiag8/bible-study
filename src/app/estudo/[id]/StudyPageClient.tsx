@@ -51,9 +51,11 @@ export function StudyPageClient({ params }: StudyPageProps) {
   const {
     references,
     loading: referencesLoading,
+    error: referencesError,
     addReference,
     deleteReference,
     reorderReference,
+    refetch: refetchReferences,
   } = useReferences(id && id !== 'new' ? id : null, handleRemoveLink);
   const searchParams = useSearchParams();
 
@@ -958,9 +960,11 @@ export function StudyPageClient({ params }: StudyPageProps) {
         <ReferencesSidebar
           references={references}
           loading={referencesLoading}
+          error={referencesError}
           onAddReference={addReference}
           onDeleteReference={deleteReference}
           onReorder={reorderReference}
+          onRetry={refetchReferences}
         />
       </div>
     </main>

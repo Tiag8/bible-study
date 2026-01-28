@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, Plus, AlertTriangle, X } from 'lucide-react';
+import { ChevronDown, Plus, AlertTriangle, X, RotateCw } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { cn } from '@/lib/utils';
@@ -14,23 +14,28 @@ import { toast } from 'sonner';
 interface ReferencesSidebarProps {
   references: Reference[];
   loading: boolean;
+  error?: string | null;
   onAddReference: (targetStudyId: string) => Promise<boolean>;
   onDeleteReference: (referenceId: string) => Promise<boolean>;
   onReorder: (referenceId: string, direction: 'up' | 'down') => Promise<boolean>;
+  onRetry?: () => void;
 }
 
 export function ReferencesSidebar({
   references,
   loading,
+  error,
   onAddReference,
   onDeleteReference,
   onReorder,
+  onRetry,
 }: ReferencesSidebarProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [showOnMobile, setShowOnMobile] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [retrying, setRetrying] = useState(false);
 
   // Setup drag-and-drop sensors
   const sensors = useSensors(
@@ -66,6 +71,16 @@ export function ReferencesSidebar({
 
   const handleDeleteCancel = () => {
     setDeleteConfirm(null);
+  };
+
+  const handleRetry = async () => {
+    if (!onRetry) return;
+    setRetrying(true);
+    try {
+      onRetry();
+    } finally {
+      setRetrying(false);
+    }
   };
 
   return (
@@ -141,15 +156,67 @@ export function ReferencesSidebar({
       {/* Content */}
       {isOpen && (
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          {loading ? (
-            <div className={cn('text-sm text-center py-4', COLORS.neutral.text.muted)}>
-              Carregando referências...
+          {/* Loading State */}
+          {loading && !error ? (
+            <div className="space-y-2">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    'p-3 rounded border animate-pulse',
+                    BORDERS.gray,
+                    'bg-gray-100'
+                  )}
+                  role="status"
+                  aria-label="Carregando referência"
+                >
+                  <div className="h-4 bg-gray-300 rounded w-3/4 mb-2" />
+                  <div className="h-3 bg-gray-300 rounded w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            // Error State
+            <div className="space-y-3">
+              <div className="p-4 rounded border border-red-200 bg-red-50 space-y-2">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-red-900">
+                      Erro ao carregar referências
+                    </p>
+                    <p className={cn('text-xs mt-1', COLORS.neutral.text.secondary)}>
+                      {error}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleRetry}
+                  disabled={retrying}
+                  className={cn(
+                    'w-full px-3 py-2 rounded text-xs font-medium transition-colors',
+                    'flex items-center justify-center gap-1',
+                    retrying
+                      ? 'bg-red-200 text-red-700 cursor-not-allowed'
+                      : 'bg-red-600 text-white hover:bg-red-700'
+                  )}
+                  title="Tentar novamente"
+                  aria-label="Tentar novamente"
+                >
+                  <RotateCw className={cn('w-3 h-3', retrying && 'animate-spin')} />
+                  {retrying ? 'Tentando...' : 'Tentar novamente'}
+                </button>
+              </div>
             </div>
           ) : references.length === 0 ? (
-            <div className={cn('text-sm text-center py-4', COLORS.neutral.text.muted)}>
-              Nenhuma referência ainda
+            // Empty State
+            <div className={cn('text-sm text-center py-8 space-y-2', COLORS.neutral.text.muted)}>
+              <div className="text-2xl mb-2">📚</div>
+              <p>Nenhuma referência ainda</p>
+              <p className="text-xs">Adicione referências para conectar estudos</p>
             </div>
           ) : (
+            // References List
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
