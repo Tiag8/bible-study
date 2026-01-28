@@ -14,6 +14,8 @@ interface UseBubbleMenuHandlersProps {
   setMode: (mode: MenuMode) => void;
   setLinkUrl: (url: string) => void;
   setSearchQuery: (query: string) => void;
+  onAddReference?: (targetStudyId: string) => Promise<boolean>;
+  onDeleteReferenceByStudyId?: (targetStudyId: string) => Promise<boolean>;
 }
 
 export function useBubbleMenuHandlers({
@@ -21,6 +23,8 @@ export function useBubbleMenuHandlers({
   setMode,
   setLinkUrl,
   setSearchQuery,
+  onAddReference,
+  onDeleteReferenceByStudyId,
 }: UseBubbleMenuHandlersProps) {
   /**
    * Define link externo na seleção atual
@@ -40,10 +44,23 @@ export function useBubbleMenuHandlers({
 
   /**
    * Remove link da seleção atual
+   * Se for um link de referência (/estudo/{id}), também remove do banco de dados
    */
-  const handleRemoveLink = useCallback(() => {
+  const handleRemoveLink = useCallback(async () => {
+    // Obter URL do link antes de remover
+    const mark = editor.getAttributes('link');
+    const href = mark.href || '';
+
+    // Se é um link de referência, extrair study_id e deletar
+    if (href?.startsWith('/estudo/')) {
+      const studyId = href.replace('/estudo/', '');
+      if (onDeleteReferenceByStudyId) {
+        await onDeleteReferenceByStudyId(studyId);
+      }
+    }
+
     editor.chain().focus().unsetLink().run();
-  }, [editor]);
+  }, [editor, onDeleteReferenceByStudyId]);
 
   /**
    * Cria referência interna para outro estudo
@@ -51,7 +68,7 @@ export function useBubbleMenuHandlers({
    * @param studyId - UUID do estudo
    * @param studyTitle - Título do estudo (para logs)
    */
-  const handleReference = useCallback((studyId: string, studyTitle: string) => {
+  const handleReference = useCallback(async (studyId: string, studyTitle: string) => {
     const referenceUrl = `/estudo/${studyId}`;
     editor
       .chain()
@@ -62,11 +79,16 @@ export function useBubbleMenuHandlers({
     setSearchQuery("");
     setMode("default");
 
+    // Salvar referência no banco de dados
+    if (onAddReference) {
+      await onAddReference(studyId);
+    }
+
     // ✅ CODE QUALITY: Console.log apenas em desenvolvimento
     if (process.env.NODE_ENV === 'development') {
       console.log(`Referência criada para: ${studyTitle} (ID: ${studyId})`);
     }
-  }, [editor, setSearchQuery, setMode]);
+  }, [editor, setSearchQuery, setMode, onAddReference]);
 
   /**
    * Aplica highlight (marca-texto) com cor específica

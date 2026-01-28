@@ -25,6 +25,8 @@ interface EditorProps {
   initialContent?: string | TiptapContent | null;
   onChange?: (content: string) => void;
   onUndoRedoChange?: (canUndo: boolean, canRedo: boolean) => void;
+  onAddReference?: (targetStudyId: string) => Promise<boolean>;
+  onDeleteReferenceByStudyId?: (targetStudyId: string) => Promise<boolean>;
 }
 
 export interface EditorHandle {
@@ -32,6 +34,7 @@ export interface EditorHandle {
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  removeLink: (url: string) => void;
 }
 
 /**
@@ -53,7 +56,7 @@ export interface EditorHandle {
  * @ref Editor - Expõe métodos undo() e redo() e status canUndo/canRedo
  */
 export const Editor = forwardRef<EditorHandle, EditorProps>(
-  function Editor({ initialContent = "", onChange, onUndoRedoChange }: EditorProps, ref) {
+  function Editor({ initialContent = "", onChange, onUndoRedoChange, onAddReference, onDeleteReferenceByStudyId }: EditorProps, ref) {
   // Ref para prevenir sync loops (evita setContent quando conteúdo já é o mesmo)
   const lastSyncedContentRef = useRef<string | null>(null);
 
@@ -125,12 +128,39 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
     },
   });
 
-  // Expor métodos undo/redo via ref
+  // Expor métodos undo/redo/removeLink via ref
   useImperativeHandle(ref, () => ({
     undo: () => editor?.commands.undo(),
     redo: () => editor?.commands.redo(),
     canUndo: editor?.can().undo() ?? false,
     canRedo: editor?.can().redo() ?? false,
+    removeLink: (url: string) => {
+      if (!editor) return;
+      const doc = editor.state.doc;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      editor.chain()
+        .focus()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .command(({ tr }: any) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          doc.descendants((node: any, pos: number) => {
+            if (node.marks) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              node.marks.forEach((mark: any) => {
+                if (mark.type.name === 'link') {
+                  const href = mark.attrs.href;
+                  if (href === url) {
+                    tr.removeMark(pos, pos + node.nodeSize, mark.type);
+                  }
+                }
+              });
+            }
+          });
+          return true;
+        })
+        .run();
+    },
   }), [editor]);
 
   /**
@@ -256,7 +286,7 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
         }
       `}</style>
 
-      <BubbleMenuComponent editor={editor} />
+      <BubbleMenuComponent editor={editor} onAddReference={onAddReference} onDeleteReferenceByStudyId={onDeleteReferenceByStudyId} />
       <EditorContent editor={editor} />
       <SlashMenu
         editor={editor}

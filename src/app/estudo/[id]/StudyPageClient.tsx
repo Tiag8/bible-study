@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { getBookById } from "@/lib/mock-data";
-import { useStudies, useTags, StudyWithContent } from "@/hooks";
+import { useStudies, useTags, useReferences, StudyWithContent } from "@/hooks";
 import {
   Save,
   CheckCircle,
@@ -28,6 +28,7 @@ import {
 import { toast } from "sonner";
 import { CreateTagModal } from "@/components/CreateTagModal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { ReferencesSidebar } from "@/components/Editor/ReferencesSidebar";
 
 interface StudyPageProps {
   params: Promise<{ id: string }>;
@@ -40,6 +41,20 @@ export function StudyPageClient({ params }: StudyPageProps) {
   // Hooks Supabase
   const { getStudyById, createStudy, saveStudy, updateStudyStatus, deleteStudy } = useStudies();
   const { tags: availableTags, loading: tagsLoading, createTag } = useTags();
+
+  // Remover links do editor quando deleta referência no sidebar
+  const handleRemoveLink = (targetStudyId: string): void => {
+    const referenceUrl = `/estudo/${targetStudyId}`;
+    editorRef.current?.removeLink(referenceUrl);
+  };
+
+  const {
+    references,
+    loading: referencesLoading,
+    addReference,
+    deleteReference,
+    reorderReference,
+  } = useReferences(id && id !== 'new' ? id : null, handleRemoveLink);
   const searchParams = useSearchParams();
 
   // Estado do estudo
@@ -495,6 +510,13 @@ export function StudyPageClient({ params }: StudyPageProps) {
     setIsEditingTitle(false);
   };
 
+  // Deletar referência pelo study_id (quando remove link no editor)
+  const deleteReferenceByStudyId = useCallback(async (targetStudyId: string) => {
+    const ref = references.find((r) => r.target_study_id === targetStudyId);
+    if (!ref) return false;
+    return await deleteReference(ref.id);
+  }, [references, deleteReference]);
+
   // Breadcrumbs
   const breadcrumbItems: BreadcrumbItem[] = study
     ? [
@@ -576,9 +598,11 @@ export function StudyPageClient({ params }: StudyPageProps) {
         isLoading={isDeleting}
       />
 
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-5xl mx-auto px-4 py-3">
+      {/* Header + Editor + Sidebar Container */}
+      <main className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200">
+          <div className="px-4 py-3">
           {/* Breadcrumbs */}
           <div className="mb-3">
             <Breadcrumbs items={breadcrumbItems} />
@@ -900,29 +924,48 @@ export function StudyPageClient({ params }: StudyPageProps) {
             </div>
           )}
         </div>
-      </header>
+        </header>
 
-      {/* Editor */}
-      <main className="max-w-5xl mx-auto px-4 py-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <Editor
-            ref={editorRef}
-            initialContent={study?.content || ""}
-            onChange={handleContentChange}
-            onUndoRedoChange={(canUndo) => setCanUndo(canUndo)}
+        {/* Editor + References Sidebar */}
+        <div className="flex-1 flex overflow-hidden">
+        {/* Editor - Left Column */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-4xl mx-auto px-4 py-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+              <Editor
+                ref={editorRef}
+                initialContent={study?.content || ""}
+                onChange={handleContentChange}
+                onUndoRedoChange={(canUndo) => setCanUndo(canUndo)}
+                onAddReference={addReference}
+                onDeleteReferenceByStudyId={deleteReferenceByStudyId}
+              />
+            </div>
+
+            {/* Dicas */}
+            <div className="mt-4 text-sm text-gray-500">
+              <p>
+                <strong>Dicas:</strong> Use{" "}
+                <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-xs">/</kbd>{" "}
+                para adicionar ao backlog de estudos. Selecione texto e clique em
+                &quot;Referenciar&quot; para criar links entre notas.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* References Sidebar - Right Column */}
+        <div className="w-80 bg-gray-50 border-l border-gray-200">
+          <ReferencesSidebar
+            references={references}
+            loading={referencesLoading}
+            onAddReference={addReference}
+            onDeleteReference={deleteReference}
+            onReorder={reorderReference}
           />
         </div>
-
-        {/* Dicas */}
-        <div className="mt-4 text-sm text-gray-500">
-          <p>
-            <strong>Dicas:</strong> Use{" "}
-            <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-xs">/</kbd>{" "}
-            para adicionar ao backlog de estudos. Selecione texto e clique em
-            &quot;Referenciar&quot; para criar links entre notas.
-          </p>
-        </div>
-      </main>
+      </div>
+    </main>
 
       {/* Modal de criar tag */}
       <CreateTagModal
