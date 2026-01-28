@@ -1,9 +1,9 @@
 # Epic: Stabilization for Friends - Bible Study
 
 **Epic ID:** EPIC-002
-**Data:** 2026-01-27
+**Data:** 2026-01-27 (Updated: 2026-01-28)
 **Context:** Personal tool + free sharing with friends
-**Status:** 🗓️ READY FOR PLANNING
+**Status:** 🎯 IN PLANNING (Story 4.3 added to Sprint 4)
 **Priority:** P0 (Essential before friend sharing)
 
 ---
@@ -87,12 +87,15 @@ Transformar Bible Study de um "MVP pessoal funcional" em uma "ferramenta confiá
 
 **Total Sprint 3: 10 pontos**
 
-### Sprint 4: Polish + Testing (1-2 weeks)
+### Sprint 4: Polish + Testing (2-3 weeks)
 
 | ID | Story | Pontos | Status | Purpose |
 |----|-------|--------|--------|---------|
 | 4.1 | Friend Onboarding Guide | 2 | 📋 Ready | Help friends get started |
 | 4.2 | Bug Bash + Testing | 3 | 📋 Ready | Catch final issues |
+| 4.3 | Reference Links - UI/UX | 8 | 🎯 **NEW** | Manage study interconnections |
+
+**Total Sprint 4: 13 pontos**
 
 ---
 
@@ -161,6 +164,25 @@ Transformar Bible Study de um "MVP pessoal funcional" em uma "ferramenta confiá
 - [ ] All core workflows tested
 - [ ] Edge cases handled
 - [ ] No critical bugs found
+
+### Story 4.3: Reference Links - UI/UX (8pts) ⭐ NEW
+**Goal:** Let users build interconnected study networks
+- View, add, remove, and reorder references between studies
+- Sidebar panel showing all references to current study
+- Search modal to add new references
+- Drag-and-drop reordering
+- Mobile responsive (drawer on tablet/mobile)
+- Full accessibility (WCAG AA)
+**Acceptance Criteria:**
+- [ ] ReferencesSidebar component with reference list
+- [ ] AddReferenceModal with searchable studies
+- [ ] Delete reference with confirmation
+- [ ] Drag-and-drop reordering functional
+- [ ] Mobile responsive (3 breakpoints)
+- [ ] WCAG AA accessibility compliant
+- [ ] Lighthouse Performance > 80
+- [ ] CodeRabbit security sign-off
+**Why Important:** Enables knowledge graph visualization and deep interconnection of biblical concepts. Foundation for Phase 2 features (grafo, advanced search, connection analytics).
 
 ---
 
