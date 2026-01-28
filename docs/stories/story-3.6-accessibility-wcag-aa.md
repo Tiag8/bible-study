@@ -66,7 +66,11 @@ As a user with visual or motor impairments, I want Bible Study to be accessible 
   - ✅ Estimated current Lighthouse scores: 70-85 (target: 95+)
   - ✅ Identified 20+ specific issues across 4 pages
   - ✅ Prioritized fixes: StatusBadge (critical) → ARIA labels → Keyboard nav → Focus mgmt → Validation
-- [ ] **3.6.2** Fix status indicators (add icons + text, remove color-only)
+- [x] **3.6.2** Fix status indicators (add icons + text, remove color-only)
+  - ✅ StatusBadge component created (commit 301825b - Sprint 1)
+  - ✅ ChapterView.tsx refactored to use StatusBadge
+  - ✅ BacklogPanel.tsx refactored to use StatusBadge
+  - ✅ WCAG AA compliance: icon + text + color + aria-label
 - [ ] **3.6.3** Add keyboard navigation to all interactive elements
 - [ ] **3.6.4** Add aria-labels, alt text, form labels
 - [ ] **3.6.5** Verify focus management in modals
