@@ -22,11 +22,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-interface BacklogPanelProps {
-  onStudyClick?: (referenceLabel: string) => void;
-}
-
-export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
+export function BacklogPanel() {
   const router = useRouter();
   const [showAddStudyModal, setShowAddStudyModal] = useState(false);
 
@@ -143,17 +139,9 @@ export function BacklogPanel({ onStudyClick }: BacklogPanelProps) {
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onStudyClick?.(item.reference_label);
-                          }}
-                          className="text-left flex-1"
-                        >
-                          <p className={cn("font-medium text-sm truncate", COLORS.neutral.text.primary)}>
-                            {item.reference_label}
-                          </p>
-                        </button>
+                        <p className={cn("font-medium text-sm truncate flex-1", COLORS.neutral.text.primary)}>
+                          {item.reference_label}
+                        </p>
                         {sourceStudy && (
                           <StatusBadge status={sourceStudy.status} size="sm" />
                         )}

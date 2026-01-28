@@ -94,10 +94,6 @@ export function DashboardClient() {
     router.push("/grafo");
   };
 
-  const handleBacklogStudyClick = (referenceLabel: string) => {
-    // TODO: Create new study from backlog reference
-    console.log(`Creating study for: ${referenceLabel}`);
-  };
 
   // Show loading while auth is being checked
   if (authLoading) {
@@ -178,7 +174,7 @@ export function DashboardClient() {
       </div>
 
       {/* Backlog Panel */}
-      <BacklogPanel onStudyClick={handleBacklogStudyClick} />
+      <BacklogPanel />
     </div>
   );
 }
