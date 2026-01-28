@@ -87,16 +87,6 @@ export function getAggregatedChapterStatus(
   const completedCount = studies.filter(s => s.status === 'concluído').length;
   const completionPercentage = Math.round((completedCount / studies.length) * 100);
 
-  // DEBUG: Log agregação (TEMPORÁRIO)
-  if (studies.some(s => s.book_name === 'Eclesiastes' && s.chapter_number === 4)) {
-    console.log('[getAggregatedChapterStatus DEBUG]', {
-      inputStudies: studies.map(s => ({ book: s.book_name, ch: s.chapter_number, status: s.status })),
-      highestPriorityStatus,
-      completedCount,
-      completionPercentage
-    });
-  }
-
   // Map status to color and text styling
   let color: string;
   const textColor = 'text-white';
