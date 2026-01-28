@@ -954,16 +954,14 @@ export function StudyPageClient({ params }: StudyPageProps) {
           </div>
         </div>
 
-        {/* References Sidebar - Right Column */}
-        <div className="w-80 bg-gray-50 border-l border-gray-200">
-          <ReferencesSidebar
-            references={references}
-            loading={referencesLoading}
-            onAddReference={addReference}
-            onDeleteReference={deleteReference}
-            onReorder={reorderReference}
-          />
-        </div>
+        {/* References Sidebar - Right Column (hidden on mobile, shown on md+) */}
+        <ReferencesSidebar
+          references={references}
+          loading={referencesLoading}
+          onAddReference={addReference}
+          onDeleteReference={deleteReference}
+          onReorder={reorderReference}
+        />
       </div>
     </main>
 

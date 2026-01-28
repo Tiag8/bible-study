@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, Plus, AlertTriangle } from 'lucide-react';
+import { ChevronDown, Plus, AlertTriangle, X } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { cn } from '@/lib/utils';
@@ -27,6 +27,7 @@ export function ReferencesSidebar({
   onReorder,
 }: ReferencesSidebarProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const [showOnMobile, setShowOnMobile] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -68,9 +69,30 @@ export function ReferencesSidebar({
   };
 
   return (
-    <div className={cn('border-l', BORDERS.gray, 'bg-gray-50 flex flex-col h-full')}>
-      {/* Header */}
-      <div className="p-4 border-b flex items-center justify-between">
+    <>
+      {/* Mobile drawer overlay */}
+      {showOnMobile && (
+        <div
+          className="fixed inset-0 bg-black/50 md:hidden z-30"
+          onClick={() => setShowOnMobile(false)}
+          aria-label="Close references drawer"
+        />
+      )}
+
+      {/* Sidebar - Desktop always visible, Mobile as drawer */}
+      <div
+        className={cn(
+          'bg-gray-50 flex flex-col h-full border-l',
+          BORDERS.gray,
+          // Desktop: always visible sidebar
+          'hidden md:flex md:w-80',
+          // Mobile: drawer when showOnMobile
+          'fixed md:static left-0 top-0 w-80 z-40 md:z-auto',
+          showOnMobile && 'flex'
+        )}
+      >
+        {/* Header */}
+        <div className="p-4 border-b flex items-center justify-between">
         <button
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
@@ -89,19 +111,32 @@ export function ReferencesSidebar({
         </button>
 
         {isOpen && (
-          <button
-            onClick={() => setShowAddModal(true)}
-            className={cn(
-              'p-1.5 rounded transition-colors',
-              COLORS.primary.default,
-              'hover:opacity-90'
-            )}
-            title="Adicionar referência"
-          >
-            <Plus className="w-4 h-4 text-white" />
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className={cn(
+                'p-1.5 rounded transition-colors flex-1',
+                COLORS.primary.default,
+                'hover:opacity-90'
+              )}
+              title="Adicionar referência"
+              aria-label="Add reference"
+            >
+              <Plus className="w-4 h-4 text-white mx-auto" />
+            </button>
+
+            {/* Close button on mobile */}
+            <button
+              onClick={() => setShowOnMobile(false)}
+              className="md:hidden p-1.5 rounded transition-colors text-gray-500 hover:bg-gray-200"
+              title="Close references"
+              aria-label="Close references drawer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         )}
-      </div>
+        </div>
 
       {/* Content */}
       {isOpen && (
@@ -215,6 +250,23 @@ export function ReferencesSidebar({
           </div>
         </div>
       )}
-    </div>
+      </div>
+
+      {/* Floating Action Button on mobile to open references */}
+      <button
+        onClick={() => setShowOnMobile(true)}
+        className={cn(
+          'fixed bottom-6 right-6 md:hidden z-40',
+          'p-3 rounded-full text-white transition-all',
+          COLORS.primary.default,
+          'hover:shadow-lg hover:scale-110',
+          'shadow-lg'
+        )}
+        title="Open references"
+        aria-label="Open references drawer"
+      >
+        <ChevronDown className="w-6 h-6" />
+      </button>
+    </>
   );
 }
