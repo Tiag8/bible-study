@@ -74,10 +74,11 @@ describe('getAggregatedChapterStatus', () => {
   });
 
   /**
-   * SCENARIO 4: 50% completion (1 completed, 1 to do)
-   * Expected: estudando, 50%, blue-600
+   * SCENARIO 4: Mixed statuses (1 completed, 1 to study)
+   * Uses highest priority status: 'estudar' is priority 4, 'concluído' is priority 1
+   * Expected: estudar (priority 4 > priority 1), 50%, orange
    */
-  it('retorna estudando com 50% para 2 estudos (1 completo, 1 não)', () => {
+  it('retorna estudar com 50% para 2 estudos (1 completo, 1 não) - prioriza estudar', () => {
     const studies: StudySummary[] = [
       {
         id: 'uuid-1',
@@ -105,16 +106,17 @@ describe('getAggregatedChapterStatus', () => {
 
     const result = getAggregatedChapterStatus(studies);
 
-    expect(result.status).toBe('estudando');
+    expect(result.status).toBe('estudar');
     expect(result.completionPercentage).toBe(50);
-    expect(result.color).toBe('bg-blue-600');
+    expect(result.color).toBe('bg-orange-500');
   });
 
   /**
-   * SCENARIO 5: 75% completion
-   * Expected: revisando, 75%, purple-500
+   * SCENARIO 5: Multiple completed with one "estudar"
+   * Uses highest priority status: 'estudar' priority 4 > 'concluído' priority 1
+   * Expected: estudar, 75%, orange (shows highest priority regardless of percentage)
    */
-  it('retorna revisando com 75% para 4 estudos (3 completos, 1 não)', () => {
+  it('retorna estudar com 75% para 4 estudos (3 completos, 1 não) - prioriza estudar', () => {
     const studies: StudySummary[] = [
       {
         id: 'uuid-1',
@@ -164,16 +166,17 @@ describe('getAggregatedChapterStatus', () => {
 
     const result = getAggregatedChapterStatus(studies);
 
-    expect(result.status).toBe('revisando');
+    expect(result.status).toBe('estudar');
     expect(result.completionPercentage).toBe(75);
-    expect(result.color).toBe('bg-purple-500');
+    expect(result.color).toBe('bg-orange-500');
   });
 
   /**
-   * SCENARIO 6: 50% + (higher than 50%, but less than 75%)
-   * Expected: estudando, 67%, blue-500 (lighter blue)
+   * SCENARIO 6: Multiple completed with one "estudar"
+   * Uses highest priority status: 'estudar' priority 4 > 'concluído' priority 1
+   * Expected: estudar, 67%, orange (highest priority wins)
    */
-  it('retorna estudando com 67% para 3 estudos (2 completos, 1 não)', () => {
+  it('retorna estudar com 67% para 3 estudos (2 completos, 1 não) - prioriza estudar', () => {
     const studies: StudySummary[] = [
       {
         id: 'uuid-1',
@@ -212,9 +215,9 @@ describe('getAggregatedChapterStatus', () => {
 
     const result = getAggregatedChapterStatus(studies);
 
-    expect(result.status).toBe('estudando');
+    expect(result.status).toBe('estudar');
     expect(result.completionPercentage).toBe(67);
-    expect(result.color).toBe('bg-blue-500');
+    expect(result.color).toBe('bg-orange-500');
   });
 
   /**
@@ -266,11 +269,11 @@ describe('getAggregatedChapterStatus', () => {
   });
 
   /**
-   * SCENARIO 8: Mixed statuses (not just completed vs not completed)
-   * Only "concluído" counts towards completion percentage
-   * Expected: 50% (1 concluído out of 2 total)
+   * SCENARIO 8: Mixed statuses (completed vs in review)
+   * Uses highest priority status: 'revisando' priority 2 > 'concluído' priority 1
+   * Expected: revisando, 50%, purple (highest priority wins despite 50% completion)
    */
-  it('conta apenas estudos "concluído" no percentual', () => {
+  it('retorna revisando com 50% para 2 estudos (1 concluído, 1 revisando) - prioriza revisando', () => {
     const studies: StudySummary[] = [
       {
         id: 'uuid-1',
@@ -289,7 +292,7 @@ describe('getAggregatedChapterStatus', () => {
         title: 'Estudo 2',
         book_name: 'Gênesis',
         chapter_number: 1,
-        status: 'revisando', // Not completed, but in progress
+        status: 'revisando', // Not completed, but in review
         tags: [],
         created_at: '2024-01-02',
         updated_at: '2024-01-02',
@@ -299,7 +302,8 @@ describe('getAggregatedChapterStatus', () => {
     const result = getAggregatedChapterStatus(studies);
 
     expect(result.completionPercentage).toBe(50);
-    expect(result.status).toBe('estudando');
+    expect(result.status).toBe('revisando');
+    expect(result.color).toBe('bg-purple-500');
   });
 
   /**
@@ -331,6 +335,103 @@ describe('getAggregatedChapterStatus', () => {
     expect(typeof result.completionPercentage).toBe('number');
     expect(typeof result.color).toBe('string');
     expect(typeof result.textColor).toBe('string');
+  });
+
+  /**
+   * SCENARIO 10: All status types present (priority chain validation)
+   * Priority chain: estudar (4) > estudando (3) > revisando (2) > concluído (1)
+   * Expected: estudar is the highest, so color should be orange
+   */
+  it('retorna estudar quando múltiplos status presentes - valida cadeia de prioridade', () => {
+    const studies: StudySummary[] = [
+      {
+        id: 'uuid-1',
+        user_id: 'user-1',
+        title: 'Estudo 1',
+        book_name: 'Gênesis',
+        chapter_number: 1,
+        status: 'concluído',
+        tags: [],
+        created_at: '2024-01-01',
+        updated_at: '2024-01-01',
+      },
+      {
+        id: 'uuid-2',
+        user_id: 'user-1',
+        title: 'Estudo 2',
+        book_name: 'Gênesis',
+        chapter_number: 1,
+        status: 'revisando',
+        tags: [],
+        created_at: '2024-01-02',
+        updated_at: '2024-01-02',
+      },
+      {
+        id: 'uuid-3',
+        user_id: 'user-1',
+        title: 'Estudo 3',
+        book_name: 'Gênesis',
+        chapter_number: 1,
+        status: 'estudando',
+        tags: [],
+        created_at: '2024-01-03',
+        updated_at: '2024-01-03',
+      },
+      {
+        id: 'uuid-4',
+        user_id: 'user-1',
+        title: 'Estudo 4',
+        book_name: 'Gênesis',
+        chapter_number: 1,
+        status: 'estudar',
+        tags: [],
+        created_at: '2024-01-04',
+        updated_at: '2024-01-04',
+      },
+    ];
+
+    const result = getAggregatedChapterStatus(studies);
+
+    expect(result.status).toBe('estudar');
+    expect(result.color).toBe('bg-orange-500');
+    expect(result.completionPercentage).toBe(25);
+  });
+
+  /**
+   * SCENARIO 11: Only completed studies (no urgency)
+   * Expected: concluído (priority 1 is "least urgent" but only option)
+   */
+  it('retorna concluído quando todos estudos estão concluídos', () => {
+    const studies: StudySummary[] = [
+      {
+        id: 'uuid-1',
+        user_id: 'user-1',
+        title: 'Estudo 1',
+        book_name: 'Gênesis',
+        chapter_number: 1,
+        status: 'concluído',
+        tags: [],
+        created_at: '2024-01-01',
+        updated_at: '2024-01-01',
+      },
+      {
+        id: 'uuid-2',
+        user_id: 'user-1',
+        title: 'Estudo 2',
+        book_name: 'Gênesis',
+        chapter_number: 1,
+        status: 'concluído',
+        tags: [],
+        created_at: '2024-01-02',
+        updated_at: '2024-01-02',
+      },
+    ];
+
+    const result = getAggregatedChapterStatus(studies);
+
+    expect(result.status).toBe('concluído');
+    expect(result.color).toBe('bg-green-600');
+    expect(result.completionPercentage).toBe(100);
   });
 });
 
