@@ -4,6 +4,14 @@ import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
+/**
+ * Reference Interface (Legacy)
+ *
+ * This interface is used internally by useReferences hook.
+ * For new code, import from @/types/reference instead.
+ *
+ * @deprecated Use Reference from @/types/reference
+ */
 export interface Reference {
   id: string;
   source_study_id: string;
@@ -88,9 +96,28 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
   // Adicionar referência
   const addReference = useCallback(
     async (targetStudyId: string) => {
-      if (!user?.id || !studyId) return false;
+      if (!user?.id || !studyId) {
+        const msg = 'User ou Study ID não disponível';
+        setError(msg);
+        return false;
+      }
+
+      // Validar: não pode referenciar a si mesmo
+      if (targetStudyId === studyId) {
+        const msg = 'Um estudo não pode referenciar a si mesmo';
+        setError(msg);
+        return false;
+      }
+
+      // Validar: evitar duplicatas
+      if (references.some((ref) => ref.target_study_id === targetStudyId)) {
+        const msg = 'Este estudo já está referenciado';
+        setError(msg);
+        return false;
+      }
 
       try {
+        setError(null);
         const { error: err } = await supabase
           .from('bible_study_links')
           .insert({
@@ -111,17 +138,28 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
         return false;
       }
     },
-    [studyId, user?.id, fetchReferences]
+    [studyId, user?.id, references, fetchReferences]
   );
 
   // Deletar referência
   const deleteReference = useCallback(
     async (referenceId: string) => {
-      if (!user?.id) return false;
+      if (!user?.id) {
+        const msg = 'User ID não disponível';
+        setError(msg);
+        return false;
+      }
 
       try {
+        setError(null);
+
         // Encontrar target_study_id antes de deletar
         const refToDelete = references.find((ref) => ref.id === referenceId);
+        if (!refToDelete) {
+          const msg = 'Referência não encontrada no estado local';
+          console.warn('[useReferences]', msg);
+          return false;
+        }
 
         const { error: err } = await supabase
           .from('bible_study_links')
@@ -131,11 +169,11 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
 
         if (err) throw err;
 
-        // Atualizar local state
+        // Atualizar local state primeiro (otimistic update)
         setReferences((prev) => prev.filter((ref) => ref.id !== referenceId));
 
         // Chamar callback para remover link do editor
-        if (refToDelete && onRemoveLink) {
+        if (onRemoveLink) {
           onRemoveLink(refToDelete.target_study_id);
         }
 
@@ -150,24 +188,49 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
     [user?.id, references, onRemoveLink]
   );
 
-  // Reordenar (salvar posição)
+  // Reordenar (salvar posição via drag-and-drop)
+  // TODO: Persistir posição no banco de dados
   const reorderReference = useCallback(
     async (referenceId: string, direction: 'up' | 'down') => {
       const currentIndex = references.findIndex((ref) => ref.id === referenceId);
-      if (currentIndex === -1) return false;
+      if (currentIndex === -1) {
+        console.warn('[useReferences] Reference not found:', referenceId);
+        return false;
+      }
 
-      if (direction === 'up' && currentIndex === 0) return false;
-      if (direction === 'down' && currentIndex === references.length - 1) return false;
+      if (direction === 'up' && currentIndex === 0) {
+        console.debug('[useReferences] Already at top, cannot move up');
+        return false;
+      }
 
-      const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-      const newReferences = [...references];
-      [newReferences[currentIndex], newReferences[newIndex]] = [
-        newReferences[newIndex],
-        newReferences[currentIndex],
-      ];
+      if (direction === 'down' && currentIndex === references.length - 1) {
+        console.debug('[useReferences] Already at bottom, cannot move down');
+        return false;
+      }
 
-      setReferences(newReferences);
-      return true;
+      try {
+        setError(null);
+        const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+        const newReferences = [...references];
+        [newReferences[currentIndex], newReferences[newIndex]] = [
+          newReferences[newIndex],
+          newReferences[currentIndex],
+        ];
+
+        setReferences(newReferences);
+
+        // TODO: Save new order to database
+        // await supabase.from('bible_study_links')
+        //   .update({ display_order: newIndex })
+        //   .eq('id', referenceId);
+
+        return true;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Erro ao reordenar referência';
+        console.error('[useReferences] reorderReference error:', msg);
+        setError(msg);
+        return false;
+      }
     },
     [references]
   );
