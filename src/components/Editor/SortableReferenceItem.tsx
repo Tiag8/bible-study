@@ -76,8 +76,13 @@ export const SortableReferenceItem = React.forwardRef<
     // Get category colors (fallback para Evangelhos se não encontrar)
     const colors = CATEGORY_COLORS[reference.target_book_name] || CATEGORY_COLORS['Evangelhos'];
 
-    // Extract tags/info from title (se houver padrão de tags)
-    const tags = [`${reference.target_book_name} ${reference.target_chapter_number}`];
+    // Parse título: extrai "Livro Capítulo" (antes do "-") e descrição (depois do "-")
+    const titleParts = reference.target_title.split(' - ');
+    const bookChapterPart = titleParts[0] || reference.target_title; // Livro + Capítulo (bold)
+    const descriptionPart = titleParts.slice(1).join(' - ') || ''; // Descrição (normal)
+
+    // Tags do estudo linkado
+    const tags = reference.target_tags || [];
 
     return (
       <div
@@ -86,7 +91,7 @@ export const SortableReferenceItem = React.forwardRef<
         className={cn(
           // Base container
           'group relative overflow-hidden',
-          'px-3 py-4 rounded-lg border',
+          'px-3 py-6 rounded-lg border',
           BORDERS.gray,
           // Refinement 1: Hover elevation + scale + translateY
           'transition-all duration-200 ease-out',
@@ -128,22 +133,34 @@ export const SortableReferenceItem = React.forwardRef<
               {/* Hidden grip visual - acessível via drag listeners */}
             </button>
 
-            {/* Título - Linha 1 */}
+            {/* Link wrapper para navegação */}
             <a
               href={`/estudo/${reference.target_study_id}`}
               data-href={`/estudo/${reference.target_study_id}`}
               className={cn(
-                'text-sm font-medium text-gray-900 leading-snug line-clamp-2 hover:text-blue-600 transition-colors',
+                'block hover:text-blue-600 transition-colors',
                 deleting && 'opacity-50 pointer-events-none'
               )}
             >
-              {reference.target_title}
+              {/* Linha 1: Livro + Capítulo (bold) */}
+              <div className="text-sm font-semibold text-gray-900 leading-tight">
+                {bookChapterPart}
+              </div>
+
+              {/* Linha 2: Descrição (normal) - sem line-clamp */}
+              {descriptionPart && (
+                <div className="text-sm font-normal text-gray-900 leading-snug mt-1">
+                  {descriptionPart}
+                </div>
+              )}
             </a>
 
-            {/* Tags/Info - Linha 2 */}
-            <p className={cn('text-xs mt-1.5', COLORS.neutral.text.muted)}>
-              {tags.join(' · ')}
-            </p>
+            {/* Linha 3: Tags */}
+            {tags.length > 0 && (
+              <p className={cn('text-xs mt-2', COLORS.neutral.text.muted)}>
+                {tags.join(' · ')}
+              </p>
+            )}
           </div>
 
           {/* Refinement 3: Actions com stagger animation ao hover */}

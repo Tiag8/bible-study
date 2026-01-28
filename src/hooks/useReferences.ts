@@ -19,6 +19,7 @@ export interface Reference {
   target_title: string;
   target_book_name: string;
   target_chapter_number: number;
+  target_tags: string[];
   created_at: string;
   position?: number;
 }
@@ -57,7 +58,7 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
         const targetIds = data.map((ref) => ref.target_study_id);
         const { data: targets, error: targetErr } = await supabase
           .from('bible_studies')
-          .select('id, title, book_name, chapter_number')
+          .select('id, title, book_name, chapter_number, tags')
           .in('id', targetIds)
           .eq('user_id', user.id);
 
@@ -72,6 +73,7 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
             target_title: target?.title || 'Desconhecido',
             target_book_name: target?.book_name || '',
             target_chapter_number: target?.chapter_number || 0,
+            target_tags: target?.tags || [],
           };
         });
 
