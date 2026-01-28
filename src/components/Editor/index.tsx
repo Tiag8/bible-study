@@ -77,9 +77,6 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
     () => [
       StarterKit.configure({
         blockquote: false, // Usar nossa extensão customizada ColoredBlockquote
-        history: {
-          depth: 5, // Máximo de 5 passos de undo/redo (Story 3.8)
-        },
       }),
       ColoredBlockquote, // Extensão customizada com suporte a cores de blockquote
       Placeholder.configure({

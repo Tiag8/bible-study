@@ -208,6 +208,21 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
             if (studyCount > 0) {
               const aggregated = getAggregatedChapterStatus(chapterStudies);
 
+              // DEBUG: Log cap 4 Eclesiastes especificamente
+              if (book.name === 'Eclesiastes' && chapter === 4) {
+                console.log('[DEBUG-CAP4-ECLESIASTES]', {
+                  book: book.name,
+                  chapter,
+                  studyCount,
+                  chapterStudies,
+                  aggregated,
+                  loading,
+                  colorClassesRAW: aggregated.color,
+                  textColorRAW: aggregated.textColor,
+                  finalClasses: cn(aggregated.color, aggregated.textColor)
+                });
+              }
+
               // Aplicar cor baseada em agregação
               colorClasses = cn(aggregated.color, aggregated.textColor);
 
