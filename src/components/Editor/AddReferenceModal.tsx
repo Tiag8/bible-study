@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { X, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { COLORS, BORDERS, SHADOW_CLASSES } from '@/lib/design-tokens';
@@ -9,24 +9,53 @@ import { useStudies } from '@/hooks';
 interface AddReferenceModalProps {
   onAdd: (targetStudyId: string) => Promise<boolean>;
   onClose: () => void;
+  currentStudyId?: string; // To exclude current study from list
+  existingReferenceIds?: string[]; // To exclude already-referenced studies
 }
 
-export function AddReferenceModal({ onAdd, onClose }: AddReferenceModalProps) {
+export function AddReferenceModal({
+  onAdd,
+  onClose,
+  currentStudyId,
+  existingReferenceIds = [],
+}: AddReferenceModalProps) {
   const { studies, loading: studiesLoading } = useStudies();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [rawSearchQuery, setRawSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Filtrar estudos por busca
+  // Debounce search (200ms)
+  useEffect(() => {
+    debounceTimer.current = setTimeout(() => {
+      setDebouncedSearchQuery(rawSearchQuery);
+    }, 200);
+
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, [rawSearchQuery]);
+
+  // Filtrar estudos por busca, excluindo estudo atual e já referenciados
   const filteredStudies = useMemo(() => {
-    if (!searchQuery.trim()) return studies;
-    const query = searchQuery.toLowerCase();
-    return studies.filter(
+    const filtered = studies.filter((study) => {
+      // Excluir estudo atual (não pode referenciar a si mesmo)
+      if (currentStudyId && study.id === currentStudyId) return false;
+      // Excluir estudos já referenciados
+      if (existingReferenceIds.includes(study.id)) return false;
+      return true;
+    });
+
+    if (!debouncedSearchQuery.trim()) return filtered;
+
+    const query = debouncedSearchQuery.toLowerCase();
+    return filtered.filter(
       (study) =>
         study.title.toLowerCase().includes(query) ||
         study.book_name.toLowerCase().includes(query)
     );
-  }, [studies, searchQuery]);
+  }, [studies, debouncedSearchQuery, currentStudyId, existingReferenceIds]);
 
   const handleAdd = useCallback(async () => {
     if (!selectedId) return;
@@ -41,13 +70,21 @@ export function AddReferenceModal({ onAdd, onClose }: AddReferenceModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className={cn('bg-white rounded-lg w-full max-w-md', SHADOW_CLASSES.lg)}>
+      <div
+        className={cn('bg-white rounded-lg w-full max-w-md', SHADOW_CLASSES.lg)}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-reference-title"
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">Adicionar Referência</h2>
+          <h2 id="add-reference-title" className="text-lg font-semibold">
+            Adicionar Referência
+          </h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded transition-colors"
+            aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>
@@ -60,14 +97,15 @@ export function AddReferenceModal({ onAdd, onClose }: AddReferenceModalProps) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Buscar estudo..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar estudo por título ou livro..."
+              value={rawSearchQuery}
+              onChange={(e) => setRawSearchQuery(e.target.value)}
               className={cn(
                 'w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
                 BORDERS.gray
               )}
               autoFocus
+              aria-label="Search studies"
             />
           </div>
 
@@ -87,11 +125,13 @@ export function AddReferenceModal({ onAdd, onClose }: AddReferenceModalProps) {
                   key={study.id}
                   onClick={() => setSelectedId(study.id)}
                   className={cn(
-                    'w-full text-left p-2 rounded transition-colors',
+                    'w-full text-left p-2 rounded transition-colors border-2',
                     selectedId === study.id
-                      ? 'bg-blue-100 border-2 border-blue-500'
-                      : 'hover:bg-gray-100 border border-transparent'
+                      ? cn(COLORS.primary.light, 'border-blue-500')
+                      : 'hover:bg-gray-100 border-transparent'
                   )}
+                  aria-pressed={selectedId === study.id}
+                  aria-label={`Select ${study.title}`}
                 >
                   <div className="font-medium text-sm">{study.title}</div>
                   <div className={cn('text-xs', COLORS.neutral.text.muted)}>
@@ -112,6 +152,7 @@ export function AddReferenceModal({ onAdd, onClose }: AddReferenceModalProps) {
               BORDERS.gray,
               'hover:bg-gray-50'
             )}
+            aria-label="Cancel adding reference"
           >
             Cancelar
           </button>
@@ -124,6 +165,7 @@ export function AddReferenceModal({ onAdd, onClose }: AddReferenceModalProps) {
                 ? cn(COLORS.primary.default, 'hover:opacity-90')
                 : 'opacity-50 cursor-not-allowed bg-gray-400'
             )}
+            aria-label={isLoading ? 'Adding reference' : 'Add selected reference'}
           >
             {isLoading ? 'Adicionando...' : 'Adicionar'}
           </button>
