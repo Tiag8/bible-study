@@ -21,6 +21,7 @@ import {
   BookOpen,
   Unlink,
   RemoveFormatting,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { COLORS } from "@/lib/design-tokens";
@@ -175,6 +176,19 @@ export function BubbleMenuToolbar({ editor, setMode, handlers }: BubbleMenuForma
           <Unlink className="w-4 h-4" />
         </button>
       )}
+
+      {/* Comment */}
+      <button
+        onClick={() => setMode("comment")}
+        disabled={editor.isActive("comment")}
+        className={cn(
+          buttonBase,
+          editor.isActive("comment") && "opacity-50 cursor-not-allowed"
+        )}
+        title="Adicionar comentario"
+      >
+        <MessageSquare className="w-4 h-4" />
+      </button>
 
       {/* Divider */}
       <div className={cn("w-px h-5 mx-1", COLORS.neutral[300])} />

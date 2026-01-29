@@ -163,6 +163,22 @@ export function useBubbleMenuHandlers({
     editor.chain().focus().clearNodes().unsetAllMarks().run();
   }, [editor]);
 
+  /**
+   * Adiciona comentario inline ao texto selecionado
+   */
+  const handleSetComment = useCallback((commentText: string) => {
+    const commentId = crypto.randomUUID();
+    const createdAt = new Date().toISOString();
+
+    editor
+      .chain()
+      .focus()
+      .setMark("comment", { commentId, commentText, createdAt })
+      .run();
+
+    setMode("default");
+  }, [editor, setMode]);
+
   return {
     setLink: handleSetLink,
     removeLink: handleRemoveLink,
@@ -174,5 +190,6 @@ export function useBubbleMenuHandlers({
     setBlockquote: handleSetBlockquote,
     removeBlockquote: handleRemoveBlockquote,
     clearFormatting: handleClearFormatting,
+    setComment: handleSetComment,
   };
 }

@@ -21,6 +21,7 @@ import { BubbleMenuReference } from "./BubbleMenuReference";
 import { BubbleMenuHighlight } from "./BubbleMenuHighlight";
 import { BubbleMenuTextColor } from "./BubbleMenuTextColor";
 import { BubbleMenuQuote } from "./BubbleMenuQuote";
+import { BubbleMenuComment } from "./BubbleMenuComment";
 import type { MenuMode } from "./types";
 
 interface BubbleMenuComponentProps {
@@ -135,6 +136,15 @@ function BubbleMenuComponentBase({ editor, onAddReference, onAddExternalLink, on
           setMode={setMode}
           onSelectColor={handlers.setBlockquote}
           onRemoveColor={handlers.removeBlockquote}
+        />
+      )}
+
+      {/* Modo comment - Adicionar comentario inline */}
+      {mode === "comment" && (
+        <BubbleMenuComment
+          editor={editor}
+          setMode={setMode}
+          onSave={handlers.setComment}
         />
       )}
     </BubbleMenu>
