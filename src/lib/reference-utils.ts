@@ -1,157 +1,139 @@
 /**
  * Reference Utilities
- * Helper functions for reference management and colorization
- * Story 4.3.3 - Colorização por Tipo de Referência
+ * Story 4.3.3: Colorização por Tipo de Referência
+ *
+ * Helper functions for reference colorization, URL handling, and type labels
  */
 
-import { REFERENCE_TYPE_COLORS } from './design-tokens'
+import { Reference } from '@/hooks/useReferences';
+import { REFERENCE_TYPE_COLORS } from './design-tokens';
 
 /**
- * Representa uma referência no sistema
- * Este tipo deve estar sincronizado com src/types/reference.ts
+ * Determine the Tailwind color classes for a reference based on its type
+ *
+ * - Internal references (created by user): green-50
+ * - Reversed references (created by trigger): red-50
+ * - External links: blue-50
+ *
+ * @param ref - Reference object with link_type and is_bidirectional fields
+ * @returns Tailwind class string with bg, border, and hover states
  */
-export interface Reference {
-  id: string
-  source_study_id: string
-  target_study_id?: string | null
-  target_title?: string
-  target_book_name?: string
-  target_chapter_number?: number
-  target_tags?: Array<{ name: string; type: string; color: string }>
-
-  // New fields for 4.3.x features
-  link_type: 'internal' | 'external'
-  external_url?: string | null
-  is_bidirectional?: boolean
-  display_order?: number
-
-  created_at?: string
-}
-
-/**
- * Determine the color className for a reference based on its type and direction
- *
- * Rules:
- * - Internal + is_bidirectional=true → "references" (green) = "Eu referencio"
- * - Internal + is_bidirectional=false → "referenced_by" (red) = "Fui referenciado"
- * - External → "external" (blue) = "Link externo"
- *
- * @param reference - A Reference object
- * @returns Tailwind className string for the card background and border
- *
- * @example
- * const cardColor = getReferenceTypeColor(reference)
- * return <div className={cn('px-4 py-3 rounded-lg border', cardColor)}>...</div>
- */
-export function getReferenceTypeColor(reference: Reference): string {
-  // External link
-  if (reference.link_type === 'external') {
-    return REFERENCE_TYPE_COLORS.external
+export function getReferenceTypeColor(ref: Reference): string {
+  if (ref.link_type === 'external') {
+    return REFERENCE_TYPE_COLORS.external;
   }
 
-  // Internal reference
-  if (reference.link_type === 'internal') {
-    // Eu referencio (criada por mim, is_bidirectional=true)
-    if (reference.is_bidirectional === true) {
-      return REFERENCE_TYPE_COLORS.references
+  // Internal references
+  if (ref.link_type === 'internal') {
+    // is_bidirectional=true means created by user (green)
+    // is_bidirectional=false means created by trigger (red)
+    if (ref.is_bidirectional === false) {
+      return REFERENCE_TYPE_COLORS.referenced_by;
     }
-
-    // Fui referenciado (criada por trigger, is_bidirectional=false)
-    if (reference.is_bidirectional === false) {
-      return REFERENCE_TYPE_COLORS.referenced_by
-    }
+    return REFERENCE_TYPE_COLORS.references;
   }
 
-  // Fallback (nunca deve chegar aqui se os dados estão corretos)
-  return REFERENCE_TYPE_COLORS.references
+  // Fallback to green for any other case
+  return REFERENCE_TYPE_COLORS.references;
 }
 
 /**
- * Get human-readable label for a reference type
+ * Get Portuguese label for reference type
  *
- * @param reference - A Reference object
- * @returns Portuguese label for the reference type
- *
- * @example
- * getReferenceTypeLabel(ref) // → "Referência" or "Referenciado por"
+ * @param ref - Reference object
+ * @returns Human-readable label in Portuguese
  */
-export function getReferenceTypeLabel(reference: Reference): string {
-  if (reference.link_type === 'external') {
-    return 'Link Externo'
+export function getReferenceTypeLabel(ref: Reference): string {
+  if (ref.link_type === 'external') {
+    return 'Link Externo';
   }
 
-  if (reference.is_bidirectional === true) {
-    return 'Referência'
+  // Internal references
+  if (ref.link_type === 'internal') {
+    if (ref.is_bidirectional === false) {
+      return 'Referenciado por';
+    }
+    return 'Referência';
   }
 
-  if (reference.is_bidirectional === false) {
-    return 'Referenciado por'
-  }
-
-  return 'Referência'
+  return 'Referência';
 }
 
 /**
- * Validate if a URL is valid (https:// or http://)
+ * Validate if URL has valid protocol (http:// or https://)
  *
  * @param url - URL string to validate
  * @returns true if URL is valid, false otherwise
- *
- * @example
- * isValidUrl('https://example.com') // → true
- * isValidUrl('not-a-url') // → false
  */
 export function isValidUrl(url: string): boolean {
+  if (!url) return false;
+
   try {
-    const parsed = new URL(url)
-    return ['http:', 'https:'].includes(parsed.protocol)
+    const urlObj = new URL(url);
+    return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
   } catch {
-    return false
+    return false;
   }
 }
 
 /**
- * Get display title for a URL (hostname if no custom title provided)
+ * Get display title for URL
+ *
+ * Falls back to hostname if no custom title provided
  *
  * @param url - URL string
- * @param customTitle - Optional custom title
+ * @param customTitle - Optional custom title to display
  * @returns Display title for the URL
- *
- * @example
- * getUrlDisplayTitle('https://www.spurgeon.org', 'Comentário')
- * // → "Comentário"
- *
- * getUrlDisplayTitle('https://www.spurgeon.org')
- * // → "spurgeon.org"
  */
 export function getUrlDisplayTitle(url: string, customTitle?: string): string {
   if (customTitle) {
-    return customTitle
+    return customTitle;
   }
 
   try {
-    return new URL(url).hostname || url
+    const urlObj = new URL(url);
+    return urlObj.hostname;
   } catch {
-    return url
+    return url;
   }
 }
 
 /**
- * Get a short hostname from a URL for compact display
+ * Get short hostname for URL display (without www. prefix)
  *
  * @param url - URL string
- * @returns Hostname without 'www.' prefix if present
- *
- * @example
- * getShortHostname('https://www.example.com') // → "example.com"
- * getShortHostname('https://api.github.com') // → "api.github.com"
+ * @returns Hostname without 'www.' prefix
  */
 export function getShortHostname(url: string): string {
   try {
-    let hostname = new URL(url).hostname || url
+    const urlObj = new URL(url);
+    let hostname = urlObj.hostname;
+
     // Remove 'www.' prefix if present
-    return hostname.replace(/^www\./, '')
+    if (hostname.startsWith('www.')) {
+      hostname = hostname.slice(4);
+    }
+
+    return hostname;
   } catch {
-    return url
+    return url;
   }
+}
+
+/**
+ * Get contrasting color for a given background color (HSL)
+ * Used for text overlays on colored backgrounds
+ *
+ * @param hslColor - HSL color string (e.g., "120, 100%, 50%")
+ * @returns Either 'white' or 'black' based on luminance
+ */
+export function getContrastColor(hslColor: string): 'white' | 'black' {
+  // Parse HSL string to extract lightness value
+  const match = hslColor.match(/(\d+)%/);
+  if (!match) return 'black';
+
+  const lightness = parseInt(match[1], 10);
+
+  // If lightness > 50%, use dark text; otherwise use white text
+  return lightness > 50 ? 'black' : 'white';
 }

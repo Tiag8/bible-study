@@ -18,6 +18,14 @@ export interface TagWithColor {
   color: string;
 }
 
+interface StudyData {
+  id: string;
+  title: string;
+  book_name: string;
+  chapter_number: number;
+  tags: TagWithColor[] | null;
+}
+
 export interface Reference {
   id: string;
   source_study_id: string;
@@ -77,7 +85,7 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
         const targetIds = internalRefs.map((ref) => ref.target_study_id);
 
         // Query 1: Buscar estudos com seus nomes de tags (apenas se houver)
-        let targets = [];
+        let targets: StudyData[] = [];
         if (targetIds.length > 0) {
           const { data: targetsData, error: targetErr } = await supabase
             .from('bible_studies')
@@ -120,18 +128,12 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
 
           // Para links internos, enriquecer com dados do target
           const target = targetsMap.get(ref.target_study_id);
-          const tagNames = target?.tags || [];
+          const targetTags = target?.tags || [];
 
-          // Converter nomes de tags para objetos com color/type
-          const tagsWithColor: TagWithColor[] = tagNames
-            .map((tagName: string) => {
-              const tagInfo = tagsMap.get(tagName);
-              return {
-                name: tagName,
-                type: tagInfo?.type || 'Temas',
-                color: tagInfo?.color || '#6b7280', // fallback cinza
-              };
-            });
+          // Tags já vêm como TagWithColor[] do banco
+          const tagsWithColor: TagWithColor[] = Array.isArray(targetTags)
+            ? (targetTags as TagWithColor[])
+            : [];
 
           return {
             ...ref,
