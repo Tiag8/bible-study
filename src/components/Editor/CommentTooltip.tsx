@@ -119,6 +119,11 @@ export function CommentTooltip({ editor }: CommentTooltipProps) {
       if (commentId && commentText) {
         e.preventDefault();
         e.stopPropagation();
+
+        // Flash animation para feedback visual
+        target.classList.add("comment-flash");
+        setTimeout(() => target.classList.remove("comment-flash"), 400);
+
         setComment({
           commentId,
           commentText,
