@@ -256,11 +256,15 @@ export const SortableReferenceItem = React.forwardRef<
             {/* Navigate button - delay-150 (stagger final) */}
             <button
               onClick={() => {
-                // Navigate via link - já é handle pelo <a> tag acima
-                const link = document.querySelector(
-                  `a[data-href="/estudo/${reference.target_study_id}"]`
-                ) as HTMLAnchorElement;
-                if (link) link.click();
+                // Story 4.3.2: Navegação diferenciada por tipo de link
+                if (reference.link_type === 'external' && reference.external_url) {
+                  window.open(reference.external_url, '_blank', 'noopener,noreferrer');
+                } else {
+                  const link = document.querySelector(
+                    `a[data-href="/estudo/${reference.target_study_id}"]`
+                  ) as HTMLAnchorElement;
+                  if (link) link.click();
+                }
               }}
               className={cn(
                 'p-1.5 rounded transition-all duration-150 ease-out',
@@ -269,26 +273,41 @@ export const SortableReferenceItem = React.forwardRef<
                 'text-gray-500 hover:text-blue-600 hover:bg-blue-50',
                 'active:scale-95'
               )}
-              title="Ir para estudo"
-              aria-label="Navegar para estudo linkado"
+              title={reference.link_type === 'external' ? 'Abrir link externo' : 'Ir para estudo'}
+              aria-label={reference.link_type === 'external' ? 'Abrir link externo em nova aba' : 'Navegar para estudo linkado'}
             >
-              <ArrowRight size={14} />
+              {reference.link_type === 'external' ? <ExternalLink size={14} /> : <ArrowRight size={14} />}
             </button>
             </div>
           </div>
 
           {/* Linha 2: Descrição (quebra em múltiplas linhas) */}
           {descriptionPart && (
-            <a
-              href={`/estudo/${reference.target_study_id}`}
-              data-href={`/estudo/${reference.target_study_id}`}
-              className={cn(
-                'text-sm font-normal text-gray-900 leading-snug hover:text-blue-600 transition-colors',
-                deleting && 'opacity-50 pointer-events-none'
-              )}
-            >
-              {descriptionPart}
-            </a>
+            reference.link_type === 'external' && reference.external_url ? (
+              <a
+                href={reference.external_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  'text-sm font-normal text-gray-500 leading-snug hover:text-blue-600 transition-colors truncate',
+                  deleting && 'opacity-50 pointer-events-none'
+                )}
+                title={reference.external_url}
+              >
+                {descriptionPart}
+              </a>
+            ) : (
+              <a
+                href={`/estudo/${reference.target_study_id}`}
+                data-href={`/estudo/${reference.target_study_id}`}
+                className={cn(
+                  'text-sm font-normal text-gray-900 leading-snug hover:text-blue-600 transition-colors',
+                  deleting && 'opacity-50 pointer-events-none'
+                )}
+              >
+                {descriptionPart}
+              </a>
+            )
           )}
 
           {/* Linha 3: Tags coloridas (quebra em múltiplas linhas) */}
