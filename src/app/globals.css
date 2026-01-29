@@ -139,6 +139,31 @@ body {
 .tiptap mark[data-color="#fed7aa"] { background-color: #fed7aa; } /* Laranja */
 .tiptap mark[data-color="#ddd6fe"] { background-color: #ddd6fe; } /* Roxo */
 
+/* Comment Highlight - Comentarios inline */
+.tiptap .comment-highlight {
+  background-color: rgba(255, 183, 77, 0.3);
+  border-bottom: 2px solid rgba(255, 152, 0, 0.5);
+  cursor: pointer;
+  border-radius: 2px;
+  padding: 0 1px;
+  transition: background-color 0.15s ease;
+}
+
+.tiptap .comment-highlight:hover {
+  background-color: rgba(255, 183, 77, 0.5);
+}
+
+/* Flash animation para feedback ao interagir com comentario */
+@keyframes comment-flash {
+  0% { background-color: rgba(255, 183, 77, 0.3); }
+  50% { background-color: rgba(255, 183, 77, 0.7); }
+  100% { background-color: rgba(255, 183, 77, 0.3); }
+}
+
+.tiptap .comment-highlight.comment-flash {
+  animation: comment-flash 0.4s ease-in-out;
+}
+
 /* Toggle List / Lista de Alternantes (details-summary-tiptap-extension) */
 .tiptap details {
   margin: 0.5rem 0;

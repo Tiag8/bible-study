@@ -9,7 +9,7 @@ import type { Editor } from "@tiptap/react";
 /**
  * Modos disponíveis no BubbleMenu
  */
-export type MenuMode = "default" | "link" | "reference" | "highlight" | "textColor" | "heading" | "quote";
+export type MenuMode = "default" | "link" | "reference" | "highlight" | "textColor" | "heading" | "quote" | "comment";
 
 /**
  * Props base para componentes do BubbleMenu
