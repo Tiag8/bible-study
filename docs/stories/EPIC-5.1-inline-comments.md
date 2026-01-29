@@ -1,6 +1,6 @@
 # EPIC 5.1: Comentarios Inline no Editor (estilo Notion)
 
-**Status**: Pending
+**Status**: Done ✅
 **Priority**: Media
 **Assignee**: @dev
 **Arch Review**: @architect (Aria - Decisoes finalizadas)
@@ -89,13 +89,13 @@ src/components/Editor/
 **Descricao**: Criar a extensao Tiptap `CommentMark` e integrar botao no BubbleMenu com popover de criacao.
 
 **Escopo**:
-- [ ] Criar `CommentMark.ts` (custom mark com attrs: commentId, commentText, createdAt)
-- [ ] Adicionar icone `MessageSquare` no `BubbleMenuToolbar.tsx`
-- [ ] Criar `BubbleMenuComment.tsx` (popover com textarea + botao salvar)
-- [ ] Handler `setComment` no `useBubbleMenuHandlers.ts`
-- [ ] Registrar extensao no editor (`index.tsx`)
-- [ ] CSS para highlight amarelo/laranja no texto comentado
-- [ ] Verificar que auto-save persiste o mark sem alteracoes
+- [x] Criar `CommentMark.ts` (custom mark com attrs: commentId, commentText, createdAt)
+- [x] Adicionar icone `MessageSquare` no `BubbleMenuToolbar.tsx`
+- [x] Criar `BubbleMenuComment.tsx` (popover com textarea + botao salvar)
+- [x] Handler `setComment` no `useBubbleMenuHandlers.ts`
+- [x] Registrar extensao no editor (`index.tsx`)
+- [x] CSS para highlight amarelo/laranja no texto comentado
+- [x] Verificar que auto-save persiste o mark sem alteracoes
 
 **Criterios de Aceite**:
 - Selecionar texto → BubbleMenu → icone comentario → popover → digitar → salvar
@@ -115,13 +115,13 @@ src/components/Editor/
 **Descricao**: Implementar tooltip no hover/click do texto comentado com acoes de editar e excluir.
 
 **Escopo**:
-- [ ] Criar `CommentTooltip.tsx` (tooltip com texto do comentario)
-- [ ] Desktop: exibir no hover sobre texto com mark `comment`
-- [ ] Mobile: exibir no tap sobre texto com mark `comment`
-- [ ] Botao editar no tooltip → popover com textarea pre-preenchida
-- [ ] Botao excluir no tooltip → modal de confirmacao (reutilizar existente)
-- [ ] Handler `updateComment` no `useBubbleMenuHandlers.ts`
-- [ ] Handler `removeComment` no `useBubbleMenuHandlers.ts`
+- [x] Criar `CommentTooltip.tsx` (tooltip com texto do comentario)
+- [x] Desktop: exibir no hover sobre texto com mark `comment`
+- [x] Mobile: exibir no tap sobre texto com mark `comment`
+- [x] Botao editar no tooltip → popover com textarea pre-preenchida
+- [x] Botao excluir no tooltip → modal de confirmacao (reutilizar existente)
+- [x] Handler `updateComment` no `useBubbleMenuHandlers.ts`
+- [x] Handler `removeComment` no `useBubbleMenuHandlers.ts`
 
 **Criterios de Aceite**:
 - Hover no highlight → tooltip aparece com texto do comentario
@@ -141,10 +141,10 @@ src/components/Editor/
 **Descricao**: Adicionar icone de balao na margem do editor para linhas que contem comentarios.
 
 **Escopo**:
-- [ ] Criar `CommentMarginIcon.tsx` (icone MessageSquare pequeno)
-- [ ] Posicionar na margem esquerda do editor, alinhado com a linha do comentario
-- [ ] Click no icone da margem → scroll e foco no trecho comentado
-- [ ] Estilizar com cor sutil que nao interfira na leitura
+- [x] ~~Criar `CommentMarginIcon.tsx`~~ (implementado via CSS `::before`, depois removido por decisao de UX)
+- [x] ~~Posicionar na margem esquerda do editor~~ (removido - highlight + underline suficiente)
+- [x] ~~Click no icone da margem~~ (removido - flash animation implementada no tap mobile)
+- [x] ~~Estilizar com cor sutil~~ (removido por decisao de design)
 
 **Criterios de Aceite**:
 - Linhas com comentario exibem icone na margem
@@ -185,14 +185,14 @@ src/components/Editor/
 
 ## DEFINITION OF DONE
 
-- [ ] CRUD completo de comentarios (criar, ver, editar, excluir)
-- [ ] Highlight visual no texto comentado
-- [ ] Tooltip funcional (desktop hover, mobile tap)
-- [ ] Indicador na margem do editor
-- [ ] Auto-save persiste todas as operacoes
-- [ ] Modal de confirmacao para exclusao
-- [ ] Build e lint passando
-- [ ] Testado em desktop e mobile
+- [x] CRUD completo de comentarios (criar, ver, editar, excluir)
+- [x] Highlight visual no texto comentado
+- [x] Tooltip funcional (desktop hover, mobile tap)
+- [x] ~~Indicador na margem do editor~~ (implementado e removido por decisao UX - highlight suficiente)
+- [x] Auto-save persiste todas as operacoes
+- [x] Modal de confirmacao para exclusao
+- [x] Build e lint passando
+- [x] Testado em desktop e mobile
 
 ---
 
