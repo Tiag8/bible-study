@@ -57,9 +57,9 @@ function getContrastColor(hexColor: string): string {
       h /= 6;
     }
 
-    // Escurecer: reduzir lightness para ~55% e aumentar saturation
-    const newL = Math.max(0.4, l * 0.65); // Reduz lightness
-    const newS = Math.min(1, s * 1.2); // Aumenta saturation
+    // Escurecer: reduzir lightness para ~45% (mais agressivo) e aumentar saturation
+    const newL = Math.max(0.35, l * 0.5); // Reduz lightness mais (50% do original)
+    const newS = Math.min(1, s * 1.3); // Aumenta saturation ainda mais
 
     // Converter HSL de volta para RGB
     const hsl2rgb = (h: number, s: number, l: number) => {
