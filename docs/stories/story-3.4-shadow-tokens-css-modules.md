@@ -4,7 +4,7 @@
 **Epic:** EPIC-001 (Resolução de Débitos Técnicos)
 **Sprint:** 3
 **Pontos:** 3
-**Status:** ✅ **READY FOR REVIEW** (All tasks completed 6/6)
+**Status:** ✅ Done (PR #39 merged)
 **Approved By:** Morgan (Product Manager)
 **Approval Date:** 2026-01-27 14:30
 **Parallel With:** Story 3.2 (Design Token Documentation)

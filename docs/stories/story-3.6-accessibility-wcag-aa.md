@@ -3,7 +3,7 @@
 **Story ID:** 3.6
 **Epic:** EPIC-002 (Stabilization for Friends)
 **Points:** 3
-**Status:** ✅ Ready for Review
+**Status:** ✅ Done (PR #40 merged)
 **Priority:** P0 (Core Stabilization)
 **Sprint:** Sprint 3 (Core Stabilization)
 
