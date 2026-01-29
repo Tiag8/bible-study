@@ -53,6 +53,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
     loading: referencesLoading,
     error: referencesError,
     addReference,
+    addExternalLink,
     deleteReference,
     reorderReference,
     refetch: refetchReferences,
@@ -962,6 +963,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
           loading={referencesLoading}
           error={referencesError}
           onAddReference={addReference}
+          onAddExternalLink={addExternalLink}
           onDeleteReference={deleteReference}
           onReorder={reorderReference}
           onRetry={refetchReferences}

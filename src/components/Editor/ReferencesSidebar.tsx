@@ -16,6 +16,7 @@ interface ReferencesSidebarProps {
   loading: boolean;
   error?: string | null;
   onAddReference: (targetStudyId: string) => Promise<boolean>;
+  onAddExternalLink?: (url: string) => Promise<boolean>;
   onDeleteReference: (referenceId: string) => Promise<boolean>;
   onReorder: (referenceId: string, direction: 'up' | 'down') => Promise<boolean>;
   onRetry?: () => void;
@@ -26,6 +27,7 @@ export function ReferencesSidebar({
   loading,
   error,
   onAddReference,
+  onAddExternalLink,
   onDeleteReference,
   onReorder,
   onRetry,
@@ -267,6 +269,16 @@ export function ReferencesSidebar({
             }
             return success;
           }}
+          onAddExternalLink={onAddExternalLink ? async (url) => {
+            const success = await onAddExternalLink(url);
+            if (success) {
+              toast.success('Link externo adicionado com sucesso');
+              setShowAddModal(false);
+            } else {
+              toast.error('Erro ao adicionar link externo');
+            }
+            return success;
+          } : undefined}
           onClose={() => setShowAddModal(false)}
         />
       )}
