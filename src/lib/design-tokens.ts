@@ -222,3 +222,24 @@ export const STATUS_CONFIG: Record<StudyStatus, StatusConfig> = {
     label: 'Concluído'
   },
 } as const
+
+// ============================================
+// REFERENCE TYPE COLORS (Story 4.3.3)
+// ============================================
+
+/**
+ * Colors for different reference types
+ * - references: Internal references created by user (green)
+ * - referenced_by: Reversed references created by trigger (red)
+ * - external: External links to websites (blue)
+ *
+ * All colors validated for WCAG AA contrast (4.5:1)
+ * Uses light tones (50) with darker borders (200) for clarity
+ */
+export const REFERENCE_TYPE_COLORS = {
+  references: 'bg-green-50 border-green-200 hover:bg-green-100',
+  referenced_by: 'bg-red-50 border-red-200 hover:bg-red-100',
+  external: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
+} as const
+
+export type ReferenceTypeColor = keyof typeof REFERENCE_TYPE_COLORS

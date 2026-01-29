@@ -15,6 +15,7 @@ interface UseBubbleMenuHandlersProps {
   setLinkUrl: (url: string) => void;
   setSearchQuery: (query: string) => void;
   onAddReference?: (targetStudyId: string) => Promise<boolean>;
+  onAddExternalLink?: (url: string) => Promise<boolean>;
   onDeleteReferenceByStudyId?: (targetStudyId: string) => Promise<boolean>;
 }
 
@@ -24,23 +25,32 @@ export function useBubbleMenuHandlers({
   setLinkUrl,
   setSearchQuery,
   onAddReference,
+  onAddExternalLink,
   onDeleteReferenceByStudyId,
 }: UseBubbleMenuHandlersProps) {
   /**
    * Define link externo na seleção atual
+   * Story 4.3.2: Também salva no banco como referência externa
    */
-  const handleSetLink = useCallback((url: string) => {
+  const handleSetLink = useCallback(async (url: string) => {
     if (url) {
+      // Aplicar link visual no editor
       editor
         .chain()
         .focus()
         .extendMarkRange("link")
         .setLink({ href: url })
         .run();
+
+      // Story 4.3.2: Salvar link externo no banco (cria card no sidebar)
+      if (onAddExternalLink && url.startsWith('http')) {
+        await onAddExternalLink(url);
+      }
+
       setLinkUrl("");
       setMode("default");
     }
-  }, [editor, setLinkUrl, setMode]);
+  }, [editor, setLinkUrl, setMode, onAddExternalLink]);
 
   /**
    * Remove link da seleção atual

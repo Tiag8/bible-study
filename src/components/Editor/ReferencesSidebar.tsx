@@ -16,6 +16,7 @@ interface ReferencesSidebarProps {
   loading: boolean;
   error?: string | null;
   onAddReference: (targetStudyId: string) => Promise<boolean>;
+  onAddExternalLink?: (url: string) => Promise<boolean>;
   onDeleteReference: (referenceId: string) => Promise<boolean>;
   onReorder: (referenceId: string, direction: 'up' | 'down') => Promise<boolean>;
   onRetry?: () => void;
@@ -26,6 +27,7 @@ export function ReferencesSidebar({
   loading,
   error,
   onAddReference,
+  onAddExternalLink,
   onDeleteReference,
   onReorder,
   onRetry,
@@ -81,6 +83,15 @@ export function ReferencesSidebar({
     } finally {
       setRetrying(false);
     }
+  };
+
+  // Wrapper para onReorder com toast feedback (Story 4.3.4)
+  const handleReorder = async (referenceId: string, direction: 'up' | 'down') => {
+    const success = await onReorder(referenceId, direction);
+    if (success) {
+      toast.success('Ordem salva');
+    }
+    // Se não teve sucesso, é porque já estava no topo/fim - sem toast
   };
 
   return (
@@ -243,7 +254,7 @@ export function ReferencesSidebar({
                       index={idx}
                       total={references.length}
                       onDelete={handleDeleteClick}
-                      onReorder={onReorder}
+                      onReorder={handleReorder}
                       deleting={deleting === ref.id}
                     />
                   ))}
@@ -267,6 +278,16 @@ export function ReferencesSidebar({
             }
             return success;
           }}
+          onAddExternalLink={onAddExternalLink ? async (url) => {
+            const success = await onAddExternalLink(url);
+            if (success) {
+              toast.success('Link externo adicionado com sucesso');
+              setShowAddModal(false);
+            } else {
+              toast.error('Erro ao adicionar link externo');
+            }
+            return success;
+          } : undefined}
           onClose={() => setShowAddModal(false)}
         />
       )}

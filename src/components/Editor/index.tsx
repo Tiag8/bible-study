@@ -26,6 +26,7 @@ interface EditorProps {
   onChange?: (content: string) => void;
   onUndoRedoChange?: (canUndo: boolean, canRedo: boolean) => void;
   onAddReference?: (targetStudyId: string) => Promise<boolean>;
+  onAddExternalLink?: (url: string) => Promise<boolean>;
   onDeleteReferenceByStudyId?: (targetStudyId: string) => Promise<boolean>;
 }
 
@@ -56,7 +57,7 @@ export interface EditorHandle {
  * @ref Editor - Expõe métodos undo() e redo() e status canUndo/canRedo
  */
 export const Editor = forwardRef<EditorHandle, EditorProps>(
-  function Editor({ initialContent = "", onChange, onUndoRedoChange, onAddReference, onDeleteReferenceByStudyId }: EditorProps, ref) {
+  function Editor({ initialContent = "", onChange, onUndoRedoChange, onAddReference, onAddExternalLink, onDeleteReferenceByStudyId }: EditorProps, ref) {
   // Ref para prevenir sync loops (evita setContent quando conteúdo já é o mesmo)
   const lastSyncedContentRef = useRef<string | null>(null);
 
@@ -286,7 +287,7 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
         }
       `}</style>
 
-      <BubbleMenuComponent editor={editor} onAddReference={onAddReference} onDeleteReferenceByStudyId={onDeleteReferenceByStudyId} />
+      <BubbleMenuComponent editor={editor} onAddReference={onAddReference} onAddExternalLink={onAddExternalLink} onDeleteReferenceByStudyId={onDeleteReferenceByStudyId} />
       <EditorContent editor={editor} />
       <SlashMenu
         editor={editor}
