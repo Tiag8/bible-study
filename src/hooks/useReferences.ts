@@ -181,14 +181,23 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
         // Merge com dados de target e enriquecer tags com cores
         const targetsMap = new Map(targets?.map((t) => [t.id, t]) || []);
         const enrichedRefs = data.map((ref) => {
-          // Para links externos, não buscar dados de target
+          // Para links externos, extrair hostname da URL como título
           if (ref.link_type === 'external') {
+            let displayTitle = 'Link Externo';
+            if (ref.external_url) {
+              try {
+                displayTitle = new URL(ref.external_url).hostname.replace('www.', '');
+              } catch {
+                // URL inválida, manter título genérico
+              }
+            }
+
             return {
               ...ref,
               link_type: 'external' as const,
               target_study_id: null,
-              target_title: undefined,
-              target_book_name: undefined,
+              target_title: displayTitle,
+              target_book_name: ref.external_url || undefined,
               target_chapter_number: undefined,
               target_tags: undefined,
             };
@@ -358,7 +367,7 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
 
   // Story 4.3.2: Adicionar link externo (URL)
   const addExternalLink = useCallback(
-    async (url: string, title?: string) => {
+    async (url: string, _title?: string) => {
       if (!user?.id || !studyId) {
         const msg = 'User ou Study ID não disponível';
         setError(msg);
