@@ -14,6 +14,7 @@ import { EDITOR_DEBOUNCE_DELAY } from "@/lib/editor-constants";
 import { parseContent } from "@/lib/editor-utils";
 import { ColoredBlockquote } from "./ColoredBlockquote";
 import { CommentMark } from "./CommentMark";
+import { CommentTooltip } from "./CommentTooltip";
 import { BubbleMenuComponent } from "./BubbleMenu"; // Agora aponta para BubbleMenu/index
 import { SlashMenu } from "./SlashMenu";
 import { useSlashMenu } from "./useSlashMenu";
@@ -290,6 +291,7 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
       `}</style>
 
       <BubbleMenuComponent editor={editor} onAddReference={onAddReference} onAddExternalLink={onAddExternalLink} onDeleteReferenceByStudyId={onDeleteReferenceByStudyId} />
+      <CommentTooltip editor={editor} />
       <EditorContent editor={editor} />
       <SlashMenu
         editor={editor}
