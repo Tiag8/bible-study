@@ -21,13 +21,19 @@ export interface TagWithColor {
 export interface Reference {
   id: string;
   source_study_id: string;
-  target_study_id: string;
-  target_title: string;
-  target_book_name: string;
-  target_chapter_number: number;
-  target_tags: TagWithColor[];
+  target_study_id?: string | null;
+  target_title?: string;
+  target_book_name?: string;
+  target_chapter_number?: number;
+  target_tags?: TagWithColor[];
   created_at: string;
   position?: number;
+
+  // Story 4.3.1-4.3.4 fields
+  link_type: 'internal' | 'external';
+  external_url?: string | null;
+  is_bidirectional?: boolean;
+  display_order?: number;
 }
 
 export function useReferences(studyId: string | null, onRemoveLink?: (targetStudyId: string) => void) {
@@ -51,26 +57,37 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
           source_study_id,
           target_study_id,
           created_at,
+          link_type,
+          external_url,
+          is_bidirectional,
+          display_order,
           position: target_study_id
         `)
         .eq('source_study_id', studyId)
         .eq('user_id', user.id)
+        .order('display_order', { ascending: true })
         .order('created_at', { ascending: true });
 
       if (err) throw err;
 
-      // Fetch target study details para cada referência
+      // Fetch target study details para cada referência (apenas internos)
       if (data && data.length > 0) {
-        const targetIds = data.map((ref) => ref.target_study_id);
+        // Filtrar apenas referências internas com target_study_id
+        const internalRefs = data.filter((ref) => ref.link_type === 'internal' && ref.target_study_id);
+        const targetIds = internalRefs.map((ref) => ref.target_study_id);
 
-        // Query 1: Buscar estudos com seus nomes de tags
-        const { data: targets, error: targetErr } = await supabase
-          .from('bible_studies')
-          .select('id, title, book_name, chapter_number, tags')
-          .in('id', targetIds)
-          .eq('user_id', user.id);
+        // Query 1: Buscar estudos com seus nomes de tags (apenas se houver)
+        let targets = [];
+        if (targetIds.length > 0) {
+          const { data: targetsData, error: targetErr } = await supabase
+            .from('bible_studies')
+            .select('id, title, book_name, chapter_number, tags')
+            .in('id', targetIds)
+            .eq('user_id', user.id);
 
-        if (targetErr) throw targetErr;
+          if (targetErr) throw targetErr;
+          targets = targetsData || [];
+        }
 
         // Query 2: Buscar todas as tags do usuário com suas cores e types
         const { data: allUserTags, error: tagsErr } = await supabase
@@ -88,6 +105,20 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
         // Merge com dados de target e enriquecer tags com cores
         const targetsMap = new Map(targets?.map((t) => [t.id, t]) || []);
         const enrichedRefs = data.map((ref) => {
+          // Para links externos, não buscar dados de target
+          if (ref.link_type === 'external') {
+            return {
+              ...ref,
+              link_type: 'external' as const,
+              target_study_id: null,
+              target_title: undefined,
+              target_book_name: undefined,
+              target_chapter_number: undefined,
+              target_tags: undefined,
+            };
+          }
+
+          // Para links internos, enriquecer com dados do target
           const target = targetsMap.get(ref.target_study_id);
           const tagNames = target?.tags || [];
 
@@ -104,6 +135,7 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
 
           return {
             ...ref,
+            link_type: 'internal' as const,
             target_title: target?.title || 'Desconhecido',
             target_book_name: target?.book_name || '',
             target_chapter_number: target?.chapter_number || 0,
@@ -160,11 +192,14 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
             user_id: user.id,
             source_study_id: studyId,
             target_study_id: targetStudyId,
+            link_type: 'internal',  // Story 4.3.1
+            is_bidirectional: true,  // Story 4.3.1 - Trigger criará reversa
+            display_order: references.length,  // Story 4.3.4
           });
 
         if (err) throw err;
 
-        // Refetch para atualizar lista
+        // Refetch para atualizar lista (aguarda trigger criar reversa)
         await fetchReferences();
         return true;
       } catch (err) {
@@ -197,19 +232,18 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
           return false;
         }
 
-        const { error: err } = await supabase
-          .from('bible_study_links')
-          .delete()
-          .eq('id', referenceId)
-          .eq('user_id', user.id);
+        // Story 4.3.1: Usar RPC delete_bidirectional_link para delete atomicamente ambas refs
+        const { error: err } = await supabase.rpc('delete_bidirectional_link', {
+          link_id: referenceId,
+        });
 
         if (err) throw err;
 
         // Atualizar local state primeiro (otimistic update)
         setReferences((prev) => prev.filter((ref) => ref.id !== referenceId));
 
-        // Chamar callback para remover link do editor
-        if (onRemoveLink) {
+        // Chamar callback para remover link do editor (apenas para internos)
+        if (onRemoveLink && refToDelete.link_type === 'internal' && refToDelete.target_study_id) {
           onRemoveLink(refToDelete.target_study_id);
         }
 
@@ -224,8 +258,45 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
     [user?.id, references, onRemoveLink]
   );
 
-  // Reordenar (salvar posição via drag-and-drop)
-  // TODO: Persistir posição no banco de dados
+  // Story 4.3.2: Adicionar link externo (URL)
+  const addExternalLink = useCallback(
+    async (url: string, title?: string) => {
+      if (!user?.id || !studyId) {
+        const msg = 'User ou Study ID não disponível';
+        setError(msg);
+        return false;
+      }
+
+      try {
+        setError(null);
+        const { error: err } = await supabase
+          .from('bible_study_links')
+          .insert({
+            user_id: user.id,
+            source_study_id: studyId,
+            target_study_id: null,  // Links externos não têm target
+            link_type: 'external',  // Story 4.3.2
+            external_url: url,      // Story 4.3.2
+            is_bidirectional: false,  // Links externos não criam reversos
+            display_order: references.length,  // Story 4.3.4
+          });
+
+        if (err) throw err;
+
+        // Refetch para atualizar lista
+        await fetchReferences();
+        return true;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Erro ao adicionar link externo';
+        console.error('[useReferences] addExternalLink error:', msg);
+        setError(msg);
+        return false;
+      }
+    },
+    [studyId, user?.id, references.length, fetchReferences]
+  );
+
+  // Story 4.3.4: Reordenar (salvar posição via swap_display_order RPC)
   const reorderReference = useCallback(
     async (referenceId: string, direction: 'up' | 'down') => {
       const currentIndex = references.findIndex((ref) => ref.id === referenceId);
@@ -253,13 +324,24 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
           newReferences[currentIndex],
         ];
 
+        // Otimistic update
         setReferences(newReferences);
 
-        // TODO: Save new order to database
-        // await supabase.from('bible_study_links')
-        //   .update({ display_order: newIndex })
-        //   .eq('id', referenceId);
+        // Story 4.3.4: Usar RPC swap_display_order para swap atomicamente
+        const neighborRef = references[newIndex];
+        const { error: err } = await supabase.rpc('swap_display_order', {
+          ref_id_1: referenceId,
+          ref_id_2: neighborRef.id,
+        });
 
+        if (err) {
+          // Revert se RPC falhar
+          setReferences(references);
+          throw err;
+        }
+
+        // Refetch para garantir sincronização com DB
+        await fetchReferences();
         return true;
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Erro ao reordenar referência';
@@ -268,7 +350,7 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
         return false;
       }
     },
-    [references]
+    [references, fetchReferences]
   );
 
   return {
@@ -276,6 +358,7 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
     loading,
     error,
     addReference,
+    addExternalLink,  // Story 4.3.2
     deleteReference,
     reorderReference,
     refetch: fetchReferences,
