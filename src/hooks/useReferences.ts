@@ -5,6 +5,39 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
 /**
+ * Retry helper with exponential backoff
+ * @param fn - Async function to retry
+ * @param maxAttempts - Maximum number of attempts (default: 3)
+ * @param delayMs - Initial delay in milliseconds (default: 1000)
+ * @returns Result of function
+ */
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxAttempts: number = 3,
+  delayMs: number = 1000
+): Promise<T> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      console.debug(`[retryWithBackoff] Attempt ${attempt}/${maxAttempts}`);
+      return await fn();
+    } catch (err) {
+      lastError = err as Error;
+      console.warn(`[retryWithBackoff] Attempt ${attempt} failed:`, lastError.message);
+
+      if (attempt < maxAttempts) {
+        const delay = delayMs * Math.pow(2, attempt - 1);
+        console.debug(`[retryWithBackoff] Waiting ${delay}ms before retry...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  throw lastError || new Error('Max retry attempts reached');
+}
+
+/**
  * Reference Interface (Legacy)
  *
  * This interface is used internally by useReferences hook.
@@ -52,31 +85,64 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
 
   // Fetch referências para um estudo
   const fetchReferences = useCallback(async () => {
-    if (!user?.id || !studyId) return;
+    if (!user?.id || !studyId) {
+      console.debug('[useReferences] Early return: user?.id=%s, studyId=%s', user?.id, studyId);
+      return;
+    }
+
+    // Guard against duplicate concurrent calls
+    if (loading) {
+      console.warn('[useReferences] fetchReferences already in progress, skipping duplicate call');
+      return;
+    }
 
     try {
       setLoading(true);
       setError(null);
+      console.debug('[useReferences] Starting fetch for studyId=%s, userId=%s', studyId, user?.id);
 
-      const { data, error: err } = await supabase
-        .from('bible_study_links')
-        .select(`
-          id,
-          source_study_id,
-          target_study_id,
-          created_at,
-          link_type,
-          external_url,
-          is_bidirectional,
-          display_order,
-          position: target_study_id
-        `)
-        .eq('source_study_id', studyId)
-        .eq('user_id', user.id)
-        .order('display_order', { ascending: true })
-        .order('created_at', { ascending: true });
+      // Phase 3: Retry with exponential backoff for transient failures
+      let data: any;
+      let err: any;
+      try {
+        ({ data, error: err } = await retryWithBackoff(
+          async () => {
+            return await supabase
+              .from('bible_study_links')
+              .select(`
+                id,
+                source_study_id,
+                target_study_id,
+                created_at,
+                link_type,
+                external_url,
+                is_bidirectional,
+                display_order
+              `)
+              .eq('source_study_id', studyId)
+              .eq('user_id', user.id)
+              .order('display_order', { ascending: true })
+              .order('created_at', { ascending: true });
+          },
+          3, // 3 attempts
+          1000 // 1s initial delay
+        ));
+      } catch (retryErr) {
+        err = retryErr;
+        console.error('[useReferences] Retry exhausted:', err);
+      }
 
-      if (err) throw err;
+      if (err) {
+        console.error('[useReferences] Query error:', {
+          code: err.code,
+          message: err.message,
+          hint: err.hint,
+          details: err.details,
+        });
+        throw err;
+      }
+
+      console.debug('[useReferences] Query succeeded, rows returned=%d', data?.length || 0);
 
       // Fetch target study details para cada referência (apenas internos)
       if (data && data.length > 0) {
@@ -151,10 +217,18 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Erro ao carregar referências';
-      console.error('[useReferences] Error:', msg);
+      const stack = err instanceof Error ? err.stack : 'No stack trace';
+      console.error('[useReferences] Error:', {
+        message: msg,
+        stack: stack,
+        studyId: studyId,
+        userId: user?.id,
+        timestamp: new Date().toISOString(),
+      });
       setError(msg);
     } finally {
       setLoading(false);
+      console.debug('[useReferences] fetchReferences completed, error=%s', error?.substring(0, 50));
     }
   }, [studyId, user?.id]);
 
@@ -166,8 +240,11 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
   // Adicionar referência
   const addReference = useCallback(
     async (targetStudyId: string) => {
+      console.debug('[useReferences.addReference] Called with targetStudyId=%s', targetStudyId);
+
       if (!user?.id || !studyId) {
         const msg = 'User ou Study ID não disponível';
+        console.error('[useReferences.addReference] Missing IDs:', { userId: user?.id, studyId });
         setError(msg);
         return false;
       }
@@ -175,6 +252,7 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
       // Validar: não pode referenciar a si mesmo
       if (targetStudyId === studyId) {
         const msg = 'Um estudo não pode referenciar a si mesmo';
+        console.warn('[useReferences.addReference] Self-reference attempted:', targetStudyId);
         setError(msg);
         return false;
       }
@@ -182,12 +260,14 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
       // Validar: evitar duplicatas
       if (references.some((ref) => ref.target_study_id === targetStudyId)) {
         const msg = 'Este estudo já está referenciado';
+        console.warn('[useReferences.addReference] Duplicate reference:', targetStudyId);
         setError(msg);
         return false;
       }
 
       try {
         setError(null);
+        console.debug('[useReferences.addReference] Inserting bidirectional reference');
         const { error: err } = await supabase
           .from('bible_study_links')
           .insert({
