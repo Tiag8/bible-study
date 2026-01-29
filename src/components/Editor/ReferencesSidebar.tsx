@@ -85,6 +85,15 @@ export function ReferencesSidebar({
     }
   };
 
+  // Wrapper para onReorder com toast feedback (Story 4.3.4)
+  const handleReorder = async (referenceId: string, direction: 'up' | 'down') => {
+    const success = await onReorder(referenceId, direction);
+    if (success) {
+      toast.success('Ordem salva');
+    }
+    // Se não teve sucesso, é porque já estava no topo/fim - sem toast
+  };
+
   return (
     <>
       {/* Mobile drawer overlay */}
@@ -245,7 +254,7 @@ export function ReferencesSidebar({
                       index={idx}
                       total={references.length}
                       onDelete={handleDeleteClick}
-                      onReorder={onReorder}
+                      onReorder={handleReorder}
                       deleting={deleting === ref.id}
                     />
                   ))}
