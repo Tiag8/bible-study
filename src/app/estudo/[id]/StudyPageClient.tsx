@@ -941,6 +941,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
                 onChange={handleContentChange}
                 onUndoRedoChange={(canUndo) => setCanUndo(canUndo)}
                 onAddReference={addReference}
+                onAddExternalLink={addExternalLink}
                 onDeleteReferenceByStudyId={deleteReferenceByStudyId}
               />
             </div>

@@ -26,6 +26,7 @@ import type { MenuMode } from "./types";
 interface BubbleMenuComponentProps {
   editor: Editor;
   onAddReference?: (targetStudyId: string) => Promise<boolean>;
+  onAddExternalLink?: (url: string) => Promise<boolean>;
   onDeleteReferenceByStudyId?: (targetStudyId: string) => Promise<boolean>;
 }
 
@@ -37,7 +38,7 @@ interface BubbleMenuComponentProps {
  * @example
  * <BubbleMenuComponent editor={editor} onAddReference={addReference} onDeleteReferenceByStudyId={deleteRefByStudyId} />
  */
-function BubbleMenuComponentBase({ editor, onAddReference, onDeleteReferenceByStudyId }: BubbleMenuComponentProps) {
+function BubbleMenuComponentBase({ editor, onAddReference, onAddExternalLink, onDeleteReferenceByStudyId }: BubbleMenuComponentProps) {
   // Estado do menu
   const [mode, setMode] = useState<MenuMode>("default");
   const [linkUrl, setLinkUrl] = useState("");
@@ -50,6 +51,7 @@ function BubbleMenuComponentBase({ editor, onAddReference, onDeleteReferenceBySt
     setLinkUrl,
     setSearchQuery,
     onAddReference,
+    onAddExternalLink,
     onDeleteReferenceByStudyId,
   });
 
