@@ -5,7 +5,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ChevronUp, ChevronDown, Trash2, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { BORDERS } from '@/lib/design-tokens';
+import { BORDERS, TAG_COLORS } from '@/lib/design-tokens';
 import { Reference, TagWithColor } from '@/hooks/useReferences';
 
 interface SortableReferenceItemProps {
@@ -18,83 +18,6 @@ interface SortableReferenceItemProps {
 }
 
 // Mapeamento de categorias bíblicas para cores gradient
-// Função para escurecer cores claras mantendo o matiz
-// Detecta luminância e aplica darkening se necessário
-function getContrastColor(hexColor: string): string {
-  // Parse hex color
-  const hex = hexColor.replace('#', '');
-  const r = parseInt(hex.substring(0, 2), 16) / 255;
-  const g = parseInt(hex.substring(2, 4), 16) / 255;
-  const b = parseInt(hex.substring(4, 6), 16) / 255;
-
-  // Calcular luminância (WCAG)
-  const luminance = 0.299 * (parseInt(hex.substring(0, 2), 16) / 255) +
-                    0.587 * (parseInt(hex.substring(2, 4), 16) / 255) +
-                    0.114 * (parseInt(hex.substring(4, 6), 16) / 255);
-
-  // Se a cor é clara (luminância > 0.6), escurecer
-  if (luminance > 0.6) {
-    // Converter RGB para HSL (implementação corrigida)
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    let h = 0;
-    let s = 0;
-    const l = (max + min) / 2;
-
-    if (max !== min) {
-      const d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-      switch (max) {
-        case r:
-          h = (g - b) / d + (g < b ? 6 : 0);
-          break;
-        case g:
-          h = (b - r) / d + 2;
-          break;
-        case b:
-          h = (r - g) / d + 4;
-          break;
-      }
-      h /= 6;
-    }
-
-    // Escurecer: reduzir lightness para ~40% e aumentar saturation
-    const newL = Math.max(0.35, l * 0.45);
-    const newS = Math.min(1, s * 1.4);
-
-    // Converter HSL de volta para RGB (implementação corrigida)
-    const hsl2rgb = (h: number, s: number, l: number) => {
-      const hue2rgb = (p: number, q: number, t: number) => {
-        if (t < 0) t += 1;
-        if (t > 1) t -= 1;
-        if (t < 1 / 6) return p + (q - p) * 6 * t;
-        if (t < 1 / 2) return q;
-        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-        return p;
-      };
-
-      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-      const p = 2 * l - q;
-      const r = hue2rgb(p, q, h + 1 / 3);
-      const g = hue2rgb(p, q, h);
-      const b = hue2rgb(p, q, h - 1 / 3);
-
-      const toHex = (x: number) => {
-        const hex = Math.round(Math.max(0, Math.min(1, x)) * 255).toString(16);
-        return hex.length === 1 ? '0' + hex : hex;
-      };
-
-      return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-    };
-
-    return hsl2rgb(h, newS, newL);
-  }
-
-  // Se a cor é escura, retornar como está
-  return hexColor;
-}
-
 const CATEGORY_COLORS: Record<string, { from: string; to: string }> = {
   'Pentateuco': { from: 'from-green-500', to: 'to-green-600' },
   'Históricos': { from: 'from-amber-500', to: 'to-amber-600' },
@@ -323,7 +246,8 @@ export const SortableReferenceItem = React.forwardRef<
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-2 pt-1">
               {tags.map((tag: TagWithColor, idx: number) => {
-                const contrastColor = getContrastColor(tag.color);
+                // Converter nome da cor para HEX usando TAG_COLORS
+                const tagColor = TAG_COLORS[tag.color] || '#6b7280';
                 return (
                   <span
                     key={idx}
@@ -331,8 +255,8 @@ export const SortableReferenceItem = React.forwardRef<
                     style={{
                       borderWidth: '1px',
                       borderStyle: 'solid',
-                      borderColor: contrastColor,
-                      color: contrastColor,
+                      borderColor: tagColor,
+                      color: tagColor,
                       backgroundColor: 'transparent',
                     }}
                     title={`${tag.type}`}

@@ -98,7 +98,7 @@ export const TAG_COLORS: Record<string, string> = {
   pink: '#ec4899',
   cyan: '#06b6d4',
   red: '#ef4444',
-  yellow: '#eab308',
+  yellow: '#ca8a04', // amber-600 (mais escuro para melhor contraste)
   'dark-green': '#15803d',
 }
 
