@@ -248,18 +248,17 @@ export const SortableReferenceItem = React.forwardRef<
               {tags.map((tag: TagWithColor, idx: number) => (
                 <span
                   key={idx}
-                  className={cn(
-                    'px-2.5 py-1 rounded-full text-xs font-medium',
-                    'transition-all duration-150 ease-out'
-                  )}
+                  className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium transition-all duration-150 ease-out"
                   style={{
-                    backgroundColor: `${tag.color}20`, // 20% opacity
+                    borderWidth: '1px',
+                    borderStyle: 'solid',
+                    borderColor: tag.color,
                     color: tag.color,
-                    border: `1px solid ${tag.color}40`, // 40% opacity border
+                    backgroundColor: 'transparent',
                   }}
                   title={`${tag.type}`}
                 >
-                  {tag.name}
+                  #{tag.name}
                 </span>
               ))}
             </div>
