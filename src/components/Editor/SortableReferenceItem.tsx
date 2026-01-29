@@ -78,7 +78,7 @@ export const SortableReferenceItem = React.forwardRef<
     const referenceTypeColor = getReferenceTypeColor(reference);
 
     // Get category colors (fallback para Evangelhos se não encontrar) - usado apenas para internal refs
-    const colors = reference.link_type === 'internal'
+    const colors = reference.link_type === 'internal' && reference.target_book_name
       ? CATEGORY_COLORS[reference.target_book_name] || CATEGORY_COLORS['Evangelhos']
       : { from: 'from-blue-500', to: 'to-blue-600' }; // fallback para external
 
