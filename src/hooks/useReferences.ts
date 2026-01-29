@@ -102,8 +102,10 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
       console.debug('[useReferences] Starting fetch for studyId=%s, userId=%s', studyId, user?.id);
 
       // Phase 3: Retry with exponential backoff for transient failures
-      let data: any;
-      let err: any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let data: any[] | null = null;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let err: any = null;
       try {
         ({ data, error: err } = await retryWithBackoff(
           async () => {
@@ -194,11 +196,25 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
 
           // Para links internos, enriquecer com dados do target
           const target = targetsMap.get(ref.target_study_id);
-          const targetTags = target?.tags || [];
+          const targetTagNames = target?.tags || [];
 
-          // Tags já vêm como TagWithColor[] do banco
-          const tagsWithColor: TagWithColor[] = Array.isArray(targetTags)
-            ? (targetTags as TagWithColor[])
+          // Tags vêm como string[] do banco, precisa enriquecer com type/color do tagsMap
+          const tagsWithColor: TagWithColor[] = Array.isArray(targetTagNames)
+            ? targetTagNames
+                .map((tagName: string | TagWithColor) => {
+                  // Se já é TagWithColor (objeto), usar direto
+                  if (typeof tagName === 'object' && tagName !== null) {
+                    return tagName as TagWithColor;
+                  }
+                  // Se é string, buscar no tagsMap
+                  const tagInfo = tagsMap.get(tagName as string);
+                  return {
+                    name: tagName as string,
+                    type: tagInfo?.type || 'Temas',
+                    color: tagInfo?.color || 'gray',
+                  } as TagWithColor;
+                })
+                .filter((tag): tag is TagWithColor => tag.name !== undefined)
             : [];
 
           return {
