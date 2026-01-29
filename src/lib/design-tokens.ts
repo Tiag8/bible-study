@@ -222,3 +222,28 @@ export const STATUS_CONFIG: Record<StudyStatus, StatusConfig> = {
     label: 'Concluído'
   },
 } as const
+
+// ============================================
+// REFERENCE TYPE COLORS (Story 4.3.3)
+// ============================================
+
+/**
+ * Colors for different types of references in ReferencesSidebar
+ * - references: "Eu referencio" (A→B, is_bidirectional: true) = Verde
+ * - referenced_by: "Fui referenciado" (B←A, is_bidirectional: false) = Vermelho
+ * - external: "Link externo" (external URL) = Azul
+ *
+ * Colors are light shades (50) with borders (200) for WCAG AA contrast
+ */
+export const REFERENCE_TYPE_COLORS = {
+  // "Eu referencio" (verde claro)
+  references: 'bg-green-50 border-green-200 hover:bg-green-100',
+
+  // "Fui referenciado" (vermelho claro)
+  referenced_by: 'bg-red-50 border-red-200 hover:bg-red-100',
+
+  // "Link externo" (azul claro)
+  external: 'bg-blue-50 border-blue-200 hover:bg-blue-100'
+} as const
+
+export type ReferenceTypeColor = keyof typeof REFERENCE_TYPE_COLORS
