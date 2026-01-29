@@ -18,6 +18,87 @@ interface SortableReferenceItemProps {
 }
 
 // Mapeamento de categorias bíblicas para cores gradient
+// Função para escurecer cores claras mantendo o matiz
+// Detecta luminância e aplica darkening se necessário
+function getContrastColor(hexColor: string): string {
+  // Parse hex color
+  const hex = hexColor.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+
+  // Calcular luminância (WCAG)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+  // Se a cor é clara (luminância > 0.6), escurecer
+  if (luminance > 0.6) {
+    // Converter para HSL, reduzir lightness e aumentar saturation
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const l = (max + min) / 2 / 255;
+    let h = 0;
+    let s = 0;
+
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - (max + min)) : d / (max + min);
+
+      switch (max) {
+        case r:
+          h = (g - b) / d + (g < b ? 6 : 0);
+          break;
+        case g:
+          h = (b - r) / d + 2;
+          break;
+        case b:
+          h = (r - g) / d + 4;
+          break;
+      }
+      h /= 6;
+    }
+
+    // Escurecer: reduzir lightness para ~55% e aumentar saturation
+    const newL = Math.max(0.4, l * 0.65); // Reduz lightness
+    const newS = Math.min(1, s * 1.2); // Aumenta saturation
+
+    // Converter HSL de volta para RGB
+    const hsl2rgb = (h: number, s: number, l: number) => {
+      let r, g, b;
+
+      if (s === 0) {
+        r = g = b = l;
+      } else {
+        const hue2rgb = (p: number, q: number, t: number) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1 / 6) return p + (q - p) * 6 * t;
+          if (t < 1 / 2) return q;
+          if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+          return p;
+        };
+
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1 / 3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1 / 3);
+      }
+
+      const toHex = (x: number) => {
+        const hex = Math.round(x * 255).toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      };
+
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    };
+
+    return hsl2rgb(h, newS, newL);
+  }
+
+  // Se a cor é escura, retornar como está
+  return hexColor;
+}
+
 const CATEGORY_COLORS: Record<string, { from: string; to: string }> = {
   'Pentateuco': { from: 'from-green-500', to: 'to-green-600' },
   'Históricos': { from: 'from-amber-500', to: 'to-amber-600' },
@@ -245,22 +326,25 @@ export const SortableReferenceItem = React.forwardRef<
           {/* Linha 3: Tags coloridas (quebra em múltiplas linhas) */}
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-2 pt-1">
-              {tags.map((tag: TagWithColor, idx: number) => (
-                <span
-                  key={idx}
-                  className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium transition-all duration-150 ease-out"
-                  style={{
-                    borderWidth: '1px',
-                    borderStyle: 'solid',
-                    borderColor: tag.color,
-                    color: tag.color,
-                    backgroundColor: 'transparent',
-                  }}
-                  title={`${tag.type}`}
-                >
-                  #{tag.name}
-                </span>
-              ))}
+              {tags.map((tag: TagWithColor, idx: number) => {
+                const contrastColor = getContrastColor(tag.color);
+                return (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium transition-all duration-150 ease-out"
+                    style={{
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                      borderColor: contrastColor,
+                      color: contrastColor,
+                      backgroundColor: 'transparent',
+                    }}
+                    title={`${tag.type}`}
+                  >
+                    #{tag.name}
+                  </span>
+                );
+              })}
             </div>
           )}
         </div>
