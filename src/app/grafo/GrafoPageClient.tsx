@@ -87,7 +87,7 @@ export function GrafoPageClient() {
 
   // Estado
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
-  const [showLegend, setShowLegend] = useState(true);
+  const [showLegend, setShowLegend] = useState(false);
   const [hoveredNode, setHoveredNode] = useState<ForceGraphNode | null>(null);
   const [fontsReady, setFontsReady] = useState(false);
   const [hiddenCategories, setHiddenCategories] = useState<Set<BookCategory>>(new Set());
@@ -102,6 +102,19 @@ export function GrafoPageClient() {
   const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
   const [hiddenStatuses, setHiddenStatuses] = useState<Set<string>>(new Set());
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Detectar mobile e ajustar defaults
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) setShowLegend(true);
+    };
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   // Aguardar fontes carregadas para Canvas rendering
   useEffect(() => {
@@ -325,23 +338,24 @@ export function GrafoPageClient() {
       <div className="flex-1 flex flex-col min-w-0 relative">
         {/* Header */}
         <header className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-parchment via-parchment/90 to-transparent">
-          <div className="px-6 py-4">
+          <div className="px-4 md:px-6 py-3 md:py-4">
+            {/* Row 1: Title + Actions */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 md:gap-4">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => router.push("/")}
                   className={cn(PARCHMENT.text.secondary, "hover:text-espresso hover:bg-warm-white")}
                 >
-                  <Home className="w-4 h-4 mr-2" />
-                  Dashboard
+                  <Home className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">Dashboard</span>
                 </Button>
                 <div>
-                  <h1 className={cn("text-xl", TYPOGRAPHY.weights.bold, TYPOGRAPHY.families.serif, PARCHMENT.text.heading)}>
+                  <h1 className={cn("text-lg md:text-xl", TYPOGRAPHY.weights.bold, TYPOGRAPHY.families.serif, PARCHMENT.text.heading)}>
                     Segundo Cérebro
                   </h1>
-                  <p className={cn(TYPOGRAPHY.sizes.sm, PARCHMENT.text.secondary)}>
+                  <p className={cn(TYPOGRAPHY.sizes.xs, "md:text-sm", PARCHMENT.text.secondary)}>
                     {stats.visibleStudies} estudos • {stats.visibleLinks} conexões
                     {(hiddenCategories.size > 0 || hiddenStatuses.size > 0) && (
                       <span className={cn(PARCHMENT.text.muted)}> (filtrado)</span>
@@ -350,96 +364,12 @@ export function GrafoPageClient() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                {/* Search */}
-                <div className="relative">
-                  <div className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded-lg border w-56",
-                    PARCHMENT.bg.input, PARCHMENT.border.default,
-                    "focus-within:border-amber-light"
-                  )}>
-                    <Search className={cn("w-4 h-4 shrink-0", PARCHMENT.text.muted)} />
-                    <input
-                      ref={searchInputRef}
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Buscar estudo..."
-                      className={cn(
-                        "bg-transparent outline-none w-full",
-                        TYPOGRAPHY.sizes.sm, PARCHMENT.text.heading,
-                        "placeholder:text-sand"
-                      )}
-                    />
-                    {searchQuery && (
-                      <button onClick={() => setSearchQuery("")} className="text-stone hover:text-espresso">
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-                  {/* Search results dropdown */}
-                  {searchResults.length > 0 && (
-                    <div className={cn(
-                      "absolute top-full left-0 right-0 mt-1 rounded-lg border py-1 max-h-60 overflow-y-auto",
-                      PARCHMENT.bg.card, PARCHMENT.border.default, SHADOW_WARM.lg, "z-50"
-                    )}>
-                      {searchResults.map((node) => (
-                        <button
-                          key={node.id}
-                          onClick={() => focusNode(node)}
-                          className={cn(
-                            "flex items-center gap-2 w-full px-3 py-2 text-left transition-colors",
-                            "hover:bg-warm-white"
-                          )}
-                        >
-                          <div
-                            className="w-2.5 h-2.5 rounded-full shrink-0"
-                            style={{ backgroundColor: node.color }}
-                          />
-                          <div className="min-w-0 flex-1">
-                            <p className={cn(TYPOGRAPHY.sizes.sm, PARCHMENT.text.heading, "truncate")}>
-                              {node.name}
-                            </p>
-                            <p className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.muted)}>
-                              {node.book} {node.chapter}
-                            </p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Status filter pills */}
-                <div className="flex items-center gap-1">
-                  {(['estudar', 'estudando', 'revisando', 'concluído'] as const).map((status) => {
-                    const isHidden = hiddenStatuses.has(status);
-                    const count = graphData.nodes.filter(n => n.status === status).length;
-                    if (count === 0) return null;
-                    return (
-                      <button
-                        key={status}
-                        onClick={() => toggleStatus(status)}
-                        className={cn(
-                          "px-2 py-1 rounded-md border transition-colors",
-                          TYPOGRAPHY.sizes.xs,
-                          isHidden
-                            ? cn("opacity-40", PARCHMENT.border.default, PARCHMENT.text.muted)
-                            : cn(PARCHMENT.border.default, PARCHMENT.text.subheading, "hover:bg-warm-white")
-                        )}
-                        title={isHidden ? `Mostrar ${status}` : `Ocultar ${status}`}
-                      >
-                        {status === 'concluído' ? 'concl.' : status}
-                      </button>
-                    );
-                  })}
-                </div>
-
+              <div className="flex items-center gap-2">
                 {linkingSource && (
-                  <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-lg border", PARCHMENT.bg.hover, "border-amber-light")}>
+                  <div className={cn("flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-lg border", PARCHMENT.bg.hover, "border-amber-light")}>
                     <Link2 className="w-4 h-4 text-amber" />
-                    <span className={cn(TYPOGRAPHY.sizes.sm, PARCHMENT.text.heading)}>
-                      Conectando: {linkingSource.name}
+                    <span className={cn(TYPOGRAPHY.sizes.xs, "md:text-sm", PARCHMENT.text.heading, "max-w-[120px] truncate")}>
+                      {linkingSource.name}
                     </span>
                     <button
                       onClick={() => { setLinkingSource(null); toast.dismiss(); }}
@@ -455,22 +385,109 @@ export function GrafoPageClient() {
                   onClick={() => setShowLegend(!showLegend)}
                   className={cn(PARCHMENT.text.secondary, "hover:text-espresso hover:bg-warm-white")}
                 >
-                  <Info className="w-4 h-4 mr-2" />
-                  Legenda
+                  <Info className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">Legenda</span>
                 </Button>
+              </div>
+            </div>
+
+            {/* Row 2: Search + Filters */}
+            <div className="flex items-center gap-2 mt-2">
+              {/* Search */}
+              <div className="relative flex-1 max-w-xs">
+                <div className={cn(
+                  "flex items-center gap-2 px-3 py-1.5 rounded-lg border",
+                  PARCHMENT.bg.input, PARCHMENT.border.default,
+                  "focus-within:border-amber-light"
+                )}>
+                  <Search className={cn("w-4 h-4 shrink-0", PARCHMENT.text.muted)} />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Buscar estudo..."
+                    className={cn(
+                      "bg-transparent outline-none w-full",
+                      TYPOGRAPHY.sizes.sm, PARCHMENT.text.heading,
+                      "placeholder:text-sand"
+                    )}
+                  />
+                  {searchQuery && (
+                    <button onClick={() => setSearchQuery("")} className="text-stone hover:text-espresso">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+                {/* Search results dropdown */}
+                {searchResults.length > 0 && (
+                  <div className={cn(
+                    "absolute top-full left-0 right-0 mt-1 rounded-lg border py-1 max-h-60 overflow-y-auto",
+                    PARCHMENT.bg.card, PARCHMENT.border.default, SHADOW_WARM.lg, "z-50"
+                  )}>
+                    {searchResults.map((node) => (
+                      <button
+                        key={node.id}
+                        onClick={() => focusNode(node)}
+                        className={cn(
+                          "flex items-center gap-2 w-full px-3 py-2 text-left transition-colors",
+                          "hover:bg-warm-white"
+                        )}
+                      >
+                        <div
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: node.color }}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className={cn(TYPOGRAPHY.sizes.sm, PARCHMENT.text.heading, "truncate")}>
+                            {node.name}
+                          </p>
+                          <p className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.muted)}>
+                            {node.book} {node.chapter}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Status filter pills */}
+              <div className="flex items-center gap-1 overflow-x-auto">
+                {(['estudar', 'estudando', 'revisando', 'concluído'] as const).map((status) => {
+                  const isHidden = hiddenStatuses.has(status);
+                  const count = graphData.nodes.filter(n => n.status === status).length;
+                  if (count === 0) return null;
+                  return (
+                    <button
+                      key={status}
+                      onClick={() => toggleStatus(status)}
+                      className={cn(
+                        "px-2 py-1 rounded-md border transition-colors whitespace-nowrap",
+                        TYPOGRAPHY.sizes.xs,
+                        isHidden
+                          ? cn("opacity-40", PARCHMENT.border.default, PARCHMENT.text.muted)
+                          : cn(PARCHMENT.border.default, PARCHMENT.text.subheading, "hover:bg-warm-white")
+                      )}
+                      title={isHidden ? `Mostrar ${status}` : `Ocultar ${status}`}
+                    >
+                      {status === 'concluído' ? 'concl.' : status}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
         </header>
 
-        {/* Zoom Controls - 44px min touch target */}
-        <div className="absolute bottom-6 left-6 z-20 flex flex-col gap-2">
+        {/* Zoom Controls - 44px desktop, 48px mobile */}
+        <div className="absolute bottom-4 md:bottom-6 left-4 md:left-6 z-20 flex flex-col gap-2">
           <Button
             variant="outline"
             size="icon"
             onClick={handleZoomIn}
             className={cn(
-              "w-11 h-11",
+              "w-12 h-12 md:w-11 md:h-11",
               PARCHMENT.bg.card, PARCHMENT.border.default, PARCHMENT.text.subheading,
               "hover:bg-warm-white hover:text-espresso", SHADOW_WARM.sm
             )}
@@ -482,7 +499,7 @@ export function GrafoPageClient() {
             size="icon"
             onClick={handleZoomOut}
             className={cn(
-              "w-11 h-11",
+              "w-12 h-12 md:w-11 md:h-11",
               PARCHMENT.bg.card, PARCHMENT.border.default, PARCHMENT.text.subheading,
               "hover:bg-warm-white hover:text-espresso", SHADOW_WARM.sm
             )}
@@ -494,7 +511,7 @@ export function GrafoPageClient() {
             size="icon"
             onClick={handleCenter}
             className={cn(
-              "w-11 h-11",
+              "w-12 h-12 md:w-11 md:h-11",
               PARCHMENT.bg.card, PARCHMENT.border.default, PARCHMENT.text.subheading,
               "hover:bg-warm-white hover:text-espresso", SHADOW_WARM.sm
             )}
@@ -503,11 +520,15 @@ export function GrafoPageClient() {
           </Button>
         </div>
 
-        {/* Legend Panel */}
+        {/* Legend Panel - side panel on desktop, bottom drawer on mobile */}
         {showLegend && (
           <div className={cn(
-            "absolute top-20 right-6 z-20 backdrop-blur-sm rounded-lg p-4 w-64",
-            PARCHMENT.bg.card, PARCHMENT.border.default, "border", SHADOW_WARM.md
+            "absolute z-20 backdrop-blur-sm rounded-lg p-4 border",
+            // Mobile: bottom drawer full width
+            "bottom-0 left-0 right-0 rounded-b-none max-h-[50vh] overflow-y-auto",
+            // Desktop: side panel
+            "md:bottom-auto md:top-24 md:right-6 md:left-auto md:rounded-lg md:w-64 md:max-h-[calc(100vh-8rem)]",
+            PARCHMENT.bg.card, PARCHMENT.border.default, SHADOW_WARM.md
           )}>
             <div className="flex items-center justify-between mb-3">
               <h3 className={cn(TYPOGRAPHY.sizes.sm, TYPOGRAPHY.weights.semibold, TYPOGRAPHY.families.serif, PARCHMENT.text.heading)}>
@@ -622,8 +643,8 @@ export function GrafoPageClient() {
           </div>
         )}
 
-        {/* Hover Info - only when no context menu or selected node */}
-        {hoveredNode && !contextMenu && !selectedNode && (
+        {/* Hover Info - desktop only (mobile uses tap/selectedNode) */}
+        {hoveredNode && !contextMenu && !selectedNode && !isMobile && (
           <div className={cn(
             "absolute bottom-6 right-6 z-20 backdrop-blur-sm rounded-lg p-4 max-w-xs border pointer-events-none",
             PARCHMENT.bg.card, PARCHMENT.border.default, SHADOW_WARM.md
@@ -698,7 +719,11 @@ export function GrafoPageClient() {
         {/* Selected Node - Links Panel */}
         {selectedNode && !contextMenu && (
           <div className={cn(
-            "absolute bottom-6 right-6 z-20 backdrop-blur-sm rounded-lg p-4 w-72 border",
+            "absolute z-20 backdrop-blur-sm rounded-lg p-4 border",
+            // Mobile: bottom drawer
+            "bottom-0 left-0 right-0 rounded-b-none max-h-[50vh] overflow-y-auto",
+            // Desktop: side panel
+            "md:bottom-6 md:right-6 md:left-auto md:rounded-lg md:w-72 md:max-h-none md:overflow-visible",
             PARCHMENT.bg.card, PARCHMENT.border.default, SHADOW_WARM.md
           )}>
             <div className="flex items-center justify-between mb-3">
@@ -898,6 +923,17 @@ export function GrafoPageClient() {
               }
             }}
             nodeCanvasObjectMode={() => "replace"}
+            nodePointerAreaPaint={(node: NodeObject, color: string, ctx: CanvasRenderingContext2D) => {
+              const n = node as ForceGraphNode;
+              const x = node.x ?? 0;
+              const y = node.y ?? 0;
+              // Hitbox mínima de 20px para touch-friendly interaction
+              const hitboxRadius = Math.max(n.val, 20);
+              ctx.beginPath();
+              ctx.arc(x, y, hitboxRadius, 0, 2 * Math.PI);
+              ctx.fillStyle = color;
+              ctx.fill();
+            }}
             d3AlphaDecay={0.02}
             d3VelocityDecay={0.3}
             warmupTicks={100}
