@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef, use } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { COLORS } from "@/lib/design-tokens";
+import { PARCHMENT } from "@/lib/design-tokens";
 import { Editor, EditorHandle } from "@/components/Editor";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
@@ -535,10 +535,9 @@ export function StudyPageClient({ params }: StudyPageProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        {/* TOKENS: COLORS.primary, COLORS.neutral */}
-        <Loader2 className={cn("w-8 h-8 animate-spin", COLORS.primary.text)} />
-        <span className={cn("ml-3", COLORS.neutral.text.muted)}>Carregando estudo...</span>
+      <div className="min-h-screen bg-parchment flex items-center justify-center">
+        <Loader2 className={cn("w-8 h-8 animate-spin", PARCHMENT.accent.text)} />
+        <span className={cn("ml-3", PARCHMENT.text.muted)}>Carregando estudo...</span>
       </div>
     );
   }
@@ -546,11 +545,11 @@ export function StudyPageClient({ params }: StudyPageProps) {
   // Mostrar erro apenas se houver erro real OU se não tem study E não é novo estudo
   if (loadError || (!study && !newStudyInfo)) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-parchment flex items-center justify-center">
         <div className="text-center">
-          <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-          <h2 className={cn("text-lg font-semibold mb-2", COLORS.neutral.text.primary)}>Erro ao carregar estudo</h2>
-          <p className={cn("mb-4", COLORS.neutral.text.secondary)}>{loadError || "Estudo não encontrado"}</p>
+          <AlertTriangle className="w-12 h-12 text-amber mx-auto mb-4" />
+          <h2 className={cn("text-lg font-lora font-semibold mb-2", PARCHMENT.text.heading)}>Erro ao carregar estudo</h2>
+          <p className={cn("mb-4", PARCHMENT.text.secondary)}>{loadError || "Estudo não encontrado"}</p>
           <Button onClick={() => router.push("/")}>Voltar para início</Button>
         </div>
       </div>
@@ -558,20 +557,20 @@ export function StudyPageClient({ params }: StudyPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" key={id}>
+    <div className="min-h-screen bg-parchment" key={id}>
       {/* Modal de confirmação de saída */}
       {showExitConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+          <div className="bg-cream rounded-lg p-6 max-w-md mx-4 shadow-xl border border-linen">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-amber-100 rounded-full">
-                <AlertTriangle className="w-6 h-6 text-amber-600" />
+              <div className="p-2 bg-amber-light rounded-full">
+                <AlertTriangle className="w-6 h-6 text-amber" />
               </div>
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className={cn("text-lg font-lora font-semibold", PARCHMENT.text.heading)}>
                 Alterações não salvas
               </h2>
             </div>
-            <p className="text-gray-600 mb-6">
+            <p className={cn("mb-6", PARCHMENT.text.secondary)}>
               Você tem alterações não salvas neste estudo. Deseja salvar antes
               de sair?
             </p>
@@ -604,7 +603,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
       {/* Header + Editor + Sidebar Container */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200">
+        <header className="bg-cream border-b border-linen">
           <div className="px-4 py-3">
           {/* Breadcrumbs */}
           <div className="mb-3">
@@ -621,7 +620,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
                     value={tempTitle}
                     onChange={(e) => setTempTitle(e.target.value)}
                     placeholder="Título do estudo..."
-                    className="text-lg font-semibold border-gray-300 shadow-sm px-3 h-10 focus-visible:ring-2 focus-visible:ring-blue-500"
+                    className="text-lg font-semibold border-linen bg-warm-white shadow-sm px-3 h-10 focus-visible:ring-2 focus-visible:ring-amber"
                     autoFocus
                   />
                   <Button
@@ -643,14 +642,14 @@ export function StudyPageClient({ params }: StudyPageProps) {
                 </>
               ) : (
                 <>
-                  <h1 className="text-lg font-semibold text-gray-900">
+                  <h1 className={cn("text-lg font-lora font-semibold", PARCHMENT.text.heading)}>
                     {title || "Sem título"}
                   </h1>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={startEditingTitle}
-                    className="text-gray-500 hover:text-gray-700"
+                    className={cn(PARCHMENT.text.muted, "hover:text-walnut")}
                   >
                     <Pencil className="w-4 h-4" />
                   </Button>
@@ -660,10 +659,10 @@ export function StudyPageClient({ params }: StudyPageProps) {
 
             <div className="flex items-center gap-3">
               {/* Indicador de status */}
-              <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div className={cn("flex items-center gap-2 text-sm", PARCHMENT.text.muted)}>
                 {isSaving ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-amber border-t-transparent rounded-full animate-spin" />
                     <span>Salvando...</span>
                   </>
                 ) : hasUnsavedChanges ? (
@@ -709,11 +708,11 @@ export function StudyPageClient({ params }: StudyPageProps) {
                     "px-3 py-1.5 text-sm rounded-md font-medium transition-colors",
                     "focus:outline-none focus:ring-2 focus:ring-offset-2",
                     "text-white",
-                    !study?.id && "bg-gray-300 cursor-not-allowed",
-                    study?.status === 'estudar' && "bg-orange-500 hover:bg-orange-600 focus:ring-orange-500",
-                    study?.status === 'estudando' && "bg-blue-500 hover:bg-blue-600 focus:ring-blue-500",
-                    study?.status === 'revisando' && "bg-purple-500 hover:bg-purple-600 focus:ring-purple-500",
-                    study?.status === 'concluído' && "bg-green-500 hover:bg-green-600 focus:ring-green-500"
+                    !study?.id && "bg-sand cursor-not-allowed",
+                    study?.status === 'estudar' && "bg-[#8B5E3C] hover:bg-[#7A5033] focus:ring-[#8B5E3C]",
+                    study?.status === 'estudando' && "bg-[#92742B] hover:bg-[#7D6324] focus:ring-[#92742B]",
+                    study?.status === 'revisando' && "bg-[#6B5B7B] hover:bg-[#5A4D69] focus:ring-[#6B5B7B]",
+                    study?.status === 'concluído' && "bg-[#4A6741] hover:bg-[#3D5636] focus:ring-[#4A6741]"
                   )}
                 >
                   {!study?.id && 'Novo'}
@@ -724,7 +723,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
                 </button>
 
                 {showStatusDropdown && study && (
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-cream rounded-lg shadow-lg border border-linen z-50">
                     <div className="p-2">
                       <button
                         onClick={async () => {
@@ -734,12 +733,12 @@ export function StudyPageClient({ params }: StudyPageProps) {
                         }}
                         className={cn(
                           "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm",
-                          "hover:bg-gray-50 transition-colors text-left",
-                          study.status === 'estudar' && "bg-orange-50"
+                          "hover:bg-warm-white transition-colors text-left",
+                          study.status === 'estudar' && "bg-[#FEF0E7]"
                         )}
                       >
                         <span className="w-3 h-3 rounded-full bg-orange-500" />
-                        <span className="text-gray-900">Estudar</span>
+                        <span className={PARCHMENT.text.heading}>Estudar</span>
                       </button>
 
                       <button
@@ -750,12 +749,12 @@ export function StudyPageClient({ params }: StudyPageProps) {
                         }}
                         className={cn(
                           "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm",
-                          "hover:bg-gray-50 transition-colors text-left",
-                          study.status === 'estudando' && "bg-blue-50"
+                          "hover:bg-warm-white transition-colors text-left",
+                          study.status === 'estudando' && "bg-[#FFF8E7]"
                         )}
                       >
-                        <span className="w-3 h-3 rounded-full bg-blue-500" />
-                        <span className="text-gray-900">Estudando</span>
+                        <span className="w-3 h-3 rounded-full bg-[#92742B]" />
+                        <span className={PARCHMENT.text.heading}>Estudando</span>
                       </button>
 
                       <button
@@ -766,12 +765,12 @@ export function StudyPageClient({ params }: StudyPageProps) {
                         }}
                         className={cn(
                           "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm",
-                          "hover:bg-gray-50 transition-colors text-left",
-                          study.status === 'revisando' && "bg-purple-50"
+                          "hover:bg-warm-white transition-colors text-left",
+                          study.status === 'revisando' && "bg-[#F3EEF8]"
                         )}
                       >
-                        <span className="w-3 h-3 rounded-full bg-purple-500" />
-                        <span className="text-gray-900">Revisando</span>
+                        <span className="w-3 h-3 rounded-full bg-[#6B5B7B]" />
+                        <span className={PARCHMENT.text.heading}>Revisando</span>
                       </button>
 
                       <button
@@ -782,12 +781,12 @@ export function StudyPageClient({ params }: StudyPageProps) {
                         }}
                         className={cn(
                           "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm",
-                          "hover:bg-gray-50 transition-colors text-left",
-                          study.status === 'concluído' && "bg-green-50"
+                          "hover:bg-warm-white transition-colors text-left",
+                          study.status === 'concluído' && "bg-[#EEF5EC]"
                         )}
                       >
-                        <span className="w-3 h-3 rounded-full bg-green-500" />
-                        <span className="text-gray-900">Concluído</span>
+                        <span className="w-3 h-3 rounded-full bg-[#4A6741]" />
+                        <span className={PARCHMENT.text.heading}>Concluído</span>
                       </button>
                     </div>
                   </div>
@@ -825,12 +824,12 @@ export function StudyPageClient({ params }: StudyPageProps) {
                 </Button>
 
                 {showTagDropdown && (
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-cream rounded-lg shadow-lg border border-linen z-50">
                     <div className="p-2 max-h-64 overflow-y-auto">
                       {tagsLoading ? (
-                        <div className="text-center py-4 text-gray-500 text-sm">Carregando...</div>
+                        <div className={cn("text-center py-4 text-sm", PARCHMENT.text.muted)}>Carregando...</div>
                       ) : availableTags.length === 0 ? (
-                        <div className="text-center py-4 text-gray-500 text-sm">Nenhuma tag</div>
+                        <div className={cn("text-center py-4 text-sm", PARCHMENT.text.muted)}>Nenhuma tag</div>
                       ) : (
                         availableTags.map((tag) => (
                           <button
@@ -838,8 +837,8 @@ export function StudyPageClient({ params }: StudyPageProps) {
                             onClick={() => toggleTag(tag.name)}
                             className={cn(
                               "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm",
-                              "hover:bg-gray-50 transition-colors text-left",
-                              selectedTags.includes(tag.name) && "bg-blue-50"
+                              "hover:bg-warm-white transition-colors text-left",
+                              selectedTags.includes(tag.name) && "bg-amber-light"
                             )}
                           >
                             <span
@@ -867,9 +866,9 @@ export function StudyPageClient({ params }: StudyPageProps) {
                                     : "#22c55e",
                               }}
                             />
-                            <span className="text-gray-900">{tag.name}</span>
+                            <span className={PARCHMENT.text.heading}>{tag.name}</span>
                             {selectedTags.includes(tag.name) && (
-                              <CheckCircle className="w-4 h-4 text-blue-600 ml-auto" />
+                              <CheckCircle className="w-4 h-4 text-amber ml-auto" />
                             )}
                           </button>
                         ))
@@ -882,7 +881,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
                           setShowTagDropdown(false);
                           setShowCreateTagModal(true);
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm mt-2 border-t border-gray-200 pt-3 hover:bg-gray-50 transition-colors text-blue-600 font-medium"
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm mt-2 border-t border-linen pt-3 hover:bg-warm-white transition-colors text-amber font-medium"
                       >
                         <Plus className="w-4 h-4" />
                         <span>Nova Tag</span>
@@ -934,7 +933,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
         {/* Editor - Left Column */}
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto px-4 py-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="bg-cream rounded-lg shadow-sm border border-linen">
               <Editor
                 ref={editorRef}
                 initialContent={study?.content || ""}
@@ -947,10 +946,10 @@ export function StudyPageClient({ params }: StudyPageProps) {
             </div>
 
             {/* Dicas */}
-            <div className="mt-4 text-sm text-gray-500">
+            <div className={cn("mt-4 text-sm", PARCHMENT.text.muted)}>
               <p>
                 <strong>Dicas:</strong> Use{" "}
-                <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-xs">/</kbd>{" "}
+                <kbd className="px-1.5 py-0.5 bg-warm-white rounded text-xs border border-linen">/</kbd>{" "}
                 para adicionar ao backlog de estudos. Selecione texto e clique em
                 &quot;Referenciar&quot; para criar links entre notas.
               </p>
