@@ -1,6 +1,6 @@
 # EPIC 8.5 — UI de Gestao de Links no Grafo
 
-> **Status**: Planejado
+> **Status**: Concluido
 > **Fase**: 3 (Features)
 > **Prioridade**: P1
 > **Pre-requisito**: EPIC 8.2 concluido
@@ -15,31 +15,35 @@ Permitir criar, visualizar e deletar conexoes entre estudos diretamente no grafo
 
 ---
 
-## Problema Atual
-
-- `useGraph` expoe `createLink()` e `deleteLink()` mas nao existe UI para usa-los no grafo
-- Links so podem ser criados/gerenciados no editor de estudo (via References sidebar)
-- Grafo eh somente visualizacao (read-only)
-
----
-
 ## Tasks
 
-- [ ] Implementar right-click context menu no node: "Criar conexao", "Ver conexoes", "Ir para estudo"
-- [ ] Modo de criacao de link: clicar source → clicar target → dialog de confirmacao
-- [ ] Feedback visual durante criacao: linha tracejada do source ate o cursor
-- [ ] Painel ou tooltip expandido para visualizar e deletar links existentes de um node
-- [ ] Usar `createLink()` e `deleteLink()` do useGraph (ja existem)
-- [ ] Toast de feedback apos criar/deletar link
+- [x] Implementar right-click context menu no node: "Criar conexao", "Ver conexoes", "Ir para estudo"
+- [x] Modo de criacao de link: clicar source → clicar target → cria link automaticamente
+- [x] Feedback visual durante criacao: anel tracejado amber no node source + banner no header
+- [x] Painel expandido para visualizar e deletar links existentes de um node selecionado
+- [x] Usar `createLink()` e `deleteLink()` do useGraph (ja existem)
+- [x] Toast de feedback apos criar/deletar link (sonner)
 
 ---
 
 ## Criterio de Aceite
 
-- [ ] Usuario cria link entre 2 nodes via interacao no grafo
-- [ ] Usuario deleta link existente via context menu ou painel
-- [ ] Feedback visual claro durante todo o fluxo
-- [ ] Grafo atualiza em tempo real apos criar/deletar
+- [x] Usuario cria link entre 2 nodes via interacao no grafo (right-click → Criar conexao → click target)
+- [x] Usuario deleta link existente via painel de links (hover → icone trash)
+- [x] Feedback visual claro durante todo o fluxo (anel amber, banner header, toasts)
+- [x] Grafo atualiza em tempo real apos criar/deletar (state local atualizado)
+
+---
+
+## Implementacao
+
+- **Context menu** (right-click): 3 opcoes - Criar conexao, Ver conexoes (com contagem), Abrir estudo
+- **Link creation mode**: `linkingSource` state, click em outro node chama `createLink()`
+- **Visual feedback**: anel tracejado amber no source node (Canvas), banner no header com nome e X para cancelar
+- **Painel de links** (click em node): mostra lista de conexoes com cor do node conectado, botao trash em hover
+- **Selected node panel**: acoes "Conectar" e "Abrir", lista de links com delete
+- **Toasts**: sonner para success/error em create/delete
+- Background click fecha context menu e deseleciona node
 
 ---
 
@@ -47,8 +51,7 @@ Permitir criar, visualizar e deletar conexoes entre estudos diretamente no grafo
 
 | Arquivo | Mudanca |
 |---------|---------|
-| `src/app/grafo/GrafoPageClient.tsx` | Context menu, modo criacao, feedback visual |
-| `src/hooks/useGraph.ts` | Possiveis ajustes no refetch apos mutacao |
+| `src/app/grafo/GrafoPageClient.tsx` | Context menu, link creation mode, selected node panel, canvas highlights |
 
 ---
 

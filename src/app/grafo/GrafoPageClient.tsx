@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { ForceGraphMethods, NodeObject } from "react-force-graph-2d";
@@ -19,7 +19,7 @@ import {
   bookCategoryColors,
   BookCategory,
 } from "@/lib/mock-data";
-import { useGraph, GraphNode } from "@/hooks";
+import { useGraph, GraphNode, GraphLink } from "@/hooks";
 import {
   ZoomIn,
   ZoomOut,
@@ -28,7 +28,12 @@ import {
   Info,
   X,
   Loader2,
+  Link2,
+  Trash2,
+  ExternalLink,
+  Unlink,
 } from "lucide-react";
+import { toast } from "sonner";
 
 // Tipo do node no ForceGraph2D (NodeObject base + nossos campos custom)
 type ForceGraphNode = NodeObject & GraphNode;
@@ -77,7 +82,7 @@ export function GrafoPageClient() {
   const graphRef = useRef<ForceGraphMethods | undefined>(undefined);
 
   // Hook Supabase
-  const { graphData, loading } = useGraph();
+  const { graphData, links, loading, createLink, deleteLink, getStudyLinks } = useGraph();
 
   // Estado
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
@@ -86,27 +91,97 @@ export function GrafoPageClient() {
   const [fontsReady, setFontsReady] = useState(false);
   const [hiddenCategories, setHiddenCategories] = useState<Set<BookCategory>>(new Set());
 
+  // Link management state
+  const [linkingSource, setLinkingSource] = useState<ForceGraphNode | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ node: ForceGraphNode; x: number; y: number } | null>(null);
+  const [selectedNode, setSelectedNode] = useState<ForceGraphNode | null>(null);
+
   // Aguardar fontes carregadas para Canvas rendering
   useEffect(() => {
     document.fonts.ready.then(() => setFontsReady(true));
   }, []);
 
+  // Navegar para estudo
+  const navigateToStudy = useCallback((node: ForceGraphNode) => {
+    const book = mockBibleBooks.find((b) => b.name === node.book);
+    if (book) {
+      router.push(`/estudo/${book.id}-${node.chapter}`);
+    }
+  }, [router]);
+
   // Handlers
   const handleNodeClick = useCallback(
     (node: NodeObject) => {
       const n = node as ForceGraphNode;
-      const book = mockBibleBooks.find((b) => b.name === n.book);
-      if (book) {
-        router.push(`/estudo/${book.id}-${n.chapter}`);
+      setContextMenu(null);
+
+      // Se estamos no modo de criação de link
+      if (linkingSource) {
+        if (linkingSource.id === n.id) {
+          toast.info("Selecione um nó diferente para criar a conexão");
+          return;
+        }
+        createLink(linkingSource.id, n.id).then((result) => {
+          if (result) {
+            toast.success(`Conexão criada: ${linkingSource.name} ↔ ${n.name}`);
+          } else {
+            toast.error("Erro ao criar conexão (pode já existir)");
+          }
+          setLinkingSource(null);
+        });
+        return;
       }
+
+      // Click normal: selecionar node para ver links
+      setSelectedNode(prev => prev?.id === n.id ? null : n);
     },
-    [router]
+    [linkingSource, createLink]
   );
+
+  // Right-click context menu
+  const handleNodeRightClick = useCallback((node: NodeObject, event: MouseEvent) => {
+    event.preventDefault();
+    const n = node as ForceGraphNode;
+    setContextMenu({ node: n, x: event.clientX, y: event.clientY });
+    setSelectedNode(null);
+    setLinkingSource(null);
+  }, []);
+
+  // Close context menu on click anywhere
+  const handleBackgroundClick = useCallback(() => {
+    setContextMenu(null);
+    if (!linkingSource) {
+      setSelectedNode(null);
+    }
+  }, [linkingSource]);
 
   const handleNodeHover = useCallback((node: NodeObject | null) => {
     setHoveredNode(node ? (node as ForceGraphNode) : null);
     document.body.style.cursor = node ? "pointer" : "default";
   }, []);
+
+  // Iniciar modo de criação de link
+  const startLinking = useCallback((node: ForceGraphNode) => {
+    setLinkingSource(node);
+    setContextMenu(null);
+    toast.info(`Clique em outro nó para conectar com "${node.name}"`, { duration: 5000 });
+  }, []);
+
+  // Deletar link
+  const handleDeleteLink = useCallback(async (linkId: string) => {
+    const success = await deleteLink(linkId);
+    if (success) {
+      toast.success("Conexão removida");
+    } else {
+      toast.error("Erro ao remover conexão");
+    }
+  }, [deleteLink]);
+
+  // Links do node selecionado
+  const selectedNodeLinks = useMemo(() => {
+    if (!selectedNode) return [];
+    return getStudyLinks(selectedNode.id);
+  }, [selectedNode, getStudyLinks]);
 
   const handleZoomIn = () => {
     if (graphRef.current) {
@@ -227,6 +302,20 @@ export function GrafoPageClient() {
               </div>
 
               <div className="flex items-center gap-2">
+                {linkingSource && (
+                  <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-lg border", PARCHMENT.bg.hover, "border-amber-light")}>
+                    <Link2 className="w-4 h-4 text-amber" />
+                    <span className={cn(TYPOGRAPHY.sizes.sm, PARCHMENT.text.heading)}>
+                      Conectando: {linkingSource.name}
+                    </span>
+                    <button
+                      onClick={() => { setLinkingSource(null); toast.dismiss(); }}
+                      className="text-stone hover:text-espresso"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
@@ -400,10 +489,10 @@ export function GrafoPageClient() {
           </div>
         )}
 
-        {/* Hover Info */}
-        {hoveredNode && (
+        {/* Hover Info - only when no context menu or selected node */}
+        {hoveredNode && !contextMenu && !selectedNode && (
           <div className={cn(
-            "absolute bottom-6 right-6 z-20 backdrop-blur-sm rounded-lg p-4 max-w-xs border",
+            "absolute bottom-6 right-6 z-20 backdrop-blur-sm rounded-lg p-4 max-w-xs border pointer-events-none",
             PARCHMENT.bg.card, PARCHMENT.border.default, SHADOW_WARM.md
           )}>
             <div className="flex items-center gap-2 mb-2">
@@ -427,6 +516,142 @@ export function GrafoPageClient() {
           </div>
         )}
 
+        {/* Context Menu (right-click) */}
+        {contextMenu && (
+          <div
+            className={cn(
+              "fixed z-50 rounded-lg border py-1 min-w-[180px]",
+              PARCHMENT.bg.card, PARCHMENT.border.default, SHADOW_WARM.lg
+            )}
+            style={{ left: contextMenu.x, top: contextMenu.y }}
+          >
+            <button
+              onClick={() => { startLinking(contextMenu.node); }}
+              className={cn(
+                "flex items-center gap-2 w-full px-3 py-2 text-left transition-colors",
+                TYPOGRAPHY.sizes.sm, PARCHMENT.text.subheading,
+                "hover:bg-warm-white"
+              )}
+            >
+              <Link2 className="w-4 h-4" />
+              Criar conexão
+            </button>
+            <button
+              onClick={() => { setSelectedNode(contextMenu.node); setContextMenu(null); }}
+              className={cn(
+                "flex items-center gap-2 w-full px-3 py-2 text-left transition-colors",
+                TYPOGRAPHY.sizes.sm, PARCHMENT.text.subheading,
+                "hover:bg-warm-white"
+              )}
+            >
+              <Unlink className="w-4 h-4" />
+              Ver conexões ({getStudyLinks(contextMenu.node.id).length})
+            </button>
+            <div className={cn("my-1 border-t", PARCHMENT.border.default)} />
+            <button
+              onClick={() => { navigateToStudy(contextMenu.node); setContextMenu(null); }}
+              className={cn(
+                "flex items-center gap-2 w-full px-3 py-2 text-left transition-colors",
+                TYPOGRAPHY.sizes.sm, PARCHMENT.text.subheading,
+                "hover:bg-warm-white"
+              )}
+            >
+              <ExternalLink className="w-4 h-4" />
+              Abrir estudo
+            </button>
+          </div>
+        )}
+
+        {/* Selected Node - Links Panel */}
+        {selectedNode && !contextMenu && (
+          <div className={cn(
+            "absolute bottom-6 right-6 z-20 backdrop-blur-sm rounded-lg p-4 w-72 border",
+            PARCHMENT.bg.card, PARCHMENT.border.default, SHADOW_WARM.md
+          )}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <div
+                  className="w-3 h-3 rounded-full shrink-0"
+                  style={{ backgroundColor: selectedNode.color }}
+                />
+                <span className={cn(TYPOGRAPHY.sizes.sm, TYPOGRAPHY.weights.semibold, PARCHMENT.text.heading, "truncate")}>
+                  {selectedNode.name}
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedNode(null)}
+                className={cn("w-7 h-7 flex items-center justify-center rounded shrink-0", PARCHMENT.text.muted, "hover:text-espresso hover:bg-warm-white")}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.secondary, "mb-3")}>
+              {selectedNode.book} {selectedNode.chapter} • {categoryLabels[selectedNode.category]}
+            </p>
+
+            {/* Ações */}
+            <div className="flex gap-2 mb-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => startLinking(selectedNode)}
+                className={cn(PARCHMENT.border.default, PARCHMENT.text.subheading, "hover:bg-warm-white hover:text-espresso", "flex-1")}
+              >
+                <Link2 className="w-3.5 h-3.5 mr-1.5" />
+                Conectar
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => { navigateToStudy(selectedNode); }}
+                className={cn(PARCHMENT.border.default, PARCHMENT.text.subheading, "hover:bg-warm-white hover:text-espresso", "flex-1")}
+              >
+                <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
+                Abrir
+              </Button>
+            </div>
+
+            {/* Lista de links */}
+            <div className={cn("border-t pt-3", PARCHMENT.border.default)}>
+              <h4 className={cn(TYPOGRAPHY.sizes.xs, TYPOGRAPHY.weights.semibold, PARCHMENT.text.heading, "mb-2")}>
+                Conexões ({selectedNodeLinks.length})
+              </h4>
+              {selectedNodeLinks.length === 0 ? (
+                <p className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.muted)}>
+                  Nenhuma conexão. Use &quot;Conectar&quot; para criar.
+                </p>
+              ) : (
+                <div className="space-y-1 max-h-40 overflow-y-auto">
+                  {selectedNodeLinks.map((link) => {
+                    const isSource = link.source_study_id === selectedNode.id;
+                    const connectedId = isSource ? link.target_study_id : link.source_study_id;
+                    const connectedNode = graphData.nodes.find(n => n.id === connectedId);
+                    if (!connectedNode) return null;
+                    return (
+                      <div key={link.id} className={cn("flex items-center gap-2 px-2 py-1.5 rounded group", "hover:bg-warm-white")}>
+                        <div
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: connectedNode.color }}
+                        />
+                        <span className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.subheading, "flex-1 truncate")}>
+                          {connectedNode.name}
+                        </span>
+                        <button
+                          onClick={() => handleDeleteLink(link.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-stone hover:text-red-600"
+                          title="Remover conexão"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Graph */}
         <div className="flex-1">
           <ForceGraph2D
@@ -443,6 +668,8 @@ export function GrafoPageClient() {
             linkDirectionalParticleColor={() => `${PARCHMENT_HEX.walnut}66`}
             backgroundColor={PARCHMENT_HEX.parchment}
             onNodeClick={handleNodeClick}
+            onNodeRightClick={handleNodeRightClick}
+            onBackgroundClick={handleBackgroundClick}
             onNodeHover={handleNodeHover}
             nodeCanvasObject={(node: NodeObject, ctx: CanvasRenderingContext2D, globalScale: number) => {
               const n = node as ForceGraphNode;
@@ -463,6 +690,26 @@ export function GrafoPageClient() {
               ctx.setLineDash(statusStyle.dash.map(d => d / globalScale));
               ctx.stroke();
               ctx.setLineDash([]);
+
+              // Destaque do node source durante link creation
+              if (linkingSource && linkingSource.id === n.id) {
+                ctx.beginPath();
+                ctx.arc(x, y, nodeSize + 3 / globalScale, 0, 2 * Math.PI);
+                ctx.strokeStyle = PARCHMENT_HEX.amber;
+                ctx.lineWidth = 2 / globalScale;
+                ctx.setLineDash([4 / globalScale, 4 / globalScale]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+              }
+
+              // Destaque do node selecionado
+              if (selectedNode && selectedNode.id === n.id && !linkingSource) {
+                ctx.beginPath();
+                ctx.arc(x, y, nodeSize + 3 / globalScale, 0, 2 * Math.PI);
+                ctx.strokeStyle = `${PARCHMENT_HEX.walnut}80`;
+                ctx.lineWidth = 2 / globalScale;
+                ctx.stroke();
+              }
 
               // Anel externo para concluídos (destaque visual)
               if (n.status === 'concluído') {
