@@ -1,26 +1,38 @@
 /**
  * Reference Type Definitions
  *
- * Types for the Reference Links feature (Story 4.3)
- * Enables users to create interconnected networks of Bible study notes
+ * Single source of truth para tipos de referencia/links entre estudos.
+ * Usado por useReferences, ReferencesSidebar, ReferenceCard, etc.
  */
 
+import type { StudyLink } from './database';
+
+export interface TagWithColor {
+  name: string;
+  type: 'Versículos' | 'Temas' | 'Princípios';
+  color: string;
+}
+
+/**
+ * Reference enrichida com dados do estudo target.
+ * Extends StudyLink com campos denormalizados para display.
+ */
 export interface Reference {
   id: string;
   source_study_id: string;
-  target_study_id: string;
-  user_id: string;
-  display_order: number;
+  target_study_id?: string | null;
+  target_title?: string;
+  target_book_name?: string;
+  target_chapter_number?: number;
+  target_tags?: TagWithColor[];
   created_at: string;
+  position?: number;
 
-  // Denormalized for display (optional)
-  target_study?: {
-    id: string;
-    title: string;
-    book_id: string;
-    chapter: number;
-    content?: string; // snippet
-  };
+  // Campos do schema (migration 20260128_004)
+  link_type: 'internal' | 'external';
+  external_url?: string | null;
+  is_bidirectional?: boolean;
+  display_order?: number;
 }
 
 export interface ReferenceCardProps {
@@ -48,3 +60,6 @@ export interface AddReferenceModalProps {
   currentStudyId: string;
   existingReferenceIds?: string[];
 }
+
+// Re-export do tipo base para conveniencia
+export type { StudyLink };

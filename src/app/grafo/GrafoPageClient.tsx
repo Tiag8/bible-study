@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import type { ForceGraphMethods, NodeObject } from "react-force-graph-2d";
 import { cn } from "@/lib/utils";
 import { COLORS, BORDERS } from "@/lib/design-tokens";
 import { Sidebar } from "@/components/dashboard/Sidebar";
@@ -24,12 +25,14 @@ import {
   Loader2,
 } from "lucide-react";
 
+// Tipo do node no ForceGraph2D (NodeObject base + nossos campos custom)
+type ForceGraphNode = NodeObject & GraphNode;
+
 // Dynamic import para evitar SSR issues com canvas
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center h-full">
-      {/* TOKENS: COLORS.primary, COLORS.neutral */}
       <Loader2 className={cn("w-8 h-8 animate-spin", COLORS.primary.text)} />
       <span className={cn("ml-3", COLORS.neutral.text.muted)}>Carregando grafo...</span>
     </div>
@@ -52,8 +55,7 @@ const categoryLabels: Record<BookCategory, string> = {
 
 export function GrafoPageClient() {
   const router = useRouter();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const graphRef = useRef<any>(null);
+  const graphRef = useRef<ForceGraphMethods | undefined>(undefined);
 
   // Hook Supabase
   const { graphData, loading } = useGraph();
@@ -61,24 +63,22 @@ export function GrafoPageClient() {
   // Estado
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [showLegend, setShowLegend] = useState(true);
-  const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
+  const [hoveredNode, setHoveredNode] = useState<ForceGraphNode | null>(null);
 
   // Handlers
   const handleNodeClick = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (node: any) => {
-      // Node já contém book e chapter do graphData
-      const book = mockBibleBooks.find((b) => b.name === node.book);
+    (node: NodeObject) => {
+      const n = node as ForceGraphNode;
+      const book = mockBibleBooks.find((b) => b.name === n.book);
       if (book) {
-        router.push(`/estudo/${book.id}-${node.chapter}`);
+        router.push(`/estudo/${book.id}-${n.chapter}`);
       }
     },
     [router]
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleNodeHover = useCallback((node: any | null) => {
-    setHoveredNode(node);
+  const handleNodeHover = useCallback((node: NodeObject | null) => {
+    setHoveredNode(node ? (node as ForceGraphNode) : null);
     document.body.style.cursor = node ? "pointer" : "default";
   }, []);
 
@@ -279,10 +279,8 @@ export function GrafoPageClient() {
             ref={graphRef}
             graphData={graphData}
             nodeLabel=""
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            nodeColor={(node: any) => node.color}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            nodeVal={(node: any) => node.val}
+            nodeColor={(node: NodeObject) => (node as ForceGraphNode).color}
+            nodeVal={(node: NodeObject) => (node as ForceGraphNode).val}
             nodeRelSize={4}
             linkColor={() => "rgba(100, 116, 139, 0.3)"}
             linkWidth={1.5}
@@ -292,16 +290,16 @@ export function GrafoPageClient() {
             backgroundColor="#030712"
             onNodeClick={handleNodeClick}
             onNodeHover={handleNodeHover}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            nodeCanvasObject={(node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
-              const label = node.name;
+            nodeCanvasObject={(node: NodeObject, ctx: CanvasRenderingContext2D, globalScale: number) => {
+              const n = node as ForceGraphNode;
+              const label = n.name;
               const fontSize = 12 / globalScale;
-              const nodeSize = node.val;
+              const nodeSize = n.val;
 
               // Desenhar nó
               ctx.beginPath();
-              ctx.arc(node.x, node.y, nodeSize, 0, 2 * Math.PI);
-              ctx.fillStyle = node.color;
+              ctx.arc(node.x ?? 0, node.y ?? 0, nodeSize, 0, 2 * Math.PI);
+              ctx.fillStyle = n.color;
               ctx.fill();
 
               // Borda do nó
@@ -315,7 +313,7 @@ export function GrafoPageClient() {
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-                ctx.fillText(label, node.x, node.y + nodeSize + fontSize);
+                ctx.fillText(label, node.x ?? 0, (node.y ?? 0) + nodeSize + fontSize);
               }
             }}
             nodeCanvasObjectMode={() => "replace"}

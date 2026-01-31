@@ -3,7 +3,15 @@
 import React from 'react';
 import { Trash2, GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { ReferenceCardProps } from '@/types/reference';
+import type { Reference } from '@/types/reference';
+
+interface ReferenceCardProps {
+  reference: Reference;
+  onDelete?: (referenceId: string) => void | Promise<void>;
+  onSelect?: (reference: Reference) => void;
+  isDragging?: boolean;
+  isLoading?: boolean;
+}
 
 /**
  * ReferenceCard Component
@@ -38,7 +46,7 @@ export const ReferenceCard = React.memo(function ReferenceCard({
       onMouseEnter={() => setShowDelete(true)}
       onMouseLeave={() => setShowDelete(false)}
       role="article"
-      aria-label={`Reference to ${reference.target_study?.title || 'Unknown'}`}
+      aria-label={`Reference to ${reference.target_title || 'Unknown'}`}
     >
       {/* Grip Handle (for drag-drop) */}
       <GripVertical className="w-4 h-4 text-gray-400 flex-shrink-0 hover:text-gray-600" />
@@ -46,10 +54,10 @@ export const ReferenceCard = React.memo(function ReferenceCard({
       {/* Content */}
       <div className="flex-1 min-w-0">
         <h4 className="text-sm font-medium text-gray-900 truncate">
-          {reference.target_study?.title || 'Untitled'}
+          {reference.target_title || 'Untitled'}
         </h4>
         <p className="text-xs text-gray-500">
-          {reference.target_study?.book_id} {reference.target_study?.chapter}
+          {reference.target_book_name} {reference.target_chapter_number}
         </p>
       </div>
 

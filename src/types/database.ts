@@ -68,21 +68,33 @@ export interface Database {
           id: string;
           user_id: string;
           source_study_id: string;
-          target_study_id: string;
+          target_study_id: string | null;
+          link_type: 'internal' | 'external';
+          external_url: string | null;
+          is_bidirectional: boolean;
+          display_order: number;
           created_at: string;
         };
         Insert: {
           id?: string;
           user_id: string;
           source_study_id: string;
-          target_study_id: string;
+          target_study_id?: string | null;
+          link_type?: 'internal' | 'external';
+          external_url?: string | null;
+          is_bidirectional?: boolean;
+          display_order?: number;
           created_at?: string;
         };
         Update: {
           id?: string;
           user_id?: string;
           source_study_id?: string;
-          target_study_id?: string;
+          target_study_id?: string | null;
+          link_type?: 'internal' | 'external';
+          external_url?: string | null;
+          is_bidirectional?: boolean;
+          display_order?: number;
           created_at?: string;
         };
       };
@@ -139,6 +151,7 @@ export type StudyUpdate = Database['public']['Tables']['bible_studies']['Update'
 
 export type StudyLink = Database['public']['Tables']['bible_study_links']['Row'];
 export type StudyLinkInsert = Database['public']['Tables']['bible_study_links']['Insert'];
+export type StudyLinkUpdate = Database['public']['Tables']['bible_study_links']['Update'];
 
 export type Tag = Database['public']['Tables']['bible_tags']['Row'];
 export type TagInsert = Database['public']['Tables']['bible_tags']['Insert'];

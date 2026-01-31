@@ -81,10 +81,13 @@ export function useGraph() {
         };
       });
 
-      const graphLinks: GraphLink[] = studyLinks.map((link: StudyLink) => ({
-        source: link.source_study_id,
-        target: link.target_study_id,
-      }));
+      // Filtrar apenas links internos (com target) para o grafo
+      const graphLinks: GraphLink[] = studyLinks
+        .filter((link: StudyLink) => link.target_study_id !== null)
+        .map((link: StudyLink) => ({
+          source: link.source_study_id,
+          target: link.target_study_id as string,
+        }));
 
       setGraphData({ nodes, links: graphLinks });
       setLinks(studyLinks);
@@ -178,9 +181,21 @@ export function useGraph() {
     );
   }, [links]);
 
-  // Carregar na montagem
+  // Carregar na montagem com cleanup
   useEffect(() => {
-    fetchGraphData();
+    let cancelled = false;
+
+    const load = async () => {
+      if (!cancelled) {
+        await fetchGraphData();
+      }
+    };
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
   }, [fetchGraphData]);
 
   return {

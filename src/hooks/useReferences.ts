@@ -37,19 +37,11 @@ async function retryWithBackoff<T>(
   throw lastError || new Error('Max retry attempts reached');
 }
 
-/**
- * Reference Interface (Legacy)
- *
- * This interface is used internally by useReferences hook.
- * For new code, import from @/types/reference instead.
- *
- * @deprecated Use Reference from @/types/reference
- */
-export interface TagWithColor {
-  name: string;
-  type: 'Versículos' | 'Temas' | 'Princípios';
-  color: string;
-}
+// Tipos importados da single source of truth
+import type { Reference, TagWithColor } from '@/types/reference';
+
+// Re-export para manter compatibilidade com imports existentes
+export type { Reference, TagWithColor };
 
 interface StudyData {
   id: string;
@@ -57,24 +49,6 @@ interface StudyData {
   book_name: string;
   chapter_number: number;
   tags: TagWithColor[] | null;
-}
-
-export interface Reference {
-  id: string;
-  source_study_id: string;
-  target_study_id?: string | null;
-  target_title?: string;
-  target_book_name?: string;
-  target_chapter_number?: number;
-  target_tags?: TagWithColor[];
-  created_at: string;
-  position?: number;
-
-  // Story 4.3.1-4.3.4 fields
-  link_type: 'internal' | 'external';
-  external_url?: string | null;
-  is_bidirectional?: boolean;
-  display_order?: number;
 }
 
 export function useReferences(studyId: string | null, onRemoveLink?: (targetStudyId: string) => void) {
