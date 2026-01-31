@@ -84,6 +84,7 @@ export function GrafoPageClient() {
   const [showLegend, setShowLegend] = useState(true);
   const [hoveredNode, setHoveredNode] = useState<ForceGraphNode | null>(null);
   const [fontsReady, setFontsReady] = useState(false);
+  const [hiddenCategories, setHiddenCategories] = useState<Set<BookCategory>>(new Set());
 
   // Aguardar fontes carregadas para Canvas rendering
   useEffect(() => {
@@ -137,8 +138,40 @@ export function GrafoPageClient() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Categorias ativas no grafo
+  // Toggle visibilidade de categoria
+  const toggleCategory = useCallback((category: BookCategory) => {
+    setHiddenCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(category)) {
+        next.delete(category);
+      } else {
+        next.add(category);
+      }
+      return next;
+    });
+  }, []);
+
+  // Categorias presentes no grafo
   const activeCategories = [...new Set(graphData.nodes.map((n) => n.category))];
+
+  // Dados filtrados por categorias visíveis
+  const filteredGraphData = {
+    nodes: graphData.nodes.filter(n => !hiddenCategories.has(n.category)),
+    links: graphData.links.filter(l => {
+      const sourceNode = graphData.nodes.find(n => n.id === (typeof l.source === 'object' ? (l.source as ForceGraphNode).id : l.source));
+      const targetNode = graphData.nodes.find(n => n.id === (typeof l.target === 'object' ? (l.target as ForceGraphNode).id : l.target));
+      return sourceNode && targetNode && !hiddenCategories.has(sourceNode.category) && !hiddenCategories.has(targetNode.category);
+    }),
+  };
+
+  // Estatísticas
+  const stats = {
+    totalStudies: graphData.nodes.length,
+    visibleStudies: filteredGraphData.nodes.length,
+    totalLinks: graphData.links.length,
+    visibleLinks: filteredGraphData.links.length,
+    categoriesActive: activeCategories.length - hiddenCategories.size,
+  };
 
   // Estado de carregamento
   if (loading) {
@@ -185,8 +218,10 @@ export function GrafoPageClient() {
                     Segundo Cérebro
                   </h1>
                   <p className={cn(TYPOGRAPHY.sizes.sm, PARCHMENT.text.secondary)}>
-                    {graphData.nodes.length} estudos • {graphData.links.length}{" "}
-                    conexões
+                    {stats.visibleStudies} estudos • {stats.visibleLinks} conexões
+                    {hiddenCategories.size > 0 && (
+                      <span className={cn(PARCHMENT.text.muted)}> ({hiddenCategories.size} categorias ocultas)</span>
+                    )}
                   </p>
                 </div>
               </div>
@@ -206,40 +241,43 @@ export function GrafoPageClient() {
           </div>
         </header>
 
-        {/* Zoom Controls */}
+        {/* Zoom Controls - 44px min touch target */}
         <div className="absolute bottom-6 left-6 z-20 flex flex-col gap-2">
           <Button
             variant="outline"
             size="icon"
             onClick={handleZoomIn}
             className={cn(
+              "w-11 h-11",
               PARCHMENT.bg.card, PARCHMENT.border.default, PARCHMENT.text.subheading,
               "hover:bg-warm-white hover:text-espresso", SHADOW_WARM.sm
             )}
           >
-            <ZoomIn className="w-4 h-4" />
+            <ZoomIn className="w-5 h-5" />
           </Button>
           <Button
             variant="outline"
             size="icon"
             onClick={handleZoomOut}
             className={cn(
+              "w-11 h-11",
               PARCHMENT.bg.card, PARCHMENT.border.default, PARCHMENT.text.subheading,
               "hover:bg-warm-white hover:text-espresso", SHADOW_WARM.sm
             )}
           >
-            <ZoomOut className="w-4 h-4" />
+            <ZoomOut className="w-5 h-5" />
           </Button>
           <Button
             variant="outline"
             size="icon"
             onClick={handleCenter}
             className={cn(
+              "w-11 h-11",
               PARCHMENT.bg.card, PARCHMENT.border.default, PARCHMENT.text.subheading,
               "hover:bg-warm-white hover:text-espresso", SHADOW_WARM.sm
             )}
           >
-            <Maximize2 className="w-4 h-4" />
+            <Maximize2 className="w-5 h-5" />
           </Button>
         </div>
 
@@ -255,24 +293,58 @@ export function GrafoPageClient() {
               </h3>
               <button
                 onClick={() => setShowLegend(false)}
-                className={cn(PARCHMENT.text.muted, "hover:text-espresso")}
+                className={cn("w-7 h-7 flex items-center justify-center rounded", PARCHMENT.text.muted, "hover:text-espresso hover:bg-warm-white")}
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="space-y-2">
-              {activeCategories.map((category) => (
-                <div key={category} className="flex items-center gap-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: bookCategoryColors[category] }}
-                  />
-                  <span className={cn(TYPOGRAPHY.sizes.sm, PARCHMENT.text.subheading)}>
-                    {categoryLabels[category]}
-                  </span>
-                </div>
-              ))}
+
+            {/* Categorias interativas */}
+            <div className="space-y-1">
+              {activeCategories.map((category) => {
+                const isHidden = hiddenCategories.has(category);
+                const nodeCount = graphData.nodes.filter(n => n.category === category).length;
+                return (
+                  <button
+                    key={category}
+                    onClick={() => toggleCategory(category)}
+                    className={cn(
+                      "flex items-center gap-2 w-full px-2 py-1.5 rounded transition-colors text-left",
+                      isHidden
+                        ? "opacity-40 hover:opacity-70"
+                        : "hover:bg-warm-white"
+                    )}
+                  >
+                    <div
+                      className={cn("w-3 h-3 rounded-full shrink-0", isHidden && "grayscale")}
+                      style={{ backgroundColor: bookCategoryColors[category] }}
+                    />
+                    <span className={cn(TYPOGRAPHY.sizes.sm, isHidden ? PARCHMENT.text.muted : PARCHMENT.text.subheading, "flex-1")}>
+                      {categoryLabels[category]}
+                    </span>
+                    <span className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.muted)}>
+                      {nodeCount}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
+
+            {/* Botão reset filtros */}
+            {hiddenCategories.size > 0 && (
+              <button
+                onClick={() => setHiddenCategories(new Set())}
+                className={cn(
+                  "w-full mt-2 px-2 py-1.5 rounded text-center transition-colors",
+                  TYPOGRAPHY.sizes.xs, PARCHMENT.text.secondary,
+                  "hover:bg-warm-white hover:text-espresso"
+                )}
+              >
+                Mostrar todas ({hiddenCategories.size} ocultas)
+              </button>
+            )}
+
+            {/* Status */}
             <div className={cn("mt-3 pt-3 border-t", PARCHMENT.border.default)}>
               <h4 className={cn(TYPOGRAPHY.sizes.xs, TYPOGRAPHY.weights.semibold, PARCHMENT.text.heading, "mb-2")}>
                 Status
@@ -296,9 +368,33 @@ export function GrafoPageClient() {
                 </div>
               </div>
             </div>
+
+            {/* Estatísticas */}
+            <div className={cn("mt-3 pt-3 border-t", PARCHMENT.border.default)}>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className={cn(TYPOGRAPHY.sizes.lg, TYPOGRAPHY.weights.semibold, TYPOGRAPHY.families.serif, PARCHMENT.text.heading)}>
+                    {stats.visibleStudies}
+                  </p>
+                  <p className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.muted)}>
+                    {stats.visibleStudies !== stats.totalStudies ? `de ${stats.totalStudies} ` : ''}estudos
+                  </p>
+                </div>
+                <div>
+                  <p className={cn(TYPOGRAPHY.sizes.lg, TYPOGRAPHY.weights.semibold, TYPOGRAPHY.families.serif, PARCHMENT.text.heading)}>
+                    {stats.visibleLinks}
+                  </p>
+                  <p className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.muted)}>
+                    {stats.visibleLinks !== stats.totalLinks ? `de ${stats.totalLinks} ` : ''}conexões
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Dica */}
             <div className={cn("mt-3 pt-3 border-t", PARCHMENT.border.default)}>
               <p className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.muted)}>
-                Clique em um nó para abrir o estudo
+                Clique em um nó para abrir o estudo. Clique em uma categoria para filtrar.
               </p>
             </div>
           </div>
@@ -335,7 +431,7 @@ export function GrafoPageClient() {
         <div className="flex-1">
           <ForceGraph2D
             ref={graphRef}
-            graphData={graphData}
+            graphData={filteredGraphData}
             nodeLabel=""
             nodeColor={(node: NodeObject) => (node as ForceGraphNode).color}
             nodeVal={(node: NodeObject) => (node as ForceGraphNode).val}

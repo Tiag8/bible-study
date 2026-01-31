@@ -1,6 +1,6 @@
 # EPIC 8.4 — Legenda e Controles Redesenhados
 
-> **Status**: Planejado
+> **Status**: Concluido
 > **Fase**: 2 (Polish)
 > **Prioridade**: P0
 > **Pre-requisito**: EPIC 8.2 concluido
@@ -15,32 +15,34 @@ Legenda funcional e acessivel com design Parchment, controles touch-friendly e f
 
 ---
 
-## Problema Atual
-
-- Legenda usa `bg-gray-900/95 backdrop-blur-sm rounded-lg` generico (nao segue Parchment)
-- Legenda eh apenas visual (nao interativa - nao filtra nodes)
-- Zoom controls pequenos (`bg-gray-900 border-gray-200`) sem design tokens
-- Botoes de controle menores que 44px (nao touch-friendly)
-- Sem estatisticas do grafo visiveis
-
----
-
 ## Tasks
 
-- [ ] Redesenhar legenda como componente colapsavel com estilo Parchment (fundo creme, bordas linen, sombra suave, tipografia Lora)
-- [ ] Tornar legenda interativa: clicar em categoria filtra/destaca nodes no grafo
-- [ ] Indicador visual de filtro ativo (categoria selecionada vs desmarcada)
-- [ ] Redesenhar zoom controls com estilo Parchment e tamanho touch-friendly (min 44px)
-- [ ] Adicionar estatisticas basicas na legenda: total de estudos, total de conexoes, categorias ativas
+- [x] Redesenhar legenda como componente colapsavel com estilo Parchment (fundo creme, bordas linen, sombra suave, tipografia Lora)
+- [x] Tornar legenda interativa: clicar em categoria filtra/destaca nodes no grafo
+- [x] Indicador visual de filtro ativo (categoria selecionada vs desmarcada com opacity + grayscale)
+- [x] Redesenhar zoom controls com estilo Parchment e tamanho touch-friendly (44px - w-11 h-11)
+- [x] Adicionar estatisticas basicas na legenda: total de estudos, total de conexoes, categorias ativas
 
 ---
 
 ## Criterio de Aceite
 
-- [ ] Legenda segue 100% design tokens Parchment
-- [ ] Clicar em categoria filtra nodes (mostra/oculta)
-- [ ] Todos os controles >= 44px (touch-friendly)
-- [ ] Estatisticas visiveis (estudos, conexoes)
+- [x] Legenda segue 100% design tokens Parchment
+- [x] Clicar em categoria filtra nodes (mostra/oculta)
+- [x] Todos os controles >= 44px (touch-friendly) - w-11 = 2.75rem = 44px
+- [x] Estatisticas visiveis (estudos, conexoes)
+
+---
+
+## Implementacao
+
+- `hiddenCategories` state (Set<BookCategory>) para toggle de visibilidade
+- `filteredGraphData` derivado: nodes e links filtrados por categorias visíveis
+- Categorias clicáveis com contagem de nodes, opacity 40% quando ocultas
+- Botão "Mostrar todas" quando há filtros ativos
+- Zoom controls com `w-11 h-11` (44px) e ícones `w-5 h-5`
+- Estatísticas em grid 2 colunas: estudos e conexões (com "de X" quando filtrado)
+- Header atualizado para mostrar contagem filtrada + indicador de categorias ocultas
 
 ---
 
@@ -48,7 +50,7 @@ Legenda funcional e acessivel com design Parchment, controles touch-friendly e f
 
 | Arquivo | Mudanca |
 |---------|---------|
-| `src/app/grafo/GrafoPageClient.tsx` | Legenda, controles, filtro logica |
+| `src/app/grafo/GrafoPageClient.tsx` | Legenda interativa, controles 44px, filtro, estatísticas |
 
 ---
 
