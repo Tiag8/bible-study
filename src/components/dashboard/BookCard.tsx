@@ -4,7 +4,7 @@ import { BibleBook, formatRelativeDate } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { COLORS } from "@/lib/design-tokens";
+import { PARCHMENT, SHADOW_WARM } from "@/lib/design-tokens";
 
 interface BookCardProps {
   book: BibleBook;
@@ -22,9 +22,13 @@ export function BookCard({ book, onClick }: BookCardProps) {
     <div
       onClick={onClick}
       className={cn(
-        "bg-white rounded-xl p-5 border transition-all cursor-pointer",
-        "hover:shadow-md",
-        hasStudies ? `border-gray-200 ${COLORS.primary.text} hover:border-blue-200` : `border-gray-100 opacity-75 ${COLORS.neutral[100]} hover:border-gray-200`
+        "bg-cream rounded-xl p-5 border transition-all cursor-pointer",
+        PARCHMENT.border.default,
+        SHADOW_WARM.sm,
+        hasStudies
+          ? "hover:border-amber-light"
+          : "opacity-75 hover:border-amber-light/50",
+        "hover:translate-y-[-2px]"
       )}
     >
       {/* Header */}
@@ -33,24 +37,30 @@ export function BookCard({ book, onClick }: BookCardProps) {
           <div
             className={cn(
               "p-2 rounded-lg",
-              hasStudies ? COLORS.primary.light : COLORS.neutral[50]
+              hasStudies ? PARCHMENT.accent.light : "bg-warm-white"
             )}
           >
             <BookOpen
               className={cn(
                 "w-5 h-5",
-                hasStudies ? COLORS.primary.text : COLORS.neutral.text.light
+                hasStudies ? PARCHMENT.accent.text : PARCHMENT.text.muted
               )}
             />
           </div>
           <div>
-            <h3 className={cn("font-semibold", COLORS.neutral.text.primary)}>{book.name}</h3>
-            <p className={cn("text-xs", COLORS.neutral.text.muted)}>
+            <h3 className={cn("font-lora font-semibold", PARCHMENT.text.heading)}>{book.name}</h3>
+            <p className={cn("text-xs", PARCHMENT.text.muted)}>
               {book.totalChapters} capítulos
             </p>
           </div>
         </div>
-        <Badge variant={book.testament === "NT" ? "default" : "secondary"}>
+        <Badge
+          variant="outline"
+          className={cn(
+            "text-xs border-linen",
+            book.testament === "NT" ? PARCHMENT.status.studying.text : PARCHMENT.text.secondary
+          )}
+        >
           {book.testament}
         </Badge>
       </div>
@@ -58,22 +68,22 @@ export function BookCard({ book, onClick }: BookCardProps) {
       {/* Progress */}
       <div className="mb-3">
         <div className="flex items-center justify-between text-sm mb-1">
-          <span className="text-gray-600">
+          <span className={PARCHMENT.text.secondary}>
             {book.studiedChapters.length} de {book.totalChapters} estudados
           </span>
-          <span className="font-medium text-gray-900">
+          <span className={cn("font-medium", PARCHMENT.text.heading)}>
             {Math.round(progress)}%
           </span>
         </div>
-        <div className={cn("w-full rounded-full h-2", COLORS.neutral[100])}>
+        <div className="w-full rounded-full h-2 bg-linen">
           <div
             className={cn(
               "h-2 rounded-full transition-all",
               progress === 100
-                ? COLORS.success.default
+                ? "bg-[#4A6741]"
                 : progress > 0
-                ? COLORS.primary.default
-                : COLORS.neutral[200]
+                ? "bg-amber"
+                : "bg-linen"
             )}
             style={{ width: `${progress}%` }}
           />
@@ -84,12 +94,12 @@ export function BookCard({ book, onClick }: BookCardProps) {
       {book.tags.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-3">
           {book.tags.slice(0, 3).map((tag) => (
-            <Badge key={tag} variant="outline" className="text-xs">
+            <Badge key={tag} variant="outline" className={cn("text-xs border-linen", PARCHMENT.text.secondary)}>
               #{tag}
             </Badge>
           ))}
           {book.tags.length > 3 && (
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="outline" className={cn("text-xs border-linen", PARCHMENT.text.muted)}>
               +{book.tags.length - 3}
             </Badge>
           )}
@@ -97,7 +107,7 @@ export function BookCard({ book, onClick }: BookCardProps) {
       )}
 
       {/* Last Update */}
-      <div className={cn("flex items-center gap-1.5 text-xs", COLORS.neutral.text.muted)}>
+      <div className={cn("flex items-center gap-1.5 text-xs", PARCHMENT.text.muted)}>
         <Clock className="w-3.5 h-3.5" />
         <span>
           {book.lastUpdate

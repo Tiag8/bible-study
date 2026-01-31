@@ -14,7 +14,7 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { COLORS, BORDERS } from "@/lib/design-tokens";
+import { PARCHMENT } from "@/lib/design-tokens";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -42,22 +42,21 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "bg-white border-r flex flex-col transition-all duration-300",
-        `${BORDERS.gray}`,
+        "bg-ivory border-r flex flex-col transition-all duration-300",
+        PARCHMENT.border.default,
         collapsed ? "w-16" : "w-64"
       )}
     >
-      {/* TOKENS: COLORS.primary, COLORS.neutral */}
-      <div className={cn("h-16 flex items-center justify-between px-4 border-b border-gray-100")} >
+      <div className={cn("h-16 flex items-center justify-between px-4 border-b", PARCHMENT.border.default)}>
         {!collapsed && (
           <Link href="/" className="flex items-center gap-2">
-            <BookOpen className={cn("w-6 h-6", COLORS.primary.text)} />
-            <span className={cn("font-semibold", COLORS.neutral.text.primary)}>Bible Graph</span>
+            <BookOpen className={cn("w-6 h-6", PARCHMENT.accent.text)} />
+            <span className={cn("font-lora font-bold", PARCHMENT.text.heading)}>Bible Graph</span>
           </Link>
         )}
         {collapsed && (
           <Link href="/" className="mx-auto">
-            <BookOpen className={cn("w-6 h-6", COLORS.primary.text)} />
+            <BookOpen className={cn("w-6 h-6", PARCHMENT.accent.text)} />
           </Link>
         )}
       </div>
@@ -68,30 +67,31 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700",
-              "hover:bg-gray-100 transition-colors",
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg",
+              PARCHMENT.text.secondary,
+              "hover:bg-cream transition-colors",
               collapsed && "justify-center"
             )}
             title={collapsed ? item.label : undefined}
           >
             <item.icon className="w-5 h-5 flex-shrink-0" />
             {!collapsed && (
-              <span className={cn("font-medium text-sm", COLORS.neutral.text.secondary)}>{item.label}</span>
+              <span className="font-medium text-sm">{item.label}</span>
             )}
           </Link>
         ))}
       </nav>
 
       {user && (
-        <div className="p-3 border-t border-gray-100 space-y-2">
+        <div className={cn("p-3 border-t space-y-2", PARCHMENT.border.default)}>
           {!collapsed && (
             <div className="px-3 py-2 mb-2">
               <div className="flex items-center gap-2">
-                <div className={cn("w-8 h-8 rounded-full text-white flex items-center justify-center font-semibold text-sm", COLORS.primary.default)}>
+                <div className="w-8 h-8 rounded-full bg-amber text-white flex items-center justify-center font-semibold text-sm">
                   {firstLetter}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={cn("text-sm font-medium truncate", COLORS.neutral.text.primary)}>
+                  <p className={cn("text-sm font-medium truncate", PARCHMENT.text.heading)}>
                     Olá, {firstName}
                   </p>
                   {profile?.role && (
@@ -110,7 +110,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           {collapsed && (
             <div className="flex justify-center mb-2">
               <div
-                className={cn("w-8 h-8 rounded-full text-white flex items-center justify-center font-semibold text-sm", COLORS.primary.default)}
+                className="w-8 h-8 rounded-full bg-amber text-white flex items-center justify-center font-semibold text-sm"
                 title={`${firstName} (${profile?.role || 'free'})`}
               >
                 {firstLetter}
@@ -122,7 +122,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             onClick={handleLogout}
             className={cn(
               "flex items-center gap-2 px-3 py-2 rounded-lg w-full transition-colors",
-              `${COLORS.danger.text} hover:${COLORS.danger.light}`,
+              "text-[#8B5E3C] hover:bg-[#FEF0E7]",
               collapsed && "justify-center"
             )}
             title={collapsed ? "Sair" : undefined}
@@ -133,12 +133,12 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </div>
       )}
 
-      <div className="p-3 border-t border-gray-100">
+      <div className={cn("p-3 border-t", PARCHMENT.border.default)}>
         <button
           onClick={onToggle}
           className={cn(
             "flex items-center gap-2 px-3 py-2 rounded-lg w-full transition-colors",
-            `${COLORS.neutral.text.muted} hover:${COLORS.neutral[100]}`,
+            PARCHMENT.text.muted, "hover:bg-cream",
             collapsed && "justify-center"
           )}
         >

@@ -91,15 +91,15 @@ export const COLORS = {
 // ============================================
 
 export const TAG_COLORS: Record<string, string> = {
-  blue: '#3b82f6',
-  purple: '#8b5cf6',
-  green: '#22c55e',
-  orange: '#f97316',
-  pink: '#ec4899',
-  cyan: '#06b6d4',
-  red: '#ef4444',
-  yellow: '#ca8a04', // amber-600 (mais escuro para melhor contraste)
-  'dark-green': '#15803d',
+  blue: '#C5D5E4',
+  purple: '#D1C4E0',
+  green: '#C5D9C0',
+  orange: '#E8D0B3',
+  pink: '#E0C8CF',
+  cyan: '#BDD8D6',
+  red: '#DEC0B8',
+  yellow: '#E0D8B0',
+  'dark-green': '#A8C5A0',
 }
 
 // ============================================
@@ -107,6 +107,10 @@ export const TAG_COLORS: Record<string, string> = {
 // ============================================
 
 export const TYPOGRAPHY = {
+  families: {
+    serif: 'font-lora',
+    sans: 'font-inter',
+  },
   sizes: {
     xs: 'text-xs',
     sm: 'text-sm',
@@ -173,6 +177,13 @@ export const SHADOWS = {
   lg: 'shadow-lg',
 }
 
+// Warm shadows (parchment theme - sepia tones)
+export const SHADOW_WARM = {
+  sm: shadows.shadowWarmSm,
+  md: shadows.shadowWarmMd,
+  lg: shadows.shadowWarmLg,
+} as const
+
 // ============================================
 // BORDERS
 // ============================================
@@ -181,7 +192,51 @@ export const BORDERS = {
   gray: 'border-gray-200',
   primary: 'border-blue-200',
   light: 'border-gray-100',
+  linen: 'border-linen',
 }
+
+// ============================================
+// PARCHMENT THEME (Epic 6.1)
+// ============================================
+
+/**
+ * Parchment theme tokens for dashboard redesign.
+ * Extends (not replaces) existing COLORS for backward compatibility.
+ * Use PARCHMENT in dashboard components; COLORS remains for Editor, Grafo, etc.
+ */
+export const PARCHMENT = {
+  bg: {
+    page: 'bg-parchment',
+    card: 'bg-cream',
+    sidebar: 'bg-ivory',
+    input: 'bg-warm-white',
+    hover: 'bg-warm-white',
+  },
+  text: {
+    primary: 'text-[#272626]',
+    heading: 'text-espresso',
+    subheading: 'text-walnut',
+    secondary: 'text-stone',
+    muted: 'text-sand',
+  },
+  accent: {
+    default: 'bg-amber',
+    light: 'bg-amber-light',
+    dark: 'bg-amber-dark',
+    text: 'text-amber',
+    textDark: 'text-amber-dark',
+  },
+  border: {
+    default: 'border-linen',
+    hover: 'border-amber-light',
+  },
+  status: {
+    studying: { bg: 'bg-[#FFF8E7]', text: 'text-[#92742B]' },
+    reviewing: { bg: 'bg-[#F3EEF8]', text: 'text-[#6B5B7B]' },
+    done: { bg: 'bg-[#EEF5EC]', text: 'text-[#4A6741]' },
+    todo: { bg: 'bg-[#FEF0E7]', text: 'text-[#8B5E3C]' },
+  },
+} as const
 
 // ============================================
 // STATUS CONFIG (Study status indicators)

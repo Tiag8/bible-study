@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { COLORS } from "@/lib/design-tokens";
+import { PARCHMENT } from "@/lib/design-tokens";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { BookGrid } from "@/components/dashboard/BookGrid";
@@ -98,10 +98,9 @@ export function DashboardClient() {
   // Show loading while auth is being checked
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        {/* TOKENS: COLORS.primary, COLORS.neutral */}
-        <Loader2 className={cn("w-8 h-8 animate-spin", COLORS.primary.text)} />
-        <span className={cn("ml-3", COLORS.neutral.text.muted)}>Verificando autenticação...</span>
+      <div className="flex items-center justify-center h-screen bg-parchment">
+        <Loader2 className={cn("w-8 h-8 animate-spin", PARCHMENT.accent.text)} />
+        <span className={cn("ml-3", PARCHMENT.text.muted)}>Verificando autenticação...</span>
       </div>
     );
   }
@@ -109,15 +108,15 @@ export function DashboardClient() {
   // If no user after loading, useEffect will redirect - show nothing
   if (!user) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <Loader2 className={cn("w-8 h-8 animate-spin", COLORS.primary.text)} />
-        <span className={cn("ml-3", COLORS.neutral.text.muted)}>Redirecionando...</span>
+      <div className="flex items-center justify-center h-screen bg-parchment">
+        <Loader2 className={cn("w-8 h-8 animate-spin", PARCHMENT.accent.text)} />
+        <span className={cn("ml-3", PARCHMENT.text.muted)}>Redirecionando...</span>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-parchment">
       {/* Sidebar */}
       <Sidebar
         collapsed={sidebarCollapsed}
@@ -146,10 +145,10 @@ export function DashboardClient() {
             <div>
               {/* Page Header */}
               <div className="mb-6">
-                <h1 className={cn("text-2xl font-bold", COLORS.neutral.text.primary)}>
+                <h1 className={cn("text-2xl font-lora font-bold", PARCHMENT.text.heading)}>
                   Biblioteca Bíblica
                 </h1>
-                <p className={cn("mt-1", COLORS.neutral.text.secondary)}>
+                <p className={cn("mt-1", PARCHMENT.text.secondary)}>
                   Navegue pelos livros e gerencie seus estudos
                 </p>
               </div>
@@ -157,8 +156,8 @@ export function DashboardClient() {
               {/* Book Grid */}
               {studiesLoading ? (
                 <div className="flex items-center justify-center h-64">
-                  <Loader2 className={cn("w-8 h-8 animate-spin", COLORS.primary.text)} />
-                  <span className={cn("ml-3", COLORS.neutral.text.muted)}>Carregando estudos...</span>
+                  <Loader2 className={cn("w-8 h-8 animate-spin", PARCHMENT.accent.text)} />
+                  <span className={cn("ml-3", PARCHMENT.text.muted)}>Carregando estudos...</span>
                 </div>
               ) : (
                 <BookGrid
