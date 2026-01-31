@@ -1,6 +1,6 @@
 # EPIC 8 — Redesign Completo do Grafo (Overview)
 
-> **Status**: Em progresso (5/7 concluidos)
+> **Status**: Em progresso (6/7 concluidos)
 > **Data**: 2026-01-31
 > **Agentes**: @pm (Morgan), @architect (Aria)
 > **Origem**: Analise 360 do grafo + feedback do usuario
@@ -40,8 +40,8 @@ Fase 4 (Reach):       EPIC 8.7
 | **8.3** | Tipografia e Hierarquia Visual | P0 | 8.2 concluido | [EPIC-8.3](EPIC-8.3-tipografia.md) | ✅ Concluido |
 | **8.4** | Legenda e Controles Redesenhados | P0 | 8.2 concluido | [EPIC-8.4](EPIC-8.4-legenda-controles.md) | ✅ Concluido |
 | **8.5** | UI de Gestao de Links | P1 | 8.2 concluido | [EPIC-8.5](EPIC-8.5-gestao-links.md) | ✅ Concluido |
-| **8.6** | Busca, Filtro e Integracoes | P1 | 8.4 concluido | [EPIC-8.6](EPIC-8.6-busca-filtro.md) | Proximo |
-| **8.7** | Mobile e Responsividade | P2 | 8.4 concluido | [EPIC-8.7](EPIC-8.7-mobile.md) | Pendente |
+| **8.6** | Busca, Filtro e Integracoes | P1 | 8.4 concluido | [EPIC-8.6](EPIC-8.6-busca-filtro.md) | ✅ Concluido |
+| **8.7** | Mobile e Responsividade | P2 | 8.4 concluido | [EPIC-8.7](EPIC-8.7-mobile.md) | Proximo |
 
 ### Diagrama de Dependencias
 
@@ -85,7 +85,7 @@ EPIC 8.1 (Type Safety)
 | Touch targets >= 44px | 0% | 100% | ✅ Controles 44px (EPIC 8.4) |
 | Contraste WCAG AA | Parcial | 100% | ✅ AAA 8.5:1 (EPIC 8.2) |
 | Links criados via grafo | 0 (sem UI) | Possivel | ✅ Context menu + click (EPIC 8.5) |
-| Busca no grafo | Inexistente | Funcional | Pendente (EPIC 8.6) |
+| Busca no grafo | Inexistente | Funcional | ✅ Search + focus + highlight (EPIC 8.6) |
 
 ---
 

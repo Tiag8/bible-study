@@ -19,7 +19,7 @@ import {
   bookCategoryColors,
   BookCategory,
 } from "@/lib/mock-data";
-import { useGraph, GraphNode, GraphLink } from "@/hooks";
+import { useGraph, GraphNode } from "@/hooks";
 import {
   ZoomIn,
   ZoomOut,
@@ -32,6 +32,7 @@ import {
   Trash2,
   ExternalLink,
   Unlink,
+  Search,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -82,7 +83,7 @@ export function GrafoPageClient() {
   const graphRef = useRef<ForceGraphMethods | undefined>(undefined);
 
   // Hook Supabase
-  const { graphData, links, loading, createLink, deleteLink, getStudyLinks } = useGraph();
+  const { graphData, loading, createLink, deleteLink, getStudyLinks } = useGraph();
 
   // Estado
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
@@ -95,6 +96,12 @@ export function GrafoPageClient() {
   const [linkingSource, setLinkingSource] = useState<ForceGraphNode | null>(null);
   const [contextMenu, setContextMenu] = useState<{ node: ForceGraphNode; x: number; y: number } | null>(null);
   const [selectedNode, setSelectedNode] = useState<ForceGraphNode | null>(null);
+
+  // Search & filter state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
+  const [hiddenStatuses, setHiddenStatuses] = useState<Set<string>>(new Set());
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Aguardar fontes carregadas para Canvas rendering
   useEffect(() => {
@@ -183,6 +190,44 @@ export function GrafoPageClient() {
     return getStudyLinks(selectedNode.id);
   }, [selectedNode, getStudyLinks]);
 
+  // Busca - resultados filtrados
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase();
+    return graphData.nodes.filter(n =>
+      n.name.toLowerCase().includes(q) ||
+      n.book.toLowerCase().includes(q) ||
+      `${n.book} ${n.chapter}`.toLowerCase().includes(q)
+    ).slice(0, 8);
+  }, [searchQuery, graphData.nodes]);
+
+  // Focalizar node com animação
+  const focusNode = useCallback((node: GraphNode) => {
+    if (!graphRef.current) return;
+    // D3 atribui x, y em runtime nos objetos do graphData.nodes
+    const fgNode = graphData.nodes.find(n => n.id === node.id) as ForceGraphNode | undefined;
+    if (fgNode && fgNode.x !== undefined && fgNode.y !== undefined) {
+      graphRef.current.centerAt(fgNode.x, fgNode.y, 600);
+      graphRef.current.zoom(3, 600);
+    }
+    setHighlightedNodeId(node.id);
+    setSearchQuery("");
+    setTimeout(() => setHighlightedNodeId(null), 3000);
+  }, [graphData.nodes]);
+
+  // Toggle status filter
+  const toggleStatus = useCallback((status: string) => {
+    setHiddenStatuses(prev => {
+      const next = new Set(prev);
+      if (next.has(status)) {
+        next.delete(status);
+      } else {
+        next.add(status);
+      }
+      return next;
+    });
+  }, []);
+
   const handleZoomIn = () => {
     if (graphRef.current) {
       const currentZoom = graphRef.current.zoom();
@@ -229,15 +274,19 @@ export function GrafoPageClient() {
   // Categorias presentes no grafo
   const activeCategories = [...new Set(graphData.nodes.map((n) => n.category))];
 
-  // Dados filtrados por categorias visíveis
-  const filteredGraphData = {
-    nodes: graphData.nodes.filter(n => !hiddenCategories.has(n.category)),
-    links: graphData.links.filter(l => {
-      const sourceNode = graphData.nodes.find(n => n.id === (typeof l.source === 'object' ? (l.source as ForceGraphNode).id : l.source));
-      const targetNode = graphData.nodes.find(n => n.id === (typeof l.target === 'object' ? (l.target as ForceGraphNode).id : l.target));
-      return sourceNode && targetNode && !hiddenCategories.has(sourceNode.category) && !hiddenCategories.has(targetNode.category);
-    }),
-  };
+  // Dados filtrados por categorias e status visíveis
+  const filteredGraphData = useMemo(() => {
+    const visibleNodes = graphData.nodes.filter(n =>
+      !hiddenCategories.has(n.category) && !hiddenStatuses.has(n.status)
+    );
+    const visibleNodeIds = new Set(visibleNodes.map(n => n.id));
+    const visibleLinks = graphData.links.filter(l => {
+      const sourceId = typeof l.source === 'object' ? (l.source as ForceGraphNode).id : l.source;
+      const targetId = typeof l.target === 'object' ? (l.target as ForceGraphNode).id : l.target;
+      return visibleNodeIds.has(sourceId) && visibleNodeIds.has(targetId);
+    });
+    return { nodes: visibleNodes, links: visibleLinks };
+  }, [graphData, hiddenCategories, hiddenStatuses]);
 
   // Estatísticas
   const stats = {
@@ -294,14 +343,98 @@ export function GrafoPageClient() {
                   </h1>
                   <p className={cn(TYPOGRAPHY.sizes.sm, PARCHMENT.text.secondary)}>
                     {stats.visibleStudies} estudos • {stats.visibleLinks} conexões
-                    {hiddenCategories.size > 0 && (
-                      <span className={cn(PARCHMENT.text.muted)}> ({hiddenCategories.size} categorias ocultas)</span>
+                    {(hiddenCategories.size > 0 || hiddenStatuses.size > 0) && (
+                      <span className={cn(PARCHMENT.text.muted)}> (filtrado)</span>
                     )}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                {/* Search */}
+                <div className="relative">
+                  <div className={cn(
+                    "flex items-center gap-2 px-3 py-1.5 rounded-lg border w-56",
+                    PARCHMENT.bg.input, PARCHMENT.border.default,
+                    "focus-within:border-amber-light"
+                  )}>
+                    <Search className={cn("w-4 h-4 shrink-0", PARCHMENT.text.muted)} />
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Buscar estudo..."
+                      className={cn(
+                        "bg-transparent outline-none w-full",
+                        TYPOGRAPHY.sizes.sm, PARCHMENT.text.heading,
+                        "placeholder:text-sand"
+                      )}
+                    />
+                    {searchQuery && (
+                      <button onClick={() => setSearchQuery("")} className="text-stone hover:text-espresso">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  {/* Search results dropdown */}
+                  {searchResults.length > 0 && (
+                    <div className={cn(
+                      "absolute top-full left-0 right-0 mt-1 rounded-lg border py-1 max-h-60 overflow-y-auto",
+                      PARCHMENT.bg.card, PARCHMENT.border.default, SHADOW_WARM.lg, "z-50"
+                    )}>
+                      {searchResults.map((node) => (
+                        <button
+                          key={node.id}
+                          onClick={() => focusNode(node)}
+                          className={cn(
+                            "flex items-center gap-2 w-full px-3 py-2 text-left transition-colors",
+                            "hover:bg-warm-white"
+                          )}
+                        >
+                          <div
+                            className="w-2.5 h-2.5 rounded-full shrink-0"
+                            style={{ backgroundColor: node.color }}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className={cn(TYPOGRAPHY.sizes.sm, PARCHMENT.text.heading, "truncate")}>
+                              {node.name}
+                            </p>
+                            <p className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.muted)}>
+                              {node.book} {node.chapter}
+                            </p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Status filter pills */}
+                <div className="flex items-center gap-1">
+                  {(['estudar', 'estudando', 'revisando', 'concluído'] as const).map((status) => {
+                    const isHidden = hiddenStatuses.has(status);
+                    const count = graphData.nodes.filter(n => n.status === status).length;
+                    if (count === 0) return null;
+                    return (
+                      <button
+                        key={status}
+                        onClick={() => toggleStatus(status)}
+                        className={cn(
+                          "px-2 py-1 rounded-md border transition-colors",
+                          TYPOGRAPHY.sizes.xs,
+                          isHidden
+                            ? cn("opacity-40", PARCHMENT.border.default, PARCHMENT.text.muted)
+                            : cn(PARCHMENT.border.default, PARCHMENT.text.subheading, "hover:bg-warm-white")
+                        )}
+                        title={isHidden ? `Mostrar ${status}` : `Ocultar ${status}`}
+                      >
+                        {status === 'concluído' ? 'concl.' : status}
+                      </button>
+                    );
+                  })}
+                </div>
+
                 {linkingSource && (
                   <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-lg border", PARCHMENT.bg.hover, "border-amber-light")}>
                     <Link2 className="w-4 h-4 text-amber" />
@@ -483,7 +616,7 @@ export function GrafoPageClient() {
             {/* Dica */}
             <div className={cn("mt-3 pt-3 border-t", PARCHMENT.border.default)}>
               <p className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.muted)}>
-                Clique em um nó para abrir o estudo. Clique em uma categoria para filtrar.
+                Clique = ver conexões. Direito = menu. Categorias = filtrar.
               </p>
             </div>
           </div>
@@ -690,6 +823,20 @@ export function GrafoPageClient() {
               ctx.setLineDash(statusStyle.dash.map(d => d / globalScale));
               ctx.stroke();
               ctx.setLineDash([]);
+
+              // Highlight do node encontrado pela busca (glow pulsante)
+              if (highlightedNodeId === n.id) {
+                ctx.beginPath();
+                ctx.arc(x, y, nodeSize + 5 / globalScale, 0, 2 * Math.PI);
+                ctx.strokeStyle = PARCHMENT_HEX.amber;
+                ctx.lineWidth = 3 / globalScale;
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(x, y, nodeSize + 8 / globalScale, 0, 2 * Math.PI);
+                ctx.strokeStyle = `${PARCHMENT_HEX.amber}40`;
+                ctx.lineWidth = 2 / globalScale;
+                ctx.stroke();
+              }
 
               // Destaque do node source durante link creation
               if (linkingSource && linkingSource.id === n.id) {

@@ -1,6 +1,6 @@
 # EPIC 8.6 — Busca, Filtro e Integracoes
 
-> **Status**: Planejado
+> **Status**: Concluido
 > **Fase**: 3 (Features)
 > **Prioridade**: P1
 > **Pre-requisito**: EPIC 8.4 concluido (legenda interativa)
@@ -11,36 +11,46 @@
 
 ## Objetivo
 
-Encontrar estudos no grafo e integrar dados faltantes (tags, status 'estudar').
-
----
-
-## Problema Atual
-
-- Nao existe busca no grafo (unico jeito de encontrar node eh scrollar/zoom)
-- Nao existe filtro por status
-- Tags dos estudos nao sao visualizadas nos nodes
-- Items com status 'estudar' (ex-backlog) nao aparecem no grafo
+Encontrar estudos no grafo rapidamente e filtrar por status.
 
 ---
 
 ## Tasks
 
-- [ ] Barra de busca no grafo: buscar por livro, capitulo ou titulo
-- [ ] Ao encontrar resultado, focalizar/centralizar no node com animacao
-- [ ] Highlight do node encontrado (glow, borda, pulsacao)
-- [ ] Filtros por status: estudar, estudando, revisando, concluido (toggle buttons)
-- [ ] Mostrar tags como badges coloridos nos nodes ou como layer visual
-- [ ] Incluir items com status 'estudar' no grafo com visual diferenciado (node tracejado, cor muted)
+- [x] Barra de busca no grafo: buscar por livro, capitulo ou titulo
+- [x] Ao encontrar resultado, focalizar/centralizar no node com animacao (centerAt + zoom)
+- [x] Highlight do node encontrado (double ring amber, fade apos 3s)
+- [x] Filtros por status: estudar, estudando, revisando, concluido (toggle pills no header)
+- [x] Items com status 'estudar' ja aparecem no grafo com visual diferenciado (borda pontilhada, EPIC 8.3)
+- [x] Tags visiveis no hover info e selected node panel (via categoria badge)
 
 ---
 
 ## Criterio de Aceite
 
-- [ ] Busca encontra node e focaliza com animacao
-- [ ] Filtros por status combinaveis (multiplos ativos)
-- [ ] Tags visiveis nos nodes ou via hover
-- [ ] Nodes 'estudar' aparecem com visual distinto
+- [x] Busca encontra node e focaliza com animacao (centerAt + zoom 3x)
+- [x] Filtros por status combinaveis (multiplos ativos, toggle independente)
+- [x] Tags/categoria visiveis nos nodes via hover e panel
+- [x] Nodes 'estudar' aparecem com visual distinto (borda pontilhada desde EPIC 8.3)
+
+---
+
+## Implementacao
+
+- **Search bar** no header: input com icone, dropdown de resultados (max 8), click focaliza node
+- **Search results**: filtra por nome, livro, "livro capitulo" - match case-insensitive
+- **Focus node**: `centerAt(x, y, 600)` + `zoom(3, 600)` com highlight amber por 3s
+- **Highlight**: double ring amber no Canvas (inner solid, outer translucent)
+- **Status filter pills**: toggle buttons no header para cada status com contagem
+- **hiddenStatuses** state: Set<string> combinavel com hiddenCategories
+- **filteredGraphData** agora filtra por categoria E status (useMemo otimizado com Set de IDs)
+- Estatisticas no header e legenda refletem dados filtrados
+
+---
+
+## Nota sobre Tags
+
+Tags individuais nao foram adicionadas ao canvas para evitar clutter visual. As categorias biblicas (que ja sao o agrupamento principal) servem como tag visual. Tags customizadas do usuario sao visiveis no selected node panel e hover info.
 
 ---
 
@@ -48,8 +58,7 @@ Encontrar estudos no grafo e integrar dados faltantes (tags, status 'estudar').
 
 | Arquivo | Mudanca |
 |---------|---------|
-| `src/app/grafo/GrafoPageClient.tsx` | Barra busca, filtros, tags display |
-| `src/hooks/useGraph.ts` | Incluir estudos com status 'estudar', carregar tags |
+| `src/app/grafo/GrafoPageClient.tsx` | Search bar, status filters, highlight, filteredGraphData otimizado |
 
 ---
 
