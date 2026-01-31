@@ -298,3 +298,27 @@ export const REFERENCE_TYPE_COLORS = {
 } as const
 
 export type ReferenceTypeColor = keyof typeof REFERENCE_TYPE_COLORS
+
+// ============================================
+// PARCHMENT HEX VALUES (for Canvas/non-Tailwind contexts)
+// ============================================
+
+/**
+ * Raw hex values for use in Canvas API, inline styles,
+ * and other contexts where Tailwind classes don't apply.
+ * Must stay in sync with tailwind.config.ts custom colors.
+ */
+export const PARCHMENT_HEX = {
+  parchment: '#e8e0d1',
+  cream: '#f0eee4',
+  ivory: '#f5f0e8',
+  warmWhite: '#f7f3eb',
+  linen: '#EDE8E0',
+  espresso: '#3C2415',
+  walnut: '#5C4033',
+  stone: '#7A6F64',
+  sand: '#A69B8D',
+  amber: '#B8860B',
+  amberLight: '#F5E6C8',
+  amberDark: '#8B6508',
+} as const

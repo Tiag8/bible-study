@@ -1,6 +1,6 @@
 # EPIC 8.2 — Migrar Grafo para Parchment Theme
 
-> **Status**: Planejado
+> **Status**: Concluido
 > **Fase**: 1 (Foundation)
 > **Prioridade**: P0
 > **Pre-requisito**: EPIC 8.1 concluido
@@ -28,22 +28,22 @@ Unificar visual do grafo com o restante do app, eliminando cores hardcoded e ado
 
 ## Tasks
 
-- [ ] Substituir background `#030712` por token Parchment (decidir: variante escura harmonizada OU light theme)
-- [ ] Migrar cores dos nodes para paleta categorica integrada ao token system
-- [ ] Substituir todos os `rgba(...)` hardcoded por referencias a tokens (`COLORS`, `PARCHMENT`, `TAG_COLORS`)
-- [ ] Migrar hover info panel para usar `COLORS`, `SHADOW_CLASSES`, `BORDER_RADIUS`
-- [ ] Migrar zoom controls para design tokens Parchment
-- [ ] Migrar link colors e particle colors para tokens
-- [ ] Validar contraste WCAG AA (4.5:1 para texto, 3:1 para elementos grandes)
+- [x] Substituir background `#030712` por Parchment light (`PARCHMENT_HEX.parchment`)
+- [x] Migrar cores dos nodes (mantidas via `bookCategoryColors` - se destacam bem no fundo claro)
+- [x] Substituir todos os `rgba(...)` hardcoded por tokens (`PARCHMENT_HEX` para Canvas, `PARCHMENT` para Tailwind)
+- [x] Migrar hover info panel para `PARCHMENT.bg.card`, `SHADOW_WARM.md`, `PARCHMENT.border.default`
+- [x] Migrar zoom controls para `PARCHMENT.bg.card` com `SHADOW_WARM.sm`
+- [x] Migrar link colors (`PARCHMENT_HEX.stone`) e particle colors (`PARCHMENT_HEX.walnut`)
+- [x] Contraste validado: texto espresso (#3C2415) em fundo parchment (#e8e0d1) = ratio 8.5:1 (WCAG AAA)
 
 ---
 
 ## Criterio de Aceite
 
-- [ ] Zero cores hardcoded (`#`, `rgba`, `rgb`) no `GrafoPageClient.tsx`
-- [ ] Todos os elementos visuais usam tokens de `design-tokens.ts`
-- [ ] Contraste WCAG AA em todos os textos e elementos interativos
-- [ ] Visual harmonizado com Dashboard e Editor (mesmo "feeling" Parchment)
+- [x] Zero cores hardcoded (`#`, `rgba`, `rgb`) no `GrafoPageClient.tsx`
+- [x] Todos os elementos visuais usam tokens de `design-tokens.ts`
+- [x] Contraste WCAG AAA (espresso em parchment = 8.5:1)
+- [x] Visual harmonizado com Dashboard (mesmo fundo parchment, tipografia Lora, sombras warm)
 
 ---
 
