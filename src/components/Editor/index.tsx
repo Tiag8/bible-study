@@ -9,7 +9,7 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import { Details, DetailsSummary, DetailsContent } from "@tiptap/extension-details";
 import { cn } from "@/lib/utils";
-import { COLORS } from "@/lib/design-tokens";
+import { PARCHMENT } from "@/lib/design-tokens";
 import { EDITOR_DEBOUNCE_DELAY } from "@/lib/editor-constants";
 import { parseContent } from "@/lib/editor-utils";
 import { ColoredBlockquote } from "./ColoredBlockquote";
@@ -236,7 +236,7 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
 
   if (!editor) {
     return (
-      <div className={cn("p-4 animate-pulse", COLORS.neutral.text.light)}>
+      <div className={cn("p-4 animate-pulse", PARCHMENT.text.muted)}>
         Carregando editor...
       </div>
     );
@@ -247,11 +247,11 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
       <style>{`
         /* Details (Toggle/Collapsible) Styling */
         .details-block {
-          border: 1px solid #e5e7eb;
+          border: 1px solid #EDE8E0;
           border-radius: 0.5rem;
           padding: 0.75rem;
           margin: 0.5rem 0;
-          background-color: #f9fafb;
+          background-color: #f7f3eb;
         }
 
         .details-summary {
@@ -259,7 +259,8 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
           display: flex;
           align-items: center;
           font-weight: 500;
-          color: #1f2937;
+          font-family: var(--font-lora), Georgia, serif;
+          color: #3C2415;
           user-select: none;
           padding: 0.5rem;
           border-radius: 0.375rem;
@@ -269,24 +270,24 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
 
         .details-summary::-webkit-details-marker {
           margin-right: 0.5rem;
-          color: #6b7280;
+          color: #A69B8D;
         }
 
         .details-summary:hover {
-          background-color: #ede9fe;
+          background-color: #F5E6C8;
         }
 
         .details-content {
           margin-top: 0.5rem;
           padding-left: 1rem;
-          color: #374151;
-          border-left: 2px solid #dbeafe;
+          color: #5C4033;
+          border-left: 2px solid #EDE8E0;
           padding: 0.5rem 0.75rem 0.5rem 1rem;
         }
 
         /* Open state styling */
         details[open] .details-summary {
-          color: #2563eb;
+          color: #B8860B;
         }
       `}</style>
 

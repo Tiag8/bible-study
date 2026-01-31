@@ -37,10 +37,44 @@ export default {
         DEFAULT: {
           css: {
             maxWidth: 'none',
-            color: '#1f2937', // gray-800
+            color: '#3C2415', // espresso - corpo do editor
+            fontFamily: 'var(--font-inter), system-ui, sans-serif',
             p: {
               marginTop: '0.5em',
               marginBottom: '0.5em',
+            },
+            // Headings com Lora (serif)
+            'h1, h2, h3, h4': {
+              fontFamily: 'var(--font-lora), Georgia, serif',
+              color: '#3C2415', // espresso
+            },
+            // Blockquotes
+            blockquote: {
+              borderLeftColor: '#EDE8E0', // linen
+              color: '#5C4033', // walnut
+            },
+            // Código inline
+            code: {
+              backgroundColor: '#f7f3eb', // warm-white
+              borderRadius: '0.25rem',
+              padding: '0.125em 0.25em',
+              color: '#5C4033', // walnut
+            },
+            // Separadores
+            hr: {
+              borderColor: '#EDE8E0', // linen
+            },
+            // Links
+            a: {
+              color: '#B8860B', // amber
+              textDecoration: 'underline',
+              '&:hover': {
+                color: '#8B6508', // amber-dark
+              },
+            },
+            // Strong/Bold
+            strong: {
+              color: '#3C2415', // espresso
             },
             // Highlight marks (marca-texto)
             mark: {
