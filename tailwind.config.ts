@@ -18,8 +18,8 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
         // Parchment theme
-        parchment: '#FAF6F0',
-        cream: '#F5F0E8',
+        parchment: '#e8e0d1',
+        cream: '#f0eee4',
         ivory: '#FFFEF9',
         'warm-white': '#FEFCF8',
         linen: '#EDE8E0',

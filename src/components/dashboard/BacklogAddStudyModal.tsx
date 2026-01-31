@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { mockBibleBooks } from '@/lib/mock-data';
-import { COLORS, BORDERS } from '@/lib/design-tokens';
+import { PARCHMENT } from '@/lib/design-tokens';
 import { useStudies, useBacklog } from '@/hooks';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, Loader2, Search } from 'lucide-react';
@@ -115,7 +115,7 @@ export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddS
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto bg-ivory border-linen">
         <DialogHeader>
           <DialogTitle>Criar Novo Estudo</DialogTitle>
           <DialogDescription>
@@ -130,27 +130,27 @@ export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddS
           <div className="space-y-4">
             {/* Search Input */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4", PARCHMENT.text.muted)} />
               <Input
                 placeholder="Buscar livro..."
                 value={bookSearchTerm}
                 onChange={(e) => setBookSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 bg-warm-white border-linen placeholder:text-sand"
               />
             </div>
 
             {/* Book List */}
-            <div className={cn('border rounded-lg max-h-64 overflow-y-auto', BORDERS.gray)}>
+            <div className="border border-linen rounded-lg max-h-64 overflow-y-auto">
               {filteredBooks.length > 0 ? (
                 filteredBooks.map((book) => (
                   <button
                     key={book.id}
                     onClick={() => handleSelectBook(book.id)}
                     className={cn(
-                      'w-full text-left px-4 py-3 border-b transition-colors',
+                      'w-full text-left px-4 py-3 border-b border-linen transition-colors',
                       selectedBook === book.id
-                        ? `${COLORS.primary.default} text-white`
-                        : `hover:${COLORS.neutral[50]}`
+                        ? 'bg-amber text-white'
+                        : 'hover:bg-warm-white'
                     )}
                   >
                     <p className="font-medium text-sm">{book.name}</p>
@@ -160,7 +160,7 @@ export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddS
                   </button>
                 ))
               ) : (
-                <div className={cn('p-4 text-center text-sm', COLORS.neutral.text.muted)}>
+                <div className={cn('p-4 text-center text-sm', PARCHMENT.text.muted)}>
                   Nenhum livro encontrado
                 </div>
               )}
@@ -187,18 +187,18 @@ export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddS
         {step === 2 && bookObject && (
           <div className="space-y-4">
             {/* Selected Book Info */}
-            <div className={cn('p-3 rounded-lg', COLORS.neutral[50], BORDERS.gray)}>
-              <p className={cn('text-sm', COLORS.neutral.text.muted)}>
+            <div className="p-3 rounded-lg bg-warm-white border border-linen">
+              <p className={cn('text-sm', PARCHMENT.text.muted)}>
                 Livro selecionado:
               </p>
-              <p className={cn('font-semibold', COLORS.neutral.text.primary)}>
+              <p className={cn('font-lora font-semibold', PARCHMENT.text.heading)}>
                 {bookObject.name}
               </p>
             </div>
 
             {/* Chapter Grid */}
             <div>
-              <p className={cn('text-sm mb-2', COLORS.neutral.text.muted)}>
+              <p className={cn('text-sm mb-2', PARCHMENT.text.muted)}>
                 Selecione o capítulo:
               </p>
               <div className="grid grid-cols-6 gap-2 max-h-48 overflow-y-auto">
@@ -209,8 +209,8 @@ export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddS
                     className={cn(
                       'aspect-square rounded text-sm font-medium transition-all',
                       selectedChapter === String(chapter)
-                        ? `${COLORS.primary.default} text-white`
-                        : `${COLORS.neutral[50]} border ${BORDERS.gray} hover:border-blue-300`
+                        ? 'bg-amber text-white'
+                        : 'bg-warm-white border border-linen hover:border-amber-light'
                     )}
                   >
                     {chapter}

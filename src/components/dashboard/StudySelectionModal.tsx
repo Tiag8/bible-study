@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { COLORS } from '@/lib/design-tokens';
+import { PARCHMENT } from '@/lib/design-tokens';
 import type { StudySummary } from '@/hooks/useStudies';
 import { formatRelativeDate } from '@/lib/mock-data';
 import { useTags, useStudies } from '@/hooks';
@@ -112,12 +112,11 @@ export function StudySelectionModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-ivory border-linen">
         <DialogHeader>
-          <DialogTitle className={cn("text-xl font-bold", COLORS.neutral.text.primary)}>
+          <DialogTitle className={cn("text-xl font-lora font-bold", PARCHMENT.text.heading)}>
             {bookName} {chapter}
           </DialogTitle>
-          {/* TOKENS: COLORS.primary, COLORS.danger, COLORS.neutral */}
           <DialogDescription>
             Você tem {studies.length} estudo{studies.length !== 1 ? 's' : ''} para este capítulo.
             Selecione um para editar ou crie um novo.
@@ -156,10 +155,10 @@ export function StudySelectionModal({
                   disabled={deletingId === study.id}
                   className="w-full justify-start gap-3 h-auto py-4 pr-12"
                 >
-                  <FileText className={cn("w-5 h-5 flex-shrink-0", COLORS.primary.text)} />
+                  <FileText className={cn("w-5 h-5 flex-shrink-0", PARCHMENT.accent.text)} />
                   <div className="flex-1 text-left min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className={cn("font-medium truncate", COLORS.neutral.text.primary)}>
+                      <h3 className={cn("font-medium truncate", PARCHMENT.text.heading)}>
                         {study.title}
                       </h3>
                       <StatusBadge status={study.status} className="flex-shrink-0" />
@@ -187,7 +186,7 @@ export function StudySelectionModal({
                           );
                         })}
                         {study.tags.length > 3 && (
-                          <span className={cn("text-xs", COLORS.neutral.text.muted)}>
+                          <span className={cn("text-xs", PARCHMENT.text.muted)}>
                             +{study.tags.length - 3}
                           </span>
                         )}
@@ -195,7 +194,7 @@ export function StudySelectionModal({
                     )}
 
                     {/* Data de atualização */}
-                    <div className={cn("flex items-center gap-1 text-xs", COLORS.neutral.text.muted)}>
+                    <div className={cn("flex items-center gap-1 text-xs", PARCHMENT.text.muted)}>
                       <Clock className="w-3 h-3" />
                       <span>{formatRelativeDate(study.updated_at)}</span>
                     </div>
@@ -206,7 +205,7 @@ export function StudySelectionModal({
                 <button
                   onClick={(e) => handleDeleteClick(study.id, study.title, e)}
                   disabled={deletingId === study.id}
-                  className={cn("absolute right-3 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] p-2 rounded-md opacity-40 hover:opacity-100 focus:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center", `bg-red-50 ${COLORS.danger.text} hover:bg-red-100`)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] p-2 rounded-md opacity-40 hover:opacity-100 focus:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center bg-red-50 text-red-600 hover:bg-red-100"
                   aria-label="Deletar estudo"
                 >
                   {deletingId === study.id ? (

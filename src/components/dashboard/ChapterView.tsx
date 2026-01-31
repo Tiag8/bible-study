@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { TAG_COLORS, COLORS, BORDERS } from "@/lib/design-tokens";
+import { TAG_COLORS, PARCHMENT } from "@/lib/design-tokens";
 import { getAggregatedChapterStatus } from "@/lib/utils";
 import { StudySelectionModal } from "./StudySelectionModal";
 import {
@@ -99,9 +99,8 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        {/* TOKENS: COLORS.primary, COLORS.neutral */}
-        <Loader2 className={cn("w-8 h-8 animate-spin", COLORS.primary.text)} />
-        <span className={cn("ml-3", COLORS.neutral.text.muted)}>Carregando...</span>
+        <Loader2 className={cn("w-8 h-8 animate-spin", PARCHMENT.accent.text)} />
+        <span className={cn("ml-3", PARCHMENT.text.muted)}>Carregando...</span>
       </div>
     );
   }
@@ -116,12 +115,12 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
             Voltar
           </Button>
           <div className="flex items-center gap-3">
-            <div className={cn("p-2 rounded-lg", COLORS.primary.light)}>
-              <BookOpen className={cn("w-6 h-6", COLORS.primary.text)} />
+            <div className={cn("p-2 rounded-lg", PARCHMENT.accent.light)}>
+              <BookOpen className={cn("w-6 h-6", PARCHMENT.accent.text)} />
             </div>
             <div>
-              <h1 className={cn("text-2xl font-bold", COLORS.neutral.text.primary)}>{book.name}</h1>
-              <p className={cn("text-sm", COLORS.neutral.text.muted)}>
+              <h1 className={cn("text-2xl font-lora font-bold", PARCHMENT.text.heading)}>{book.name}</h1>
+              <p className={cn("text-sm", PARCHMENT.text.muted)}>
                 {studiedChapters.length} de {book.totalChapters} capítulos
                 estudados
               </p>
@@ -136,7 +135,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
       {/* Tags */}
       {book.tags.length > 0 && (
         <div className="flex items-center gap-2">
-          <span className={cn("text-sm", COLORS.neutral.text.muted)}>Tags:</span>
+          <span className={cn("text-sm", PARCHMENT.text.muted)}>Tags:</span>
           {book.tags.map((tag) => (
             <Badge key={tag} variant="outline">
               #{tag}
@@ -146,21 +145,21 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
       )}
 
       {/* Progress Bar */}
-      <div className={cn("bg-white rounded-lg p-4", BORDERS.gray)}>
+      <div className={cn("bg-cream rounded-lg p-4 border", PARCHMENT.border.default)}>
         <div className="flex items-center justify-between mb-2">
-          <span className={cn("text-sm font-medium", COLORS.neutral.text.secondary)}>
+          <span className={cn("text-sm font-medium", PARCHMENT.text.secondary)}>
             Progresso Geral
           </span>
-          <span className={cn("text-sm font-bold", COLORS.primary.text)}>
+          <span className={cn("text-sm font-bold", PARCHMENT.accent.text)}>
             {Math.round(
               (studiedChapters.length / book.totalChapters) * 100
             )}
             %
           </span>
         </div>
-        <div className={cn("w-full rounded-full h-3", COLORS.neutral[100])}>
+        <div className="w-full rounded-full h-3 bg-linen">
           <div
-            className={cn("h-3 rounded-full transition-all", COLORS.primary.default)}
+            className="h-3 rounded-full transition-all bg-amber"
             style={{
               width: `${
                 (studiedChapters.length / book.totalChapters) * 100
@@ -172,7 +171,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
 
       {/* Chapters Grid */}
       <div>
-        <h2 className={cn("text-lg font-semibold mb-4", COLORS.neutral.text.primary)}>
+        <h2 className={cn("text-lg font-lora font-semibold mb-4", PARCHMENT.text.heading)}>
           Capítulos
         </h2>
         <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
@@ -199,10 +198,9 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
 
             // Determinar classes de cor
             let colorClasses = cn(
-              'bg-white',
-              BORDERS.gray,
-              'text-gray-600',
-              'hover:border-blue-300'
+              'bg-cream border border-linen',
+              'text-stone',
+              'hover:border-amber-light'
             );
 
             if (studyCount > 0) {
@@ -222,7 +220,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
               >
                 {chapter}
                 {hasMultiple && (
-                  <span className={cn("absolute -top-1 -right-1 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center", COLORS.danger.default)}>
+                  <span className="absolute -top-1 -right-1 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center bg-amber-dark">
                     {studyCount}
                   </span>
                 )}
@@ -235,7 +233,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
       {/* Recent Studies */}
       {bookStudies.length > 0 && (
         <div>
-          <h2 className={cn("text-lg font-semibold mb-4", COLORS.neutral.text.primary)}>
+          <h2 className={cn("text-lg font-lora font-semibold mb-4", PARCHMENT.text.heading)}>
             Estudos Recentes
           </h2>
           <div className="space-y-3">
@@ -244,20 +242,20 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                 key={study.id}
                 className="relative group"
               >
-                {/* Linha vermelha do lado esquerdo (aparece no hover) */}
-                <div className={cn("absolute left-0 top-0 bottom-0 w-1 opacity-0 group-hover:opacity-100 transition-opacity rounded-l-lg", COLORS.danger.default)} />
+                {/* Linha amber do lado esquerdo (aparece no hover) */}
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber opacity-0 group-hover:opacity-100 transition-opacity rounded-l-lg" />
 
                 <div
                   onClick={() => router.push(`/estudo/${study.id}`)}
-                  className={cn("block bg-white rounded-lg p-4 transition-colors cursor-pointer", BORDERS.gray, "hover:border-blue-200")}
+                  className={cn("block bg-cream rounded-lg p-4 transition-colors cursor-pointer border", PARCHMENT.border.default, "hover:border-amber-light")}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className={cn("font-medium", COLORS.neutral.text.primary)}>
+                        <h3 className={cn("font-medium", PARCHMENT.text.heading)}>
                           {study.title}
                         </h3>
-                        <span className={cn("text-xs", COLORS.neutral.text.muted)}>
+                        <span className={cn("text-xs", PARCHMENT.text.muted)}>
                           • Capítulo {study.chapter_number}
                         </span>
                       </div>
@@ -283,7 +281,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      <div className={cn("flex items-center gap-1 text-xs", COLORS.neutral.text.muted)}>
+                      <div className={cn("flex items-center gap-1 text-xs", PARCHMENT.text.muted)}>
                         <Clock className="w-3 h-3" />
                         <span>{formatRelativeDate(study.updated_at)}</span>
                       </div>
@@ -292,7 +290,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                         <button
                           onClick={(e) => handleDeleteClick(study.id, study.title, e)}
                           disabled={deletingId === study.id}
-                          className={cn("p-1.5 rounded-md", COLORS.danger.light, COLORS.danger.text, `hover:${COLORS.danger.lighter}`, "opacity-40 group-hover:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center flex-shrink-0")}
+                          className="p-1.5 rounded-md bg-red-50 text-red-600 hover:bg-red-100 opacity-40 group-hover:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center flex-shrink-0"
                           aria-label="Deletar estudo"
                         >
                           {deletingId === study.id ? (
@@ -314,8 +312,8 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
       {/* Empty State */}
       {bookStudies.length === 0 && (
         <div className="text-center py-8">
-          <BookOpen className={cn("w-12 h-12 mx-auto mb-3", COLORS.neutral[300])} />
-          <p className={COLORS.neutral.text.muted}>
+          <BookOpen className="w-12 h-12 mx-auto mb-3 text-linen" />
+          <p className={PARCHMENT.text.muted}>
             Nenhum estudo criado para este livro ainda
           </p>
           <Button

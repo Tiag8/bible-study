@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background: #FAF6F0;
+  --background: #e8e0d1;
   --foreground: #272626;
 
   /* Shadow tokens (from shadows.module.css) */

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { COLORS, BORDERS } from "@/lib/design-tokens";
+import { PARCHMENT } from "@/lib/design-tokens";
 import { formatRelativeDate } from "@/lib/mock-data";
 import { useBacklog, useStudies } from "@/hooks";
 import { Badge } from "@/components/ui/badge";
@@ -86,22 +86,21 @@ export function BacklogPanel() {
   };
 
   return (
-    <aside className={cn("w-80 bg-white flex flex-col h-full", BORDERS.gray.replace('border', 'border-l'))}>
-      {/* TOKENS: COLORS.primary, COLORS.success, COLORS.danger, COLORS.neutral, BORDERS */}
+    <aside className={cn("w-80 bg-ivory flex flex-col h-full border-l", PARCHMENT.border.default)}>
       {/* Header */}
-      <div className="p-4 border-b border-gray-100">
+      <div className={cn("p-4 border-b", PARCHMENT.border.default)}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <BookMarked className={cn("w-5 h-5", COLORS.primary.text)} />
-            <h2 className={cn("font-semibold", COLORS.neutral.text.primary)}>Backlog de Estudos</h2>
+            <BookMarked className={cn("w-5 h-5", PARCHMENT.accent.text)} />
+            <h2 className={cn("font-lora font-semibold", PARCHMENT.text.heading)}>Backlog de Estudos</h2>
           </div>
-          <Badge variant="secondary">{pendingItems.length}</Badge>
+          <Badge variant="secondary" className="bg-warm-white border-linen text-walnut">{pendingItems.length}</Badge>
         </div>
 
         <Button
           variant="outline"
           size="sm"
-          className="w-full"
+          className="w-full border-linen text-stone hover:bg-cream hover:text-walnut"
           onClick={() => setShowAddStudyModal(true)}
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -113,12 +112,12 @@ export function BacklogPanel() {
       <div className="flex-1 overflow-y-auto">
         {backlogLoading ? (
           <div className="flex items-center justify-center h-32">
-            <Loader2 className={cn("w-6 h-6 animate-spin", COLORS.neutral.text.light)} />
-            <span className={cn("ml-2", COLORS.neutral.text.muted)}>Carregando...</span>
+            <Loader2 className={cn("w-6 h-6 animate-spin", PARCHMENT.accent.text)} />
+            <span className={cn("ml-2", PARCHMENT.text.muted)}>Carregando...</span>
           </div>
         ) : pendingItems.length > 0 ? (
           <div className="p-3 space-y-2">
-            <p className={cn("text-xs font-medium uppercase tracking-wider px-1", COLORS.neutral.text.muted)}>
+            <p className={cn("text-xs font-medium uppercase tracking-wider px-1", PARCHMENT.text.muted)}>
               Para Estudar ({pendingItems.length})
             </p>
             {pendingItems.map((item) => {
@@ -127,7 +126,7 @@ export function BacklogPanel() {
                 <div
                   key={item.id}
                   onClick={() => handleOpenStudy(item.source_study_id)}
-                  className={cn("group rounded-lg p-3 transition-colors cursor-pointer", COLORS.neutral[50], `hover:${COLORS.neutral[100]}`)}
+                  className="group rounded-lg p-3 transition-colors cursor-pointer bg-warm-white hover:bg-cream"
                 >
                   <div className="flex items-start gap-2">
                     <button
@@ -135,11 +134,11 @@ export function BacklogPanel() {
                         e.stopPropagation();
                         handleToggleStatus(item.id);
                       }}
-                      className={cn("mt-0.5 w-5 h-5 rounded-full border-2 transition-colors flex-shrink-0", BORDERS.gray.replace('border', 'border-'), `hover:border-blue-500`)}
+                      className="mt-0.5 w-5 h-5 rounded-full border-2 border-linen transition-colors flex-shrink-0 hover:border-amber"
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className={cn("font-medium text-sm truncate flex-1", COLORS.neutral.text.primary)}>
+                        <p className={cn("font-medium text-sm truncate flex-1", PARCHMENT.text.heading)}>
                           {item.reference_label}
                         </p>
                         {sourceStudy && (
@@ -147,12 +146,12 @@ export function BacklogPanel() {
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-1">
-                        <div className={cn("flex items-center gap-1 text-xs", COLORS.neutral.text.muted)}>
+                        <div className={cn("flex items-center gap-1 text-xs", PARCHMENT.text.muted)}>
                           <Clock className="w-3 h-3" />
                           <span>{formatRelativeDate(item.created_at)}</span>
                         </div>
                         {sourceStudy && (
-                          <div className={cn("flex items-center gap-1 text-xs", COLORS.primary.text)}>
+                          <div className={cn("flex items-center gap-1 text-xs", PARCHMENT.accent.text)}>
                             <Link2 className="w-3 h-3" />
                             <span className="truncate max-w-[100px]">
                               {sourceStudy.title.split(" - ")[0]}
@@ -166,7 +165,7 @@ export function BacklogPanel() {
                         e.stopPropagation();
                         handleRemoveItem(item.id);
                       }}
-                      className={cn("opacity-0 group-hover:opacity-100 p-1 transition-all", COLORS.neutral.text.light, `hover:${COLORS.danger.text}`)}
+                      className="opacity-0 group-hover:opacity-100 p-1 transition-all text-sand hover:text-red-600"
                       aria-label={`Deletar item ${item.reference_label} do backlog`}
                     >
                       <X className="w-4 h-4" />
@@ -177,11 +176,11 @@ export function BacklogPanel() {
             })}
           </div>
         ) : (
-          <div className={cn("p-6 text-center", COLORS.neutral.text.muted)}>
-            <BookMarked className={cn("w-10 h-10 mx-auto mb-2", COLORS.neutral[300])} />
+          <div className={cn("p-6 text-center", PARCHMENT.text.muted)}>
+            <BookMarked className="w-10 h-10 mx-auto mb-2 text-linen" />
             <p className="text-sm">Nenhum item no backlog</p>
             <p className="text-xs mt-1">
-              Use <kbd className={cn("px-1 py-0.5 rounded", COLORS.neutral[100])}>/</kbd> no
+              Use <kbd className="px-1 py-0.5 rounded bg-warm-white">/</kbd> no
               editor para adicionar
             </p>
           </div>
@@ -189,27 +188,27 @@ export function BacklogPanel() {
 
         {/* Completed Items */}
         {completedItems.length > 0 && (
-          <div className="p-3 border-t border-gray-100">
-            <p className={cn("text-xs font-medium uppercase tracking-wider px-1 mb-2", COLORS.neutral.text.muted)}>
+          <div className={cn("p-3 border-t", PARCHMENT.border.default)}>
+            <p className={cn("text-xs font-medium uppercase tracking-wider px-1 mb-2", PARCHMENT.text.muted)}>
               Concluídos ({completedItems.length})
             </p>
             {completedItems.map((item) => (
               <div
                 key={item.id}
-                className={cn("group flex items-center gap-2 p-2 rounded-lg", `hover:${COLORS.neutral[50]}`)}
+                className="group flex items-center gap-2 p-2 rounded-lg hover:bg-warm-white"
               >
                 <button
                   onClick={() => handleToggleStatus(item.id)}
-                  className="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center flex-shrink-0"
+                  className="w-5 h-5 rounded-full bg-[#4A6741] text-white flex items-center justify-center flex-shrink-0"
                 >
                   <Check className="w-3 h-3" />
                 </button>
-                <span className={cn("text-sm line-through truncate flex-1", COLORS.neutral.text.muted)}>
+                <span className={cn("text-sm line-through truncate flex-1", PARCHMENT.text.muted)}>
                   {item.reference_label}
                 </span>
                 <button
                   onClick={() => handleRemoveItem(item.id)}
-                  className={cn("opacity-0 group-hover:opacity-100 p-1", COLORS.neutral.text.light, `hover:${COLORS.danger.text}`)}
+                  className="opacity-0 group-hover:opacity-100 p-1 text-sand hover:text-red-600"
                   aria-label={`Deletar item concluído ${item.reference_label}`}
                 >
                   <X className="w-3 h-3" />
@@ -221,8 +220,8 @@ export function BacklogPanel() {
       </div>
 
       {/* Footer */}
-      <div className="p-3 border-t border-gray-100">
-        <button className={cn("w-full flex items-center justify-center gap-2 text-sm transition-colors py-2", COLORS.neutral.text.secondary, `hover:${COLORS.primary.text}`)}>
+      <div className={cn("p-3 border-t", PARCHMENT.border.default)}>
+        <button className={cn("w-full flex items-center justify-center gap-2 text-sm transition-colors py-2", PARCHMENT.text.secondary, "hover:text-amber")}>
           Ver Todos os Estudos
           <ChevronRight className="w-4 h-4" />
         </button>
