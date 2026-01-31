@@ -3,7 +3,7 @@
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { COLORS, BORDERS } from "@/lib/design-tokens";
+import { PARCHMENT } from "@/lib/design-tokens";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -147,7 +147,7 @@ export default function SettingsPage() {
   const userRole = profile?.role === "admin" ? "Admin" : "Free";
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-parchment">
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -155,25 +155,23 @@ export default function SettingsPage() {
 
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         <div className="p-6 max-w-4xl mx-auto w-full">
-          {/* TOKENS: COLORS.neutral */}
           <div className="mb-8">
-            <h1 className={cn("text-3xl font-bold", COLORS.neutral.text.primary)}>Configurações</h1>
-            <p className={cn("mt-2", COLORS.neutral.text.secondary)}>
+            <h1 className={cn("text-3xl font-lora font-bold", PARCHMENT.text.heading)}>Configurações</h1>
+            <p className={cn("mt-2", PARCHMENT.text.secondary)}>
               Gerencie suas preferências e informações da conta
             </p>
           </div>
 
-          <section className={cn("bg-white rounded-lg p-6 mb-6", BORDERS.gray)}>
-            {/* TOKENS: COLORS.primary, COLORS.neutral, BORDERS */}
+          <section className={cn("bg-cream rounded-lg p-6 mb-6 border", PARCHMENT.border.default)}>
             <div className="flex items-center gap-3 mb-6">
-              <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", COLORS.primary.light)}>
-                <User className={cn("w-5 h-5", COLORS.primary.text)} />
+              <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", PARCHMENT.accent.light)}>
+                <User className={cn("w-5 h-5", PARCHMENT.accent.text)} />
               </div>
               <div>
-                <h2 className={cn("text-xl font-semibold", COLORS.neutral.text.primary)}>
+                <h2 className={cn("text-xl font-lora font-semibold", PARCHMENT.text.heading)}>
                   Meu Perfil
                 </h2>
-                <p className={cn("text-sm", COLORS.neutral.text.muted)}>
+                <p className={cn("text-sm", PARCHMENT.text.muted)}>
                   Informações básicas da sua conta
                 </p>
               </div>
@@ -183,7 +181,7 @@ export default function SettingsPage() {
               <div>
                 <label
                   htmlFor="fullName"
-                  className={cn("block text-sm font-medium mb-1", COLORS.neutral.text.primary)}
+                  className={cn("block text-sm font-medium mb-1", PARCHMENT.text.heading)}
                 >
                   Nome Completo
                 </label>
@@ -194,12 +192,12 @@ export default function SettingsPage() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Seu nome completo"
-                    className="flex-1"
+                    className="flex-1 bg-warm-white border-linen"
                   />
                   <Button
                     type="submit"
                     disabled={isUpdatingProfile}
-                    className={cn(COLORS.primary.default, `hover:${COLORS.primary.dark}`)}
+                    className="bg-amber hover:bg-amber-dark text-white"
                   >
                     {isUpdatingProfile ? (
                       <>
@@ -231,21 +229,21 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className={cn("block text-sm font-medium mb-1", COLORS.neutral.text.primary)}>
+                <label className={cn("block text-sm font-medium mb-1", PARCHMENT.text.heading)}>
                   E-mail
                 </label>
-                <div className={cn("flex items-center gap-2 px-3 py-2 rounded-md", "bg-gray-50", BORDERS.gray)}>
-                  <Mail className={cn("w-4 h-4", COLORS.neutral.text.muted)} />
-                  <span className={COLORS.neutral.text.secondary}>{user?.email}</span>
+                <div className={cn("flex items-center gap-2 px-3 py-2 rounded-md bg-warm-white border", PARCHMENT.border.default)}>
+                  <Mail className={cn("w-4 h-4", PARCHMENT.text.muted)} />
+                  <span className={PARCHMENT.text.secondary}>{user?.email}</span>
                 </div>
               </div>
 
               <div>
-                <label className={cn("block text-sm font-medium mb-1", COLORS.neutral.text.primary)}>
+                <label className={cn("block text-sm font-medium mb-1", PARCHMENT.text.heading)}>
                   Plano
                 </label>
                 <div className="flex items-center gap-2">
-                  <Shield className={cn("w-4 h-4", COLORS.neutral.text.muted)} />
+                  <Shield className={cn("w-4 h-4", PARCHMENT.text.muted)} />
                   <Badge
                     variant={userRole === "Admin" ? "default" : "secondary"}
                   >
@@ -256,21 +254,20 @@ export default function SettingsPage() {
             </form>
           </section>
 
-          <section className={cn("bg-white rounded-lg p-6 mb-6", BORDERS.gray)}>
-            {/* TOKENS: COLORS.neutral, BORDERS */}
-            <h2 className={cn("text-xl font-semibold mb-4", COLORS.neutral.text.primary)}>
+          <section className={cn("bg-cream rounded-lg p-6 mb-6 border", PARCHMENT.border.default)}>
+            <h2 className={cn("text-xl font-lora font-semibold mb-4", PARCHMENT.text.heading)}>
               Ações da Conta
             </h2>
 
             <div className="space-y-3">
-              <div className={cn("flex items-center justify-between p-4 rounded-lg", BORDERS.gray)}>
+              <div className={cn("flex items-center justify-between p-4 rounded-lg border", PARCHMENT.border.default)}>
                 <div className="flex items-center gap-3">
-                  <Key className={cn("w-5 h-5", COLORS.neutral.text.muted)} />
+                  <Key className={cn("w-5 h-5", PARCHMENT.text.muted)} />
                   <div>
-                    <p className={cn("font-medium", COLORS.neutral.text.primary)}>
+                    <p className={cn("font-medium", PARCHMENT.text.heading)}>
                       Redefinir Senha
                     </p>
-                    <p className={cn("text-sm", COLORS.neutral.text.muted)}>
+                    <p className={cn("text-sm", PARCHMENT.text.muted)}>
                       Enviar email para redefinição de senha
                     </p>
                   </div>
@@ -299,12 +296,12 @@ export default function SettingsPage() {
                 </p>
               )}
 
-              <div className={cn("flex items-center justify-between p-4 rounded-lg", BORDERS.gray)}>
+              <div className={cn("flex items-center justify-between p-4 rounded-lg border", PARCHMENT.border.default)}>
                 <div className="flex items-center gap-3">
-                  <LogOut className={cn("w-5 h-5", COLORS.neutral.text.muted)} />
+                  <LogOut className={cn("w-5 h-5", PARCHMENT.text.muted)} />
                   <div>
-                    <p className={cn("font-medium", COLORS.neutral.text.primary)}>Sair</p>
-                    <p className={cn("text-sm", COLORS.neutral.text.muted)}>
+                    <p className={cn("font-medium", PARCHMENT.text.heading)}>Sair</p>
+                    <p className={cn("text-sm", PARCHMENT.text.muted)}>
                       Encerrar sua sessão atual
                     </p>
                   </div>
@@ -317,9 +314,8 @@ export default function SettingsPage() {
           </section>
 
           <section className="bg-red-50 rounded-lg border border-red-200 p-6">
-            {/* TOKENS: COLORS.danger */}
             <div className="flex items-center gap-2 mb-4">
-              <AlertTriangle className={cn("w-5 h-5", COLORS.danger.text)} />
+              <AlertTriangle className="w-5 h-5 text-red-600" />
               <h2 className="text-xl font-semibold text-red-900">
                 Zona de Perigo
               </h2>
@@ -332,7 +328,7 @@ export default function SettingsPage() {
 
             <Button
               onClick={() => setShowDeleteModal(true)}
-              className={cn("text-white", COLORS.danger.default, `hover:${COLORS.danger.dark}`)}
+              className="text-white bg-red-600 hover:bg-red-700"
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Excluir Minha Conta
@@ -343,23 +339,22 @@ export default function SettingsPage() {
 
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          {/* TOKENS: COLORS.danger, COLORS.neutral */}
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
+          <div className="bg-cream rounded-lg max-w-md w-full p-6 border border-linen">
             <div className="flex items-center gap-3 mb-4">
-              <div className={cn("w-12 h-12 rounded-full flex items-center justify-center", COLORS.danger.light)}>
-                <AlertTriangle className={cn("w-6 h-6", COLORS.danger.text)} />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-red-50">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
               </div>
               <div>
-                <h3 className={cn("text-lg font-semibold", COLORS.neutral.text.primary)}>
+                <h3 className={cn("text-lg font-lora font-semibold", PARCHMENT.text.heading)}>
                   Confirmar Exclusão
                 </h3>
-                <p className={cn("text-sm", COLORS.neutral.text.muted)}>Esta ação é irreversível</p>
+                <p className={cn("text-sm", PARCHMENT.text.muted)}>Esta ação é irreversível</p>
               </div>
             </div>
 
-            <p className={cn("mb-4", COLORS.neutral.text.secondary)}>
+            <p className={cn("mb-4", PARCHMENT.text.secondary)}>
               Para confirmar a exclusão da sua conta, digite{" "}
-              <span className={cn("font-mono font-bold", COLORS.danger.text)}>EXCLUIR</span>{" "}
+              <span className="font-mono font-bold text-red-600">EXCLUIR</span>{" "}
               abaixo:
             </p>
 
@@ -386,7 +381,7 @@ export default function SettingsPage() {
               <Button
                 onClick={handleDeleteAccount}
                 disabled={deleteConfirmText !== "EXCLUIR" || isDeletingAccount}
-                className={cn("flex-1 text-white disabled:opacity-50 disabled:cursor-not-allowed", COLORS.danger.default, `hover:${COLORS.danger.dark}`)}
+                className="flex-1 text-white disabled:opacity-50 disabled:cursor-not-allowed bg-red-600 hover:bg-red-700"
               >
                 {isDeletingAccount ? (
                   <>

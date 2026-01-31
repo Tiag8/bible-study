@@ -5,7 +5,7 @@ import { ChevronDown, Plus, AlertTriangle, X, RotateCw } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { cn } from '@/lib/utils';
-import { COLORS, BORDERS } from '@/lib/design-tokens';
+import { PARCHMENT } from '@/lib/design-tokens';
 import { Reference } from '@/hooks/useReferences';
 import { AddReferenceModal } from './AddReferenceModal';
 import { SortableReferenceItem } from './SortableReferenceItem';
@@ -108,8 +108,8 @@ export function ReferencesSidebar({
       {/* Sidebar - Desktop always visible, Mobile as drawer */}
       <div
         className={cn(
-          'bg-gray-50 flex flex-col h-full border-l',
-          BORDERS.gray,
+          'bg-ivory flex flex-col h-full border-l',
+          PARCHMENT.border.default,
           // Desktop: always visible sidebar
           'hidden md:flex md:w-80',
           // Mobile: drawer when showOnMobile
@@ -118,13 +118,13 @@ export function ReferencesSidebar({
         )}
       >
         {/* Header */}
-        <div className="p-4 border-b flex items-center justify-between">
+        <div className={cn("p-4 border-b flex items-center justify-between", PARCHMENT.border.default)}>
         <button
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
             'flex items-center gap-2 text-sm font-semibold px-2 py-1 rounded',
-            COLORS.neutral.text.primary,
-            'hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1'
+            PARCHMENT.text.heading,
+            'hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-amber focus:ring-offset-1'
           )}
           title={isOpen ? 'Fechar painel de referências' : 'Abrir painel de referências'}
           aria-label={`Referências (${references.length} ${references.length === 1 ? 'referência' : 'referências'}) - ${isOpen ? 'Aberto' : 'Fechado'}`}
@@ -146,8 +146,8 @@ export function ReferencesSidebar({
               onClick={() => setShowAddModal(true)}
               className={cn(
                 'p-2 rounded transition-colors flex-1 min-h-[44px] flex items-center justify-center',
-                COLORS.primary.default,
-                'hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-opacity-50'
+                'bg-amber hover:bg-amber-dark',
+                'focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-amber focus:ring-opacity-50'
               )}
               title="Adicionar nova referência"
               aria-label="Adicionar nova referência"
@@ -158,7 +158,7 @@ export function ReferencesSidebar({
             {/* Close button on mobile */}
             <button
               onClick={() => setShowOnMobile(false)}
-              className="md:hidden p-2 rounded transition-colors text-gray-500 hover:bg-gray-200 min-h-[44px] min-w-[44px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+              className={cn("md:hidden p-2 rounded transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-amber focus:ring-offset-1", PARCHMENT.text.muted, "hover:bg-warm-white")}
               title="Fechar painel de referências"
               aria-label="Fechar painel de referências"
             >
@@ -179,14 +179,14 @@ export function ReferencesSidebar({
                   key={i}
                   className={cn(
                     'p-3 rounded border animate-pulse',
-                    BORDERS.gray,
-                    'bg-gray-100'
+                    PARCHMENT.border.default,
+                    'bg-warm-white'
                   )}
                   role="status"
                   aria-label="Carregando referência"
                 >
-                  <div className="h-4 bg-gray-300 rounded w-3/4 mb-2" />
-                  <div className="h-3 bg-gray-300 rounded w-1/2" />
+                  <div className="h-4 bg-linen rounded w-3/4 mb-2" />
+                  <div className="h-3 bg-linen rounded w-1/2" />
                 </div>
               ))}
             </div>
@@ -200,7 +200,7 @@ export function ReferencesSidebar({
                     <p className="text-sm font-medium text-red-900">
                       Erro ao carregar referências
                     </p>
-                    <p className={cn('text-xs mt-1', COLORS.neutral.text.secondary)}>
+                    <p className={cn('text-xs mt-1', PARCHMENT.text.secondary)}>
                       {error}
                     </p>
                   </div>
@@ -227,7 +227,7 @@ export function ReferencesSidebar({
             </div>
           ) : references.length === 0 ? (
             // Empty State
-            <div className={cn('text-sm text-center py-8 space-y-2', COLORS.neutral.text.muted)}>
+            <div className={cn('text-sm text-center py-8 space-y-2', PARCHMENT.text.muted)}>
               <div className="text-2xl mb-2">📚</div>
               <p>Nenhuma referência ainda</p>
               <p className="text-xs">Adicione referências para conectar estudos</p>
@@ -300,7 +300,7 @@ export function ReferencesSidebar({
           aria-hidden="false"
         >
           <div
-            className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl"
+            className="bg-cream rounded-lg p-6 max-w-md mx-4 shadow-xl border border-linen"
             role="alertdialog"
             aria-modal="true"
             aria-labelledby="delete-modal-title"
@@ -316,7 +316,7 @@ export function ReferencesSidebar({
             {/* Title */}
             <h2
               id="delete-modal-title"
-              className="text-lg font-semibold text-gray-900 text-center mb-2"
+              className={cn("text-lg font-lora font-semibold text-center mb-2", PARCHMENT.text.heading)}
             >
               Remover referência?
             </h2>
@@ -324,7 +324,7 @@ export function ReferencesSidebar({
             {/* Description */}
             <p
               id="delete-modal-description"
-              className={cn('text-sm text-center mb-6', COLORS.neutral.text.secondary)}
+              className={cn('text-sm text-center mb-6', PARCHMENT.text.secondary)}
             >
               Tem certeza que deseja remover a referência para{' '}
               <strong>
@@ -339,8 +339,8 @@ export function ReferencesSidebar({
                 onClick={handleDeleteCancel}
                 className={cn(
                   'px-4 py-2 rounded border transition-colors min-h-[44px] font-medium',
-                  BORDERS.gray,
-                  'hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-1'
+                  PARCHMENT.border.default,
+                  'hover:bg-warm-white focus:outline-none focus:ring-2 focus:ring-sand focus:ring-offset-1'
                 )}
                 disabled={deleting !== null}
               >
@@ -370,8 +370,8 @@ export function ReferencesSidebar({
         className={cn(
           'fixed bottom-6 right-6 md:hidden z-40',
           'p-3 rounded-full text-white transition-all min-h-[48px] min-w-[48px] flex items-center justify-center',
-          COLORS.primary.default,
-          'hover:shadow-lg hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600',
+          'bg-amber hover:bg-amber-dark',
+          'hover:shadow-lg hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber',
           'shadow-lg'
         )}
         title="Abrir painel de referências"
