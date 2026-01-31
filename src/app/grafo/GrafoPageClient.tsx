@@ -9,7 +9,6 @@ import {
   PARCHMENT,
   PARCHMENT_HEX,
   SHADOW_WARM,
-  BORDERS,
   TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { Sidebar } from "@/components/dashboard/Sidebar";
@@ -33,6 +32,20 @@ import {
 
 // Tipo do node no ForceGraph2D (NodeObject base + nossos campos custom)
 type ForceGraphNode = NodeObject & GraphNode;
+
+// Fontes para Canvas API (Lora carregada via next/font/google no layout)
+const CANVAS_FONTS = {
+  title: (size: number) => `600 ${size}px Lora, Georgia, serif`,
+  meta: (size: number) => `${size}px Inter, system-ui, sans-serif`,
+};
+
+// Status visual config para nodes
+const NODE_STATUS_STYLE: Record<string, { borderWidth: number; dash: number[]; borderAlpha: string }> = {
+  estudar:    { borderWidth: 2, dash: [3, 3], borderAlpha: '60' },
+  estudando:  { borderWidth: 1.5, dash: [], borderAlpha: '50' },
+  revisando:  { borderWidth: 2, dash: [6, 3], borderAlpha: '70' },
+  concluído:  { borderWidth: 2.5, dash: [], borderAlpha: '90' },
+};
 
 // Dynamic import para evitar SSR issues com canvas
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
@@ -70,6 +83,12 @@ export function GrafoPageClient() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [showLegend, setShowLegend] = useState(true);
   const [hoveredNode, setHoveredNode] = useState<ForceGraphNode | null>(null);
+  const [fontsReady, setFontsReady] = useState(false);
+
+  // Aguardar fontes carregadas para Canvas rendering
+  useEffect(() => {
+    document.fonts.ready.then(() => setFontsReady(true));
+  }, []);
 
   // Handlers
   const handleNodeClick = useCallback(
@@ -254,7 +273,30 @@ export function GrafoPageClient() {
                 </div>
               ))}
             </div>
-            <div className={cn("mt-4 pt-3 border-t", PARCHMENT.border.default)}>
+            <div className={cn("mt-3 pt-3 border-t", PARCHMENT.border.default)}>
+              <h4 className={cn(TYPOGRAPHY.sizes.xs, TYPOGRAPHY.weights.semibold, PARCHMENT.text.heading, "mb-2")}>
+                Status
+              </h4>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full border-2 border-dashed" style={{ borderColor: PARCHMENT_HEX.walnut }} />
+                  <span className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.secondary)}>Estudar</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full border" style={{ borderColor: PARCHMENT_HEX.walnut }} />
+                  <span className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.secondary)}>Estudando</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full border-2" style={{ borderColor: PARCHMENT_HEX.walnut, borderStyle: 'dashed' }} />
+                  <span className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.secondary)}>Revisando</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3.5 h-3.5 rounded-full border-2 ring-2 ring-sand ring-offset-1" style={{ borderColor: PARCHMENT_HEX.walnut }} />
+                  <span className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.secondary)}>Concluído</span>
+                </div>
+              </div>
+            </div>
+            <div className={cn("mt-3 pt-3 border-t", PARCHMENT.border.default)}>
               <p className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.muted)}>
                 Clique em um nó para abrir o estudo
               </p>
@@ -308,28 +350,61 @@ export function GrafoPageClient() {
             onNodeHover={handleNodeHover}
             nodeCanvasObject={(node: NodeObject, ctx: CanvasRenderingContext2D, globalScale: number) => {
               const n = node as ForceGraphNode;
-              const label = n.name;
-              const fontSize = 12 / globalScale;
+              const x = node.x ?? 0;
+              const y = node.y ?? 0;
               const nodeSize = n.val;
+              const statusStyle = NODE_STATUS_STYLE[n.status] || NODE_STATUS_STYLE.estudando;
 
               // Desenhar nó
               ctx.beginPath();
-              ctx.arc(node.x ?? 0, node.y ?? 0, nodeSize, 0, 2 * Math.PI);
+              ctx.arc(x, y, nodeSize, 0, 2 * Math.PI);
               ctx.fillStyle = n.color;
               ctx.fill();
 
-              // Borda do nó (linen com opacidade)
-              ctx.strokeStyle = `${PARCHMENT_HEX.walnut}40`;
-              ctx.lineWidth = 1 / globalScale;
+              // Borda diferenciada por status
+              ctx.strokeStyle = `${PARCHMENT_HEX.walnut}${statusStyle.borderAlpha}`;
+              ctx.lineWidth = statusStyle.borderWidth / globalScale;
+              ctx.setLineDash(statusStyle.dash.map(d => d / globalScale));
               ctx.stroke();
+              ctx.setLineDash([]);
 
-              // Label (só mostra em zoom adequado)
-              if (globalScale > 0.5) {
-                ctx.font = `${fontSize}px Inter, sans-serif`;
+              // Anel externo para concluídos (destaque visual)
+              if (n.status === 'concluído') {
+                ctx.beginPath();
+                ctx.arc(x, y, nodeSize + 2 / globalScale, 0, 2 * Math.PI);
+                ctx.strokeStyle = `${n.color}50`;
+                ctx.lineWidth = 1.5 / globalScale;
+                ctx.stroke();
+              }
+
+              // Labels com escala dinâmica e hierarquia tipográfica
+              if (globalScale > 0.4) {
+                // Titulo - Lora serif, escala com zoom mas com min/max
+                const titleSize = Math.min(Math.max(10 / globalScale, 8), 18);
+                ctx.font = fontsReady ? CANVAS_FONTS.title(titleSize) : `600 ${titleSize}px Georgia, serif`;
                 ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
+                ctx.textBaseline = "top";
                 ctx.fillStyle = PARCHMENT_HEX.espresso;
-                ctx.fillText(label, node.x ?? 0, (node.y ?? 0) + nodeSize + fontSize);
+
+                // Truncar label se muito longo
+                const maxLabelWidth = 100 / globalScale;
+                let displayLabel = n.name;
+                if (ctx.measureText(displayLabel).width > maxLabelWidth) {
+                  while (ctx.measureText(displayLabel + '…').width > maxLabelWidth && displayLabel.length > 3) {
+                    displayLabel = displayLabel.slice(0, -1);
+                  }
+                  displayLabel += '…';
+                }
+
+                ctx.fillText(displayLabel, x, y + nodeSize + 3 / globalScale);
+
+                // Metadados - Inter sans, menor e mais suave (só em zoom > 0.8)
+                if (globalScale > 0.8) {
+                  const metaSize = Math.min(Math.max(8 / globalScale, 6), 12);
+                  ctx.font = fontsReady ? CANVAS_FONTS.meta(metaSize) : `${metaSize}px system-ui, sans-serif`;
+                  ctx.fillStyle = PARCHMENT_HEX.stone;
+                  ctx.fillText(`${n.book} ${n.chapter}`, x, y + nodeSize + 3 / globalScale + titleSize + 2 / globalScale);
+                }
               }
             }}
             nodeCanvasObjectMode={() => "replace"}

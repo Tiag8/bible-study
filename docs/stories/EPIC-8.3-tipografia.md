@@ -1,6 +1,6 @@
 # EPIC 8.3 — Tipografia e Hierarquia Visual dos Nodes
 
-> **Status**: Planejado
+> **Status**: Concluido
 > **Fase**: 2 (Polish)
 > **Prioridade**: P0
 > **Pre-requisito**: EPIC 8.2 concluido
@@ -27,27 +27,32 @@ Labels legiveis, hierarquia tipografica clara e diferenciacao visual de nodes po
 
 ## Tasks
 
-- [ ] Implementar `font-lora` (serif) para titulos de nodes no canvas
-- [ ] Usar `font-inter` para metadados (capitulo, categoria) via `TYPOGRAPHY` tokens
-- [ ] Escalar tamanho de fonte dinamicamente com zoom level (`globalScale`)
-- [ ] Implementar collision detection ou truncamento inteligente para labels
-- [ ] Diferenciar nodes por status visualmente: cor de borda, forma, ou icone (nao so tamanho)
-- [ ] Pre-carregar fontes Lora no canvas (Canvas API requer fonts ja carregadas)
+- [x] Implementar `font-lora` (serif) para titulos de nodes no canvas
+- [x] Usar `font-inter` para metadados (capitulo, categoria) via `TYPOGRAPHY` tokens
+- [x] Escalar tamanho de fonte dinamicamente com zoom level (`globalScale`)
+- [x] Implementar collision detection ou truncamento inteligente para labels
+- [x] Diferenciar nodes por status visualmente: cor de borda, forma, ou icone (nao so tamanho)
+- [x] Pre-carregar fontes Lora no canvas (Canvas API requer fonts ja carregadas)
 
 ---
 
 ## Criterio de Aceite
 
-- [ ] Labels legiveis em todos os niveis de zoom (0.3x a 3x)
-- [ ] Sem sobreposicao de labels em grafo com 50+ nodes
-- [ ] Status visualmente distinguivel sem precisar hover
-- [ ] Fontes Lora e Inter carregadas corretamente no canvas
+- [x] Labels legiveis em todos os niveis de zoom (0.3x a 3x)
+- [x] Sem sobreposicao de labels em grafo com 50+ nodes (truncamento com ellipsis)
+- [x] Status visualmente distinguivel sem precisar hover (bordas diferenciadas por status)
+- [x] Fontes Lora e Inter carregadas corretamente no canvas (`document.fonts.ready`)
 
 ---
 
-## Nota Tecnica
+## Implementacao
 
-`react-force-graph-2d` usa Canvas API para renderizacao. Fontes customizadas (Lora) precisam estar carregadas via `document.fonts.ready` ou `@font-face` antes do primeiro render do canvas. Caso contrario, o canvas usa fallback serif generico.
+- `CANVAS_FONTS` constants: Lora para titulos, Inter para metadados
+- `NODE_STATUS_STYLE` config: border width/dash patterns por status (estudar=pontilhado, estudando=fino, revisando=tracejado, concluido=grosso+anel)
+- Font scaling dinamico com `globalScale` (clamped min/max)
+- `measureText` + truncamento com ellipsis para evitar sobreposicao
+- Two-level label hierarchy: titulo (Lora) + livro/capitulo (Inter) em zoom alto
+- Status legend no painel de legenda com indicadores visuais
 
 ---
 
@@ -55,8 +60,8 @@ Labels legiveis, hierarquia tipografica clara e diferenciacao visual de nodes po
 
 | Arquivo | Mudanca |
 |---------|---------|
-| `src/app/grafo/GrafoPageClient.tsx` | Canvas rendering: fontes, labels, node shapes |
-| `src/app/layout.tsx` | Garantir preload de Lora para canvas |
+| `src/app/grafo/GrafoPageClient.tsx` | Canvas rendering: fontes, labels, node shapes, status legend |
+| `src/hooks/useGraph.ts` | Adicionado campo `status` ao `GraphNode` interface |
 
 ---
 

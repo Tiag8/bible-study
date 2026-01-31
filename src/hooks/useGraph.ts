@@ -15,6 +15,7 @@ export interface GraphNode {
   category: BookCategory;
   color: string;
   val: number;
+  status: 'estudar' | 'estudando' | 'revisando' | 'concluído';
 }
 
 export interface GraphLink {
@@ -77,6 +78,7 @@ export function useGraph() {
           chapter: study.chapter_number,
           category,
           color: bookCategoryColors[category],
+          status: study.status,
           val: study.status === 'concluído' ? 8 : 5,
         };
       });
