@@ -20,8 +20,8 @@ export default {
         // Parchment theme
         parchment: '#e8e0d1',
         cream: '#f0eee4',
-        ivory: '#FFFEF9',
-        'warm-white': '#FEFCF8',
+        ivory: '#f5f0e8',
+        'warm-white': '#f7f3eb',
         linen: '#EDE8E0',
         espresso: '#3C2415',
         walnut: '#5C4033',
