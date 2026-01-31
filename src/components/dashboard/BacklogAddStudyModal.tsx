@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { mockBibleBooks } from '@/lib/mock-data';
 import { PARCHMENT } from '@/lib/design-tokens';
-import { useStudies, useBacklog } from '@/hooks';
+import { useStudies } from '@/hooks';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, Loader2, Search } from 'lucide-react';
 import { toast } from 'sonner';
@@ -25,7 +25,6 @@ interface BacklogAddStudyModalProps {
 
 export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddStudyModalProps) {
   const { createStudy } = useStudies();
-  const { addToBacklog } = useBacklog();
 
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedBook, setSelectedBook] = useState<string>('');
@@ -33,13 +32,11 @@ export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddS
   const [bookSearchTerm, setBookSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Get selected book object to find chapter count
   const bookObject = mockBibleBooks.find((b) => b.id === selectedBook);
   const chapters = bookObject
     ? Array.from({ length: bookObject.totalChapters }, (_, i) => i + 1)
     : [];
 
-  // Filter books based on search term
   const filteredBooks = mockBibleBooks.filter((book) =>
     book.name.toLowerCase().includes(bookSearchTerm.toLowerCase())
   );
@@ -89,18 +86,9 @@ export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddS
         return;
       }
 
-      // Create study with status 'estudar' (empty study from backlog)
-      const newStudy = await createStudy(book.name, parseInt(selectedChapter));
-
-      // Add to backlog list
-      await addToBacklog(
-        `${book.name} ${selectedChapter}`,
-        newStudy.id
-      );
-
+      await createStudy(book.name, parseInt(selectedChapter));
       toast.success(`Estudo criado: ${book.name} ${selectedChapter}`);
 
-      // Refetch backlog data
       if (onSuccess) {
         await onSuccess();
       }
@@ -125,10 +113,8 @@ export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddS
           </DialogDescription>
         </DialogHeader>
 
-        {/* Step 1: Book Selection */}
         {step === 1 && (
           <div className="space-y-4">
-            {/* Search Input */}
             <div className="relative">
               <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4", PARCHMENT.text.muted)} />
               <Input
@@ -139,7 +125,6 @@ export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddS
               />
             </div>
 
-            {/* Book List */}
             <div className="border border-linen rounded-lg max-h-64 overflow-y-auto">
               {filteredBooks.length > 0 ? (
                 filteredBooks.map((book) => (
@@ -166,7 +151,6 @@ export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddS
               )}
             </div>
 
-            {/* Buttons */}
             <div className="flex gap-2">
               <Button variant="outline" className="flex-1" onClick={handleClose}>
                 Cancelar
@@ -183,10 +167,8 @@ export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddS
           </div>
         )}
 
-        {/* Step 2: Chapter Selection */}
         {step === 2 && bookObject && (
           <div className="space-y-4">
-            {/* Selected Book Info */}
             <div className="p-3 rounded-lg bg-warm-white border border-linen">
               <p className={cn('text-sm', PARCHMENT.text.muted)}>
                 Livro selecionado:
@@ -196,7 +178,6 @@ export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddS
               </p>
             </div>
 
-            {/* Chapter Grid */}
             <div>
               <p className={cn('text-sm mb-2', PARCHMENT.text.muted)}>
                 Selecione o capítulo:
@@ -219,7 +200,6 @@ export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddS
               </div>
             </div>
 
-            {/* Buttons */}
             <div className="flex gap-2">
               <Button
                 variant="outline"

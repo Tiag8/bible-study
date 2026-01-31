@@ -16,6 +16,8 @@ import DOMPurify from "isomorphic-dompurify";
 import { bibleBooks } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { COLORS, BORDERS, SHADOW_CLASSES } from "@/lib/design-tokens";
+import { useStudies } from "@/hooks";
+import { toast } from "sonner";
 
 interface SlashMenuProps {
   editor: Editor;
@@ -106,6 +108,7 @@ function SlashMenuBase({
   const [backlogReference, setBacklogReference] = useState("");
   const [bookSuggestions, setBookSuggestions] = useState<string[]>([]);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { createStudy } = useStudies();
 
   // ✅ PERFORMANCE: useMemo previne re-filtro em toda re-render
   const filteredItems = useMemo(() => {
@@ -197,19 +200,31 @@ function SlashMenuBase({
 
   const handleBacklogSubmit = useCallback(() => {
     if (backlogReference.trim()) {
-      // ✅ SECURITY: Sanitiza input (remove HTML/scripts)
+      // Sanitiza input (remove HTML/scripts)
       const sanitizedRef = DOMPurify.sanitize(backlogReference.trim(), {
-        ALLOWED_TAGS: [], // Apenas texto, sem tags HTML
+        ALLOWED_TAGS: [],
       });
 
       onSelect("backlog", { reference: sanitizedRef });
 
-      // TODO: Aqui seria feita a chamada para adicionar ao backlog no banco
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`Adicionado ao backlog: ${sanitizedRef}`);
+      // Parsear referência: "Gênesis 1" -> bookName="Gênesis", chapter=1
+      const parts = sanitizedRef.split(" ");
+      const lastPart = parts[parts.length - 1];
+      let bookName = sanitizedRef;
+      let chapter = 1;
+
+      if (/^\d+$/.test(lastPart) && parts.length > 1) {
+        chapter = parseInt(lastPart, 10);
+        bookName = parts.slice(0, -1).join(" ");
       }
 
-      // ✅ SECURITY: Insere como texto puro (não HTML) para prevenir XSS
+      // Criar estudo com status 'estudar'
+      createStudy(bookName, chapter).catch((err) => {
+        console.error("[SLASH_MENU] createStudy error:", err);
+        toast.error("Erro ao criar estudo no backlog");
+      });
+
+      // Insere texto visual no editor
       editor
         .chain()
         .focus()
@@ -223,7 +238,7 @@ function SlashMenuBase({
       setShowBacklogForm(false);
       onClose();
     }
-  }, [backlogReference, editor, onSelect, onClose]);
+  }, [backlogReference, editor, onSelect, onClose, createStudy]);
 
   const handleSuggestionSelect = useCallback((book: string) => {
     setBacklogReference(book + " ");

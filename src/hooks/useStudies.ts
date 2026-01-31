@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef, createContext, useContext, createElement, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef, createContext, useContext, createElement, type ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { Study, StudyInsert, StudyUpdate, TiptapContent } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
+import type { StudyStatus } from '@/lib/design-tokens';
 
 // Tipo para estudo com conteúdo
 export interface StudyWithContent extends Study {
@@ -11,6 +12,9 @@ export interface StudyWithContent extends Study {
 }
 
 export type StudySummary = Omit<Study, 'content'>;
+
+export type SortField = 'created_at' | 'updated_at';
+export type SortDirection = 'asc' | 'desc';
 
 interface StudiesContextValue {
   studies: StudySummary[];
@@ -27,6 +31,11 @@ interface StudiesContextValue {
   completeStudy: (id: string) => Promise<boolean>;
   deleteStudy: (id: string) => Promise<boolean>;
   getStudiesByBook: (bookName: string) => StudySummary[];
+  filterByStatus: (status: StudyStatus | 'todos') => StudySummary[];
+  filterByBook: (bookName: string | 'todos') => StudySummary[];
+  filterStudies: (status: StudyStatus | 'todos', bookName: string | 'todos') => StudySummary[];
+  sortStudies: (items: StudySummary[], field: SortField, direction: SortDirection) => StudySummary[];
+  booksWithStudies: string[];
 }
 
 const StudiesContext = createContext<StudiesContextValue | undefined>(undefined);
@@ -377,6 +386,42 @@ function useStudiesInternal(): StudiesContextValue {
     return studies.filter(s => s.book_name === bookName);
   }, [studies]);
 
+  // Filtrar por status
+  const filterByStatus = useCallback((status: StudyStatus | 'todos'): StudySummary[] => {
+    if (status === 'todos') return studies;
+    return studies.filter(s => s.status === status);
+  }, [studies]);
+
+  // Filtrar por livro
+  const filterByBook = useCallback((bookName: string | 'todos'): StudySummary[] => {
+    if (bookName === 'todos') return studies;
+    return studies.filter(s => s.book_name === bookName);
+  }, [studies]);
+
+  // Filtrar composição: status + livro
+  const filterStudies = useCallback((status: StudyStatus | 'todos', bookName: string | 'todos'): StudySummary[] => {
+    return studies.filter(s => {
+      const matchStatus = status === 'todos' || s.status === status;
+      const matchBook = bookName === 'todos' || s.book_name === bookName;
+      return matchStatus && matchBook;
+    });
+  }, [studies]);
+
+  // Ordenar estudos
+  const sortStudies = useCallback((items: StudySummary[], field: SortField, direction: SortDirection): StudySummary[] => {
+    return [...items].sort((a, b) => {
+      const dateA = new Date(a[field] || a.created_at).getTime();
+      const dateB = new Date(b[field] || b.created_at).getTime();
+      return direction === 'asc' ? dateA - dateB : dateB - dateA;
+    });
+  }, []);
+
+  // Lista de livros com estudos (para dropdown)
+  const booksWithStudies = useMemo(() => {
+    const books = new Set(studies.map(s => s.book_name));
+    return Array.from(books).sort();
+  }, [studies]);
+
   // Buscar estudos por capítulo específico (retorna array para múltiplos estudos)
   const getStudiesByChapter = useCallback((bookName: string, chapter: number): StudySummary[] => {
     return studies.filter(s => s.book_name === bookName && s.chapter_number === chapter);
@@ -419,6 +464,11 @@ function useStudiesInternal(): StudiesContextValue {
     completeStudy,
     deleteStudy,
     getStudiesByBook,
+    filterByStatus,
+    filterByBook,
+    filterStudies,
+    sortStudies,
+    booksWithStudies,
   };
 }
 

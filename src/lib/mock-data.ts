@@ -16,14 +16,6 @@ export interface Study {
   completed_at?: string;
 }
 
-export interface BacklogItem {
-  id: string;
-  reference_label: string;
-  source_study_id: string | null;
-  status: boolean;
-  created_at: string;
-}
-
 export interface BibleBook {
   id: string;
   name: string;
@@ -271,44 +263,6 @@ export const mockStudyLinks: StudyLink[] = [
 // BACKLOG DE ESTUDOS
 // ============================================
 
-export const mockBacklog: BacklogItem[] = [
-  {
-    id: "b1",
-    reference_label: "Êxodo 20 - Os Dez Mandamentos",
-    source_study_id: "1",
-    status: false,
-    created_at: "2024-01-15T12:30:00Z",
-  },
-  {
-    id: "b2",
-    reference_label: "Mateus 5-7 - Sermão do Monte",
-    source_study_id: "3",
-    status: false,
-    created_at: "2024-01-17T16:30:00Z",
-  },
-  {
-    id: "b3",
-    reference_label: "Isaías 53 - O Servo Sofredor",
-    source_study_id: null,
-    status: false,
-    created_at: "2024-01-10T09:00:00Z",
-  },
-  {
-    id: "b4",
-    reference_label: "Hebreus 11 - Heróis da Fé",
-    source_study_id: "5",
-    status: true,
-    created_at: "2024-01-04T14:00:00Z",
-  },
-  {
-    id: "b5",
-    reference_label: "Apocalipse 21-22 - Novos Céus",
-    source_study_id: null,
-    status: false,
-    created_at: "2024-01-20T17:30:00Z",
-  },
-];
-
 // ============================================
 // LISTA DE LIVROS PARA AUTOCOMPLETE
 // ============================================
@@ -342,10 +296,6 @@ export function getBookById(id: string): BibleBook | undefined {
 
 export function getStudiesByBook(bookName: string): Study[] {
   return mockStudies.filter((study) => study.book === bookName);
-}
-
-export function getBacklogPending(): BacklogItem[] {
-  return mockBacklog.filter((item) => !item.status);
 }
 
 export function formatRelativeDate(dateString: string | null): string {

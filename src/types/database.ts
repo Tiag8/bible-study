@@ -86,32 +86,6 @@ export interface Database {
           created_at?: string;
         };
       };
-      bible_backlog: {
-        Row: {
-          id: string;
-          user_id: string;
-          reference_label: string;
-          source_study_id: string | null;
-          status: boolean;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          reference_label: string;
-          source_study_id?: string | null;
-          status?: boolean;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          user_id?: string;
-          reference_label?: string;
-          source_study_id?: string | null;
-          status?: boolean;
-          created_at?: string;
-        };
-      };
       bible_tags: {
         Row: {
           id: string;
@@ -165,10 +139,6 @@ export type StudyUpdate = Database['public']['Tables']['bible_studies']['Update'
 
 export type StudyLink = Database['public']['Tables']['bible_study_links']['Row'];
 export type StudyLinkInsert = Database['public']['Tables']['bible_study_links']['Insert'];
-
-export type BacklogItem = Database['public']['Tables']['bible_backlog']['Row'];
-export type BacklogInsert = Database['public']['Tables']['bible_backlog']['Insert'];
-export type BacklogUpdate = Database['public']['Tables']['bible_backlog']['Update'];
 
 export type Tag = Database['public']['Tables']['bible_tags']['Row'];
 export type TagInsert = Database['public']['Tables']['bible_tags']['Insert'];
