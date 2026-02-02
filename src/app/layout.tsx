@@ -28,7 +28,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Bible Graph - Segundo Cérebro para Estudos Bíblicos",
+  title: "Bible Study - Segundo Cérebro Bíblico",
   description: "Sistema de organização de estudos bíblicos com interconexões e revisão inteligente",
   // ✅ SECURITY: Content Security Policy (previne XSS e clickjacking)
   other: {
