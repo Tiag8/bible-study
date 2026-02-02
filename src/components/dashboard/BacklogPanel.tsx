@@ -86,7 +86,7 @@ export function BacklogPanel() {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StudyStatus | 'todos')}
             className={cn(
-              "w-full px-3 py-1.5 text-sm rounded-md border bg-warm-white",
+              "w-full px-3 py-2.5 text-sm rounded-md border bg-warm-white min-h-[44px]",
               PARCHMENT.border.default,
               PARCHMENT.text.primary
             )}
@@ -100,7 +100,7 @@ export function BacklogPanel() {
             value={bookFilter}
             onChange={(e) => setBookFilter(e.target.value)}
             className={cn(
-              "w-full px-3 py-1.5 text-sm rounded-md border bg-warm-white",
+              "w-full px-3 py-2.5 text-sm rounded-md border bg-warm-white min-h-[44px]",
               PARCHMENT.border.default,
               PARCHMENT.text.primary
             )}

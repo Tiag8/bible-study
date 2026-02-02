@@ -16,10 +16,10 @@ const variantStyles = {
 };
 
 const sizeStyles = {
-  sm: "px-3 py-1.5 text-sm",
-  md: "px-4 py-2 text-sm",
-  lg: "px-6 py-3 text-base",
-  icon: "h-9 w-9 p-2",
+  sm: "px-3 py-2 text-sm min-h-[36px]",
+  md: "px-4 py-2.5 text-sm min-h-[44px]",
+  lg: "px-6 py-3 text-base min-h-[48px]",
+  icon: "h-11 w-11 p-2.5",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

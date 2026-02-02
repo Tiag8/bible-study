@@ -40,8 +40,8 @@ export function TopBar({
   };
 
   return (
-    <div className={cn("bg-warm-white px-6 py-4 border-b", PARCHMENT.border.default)}>
-      <div className="flex items-center gap-4">
+    <div className={cn("bg-warm-white px-4 md:px-6 py-3 md:py-4 border-b", PARCHMENT.border.default)}>
+      <div className="flex items-center gap-2 md:gap-4 flex-wrap">
         {/* Search Input */}
         <div className="flex-1 relative max-w-lg">
           <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4", PARCHMENT.text.muted)} />
@@ -58,7 +58,8 @@ export function TopBar({
           {searchQuery && (
             <button
               onClick={() => onSearchChange("")}
-              className={cn("absolute right-3 top-1/2 -translate-y-1/2 transition-colors", PARCHMENT.text.muted, "hover:text-walnut")}
+              className={cn("absolute right-3 top-1/2 -translate-y-1/2 transition-colors p-1", PARCHMENT.text.muted, "hover:text-walnut")}
+              aria-label="Limpar busca"
             >
               <X className="w-4 h-4" />
             </button>
@@ -71,6 +72,8 @@ export function TopBar({
             variant="outline"
             size="sm"
             onClick={() => setShowTagDropdown(!showTagDropdown)}
+            aria-label="Filtrar por tags"
+            aria-expanded={showTagDropdown}
             className={cn(
               "border-linen text-stone hover:bg-cream hover:text-walnut"
             )}
@@ -140,10 +143,12 @@ export function TopBar({
         <Button
           variant="default"
           onClick={onGraphClick}
-          className="bg-amber hover:bg-amber-dark text-white"
+          aria-label="Abrir visualização do grafo"
+          className="bg-amber hover:bg-amber-dark text-white hidden sm:inline-flex"
         >
           <Network className="w-4 h-4 mr-2" />
-          Visão do Grafo
+          <span className="hidden md:inline">Visão do Grafo</span>
+          <span className="md:hidden">Grafo</span>
         </Button>
       </div>
 
@@ -160,7 +165,8 @@ export function TopBar({
               {tag}
               <button
                 onClick={() => toggleTag(tag)}
-                className="ml-1 hover:text-espresso"
+                className="ml-1 hover:text-espresso p-0.5"
+                aria-label={`Remover filtro ${tag}`}
               >
                 <X className="w-3 h-3" />
               </button>

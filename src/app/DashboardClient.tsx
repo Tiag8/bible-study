@@ -12,7 +12,8 @@ import { BacklogPanel } from "@/components/dashboard/BacklogPanel";
 import { mockBibleBooks, BibleBook } from "@/lib/mock-data";
 import { useStudies } from "@/hooks";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2 } from "lucide-react";
+import { Loader2, Menu, BookMarked } from "lucide-react";
+import { WelcomeGuide } from "@/components/dashboard/WelcomeGuide";
 
 export function DashboardClient() {
   const router = useRouter();
@@ -24,7 +25,6 @@ export function DashboardClient() {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
-      console.log('[DASHBOARD] No user after auth loaded, redirecting to login');
       router.push('/login');
     }
   }, [authLoading, user, router]);
@@ -35,6 +35,8 @@ export function DashboardClient() {
   // Navigation state
   const [selectedBook, setSelectedBook] = useState<BibleBook | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [backlogOpen, setBacklogOpen] = useState(false);
 
   // Filter state
   const [searchQuery, setSearchQuery] = useState("");
@@ -69,31 +71,33 @@ export function DashboardClient() {
         setSelectedBook(book);
       }
     } else if (!bookId) {
-      // Se não tem query param, voltar para BookGrid
       setSelectedBook(null);
     }
   }, [searchParams, enrichedBooks]);
+
+  // Close mobile drawers on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setBacklogOpen(false);
+  }, [searchParams]);
 
   // Handlers
   const handleBookClick = (bookId: string) => {
     const book = enrichedBooks.find((b) => b.id === bookId);
     if (book) {
       setSelectedBook(book);
-      // Atualizar URL com query param
       router.push(`/?book=${bookId}`);
     }
   };
 
   const handleBackToBooks = () => {
     setSelectedBook(null);
-    // Remover query param
     router.push('/');
   };
 
   const handleGraphClick = () => {
     router.push("/grafo");
   };
-
 
   // Show loading while auth is being checked
   if (authLoading) {
@@ -105,7 +109,6 @@ export function DashboardClient() {
     );
   }
 
-  // If no user after loading, useEffect will redirect - show nothing
   if (!user) {
     return (
       <div className="flex items-center justify-center h-screen bg-parchment">
@@ -117,14 +120,49 @@ export function DashboardClient() {
 
   return (
     <div className="flex h-screen bg-parchment">
-      {/* Sidebar */}
-      <Sidebar
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-      />
+      {/* Mobile Sidebar Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-label="Fechar menu"
+        />
+      )}
+
+      {/* Sidebar - hidden on mobile, shown as drawer when mobileMenuOpen */}
+      <div className={cn(
+        "lg:relative lg:block",
+        mobileMenuOpen
+          ? "fixed inset-y-0 left-0 z-50"
+          : "hidden lg:block"
+      )}>
+        <Sidebar
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
+      </div>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile Header */}
+        <div className="flex items-center gap-2 px-4 py-3 lg:hidden border-b border-linen bg-ivory">
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="p-2 rounded-lg hover:bg-cream min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label="Abrir menu"
+          >
+            <Menu className={cn("w-5 h-5", PARCHMENT.text.heading)} />
+          </button>
+          <span className={cn("font-lora font-bold flex-1", PARCHMENT.text.heading)}>Bible Study</span>
+          <button
+            onClick={() => setBacklogOpen(!backlogOpen)}
+            className="p-2 rounded-lg hover:bg-cream min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label="Abrir quadro de estudos"
+          >
+            <BookMarked className={cn("w-5 h-5", PARCHMENT.accent.text)} />
+          </button>
+        </div>
+
         {/* Top Bar */}
         <TopBar
           searchQuery={searchQuery}
@@ -135,7 +173,7 @@ export function DashboardClient() {
         />
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">
           {selectedBook ? (
             <ChapterView
               book={selectedBook}
@@ -144,14 +182,19 @@ export function DashboardClient() {
           ) : (
             <div>
               {/* Page Header */}
-              <div className="mb-6">
-                <h1 className={cn("text-2xl font-lora font-bold", PARCHMENT.text.heading)}>
+              <div className="mb-4 md:mb-6">
+                <h1 className={cn("text-xl md:text-2xl font-lora font-bold", PARCHMENT.text.heading)}>
                   Biblioteca Bíblica
                 </h1>
-                <p className={cn("mt-1", PARCHMENT.text.secondary)}>
+                <p className={cn("mt-1 text-sm md:text-base", PARCHMENT.text.secondary)}>
                   Navegue pelos livros e gerencie seus estudos
                 </p>
               </div>
+
+              {/* Welcome Guide for new users */}
+              {!studiesLoading && studies.length === 0 && (
+                <WelcomeGuide />
+              )}
 
               {/* Book Grid */}
               {studiesLoading ? (
@@ -172,8 +215,22 @@ export function DashboardClient() {
         </main>
       </div>
 
-      {/* Backlog Panel */}
-      <BacklogPanel />
+      {/* Backlog Panel - hidden on mobile, drawer when backlogOpen */}
+      {backlogOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          onClick={() => setBacklogOpen(false)}
+          aria-label="Fechar quadro de estudos"
+        />
+      )}
+      <div className={cn(
+        "lg:relative lg:block",
+        backlogOpen
+          ? "fixed inset-y-0 right-0 z-50"
+          : "hidden lg:block"
+      )}>
+        <BacklogPanel />
+      </div>
     </div>
   );
 }

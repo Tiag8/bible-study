@@ -67,11 +67,12 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-lg",
+              "flex items-center gap-3 px-3 py-3 rounded-lg min-h-[44px]",
               PARCHMENT.text.secondary,
               "hover:bg-cream transition-colors",
               collapsed && "justify-center"
             )}
+            aria-label={item.label}
             title={collapsed ? item.label : undefined}
           >
             <item.icon className="w-5 h-5 flex-shrink-0" />
@@ -121,10 +122,11 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           <button
             onClick={handleLogout}
             className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-lg w-full transition-colors",
+              "flex items-center gap-2 px-3 py-3 rounded-lg w-full transition-colors min-h-[44px]",
               "text-[#8B5E3C] hover:bg-[#FEF0E7]",
               collapsed && "justify-center"
             )}
+            aria-label="Sair da conta"
             title={collapsed ? "Sair" : undefined}
           >
             <LogOut className="w-5 h-5" />
@@ -137,10 +139,11 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <button
           onClick={onToggle}
           className={cn(
-            "flex items-center gap-2 px-3 py-2 rounded-lg w-full transition-colors",
+            "flex items-center gap-2 px-3 py-3 rounded-lg w-full transition-colors min-h-[44px]",
             PARCHMENT.text.muted, "hover:bg-cream",
             collapsed && "justify-center"
           )}
+          aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
         >
           {collapsed ? (
             <ChevronRight className="w-5 h-5" />
