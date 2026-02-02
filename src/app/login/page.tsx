@@ -3,7 +3,7 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { COLORS } from '@/lib/design-tokens';
+import { PARCHMENT, TYPOGRAPHY, SHADOW_WARM, BORDER_RADIUS } from '@/lib/design-tokens';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,61 +43,94 @@ export default function LoginPage() {
         });
         if (error) throw error;
       }
-      
+
       router.push('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : 'Ocorreu um erro');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center p-4">
-      {/* TOKENS: COLORS.primary, COLORS.danger, COLORS.neutral */}
+    <div className={cn("min-h-screen flex items-center justify-center p-4", PARCHMENT.bg.page)}>
       <div className="w-full max-w-md">
-        <div className="bg-gray-900/80 backdrop-blur rounded-lg p-8 shadow-2xl border border-gray-800">
+        <div className={cn(
+          "p-8 border",
+          PARCHMENT.bg.card,
+          PARCHMENT.border.default,
+          BORDER_RADIUS.xl,
+          SHADOW_WARM.lg
+        )}>
+          {/* Header */}
           <div className="text-center mb-8">
-            <div className={cn("inline-flex items-center justify-center w-16 h-16 rounded-full mb-4", `bg-blue-600/20`)}>
-              <BookOpen className={cn("w-8 h-8", `text-blue-400`)} />
+            <div className={cn(
+              "inline-flex items-center justify-center w-16 h-16 rounded-full mb-4",
+              PARCHMENT.accent.light
+            )}>
+              <BookOpen className={cn("w-8 h-8", PARCHMENT.accent.textDark)} />
             </div>
-            <h1 className="text-2xl font-bold mb-2">Bible Graph</h1>
-            <p className="text-gray-400 text-sm">
-              {mode === 'login' ? 'Welcome back' : 'Create your account'}
+            <h1 className={cn(
+              TYPOGRAPHY.sizes['2xl'],
+              TYPOGRAPHY.weights.bold,
+              TYPOGRAPHY.families.serif,
+              PARCHMENT.text.heading,
+              "mb-1"
+            )}>
+              Bible Study
+            </h1>
+            <p className={cn(TYPOGRAPHY.sizes.sm, PARCHMENT.text.secondary)}>
+              {mode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
             </p>
           </div>
 
-          <div className="flex gap-2 mb-6 bg-gray-800/50 rounded-lg p-1">
+          {/* Mode Toggle */}
+          <div className={cn(
+            "flex gap-1 mb-6 p-1 border",
+            PARCHMENT.bg.sidebar,
+            PARCHMENT.border.default,
+            BORDER_RADIUS.lg
+          )}>
             <button
-              onClick={() => {
-                setMode('login');
-                setFullName('');
-                setError('');
-              }}
-              className={mode === 'login' ? 'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors bg-blue-600 text-white' : 'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors text-gray-400 hover:text-white'}
+              onClick={() => { setMode('login'); setFullName(''); setError(''); }}
+              className={cn(
+                "flex-1 py-2 px-4 text-sm font-medium transition-all",
+                BORDER_RADIUS.md,
+                mode === 'login'
+                  ? cn(PARCHMENT.accent.default, "text-white")
+                  : cn("text-stone hover:text-espresso")
+              )}
             >
-              Login
+              Entrar
             </button>
             <button
-              onClick={() => {
-                setMode('signup');
-                setFullName('');
-                setError('');
-              }}
-              className={mode === 'signup' ? 'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors bg-blue-600 text-white' : 'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors text-gray-400 hover:text-white'}
+              onClick={() => { setMode('signup'); setFullName(''); setError(''); }}
+              className={cn(
+                "flex-1 py-2 px-4 text-sm font-medium transition-all",
+                BORDER_RADIUS.md,
+                mode === 'signup'
+                  ? cn(PARCHMENT.accent.default, "text-white")
+                  : cn("text-stone hover:text-espresso")
+              )}
             >
-              Sign Up
+              Cadastrar
             </button>
           </div>
 
+          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Full Name (signup only) */}
             {mode === 'signup' && (
-              <div className="space-y-2">
-                <label htmlFor="fullName" className="text-sm font-medium text-gray-300">
+              <div className="space-y-1.5">
+                <label htmlFor="fullName" className={cn(
+                  TYPOGRAPHY.sizes.sm,
+                  TYPOGRAPHY.weights.medium,
+                  PARCHMENT.text.subheading
+                )}>
                   Nome Completo
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <User className={cn("absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4", PARCHMENT.text.muted)} />
                   <Input
                     id="fullName"
                     type="text"
@@ -106,37 +139,61 @@ export default function LoginPage() {
                     onChange={(e) => setFullName(e.target.value)}
                     required
                     disabled={loading}
-                    className="pl-10 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                    className={cn(
+                      "pl-10 border",
+                      PARCHMENT.bg.input,
+                      PARCHMENT.border.default,
+                      PARCHMENT.text.primary,
+                      "placeholder:text-sand",
+                      "focus:border-amber focus:ring-1 focus:ring-amber/30"
+                    )}
                   />
                 </div>
               </div>
             )}
 
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-gray-300">
+            {/* Email */}
+            <div className="space-y-1.5">
+              <label htmlFor="email" className={cn(
+                TYPOGRAPHY.sizes.sm,
+                TYPOGRAPHY.weights.medium,
+                PARCHMENT.text.subheading
+              )}>
                 Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Mail className={cn("absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4", PARCHMENT.text.muted)} />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="seu@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
-                  className="pl-10 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                  className={cn(
+                    "pl-10 border",
+                    PARCHMENT.bg.input,
+                    PARCHMENT.border.default,
+                    PARCHMENT.text.primary,
+                    "placeholder:text-sand",
+                    "focus:border-amber focus:ring-1 focus:ring-amber/30"
+                  )}
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-gray-300">
-                Password
+            {/* Password */}
+            <div className="space-y-1.5">
+              <label htmlFor="password" className={cn(
+                TYPOGRAPHY.sizes.sm,
+                TYPOGRAPHY.weights.medium,
+                PARCHMENT.text.subheading
+              )}>
+                Senha
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Lock className={cn("absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4", PARCHMENT.text.muted)} />
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
@@ -145,12 +202,23 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={loading}
-                  className="pl-10 pr-10 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                  className={cn(
+                    "pl-10 pr-10 border",
+                    PARCHMENT.bg.input,
+                    PARCHMENT.border.default,
+                    PARCHMENT.text.primary,
+                    "placeholder:text-sand",
+                    "focus:border-amber focus:ring-1 focus:ring-amber/30"
+                  )}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                  className={cn(
+                    "absolute right-3 top-1/2 -translate-y-1/2 transition-colors",
+                    PARCHMENT.text.muted,
+                    "hover:text-walnut"
+                  )}
                   disabled={loading}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -158,60 +226,80 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {/* Error */}
             {error && (
-              <div className="bg-red-500/10 border border-red-500/50 rounded-md p-3">
-                <p className={cn("text-sm", COLORS.danger.text)}>{error}</p>
+              <div className={cn(
+                "p-3 border rounded-md",
+                "bg-red-50 border-red-200"
+              )}>
+                <p className={cn(TYPOGRAPHY.sizes.sm, "text-red-700")}>{error}</p>
               </div>
             )}
 
+            {/* Submit Button */}
             <Button
               type="submit"
               disabled={loading}
-              className={cn("w-full text-white font-medium py-2.5", COLORS.primary.default, `hover:${COLORS.primary.dark}`)}
+              className={cn(
+                "w-full font-medium py-2.5 text-white transition-all",
+                PARCHMENT.accent.default,
+                "hover:bg-amber-dark",
+                SHADOW_WARM.sm
+              )}
             >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {mode === 'login' ? 'Logging in...' : 'Creating account...'}
+                  {mode === 'login' ? 'Entrando...' : 'Criando conta...'}
                 </>
               ) : (
-                mode === 'login' ? 'Log In' : 'Create Account'
+                mode === 'login' ? 'Entrar' : 'Criar Conta'
               )}
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-400">
+          {/* Footer Link */}
+          <div className={cn("mt-6 text-center", TYPOGRAPHY.sizes.sm, PARCHMENT.text.secondary)}>
             {mode === 'login' ? (
               <p>
-                Don&apos;t have an account?{' '}
+                Não tem uma conta?{' '}
                 <button
-                  onClick={() => {
-                    setMode('signup');
-                    setFullName('');
-                    setError('');
-                  }}
-                  className="text-blue-400 hover:text-blue-300 font-medium"
+                  onClick={() => { setMode('signup'); setFullName(''); setError(''); }}
+                  className={cn(
+                    TYPOGRAPHY.weights.medium,
+                    PARCHMENT.accent.text,
+                    "hover:text-amber-dark transition-colors"
+                  )}
                 >
-                  Sign up
+                  Cadastre-se
                 </button>
               </p>
             ) : (
               <p>
-                Already have an account?{' '}
+                Já tem uma conta?{' '}
                 <button
-                  onClick={() => {
-                    setMode('login');
-                    setFullName('');
-                    setError('');
-                  }}
-                  className="text-blue-400 hover:text-blue-300 font-medium"
+                  onClick={() => { setMode('login'); setFullName(''); setError(''); }}
+                  className={cn(
+                    TYPOGRAPHY.weights.medium,
+                    PARCHMENT.accent.text,
+                    "hover:text-amber-dark transition-colors"
+                  )}
                 >
-                  Log in
+                  Entrar
                 </button>
               </p>
             )}
           </div>
         </div>
+
+        {/* Subtle branding */}
+        <p className={cn(
+          "text-center mt-4",
+          TYPOGRAPHY.sizes.xs,
+          PARCHMENT.text.muted
+        )}>
+          Seu segundo cérebro bíblico
+        </p>
       </div>
     </div>
   );

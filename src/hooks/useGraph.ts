@@ -154,7 +154,8 @@ export function useGraph() {
       const { error } = await supabase
         .from('bible_study_links')
         .delete()
-        .eq('id', linkId);
+        .eq('id', linkId)
+        .eq('user_id', user.id);
 
       if (error) throw error;
 
