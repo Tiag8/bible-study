@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { isValidUUID } from '@/lib/utils';
 
 /**
  * Retry helper with exponential backoff
@@ -61,6 +62,12 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
   const fetchReferences = useCallback(async () => {
     if (!user?.id || !studyId) {
       console.debug('[useReferences] Early return: user?.id=%s, studyId=%s', user?.id, studyId);
+      return;
+    }
+
+    if (!isValidUUID(studyId)) {
+      console.error('[useReferences] ID inválido (não é UUID):', studyId);
+      setError('ID de estudo inválido');
       return;
     }
 
@@ -233,6 +240,14 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
       if (!user?.id || !studyId) {
         const msg = 'User ou Study ID não disponível';
         console.error('[useReferences.addReference] Missing IDs:', { userId: user?.id, studyId });
+        setError(msg);
+        return false;
+      }
+
+      // Validar: UUID válido
+      if (!isValidUUID(targetStudyId)) {
+        const msg = 'ID de estudo inválido (deve ser UUID)';
+        console.error('[useReferences.addReference] Invalid UUID:', targetStudyId);
         setError(msg);
         return false;
       }

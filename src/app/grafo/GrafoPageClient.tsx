@@ -15,7 +15,6 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  mockBibleBooks,
   bookCategoryColors,
   BookCategory,
 } from "@/lib/mock-data";
@@ -123,10 +122,7 @@ export function GrafoPageClient() {
 
   // Navegar para estudo
   const navigateToStudy = useCallback((node: ForceGraphNode) => {
-    const book = mockBibleBooks.find((b) => b.name === node.book);
-    if (book) {
-      router.push(`/estudo/${book.id}-${node.chapter}`);
-    }
+    router.push(`/estudo/${node.id}`);
   }, [router]);
 
   // Handlers

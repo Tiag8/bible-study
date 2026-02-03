@@ -142,6 +142,14 @@ export function StudyPageClient({ params }: StudyPageProps) {
           return;
         } else {
           // Rota de edição: /estudo/{uuid}
+          const { isValidUUID } = await import("@/lib/utils");
+          if (!isValidUUID(id)) {
+            console.error("[ESTUDO] ID inválido (não é UUID):", id);
+            setLoadError("ID de estudo inválido");
+            setIsLoading(false);
+            return;
+          }
+
           console.log("[ESTUDO] Loading study by ID:", id);
           studyData = await getStudyById(id);
 

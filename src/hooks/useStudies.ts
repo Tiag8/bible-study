@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef, createContext, useCo
 import { supabase } from '@/lib/supabase';
 import type { Study, StudyInsert, StudyUpdate, TiptapContent } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
+import { isValidUUID } from '@/lib/utils';
 import type { StudyStatus } from '@/lib/design-tokens';
 
 // Tipo para estudo com conteúdo
@@ -111,6 +112,11 @@ function useStudiesInternal(): StudiesContextValue {
       return null;
     }
 
+    if (!isValidUUID(id)) {
+      console.error('[STUDIES] getStudyById: ID inválido (não é UUID):', id);
+      return null;
+    }
+
     try {
       const { data, error } = await supabase
         .from('bible_studies')
@@ -119,10 +125,13 @@ function useStudiesInternal(): StudiesContextValue {
         .eq('user_id', user.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows returned
+      if (error && error.code !== 'PGRST116') {
+        const msg = error.message || error.code || JSON.stringify(error);
+        throw new Error(`Supabase error: ${msg}`);
+      }
       return data as StudyWithContent | null;
     } catch (err) {
-      console.error('[STUDIES] getStudyById ERROR:', err);
+      console.error('[STUDIES] getStudyById ERROR:', err instanceof Error ? err.message : err);
       return null;
     }
   }, [user?.id]);

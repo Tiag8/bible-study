@@ -329,54 +329,6 @@ export interface StudyWithContent extends Study {
   content: StudyContent;
 }
 
-// Armazenamento em memória para conteúdo dos estudos (simula persistência)
-const studyContents: Map<string, StudyContent> = new Map();
-
-/**
- * Gera um ID único para estudos
- */
-export function generateStudyId(bookId: string, chapter: number): string {
-  return `${bookId}-${chapter}`;
-}
-
-/**
- * Busca um estudo pelo ID ou cria um novo se não existir
- */
-export function getOrCreateStudy(
-  studyId: string,
-  bookName: string,
-  chapter: number
-): StudyWithContent {
-  // Tenta encontrar estudo existente
-  const existingStudy = mockStudies.find((s) => s.id === studyId);
-
-  if (existingStudy) {
-    // Retorna estudo existente com conteúdo
-    const content = studyContents.get(studyId) || {
-      type: "doc" as const,
-      content: [{ type: "paragraph" }],
-    };
-    return { ...existingStudy, content };
-  }
-
-  // Cria novo estudo
-  const newStudy: StudyWithContent = {
-    id: studyId,
-    title: `${bookName} ${chapter}`,
-    book: bookName,
-    chapter,
-    status: "draft",
-    tags: [],
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    content: {
-      type: "doc",
-      content: [{ type: "paragraph" }],
-    },
-  };
-
-  return newStudy;
-}
 
 /**
  * Busca estudo por livro e capítulo
@@ -390,19 +342,6 @@ export function getStudyByBookAndChapter(
   );
 }
 
-/**
- * Salva o conteúdo de um estudo (simula persistência em memória)
- */
-export function saveStudyContent(studyId: string, content: StudyContent): void {
-  studyContents.set(studyId, content);
-}
-
-/**
- * Obtém o conteúdo de um estudo
- */
-export function getStudyContent(studyId: string): StudyContent | undefined {
-  return studyContents.get(studyId);
-}
 
 /**
  * Busca informações do livro pelo nome
