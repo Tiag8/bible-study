@@ -64,26 +64,18 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
       return;
     }
 
-    // Guard against duplicate concurrent calls
-    if (loading) {
-      console.warn('[useReferences] fetchReferences already in progress, skipping duplicate call');
-      return;
-    }
-
     try {
       setLoading(true);
       setError(null);
       console.debug('[useReferences] Starting fetch for studyId=%s, userId=%s', studyId, user?.id);
 
-      // Phase 3: Retry with exponential backoff for transient failures
+      // Retry with exponential backoff for transient failures
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let data: any[] | null = null;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let err: any = null;
       try {
-        ({ data, error: err } = await retryWithBackoff(
+        data = await retryWithBackoff(
           async () => {
-            return await supabase
+            const { data: result, error: queryErr } = await supabase
               .from('bible_study_links')
               .select(`
                 id,
@@ -99,23 +91,20 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
               .eq('user_id', user.id)
               .order('display_order', { ascending: true })
               .order('created_at', { ascending: true });
+
+            // Throw on Supabase error so retryWithBackoff can catch it
+            if (queryErr) {
+              const msg = queryErr.message || queryErr.code || JSON.stringify(queryErr);
+              throw new Error(`Supabase query error: ${msg}`);
+            }
+            return result;
           },
           3, // 3 attempts
           1000 // 1s initial delay
-        ));
+        );
       } catch (retryErr) {
-        err = retryErr;
-        console.error('[useReferences] Retry exhausted:', err);
-      }
-
-      if (err) {
-        console.error('[useReferences] Query error:', {
-          code: err.code,
-          message: err.message,
-          hint: err.hint,
-          details: err.details,
-        });
-        throw err;
+        console.error('[useReferences] Retry exhausted:', retryErr);
+        throw retryErr;
       }
 
       console.debug('[useReferences] Query succeeded, rows returned=%d', data?.length || 0);
