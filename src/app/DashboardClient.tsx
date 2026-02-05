@@ -46,7 +46,7 @@ export function DashboardClient() {
   const enrichedBooks = useMemo(() => {
     return mockBibleBooks.map((book) => {
       const bookStudies = studies.filter((s) => s.book_name === book.name);
-      const studiedChapters = bookStudies.map((s) => s.chapter_number);
+      const studiedChapters = [...new Set(bookStudies.map((s) => s.chapter_number))];
       const lastUpdate = bookStudies.length > 0
         ? bookStudies.reduce((latest, s) => {
             const sDate = new Date(s.updated_at).getTime();

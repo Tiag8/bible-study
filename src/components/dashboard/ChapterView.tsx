@@ -65,8 +65,8 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
     return TAG_COLORS[tag.color] || "#6b7280";
   };
 
-  // Calcular capítulos estudados dinamicamente
-  const studiedChapters = bookStudies.map(s => s.chapter_number);
+  // Calcular capítulos estudados dinamicamente (usando Set para remover duplicatas)
+  const studiedChapters = [...new Set(bookStudies.map(s => s.chapter_number))];
 
   // Abrir modal de confirmação
   const handleDeleteClick = (studyId: string, studyTitle: string, e: React.MouseEvent) => {

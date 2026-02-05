@@ -69,7 +69,7 @@ export function BookCard({ book, onClick }: BookCardProps) {
       <div className="mb-3">
         <div className="flex items-center justify-between text-sm mb-1">
           <span className={PARCHMENT.text.secondary}>
-            {book.studiedChapters.length} de {book.totalChapters} estudados
+            {book.studiedChapters.length} de {book.totalChapters} capítulos
           </span>
           <span className={cn("font-medium", PARCHMENT.text.heading)}>
             {Math.round(progress)}%
