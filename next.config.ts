@@ -1,10 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // ✅ SWC Cache: Desabilitar cache agressivo que causa issues com Tiptap
-  // Tiptap uses keyed plugins que não lidam bem com SWC incremental cache
-  swcMinify: true,
-
   // ✅ Compiler: Opções de transpilação seguras para React 19 + Tiptap
   compiler: {
     // Remove console.log em produção
