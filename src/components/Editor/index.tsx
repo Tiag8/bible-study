@@ -123,14 +123,61 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
     editorProps: {
       attributes: {
         class: "tiptap prose prose-sm max-w-none p-4 focus:outline-none min-h-[300px]",
-        // AC1 (EP01-S1.0): reduz interferência do edit menu nativo do Chrome em mobile/tablet.
-        // - autocorrect/spellcheck off evita sublinhado e popovers de correção que disputam com BubbleMenu.
-        // - autocapitalize off evita capitalização automática que muda texto sem aviso.
-        // Não desativa contenteditable (Tiptap precisa).
+        // EP01-S1.0 AC1: atributos declarativos pra reduzir popovers de correção do Chrome.
         autocorrect: "off",
         autocapitalize: "off",
         spellcheck: "false",
         translate: "no",
+      },
+      // EP01-S1.0 AC1 (v2): interceptar formatação vinda do menu nativo do Chrome Android/iOS.
+      // O menu nativo continua aparecendo (limitação do navegador, ver Gutenberg #35447 e
+      // ProseMirror discuss "contenteditable on Android"), mas seus botões Bold/Italic/Underline
+      // passam pelo beforeinput com inputType=format* — interceptamos e roteamos pelos comandos
+      // do Tiptap, evitando dessincronização do estado interno (ProseMirror state vs DOM).
+      handleDOMEvents: {
+        beforeinput: (view, event) => {
+          const inputEvent = event as InputEvent;
+          const inputType = inputEvent.inputType;
+          if (!inputType || !inputType.startsWith("format")) return false;
+
+          // Roteia o comando do menu nativo pelo Tiptap em vez de deixar o browser
+          // mexer direto no DOM (que confunde o ProseMirror).
+          const editorInstance = (view as unknown as { __tiptapEditor?: typeof editor }).__tiptapEditor;
+          const ed = editorInstance ?? editor;
+          if (!ed) return false;
+
+          let handled = false;
+          switch (inputType) {
+            case "formatBold":
+              ed.chain().focus().toggleBold().run();
+              handled = true;
+              break;
+            case "formatItalic":
+              ed.chain().focus().toggleItalic().run();
+              handled = true;
+              break;
+            case "formatUnderline":
+              // Sem extensão Underline configurada — converte em italic como fallback razoável.
+              ed.chain().focus().toggleItalic().run();
+              handled = true;
+              break;
+            case "formatStrikeThrough":
+              ed.chain().focus().toggleStrike().run();
+              handled = true;
+              break;
+            default:
+              // Outros formatos (formatFontColor, formatJustify*, formatBackColor) são
+              // ignorados e impedidos — evita que o browser execute execCommand legado
+              // e contamine o DOM.
+              handled = true;
+              break;
+          }
+          if (handled) {
+            event.preventDefault();
+            return true;
+          }
+          return false;
+        },
       },
     },
     onUpdate: ({ editor }) => {
