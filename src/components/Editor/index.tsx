@@ -18,8 +18,6 @@ import { CommentTooltip } from "./CommentTooltip";
 import { BubbleMenuComponent } from "./BubbleMenu"; // Agora aponta para BubbleMenu/index
 import { SlashMenu } from "./SlashMenu";
 import { useSlashMenu } from "./useSlashMenu";
-import { EmojiMenu } from "./EmojiMenu";
-import { useEmojiSuggestion } from "./useEmojiSuggestion";
 import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
 import type { TiptapContent } from "@/types/database";
 
@@ -125,6 +123,14 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
     editorProps: {
       attributes: {
         class: "tiptap prose prose-sm max-w-none p-4 focus:outline-none min-h-[300px]",
+        // AC1 (EP01-S1.0): reduz interferência do edit menu nativo do Chrome em mobile/tablet.
+        // - autocorrect/spellcheck off evita sublinhado e popovers de correção que disputam com BubbleMenu.
+        // - autocapitalize off evita capitalização automática que muda texto sem aviso.
+        // Não desativa contenteditable (Tiptap precisa).
+        autocorrect: "off",
+        autocapitalize: "off",
+        spellcheck: "false",
+        translate: "no",
       },
     },
     onUpdate: ({ editor }) => {
@@ -232,7 +238,6 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
   }, [editor, onUndoRedoChange]);
 
   const slashMenu = useSlashMenu(editor);
-  const emojiMenu = useEmojiSuggestion(editor);
 
   if (!editor) {
     return (
@@ -300,14 +305,6 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
         position={slashMenu.position}
         onClose={slashMenu.close}
         onSelect={slashMenu.handleSelect}
-      />
-      <EmojiMenu
-        isOpen={emojiMenu.isOpen}
-        position={emojiMenu.position}
-        emojis={emojiMenu.emojis}
-        selectedIndex={emojiMenu.selectedIndex}
-        query={emojiMenu.query}
-        onSelect={emojiMenu.selectEmoji}
       />
     </div>
   );
