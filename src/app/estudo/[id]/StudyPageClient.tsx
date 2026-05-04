@@ -619,8 +619,9 @@ export function StudyPageClient({ params }: StudyPageProps) {
           </div>
 
           {/* Toolbar */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 flex-1">
+          {/* AC2 (EP01-S1.0): flex-wrap em < md para evitar pan horizontal em mobile/tablet */}
+          <div className="flex items-center justify-between gap-2 flex-wrap md:flex-nowrap">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
               {/* Título - modo display ou edição */}
               {isEditingTitle ? (
                 <>
@@ -628,7 +629,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
                     value={tempTitle}
                     onChange={(e) => setTempTitle(e.target.value)}
                     placeholder="Título do estudo..."
-                    className="text-lg font-semibold border-linen bg-warm-white shadow-sm px-3 h-10 focus-visible:ring-2 focus-visible:ring-amber"
+                    className="text-lg font-semibold border-linen bg-warm-white shadow-sm px-3 h-10 focus-visible:ring-2 focus-visible:ring-amber min-w-0"
                     autoFocus
                   />
                   <Button
@@ -650,14 +651,14 @@ export function StudyPageClient({ params }: StudyPageProps) {
                 </>
               ) : (
                 <>
-                  <h1 className={cn("text-lg font-lora font-semibold", PARCHMENT.text.heading)}>
+                  <h1 className={cn("text-base md:text-lg font-lora font-semibold truncate min-w-0", PARCHMENT.text.heading)}>
                     {title || "Sem título"}
                   </h1>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={startEditingTitle}
-                    className={cn(PARCHMENT.text.muted, "hover:text-walnut")}
+                    className={cn("flex-shrink-0", PARCHMENT.text.muted, "hover:text-walnut")}
                   >
                     <Pencil className="w-4 h-4" />
                   </Button>
@@ -665,23 +666,23 @@ export function StudyPageClient({ params }: StudyPageProps) {
               )}
             </div>
 
-            <div className="flex items-center gap-3">
-              {/* Indicador de status */}
+            <div className="flex items-center gap-2 md:gap-3 flex-wrap justify-end">
+              {/* Indicador de status — texto só em ≥ sm pra economizar espaço em mobile */}
               <div className={cn("flex items-center gap-2 text-sm", PARCHMENT.text.muted)}>
                 {isSaving ? (
                   <>
                     <div className="w-4 h-4 border-2 border-amber border-t-transparent rounded-full animate-spin" />
-                    <span>Salvando...</span>
+                    <span className="hidden sm:inline">Salvando...</span>
                   </>
                 ) : hasUnsavedChanges ? (
                   <>
                     <Clock className="w-4 h-4 text-amber-500" />
-                    <span className="text-amber-600">Não salvo</span>
+                    <span className="hidden sm:inline text-amber-600">Não salvo</span>
                   </>
                 ) : lastSaved ? (
                   <>
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span className="text-green-600">Salvo</span>
+                    <span className="hidden sm:inline text-green-600">Salvo</span>
                   </>
                 ) : null}
               </div>
@@ -697,14 +698,15 @@ export function StudyPageClient({ params }: StudyPageProps) {
                 <Undo2 className="w-4 h-4" />
               </Button>
 
-              {/* Botão de salvar */}
+              {/* Botão de salvar — label só em ≥ sm */}
               <Button
                 onClick={handleSave}
                 disabled={!hasUnsavedChanges || isSaving}
                 size="sm"
+                aria-label="Salvar estudo"
               >
-                <Save className="w-4 h-4 mr-2" />
-                Salvar
+                <Save className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Salvar</span>
               </Button>
 
               {/* Dropdown de status */}
@@ -821,11 +823,12 @@ export function StudyPageClient({ params }: StudyPageProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => setShowTagDropdown(!showTagDropdown)}
+                  aria-label="Gerenciar tags"
                 >
-                  <Tag className="w-4 h-4 mr-2" />
-                  Tags
+                  <Tag className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Tags</span>
                   {selectedTags.length > 0 && (
-                    <Badge className="ml-2" variant="secondary">
+                    <Badge className="ml-1 sm:ml-2" variant="secondary">
                       {selectedTags.length}
                     </Badge>
                   )}
