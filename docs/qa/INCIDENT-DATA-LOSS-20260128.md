@@ -35,7 +35,7 @@ A faulty migration attempting to remove legacy `bible-graph://` protocol links r
 
 **JSONB Complexity Trap**: Attempting to use complex JSONB manipulation for a simple string replacement operation, without considering edge cases or NULL propagation.
 
-See full RCA: `~/.claude/memory/rca-migration-data-loss.md`
+See full RCA: `~/.claude/memory/_archived/rca-migration-data-loss.md`
 
 ## Lessons Learned
 
@@ -69,7 +69,7 @@ See full RCA: `~/.claude/memory/rca-migration-data-loss.md`
 ## References
 
 - [Phase 3 Refactoring](../stories/story-3.0-remove-legacy-protocol.md)
-- [RCA Full Analysis](../../.claude/memory/rca-migration-data-loss.md)
+- [RCA Full Analysis](../../.claude/memory/_archived/rca-migration-data-loss.md)
 
 ---
 
