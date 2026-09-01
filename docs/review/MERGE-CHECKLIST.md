@@ -104,7 +104,7 @@ npm run test         ✅ N/A (no unit tests required)
 
 ### Documentation (Updated)
 ```
-✅ docs/stories/story-4.3-reference-links-ui.md (status updated)
+✅ stories/story-4.3-reference-links-ui.md (status updated)
 ✅ docs/sessions/2026-01/DAY-5-SUMMARY.md (new)
 ```
 

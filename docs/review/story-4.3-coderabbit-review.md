@@ -530,7 +530,7 @@ Security Audit: ✅ PASSED
 
 **For Questions About:**
 - **Code Implementation:** See inline comments (PT-BR)
-- **Design Decisions:** Review `docs/stories/story-4.3-*.md`
+- **Design Decisions:** Review `stories/story-4.3-*.md`
 - **Testing Strategy:** See `docs/testing/*.md`
 - **Security:** Review `docs/testing/story-4.3-security-review.md`
 

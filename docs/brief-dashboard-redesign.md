@@ -217,7 +217,7 @@ Usar MCP Magic (21st.dev) para gerar inspiração/código de componentes moderno
 5. **@dev** implementa componente por componente
 
 ### Handoff para PM
-Este Project Brief fornece o contexto completo para o redesign do Dashboard do Bible Study. O próximo passo é a criação de um Epic com Stories individuais para cada componente, seguindo o padrão existente em `docs/stories/`.
+Este Project Brief fornece o contexto completo para o redesign do Dashboard do Bible Study. O próximo passo é a criação de um Epic com Stories individuais para cada componente, seguindo o padrão existente em `stories/`.
 
 ---
 
