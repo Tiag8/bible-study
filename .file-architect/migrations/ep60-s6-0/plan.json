@@ -1,0 +1,3072 @@
+{
+  "baseline_broken_references": 119,
+  "baseline_reference_signatures": [
+    {
+      "kind": "link-md",
+      "line": 1304,
+      "origin": ".aios-core/development/tasks/environment-bootstrap.md",
+      "raw": ".aios-core/development/workflows/greenfield-fullstack.yaml"
+    },
+    {
+      "kind": "link-md",
+      "line": 1305,
+      "origin": ".aios-core/development/tasks/environment-bootstrap.md",
+      "raw": "docs/guides/coderabbit/README.md"
+    },
+    {
+      "kind": "backtick",
+      "line": 598,
+      "origin": ".aios-core/user-guide.md",
+      "raw": "docs/tech-preferences.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 1393,
+      "origin": ".aios-core/user-guide.md",
+      "raw": "../docs/getting-started.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 1395,
+      "origin": ".aios-core/user-guide.md",
+      "raw": "../docs/Squads.md"
+    },
+    {
+      "kind": "backtick",
+      "line": 89,
+      "origin": ".aios-core/working-in-the-brownfield.md",
+      "raw": "docs/project-architecture.md"
+    },
+    {
+      "kind": "backtick",
+      "line": 210,
+      "origin": ".aios-core/working-in-the-brownfield.md",
+      "raw": "docs/prd.md"
+    },
+    {
+      "kind": "backtick",
+      "line": 97,
+      "origin": ".claude/CLAUDE.md",
+      "raw": "~/.claude/rules/00-read-before-edit.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 9,
+      "origin": ".windsurf/workflows/add-feature-11c1b-rca-rollback.md",
+      "raw": ".windsurf/workflows/add-feature-11c1a-vps-monitoring.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 10,
+      "origin": ".windsurf/workflows/add-feature-13b-rca-metrics.md",
+      "raw": ".windsurf/workflows/add-feature-13a-post-deploy.md"
+    },
+    {
+      "kind": "backtick",
+      "line": 91,
+      "origin": ".windsurf/workflows/add-feature-4.5d-edge-functions.md",
+      "raw": "~/.claude/memory/edge-functions.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 10,
+      "origin": ".windsurf/workflows/add-feature-6b-rca-edge-cases.md",
+      "raw": ".windsurf/workflows/add-feature-6a-user-validation.md"
+    },
+    {
+      "kind": "backtick",
+      "line": 188,
+      "origin": ".windsurf/workflows/add-feature-8a-meta-learning.md",
+      "raw": "~/.claude/memory/supabase.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 364,
+      "origin": ".windsurf/workflows/add-feature-8a-meta-learning.md",
+      "raw": ".windsurf/workflows/add-feature-8b-pareto-analysis.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 10,
+      "origin": ".windsurf/workflows/add-feature-8b-pareto-analysis.md",
+      "raw": ".windsurf/workflows/add-feature-8a-meta-learning.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 9,
+      "origin": ".windsurf/workflows/add-feature-9b-retrospective.md",
+      "raw": ".windsurf/workflows/add-feature-9a-finalization.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 16,
+      "origin": "docs/INDEX.md",
+      "raw": "PLAN.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 17,
+      "origin": "docs/INDEX.md",
+      "raw": "TASK.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 177,
+      "origin": "docs/INDEX.md",
+      "raw": "PLAN.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 181,
+      "origin": "docs/INDEX.md",
+      "raw": "TASK.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 189,
+      "origin": "docs/INDEX.md",
+      "raw": "adr/001-decisao.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 193,
+      "origin": "docs/INDEX.md",
+      "raw": "adr/002-decisao.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 209,
+      "origin": "docs/INDEX.md",
+      "raw": "adr/003-decisao.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 224,
+      "origin": "docs/INDEX.md",
+      "raw": "PLAN.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 225,
+      "origin": "docs/INDEX.md",
+      "raw": "TASK.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 241,
+      "origin": "docs/INDEX.md",
+      "raw": "integrations/README.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 251,
+      "origin": "docs/INDEX.md",
+      "raw": "PLAN.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 252,
+      "origin": "docs/INDEX.md",
+      "raw": "TASK.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 254,
+      "origin": "docs/INDEX.md",
+      "raw": "integrations/README.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 257,
+      "origin": "docs/INDEX.md",
+      "raw": "debugging/README.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 258,
+      "origin": "docs/INDEX.md",
+      "raw": "padroes/README.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 260,
+      "origin": "docs/INDEX.md",
+      "raw": "migrations/MIGRATION_HISTORY.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 270,
+      "origin": "docs/INDEX.md",
+      "raw": "PLAN.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 271,
+      "origin": "docs/INDEX.md",
+      "raw": "TASK.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 276,
+      "origin": "docs/INDEX.md",
+      "raw": "TASK.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 278,
+      "origin": "docs/INDEX.md",
+      "raw": "PLAN.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 278,
+      "origin": "docs/INDEX.md",
+      "raw": "TASK.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 284,
+      "origin": "docs/INDEX.md",
+      "raw": "debugging/README.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 285,
+      "origin": "docs/INDEX.md",
+      "raw": "debugging/"
+    },
+    {
+      "kind": "link-md",
+      "line": 288,
+      "origin": "docs/INDEX.md",
+      "raw": "debugging/README.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 300,
+      "origin": "docs/INDEX.md",
+      "raw": "ops/deploy-history.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 307,
+      "origin": "docs/INDEX.md",
+      "raw": "integrations/"
+    },
+    {
+      "kind": "link-md",
+      "line": 310,
+      "origin": "docs/INDEX.md",
+      "raw": "TASK.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 312,
+      "origin": "docs/INDEX.md",
+      "raw": "integrations/README.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 320,
+      "origin": "docs/INDEX.md",
+      "raw": "analyses/"
+    },
+    {
+      "kind": "link-md",
+      "line": 411,
+      "origin": "docs/INDEX.md",
+      "raw": "PLAN.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 411,
+      "origin": "docs/INDEX.md",
+      "raw": "TASK.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 318,
+      "origin": "docs/adr/016-context-working-memory-system.md",
+      "raw": "../../.windsurf/workflows/workflow-0-setup.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 204,
+      "origin": "docs/features/TEMPLATE.md",
+      "raw": "../adr/XXX-titulo.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 205,
+      "origin": "docs/features/TEMPLATE.md",
+      "raw": "../adr/YYY-titulo.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 71,
+      "origin": "docs/qa/INCIDENT-DATA-LOSS-20260128.md",
+      "raw": "../stories/story-3.0-remove-legacy-protocol.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 72,
+      "origin": "docs/qa/INCIDENT-DATA-LOSS-20260128.md",
+      "raw": "../../.claude/memory/_archived/rca-migration-data-loss.md"
+    },
+    {
+      "kind": "link-md",
+      "line": 585,
+      "origin": "docs/qa/QA-REPORT-INTERNAL-LINKS-FEATURE.md",
+      "raw": "./TEST-PLAN-TEMPLATE.md"
+    }
+  ],
+  "campaign_id": "ep60-s6-0",
+  "candidates": [
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/TEMPLATE_EVOLUTION.md",
+          "kind": "direct",
+          "line": 899
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/AGENTS_PATTERNS.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/AIOS-INSTALLATION.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/PHASE-2-COMPLETION-SUMMARY.md",
+          "kind": "direct",
+          "line": 88
+        },
+        {
+          "file": "docs/PHASE-2-COMPLETION-SUMMARY.md",
+          "kind": "direct",
+          "line": 159
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/BRANCH-PROTECTION-SETUP.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/stories/story-3.1-extend-tokens-components.md",
+          "kind": "direct",
+          "line": 55
+        },
+        {
+          "file": "docs/stories/story-3.1-extend-tokens-components.md",
+          "kind": "direct",
+          "line": 132
+        },
+        {
+          "file": "docs/stories/story-3.1-extend-tokens-components.md",
+          "kind": "direct",
+          "line": 323
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/COMPONENT_TOKENS_MAPPING.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "README.md",
+          "kind": "direct",
+          "line": 40
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/DEVELOPMENT.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".claude/CLAUDE_SECTIONS_GENERIC.md",
+          "kind": "direct",
+          "line": 160
+        },
+        {
+          "file": ".claude/agents/agent-meta-learner.md",
+          "kind": "direct",
+          "line": 415
+        },
+        {
+          "file": ".claude/agents/documentation-sync-checker.md",
+          "kind": "direct",
+          "line": 178
+        },
+        {
+          "file": ".claude/agents/documentation-sync-checker.md",
+          "kind": "direct",
+          "line": 458
+        },
+        {
+          "file": ".claude/agents/documentation-sync-checker.md",
+          "kind": "direct",
+          "line": 462
+        },
+        {
+          "file": ".claude/agents/documentation-sync-checker.md",
+          "kind": "direct",
+          "line": 471
+        },
+        {
+          "file": ".claude/agents/documentation-sync-checker.md",
+          "kind": "direct",
+          "line": 479
+        },
+        {
+          "file": ".claude/agents/documentation-sync-checker.md",
+          "kind": "direct",
+          "line": 504
+        },
+        {
+          "file": ".claude/agents/orchestrator.md",
+          "kind": "direct",
+          "line": 723
+        },
+        {
+          "file": ".windsurf/workflows/add-feature-8a-meta-learning.md",
+          "kind": "direct",
+          "line": 7
+        },
+        {
+          "file": "docs/adr/015-performance-optimization-evidence-based.md",
+          "kind": "direct",
+          "line": 333
+        },
+        {
+          "file": "docs/adr/016-context-working-memory-system.md",
+          "kind": "direct",
+          "line": 268
+        },
+        {
+          "file": "docs/adr/016-context-working-memory-system.md",
+          "kind": "direct",
+          "line": 320
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/INDEX.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/INDEX.md.template",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/PHASE-2-COMPLETION-SUMMARY.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".windsurf/workflows/add-feature-10-template-sync.md",
+          "kind": "direct",
+          "line": 219
+        },
+        {
+          "file": ".windsurf/workflows/add-feature-10-template-sync.md",
+          "kind": "direct",
+          "line": 257
+        },
+        {
+          "file": ".windsurf/workflows/add-feature-8b-pareto-analysis.md",
+          "kind": "direct",
+          "line": 126
+        },
+        {
+          "file": "QUICKSTART.md",
+          "kind": "direct",
+          "line": 274
+        },
+        {
+          "file": "QUICKSTART.md",
+          "kind": "direct",
+          "line": 355
+        },
+        {
+          "file": "docs/TEMPLATE_SYSTEM.md",
+          "kind": "direct",
+          "line": 286
+        },
+        {
+          "file": "scripts/sync-to-template.sh",
+          "kind": "direct",
+          "line": 572
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/TEMPLATE_EVOLUTION.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "QUICKSTART.md",
+          "kind": "direct",
+          "line": 256
+        },
+        {
+          "file": "QUICKSTART.md",
+          "kind": "direct",
+          "line": 338
+        },
+        {
+          "file": "QUICKSTART.md",
+          "kind": "direct",
+          "line": 391
+        },
+        {
+          "file": "docs/INDEX.md",
+          "kind": "direct",
+          "line": 377
+        },
+        {
+          "file": "docs/TEMPLATE_EVOLUTION.md",
+          "kind": "direct",
+          "line": 1942
+        },
+        {
+          "file": "scripts/init-new-project.sh",
+          "kind": "direct",
+          "line": 382
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/TEMPLATE_SYSTEM.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/TIPTAP_CACHE_ISSUES.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".claude/agents/regression-guard.md",
+          "kind": "direct",
+          "line": 444
+        },
+        {
+          "file": ".windsurf/workflows/add-feature-11b-vps-deployment-exec.md",
+          "kind": "direct",
+          "line": 448
+        },
+        {
+          "file": ".windsurf/workflows/add-feature-11c1b-rca-rollback.md",
+          "kind": "direct",
+          "line": 96
+        },
+        {
+          "file": ".windsurf/workflows/add-feature-11c2-vps-rollback-docs.md",
+          "kind": "direct",
+          "line": 174
+        },
+        {
+          "file": ".windsurf/workflows/add-feature-9b-retrospective.md",
+          "kind": "direct",
+          "line": 268
+        },
+        {
+          "file": ".windsurf/workflows/debug-complex-problem.md",
+          "kind": "direct",
+          "line": 10
+        },
+        {
+          "file": ".windsurf/workflows/debug-complex-problem.md",
+          "kind": "direct",
+          "line": 298
+        },
+        {
+          "file": "README.md",
+          "kind": "direct",
+          "line": 40
+        },
+        {
+          "file": "docs/guides/ROOT_CAUSE_ANALYSIS.md",
+          "kind": "direct",
+          "line": 551
+        },
+        {
+          "file": "scripts/smoke-test-database.sh",
+          "kind": "direct",
+          "line": 170
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/TROUBLESHOOTING.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".aios-core/core-config.yaml",
+          "kind": "direct",
+          "line": 29
+        },
+        {
+          "file": ".aios-core/core/docs/SHARD-TRANSLATION-GUIDE.md",
+          "kind": "direct",
+          "line": 133
+        },
+        {
+          "file": ".aios-core/core/docs/SHARD-TRANSLATION-GUIDE.md",
+          "kind": "direct",
+          "line": 277
+        },
+        {
+          "file": ".aios-core/data/aios-kb.md",
+          "kind": "direct",
+          "line": 130
+        },
+        {
+          "file": ".aios-core/data/aios-kb.md",
+          "kind": "direct",
+          "line": 317
+        },
+        {
+          "file": ".aios-core/data/aios-kb.md",
+          "kind": "direct",
+          "line": 449
+        },
+        {
+          "file": ".aios-core/data/aios-kb.md",
+          "kind": "direct",
+          "line": 473
+        },
+        {
+          "file": ".aios-core/data/aios-kb.md",
+          "kind": "direct",
+          "line": 485
+        },
+        {
+          "file": ".aios-core/data/aios-kb.md",
+          "kind": "direct",
+          "line": 629
+        },
+        {
+          "file": ".aios-core/data/aios-kb.md",
+          "kind": "direct",
+          "line": 643
+        },
+        {
+          "file": ".aios-core/development/tasks/environment-bootstrap.md",
+          "kind": "direct",
+          "line": 802
+        },
+        {
+          "file": ".aios-core/development/tasks/shard-doc.md",
+          "kind": "direct",
+          "line": 52
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-fullstack.yaml",
+          "kind": "direct",
+          "line": 285
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-service.yaml",
+          "kind": "direct",
+          "line": 185
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-ui.yaml",
+          "kind": "direct",
+          "line": 195
+        },
+        {
+          "file": ".aios-core/development/workflows/greenfield-service.yaml",
+          "kind": "direct",
+          "line": 202
+        },
+        {
+          "file": ".aios-core/product/checklists/architect-checklist.md",
+          "kind": "direct",
+          "line": 9
+        },
+        {
+          "file": ".aios-core/product/templates/architecture-tmpl.yaml",
+          "kind": "direct",
+          "line": 7
+        },
+        {
+          "file": ".aios-core/product/templates/brownfield-architecture-tmpl.yaml",
+          "kind": "direct",
+          "line": 7
+        },
+        {
+          "file": ".aios-core/product/templates/fullstack-architecture-tmpl.yaml",
+          "kind": "direct",
+          "line": 7
+        },
+        {
+          "file": ".aios-core/user-guide.md",
+          "kind": "direct",
+          "line": 1394
+        },
+        {
+          "file": ".aios-core/working-in-the-brownfield.md",
+          "kind": "direct",
+          "line": 211
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/architecture.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/architecture/README.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/architecture/grafo-module.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 130
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 148
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 150
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 162
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 273
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 312
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 881
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 955
+        },
+        {
+          "file": "docs/prd/technical-debt-DRAFT.md",
+          "kind": "direct",
+          "line": 26
+        },
+        {
+          "file": "docs/prd/technical-debt-DRAFT.md",
+          "kind": "direct",
+          "line": 259
+        },
+        {
+          "file": "docs/prd/technical-debt-assessment.md",
+          "kind": "direct",
+          "line": 301
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/architecture/system-architecture.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/stories/EPIC-6.1-dashboard-parchment-redesign.md",
+          "kind": "direct",
+          "line": 18
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/brief-dashboard-redesign.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/database.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/stories/EPIC-6.1-dashboard-parchment-redesign.md",
+          "kind": "direct",
+          "line": 19
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/design-study-parchment.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/features/README.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "QUICKSTART.md",
+          "kind": "direct",
+          "line": 197
+        },
+        {
+          "file": "QUICKSTART.md",
+          "kind": "direct",
+          "line": 273
+        },
+        {
+          "file": "docs/README.md",
+          "kind": "direct",
+          "line": 92
+        },
+        {
+          "file": "docs/TEMPLATE_EVOLUTION.md",
+          "kind": "direct",
+          "line": 1941
+        },
+        {
+          "file": "docs/TEMPLATE_SYSTEM.md",
+          "kind": "direct",
+          "line": 129
+        },
+        {
+          "file": "docs/TEMPLATE_SYSTEM.md",
+          "kind": "direct",
+          "line": 397
+        },
+        {
+          "file": "scripts/init-new-project.sh",
+          "kind": "direct",
+          "line": 387
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/features/TEMPLATE.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 234
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 246
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 248
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 260
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 276
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 315
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 893
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 957
+        },
+        {
+          "file": "docs/prd/technical-debt-DRAFT.md",
+          "kind": "direct",
+          "line": 97
+        },
+        {
+          "file": "docs/prd/technical-debt-DRAFT.md",
+          "kind": "direct",
+          "line": 262
+        },
+        {
+          "file": "docs/prd/technical-debt-assessment.md",
+          "kind": "direct",
+          "line": 304
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/frontend/frontend-spec.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/guides/CHEAT-SHEET.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".claude/CLAUDE.md",
+          "kind": "direct",
+          "line": 377
+        },
+        {
+          "file": "README.md",
+          "kind": "direct",
+          "line": 40
+        },
+        {
+          "file": "docs/guides/TOKEN_QUICK_REFERENCE.md",
+          "kind": "direct",
+          "line": 358
+        },
+        {
+          "file": "docs/stories/story-3.2-token-documentation.md",
+          "kind": "direct",
+          "line": 51
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/guides/DESIGN_TOKENS_GUIDE.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".windsurf/workflows/add-feature-4.5d-edge-functions.md",
+          "kind": "direct",
+          "line": 90
+        },
+        {
+          "file": "docs/TEMPLATE_EVOLUTION.md",
+          "kind": "direct",
+          "line": 2154
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/guides/EDGE_FUNCTIONS_BEST_PRACTICES.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/guides/FEATURE-CLEANUP-GUIDE.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/guides/GIT-BRANCH-CLEANUP.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/guides/GIT-HOOKS-SETUP.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".windsurf/workflows/add-feature-13b-rca-metrics.md",
+          "kind": "direct",
+          "line": 101
+        },
+        {
+          "file": ".windsurf/workflows/add-feature-6b-rca-edge-cases.md",
+          "kind": "direct",
+          "line": 119
+        },
+        {
+          "file": ".windsurf/workflows/add-feature-8b-pareto-analysis.md",
+          "kind": "direct",
+          "line": 148
+        },
+        {
+          "file": ".windsurf/workflows/add-feature-9b-retrospective.md",
+          "kind": "direct",
+          "line": 270
+        },
+        {
+          "file": ".windsurf/workflows/add-feature-9b-retrospective.md",
+          "kind": "direct",
+          "line": 283
+        },
+        {
+          "file": ".windsurf/workflows/debug-complex-problem.md",
+          "kind": "direct",
+          "line": 294
+        },
+        {
+          "file": "docs/TEMPLATE_EVOLUTION.md",
+          "kind": "direct",
+          "line": 2181
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/guides/ROOT_CAUSE_ANALYSIS.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/guides/RULES-NO-FAKE-DATA.md",
+          "kind": "direct",
+          "line": 97
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/guides/RULES-NO-FAKE-DATA.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".windsurf/workflows/add-feature-4.5f-qa-deploy.md",
+          "kind": "direct",
+          "line": 128
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/guides/SCHEMA-FIRST-CHECKLIST.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".claude/CLAUDE.md",
+          "kind": "direct",
+          "line": 378
+        },
+        {
+          "file": "docs/guides/TOKEN_QUICK_REFERENCE.md",
+          "kind": "direct",
+          "line": 359
+        },
+        {
+          "file": "docs/stories/story-3.2-token-documentation.md",
+          "kind": "direct",
+          "line": 64
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/guides/TOKEN_QUICK_REFERENCE.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/TEMPLATE_EVOLUTION.md",
+          "kind": "direct",
+          "line": 2166
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/meta-learnings/TEMPLATE_META_LEARNING.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/middleware-setup.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/notifications/MORGAN-PM-NOTIFICATION.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/notifications/QA-NOTIFICATION.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/notifications/SECURITY-NOTIFICATION.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".windsurf/workflows/add-feature-11c2-vps-rollback-docs.md",
+          "kind": "direct",
+          "line": 241
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/ops/README.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/TEMPLATE_EVOLUTION.md",
+          "kind": "direct",
+          "line": 1354
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/ops/docker-best-practices.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docker-compose.swarm.yml",
+          "kind": "direct",
+          "line": 105
+        },
+        {
+          "file": "docker-compose.swarm.yml",
+          "kind": "direct",
+          "line": 252
+        },
+        {
+          "file": "docs/TEMPLATE_EVOLUTION.md",
+          "kind": "direct",
+          "line": 1373
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/ops/docker-swarm-traefik.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/TEMPLATE_EVOLUTION.md",
+          "kind": "direct",
+          "line": 1067
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/padroes/api-discovery-pattern.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/TEMPLATE_EVOLUTION.md",
+          "kind": "direct",
+          "line": 1071
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/padroes/logging-pattern.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/TEMPLATE_EVOLUTION.md",
+          "kind": "direct",
+          "line": 1068
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/padroes/supabase-secrets.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 271
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 321
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 324
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 336
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 366
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 402
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 432
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 469
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 507
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 555
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 899
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 962
+        },
+        {
+          "file": "docs/prd/technical-debt-assessment.md",
+          "kind": "direct",
+          "line": 305
+        },
+        {
+          "file": "docs/reviews/db-specialist-review.md",
+          "kind": "direct",
+          "line": 6
+        },
+        {
+          "file": "docs/reviews/qa-review.md",
+          "kind": "direct",
+          "line": 7
+        },
+        {
+          "file": "docs/reviews/ux-specialist-review.md",
+          "kind": "direct",
+          "line": 6
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/prd/technical-debt-DRAFT.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 553
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 607
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 619
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 751
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 780
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 923
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 978
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/prd/technical-debt-assessment.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/qa/BUG-ANALYSIS-INTERNAL-LINKS.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/qa/README.md",
+          "kind": "direct",
+          "line": 282
+        },
+        {
+          "file": "docs/qa/README.md",
+          "kind": "direct",
+          "line": 309
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/qa/DEFINITION-OF-DONE.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/qa/INCIDENT-DATA-LOSS-20260128.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/qa/PHASE-2-PARALLELIZATION-ANALYSIS.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/qa/QA-REPORT-INTERNAL-LINKS-FEATURE.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/qa/README.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/qa/README.md",
+          "kind": "direct",
+          "line": 307
+        },
+        {
+          "file": "docs/qa/README.md",
+          "kind": "direct",
+          "line": 308
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/qa/TEST-PLAN-INTERNAL-LINKS.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/stories/story-3.6-accessibility-wcag-aa.md",
+          "kind": "direct",
+          "line": 65
+        },
+        {
+          "file": "docs/stories/story-3.6-accessibility-wcag-aa.md",
+          "kind": "direct",
+          "line": 333
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/qa/story-3.6-accessibility-audit-results.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/stories/story-3.6-accessibility-wcag-aa.md",
+          "kind": "direct",
+          "line": 338
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/qa/story-3.6-implementation-plan.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/qa/story-3.8-manual-test-plan.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/regras-de-negocio/README.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 618
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 764
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 767
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 781
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 929
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 983
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 991
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/reports/TECHNICAL-DEBT-REPORT.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/requirements.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/review/REVIEW-SUMMARY.md",
+          "kind": "direct",
+          "line": 268
+        },
+        {
+          "file": "docs/review/REVIEW-SUMMARY.md",
+          "kind": "direct",
+          "line": 311
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/review/MERGE-CHECKLIST.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/notifications/MORGAN-PM-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 188
+        },
+        {
+          "file": "docs/notifications/QA-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 162
+        },
+        {
+          "file": "docs/notifications/SECURITY-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 216
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/review/REVIEW-SUMMARY.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 19
+        },
+        {
+          "file": "docs/review/REVIEW-SUMMARY.md",
+          "kind": "direct",
+          "line": 262
+        },
+        {
+          "file": "docs/review/REVIEW-SUMMARY.md",
+          "kind": "direct",
+          "line": 315
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/review/story-4.3-coderabbit-review.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 335
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 376
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 394
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 470
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 508
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 556
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 905
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 971
+        },
+        {
+          "file": "docs/prd/technical-debt-assessment.md",
+          "kind": "direct",
+          "line": 309
+        },
+        {
+          "file": "docs/reviews/qa-review.md",
+          "kind": "direct",
+          "line": 8
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/reviews/db-specialist-review.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 467
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 519
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 542
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 558
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 917
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 973
+        },
+        {
+          "file": "docs/prd/technical-debt-assessment.md",
+          "kind": "direct",
+          "line": 311
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/reviews/qa-review.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 401
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 442
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 460
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 471
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 509
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 557
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 911
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 972
+        },
+        {
+          "file": "docs/prd/technical-debt-assessment.md",
+          "kind": "direct",
+          "line": 310
+        },
+        {
+          "file": "docs/reviews/qa-review.md",
+          "kind": "direct",
+          "line": 9
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/reviews/ux-specialist-review.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/notifications/MORGAN-PM-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 194
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 108
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/sessions/2026-01/DAY-5-SUMMARY.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/sessions/2026-01/DAY-6-EPIC-5.1-COMPLETE.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/sprint-planning/sprint-4-backlog.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/testing/PRACTICAL-EVALUATION-GUIDE.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/notifications/QA-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 164
+        },
+        {
+          "file": "docs/notifications/SECURITY-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 217
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 44
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 66
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 100
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 304
+        },
+        {
+          "file": "docs/review/REVIEW-SUMMARY.md",
+          "kind": "direct",
+          "line": 286
+        },
+        {
+          "file": "docs/review/REVIEW-SUMMARY.md",
+          "kind": "direct",
+          "line": 314
+        },
+        {
+          "file": "docs/sessions/2026-01/DAY-5-SUMMARY.md",
+          "kind": "direct",
+          "line": 23
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/testing/story-4.3-performance-metrics.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/notifications/QA-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 42
+        },
+        {
+          "file": "docs/notifications/QA-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 92
+        },
+        {
+          "file": "docs/notifications/SECURITY-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 218
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 43
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 76
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 99
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 296
+        },
+        {
+          "file": "docs/review/REVIEW-SUMMARY.md",
+          "kind": "direct",
+          "line": 232
+        },
+        {
+          "file": "docs/review/REVIEW-SUMMARY.md",
+          "kind": "direct",
+          "line": 274
+        },
+        {
+          "file": "docs/review/REVIEW-SUMMARY.md",
+          "kind": "direct",
+          "line": 312
+        },
+        {
+          "file": "docs/sessions/2026-01/DAY-5-SUMMARY.md",
+          "kind": "direct",
+          "line": 22
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/testing/story-4.3-responsiveness-checklist.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "requires-decision",
+      "consumers": [
+        {
+          "file": "docs/notifications/QA-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 163
+        },
+        {
+          "file": "docs/notifications/SECURITY-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 188
+        },
+        {
+          "file": "docs/notifications/SECURITY-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 260
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 45
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 54
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 101
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 300
+        },
+        {
+          "file": "docs/review/REVIEW-SUMMARY.md",
+          "kind": "direct",
+          "line": 238
+        },
+        {
+          "file": "docs/review/REVIEW-SUMMARY.md",
+          "kind": "direct",
+          "line": 280
+        },
+        {
+          "file": "docs/review/REVIEW-SUMMARY.md",
+          "kind": "direct",
+          "line": 313
+        },
+        {
+          "file": "docs/review/story-4.3-coderabbit-review.md",
+          "kind": "direct",
+          "line": 535
+        },
+        {
+          "file": "docs/sessions/2026-01/DAY-5-SUMMARY.md",
+          "kind": "direct",
+          "line": 24
+        }
+      ],
+      "decision_due": "2026-09-15",
+      "destination": null,
+      "kind": "tracked-path",
+      "owner": "Tiago",
+      "reason": "FA-D1: namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR | PUNTED ep60-s6-0: nao classificado por conteudo nesta sessao, revisar ate 2026-09-15",
+      "reverse_command": null,
+      "source": "docs/testing/story-4.3-security-review.md",
+      "state": "DECLARED"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "epics/EP01-mobile-tablet-ux/EP01-S1.0-fixes-p0-reportados.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move epics/EP01-mobile-tablet-ux/EP01-S1.0-fixes-p0-reportados.md docs/epics/EP01-mobile-tablet-ux/EP01-S1.0-fixes-p0-reportados.md --root . --aplicar",
+      "source": "docs/epics/EP01-mobile-tablet-ux/EP01-S1.0-fixes-p0-reportados.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "epics/EP01-mobile-tablet-ux/EP01-S2.0-audit-ux-mobile-tablet.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move epics/EP01-mobile-tablet-ux/EP01-S2.0-audit-ux-mobile-tablet.md docs/epics/EP01-mobile-tablet-ux/EP01-S2.0-audit-ux-mobile-tablet.md --root . --aplicar",
+      "source": "docs/epics/EP01-mobile-tablet-ux/EP01-S2.0-audit-ux-mobile-tablet.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "epics/EP01-mobile-tablet-ux/epic.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move epics/EP01-mobile-tablet-ux/epic.md docs/epics/EP01-mobile-tablet-ux/epic.md --root . --aplicar",
+      "source": "docs/epics/EP01-mobile-tablet-ux/epic.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/4.3.1-bidirectional-references.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/4.3.1-bidirectional-references.md docs/stories/4.3.1-bidirectional-references.md --root . --aplicar",
+      "source": "docs/stories/4.3.1-bidirectional-references.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/4.3.2-external-links.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/4.3.2-external-links.md docs/stories/4.3.2-external-links.md --root . --aplicar",
+      "source": "docs/stories/4.3.2-external-links.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/4.3.3-colorization-by-type.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/4.3.3-colorization-by-type.md docs/stories/4.3.3-colorization-by-type.md --root . --aplicar",
+      "source": "docs/stories/4.3.3-colorization-by-type.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/4.3.4-display-order-persistence.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/4.3.4-display-order-persistence.md docs/stories/4.3.4-display-order-persistence.md --root . --aplicar",
+      "source": "docs/stories/4.3.4-display-order-persistence.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/sessions/2026-01/DAY-6-EPIC-5.1-COMPLETE.md",
+          "kind": "direct",
+          "line": 45
+        }
+      ],
+      "destination": "stories/5.1.1-comment-mark-bubblemenu.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/5.1.1-comment-mark-bubblemenu.md docs/stories/5.1.1-comment-mark-bubblemenu.md --root . --aplicar",
+      "source": "docs/stories/5.1.1-comment-mark-bubblemenu.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/sessions/2026-01/DAY-6-EPIC-5.1-COMPLETE.md",
+          "kind": "direct",
+          "line": 46
+        }
+      ],
+      "destination": "stories/5.1.2-comment-tooltip-crud.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/5.1.2-comment-tooltip-crud.md docs/stories/5.1.2-comment-tooltip-crud.md --root . --aplicar",
+      "source": "docs/stories/5.1.2-comment-tooltip-crud.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/sessions/2026-01/DAY-6-EPIC-5.1-COMPLETE.md",
+          "kind": "direct",
+          "line": 47
+        }
+      ],
+      "destination": "stories/5.1.3-comment-margin-indicator.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/5.1.3-comment-margin-indicator.md docs/stories/5.1.3-comment-margin-indicator.md --root . --aplicar",
+      "source": "docs/stories/5.1.3-comment-margin-indicator.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/6.1.1-design-tokens-fonts.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/6.1.1-design-tokens-fonts.md docs/stories/6.1.1-design-tokens-fonts.md --root . --aplicar",
+      "source": "docs/stories/6.1.1-design-tokens-fonts.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/6.1.2-sidebar-redesign.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/6.1.2-sidebar-redesign.md docs/stories/6.1.2-sidebar-redesign.md --root . --aplicar",
+      "source": "docs/stories/6.1.2-sidebar-redesign.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/6.1.3-topbar-redesign.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/6.1.3-topbar-redesign.md docs/stories/6.1.3-topbar-redesign.md --root . --aplicar",
+      "source": "docs/stories/6.1.3-topbar-redesign.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/6.1.4-bookcard-redesign.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/6.1.4-bookcard-redesign.md docs/stories/6.1.4-bookcard-redesign.md --root . --aplicar",
+      "source": "docs/stories/6.1.4-bookcard-redesign.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/6.1.5-bookgrid-dashboard-layout.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/6.1.5-bookgrid-dashboard-layout.md docs/stories/6.1.5-bookgrid-dashboard-layout.md --root . --aplicar",
+      "source": "docs/stories/6.1.5-bookgrid-dashboard-layout.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/EPIC-9.1-chapter-count-fix.md",
+          "kind": "direct",
+          "line": 49
+        }
+      ],
+      "destination": "stories/9.1.1-fix-duplicate-count.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/9.1.1-fix-duplicate-count.md docs/stories/9.1.1-fix-duplicate-count.md --root . --aplicar",
+      "source": "docs/stories/9.1.1-fix-duplicate-count.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/EPIC-9.1-chapter-count-fix.md",
+          "kind": "direct",
+          "line": 62
+        }
+      ],
+      "destination": "stories/9.1.2-unit-tests.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/9.1.2-unit-tests.md docs/stories/9.1.2-unit-tests.md --root . --aplicar",
+      "source": "docs/stories/9.1.2-unit-tests.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/EPIC-9.1-chapter-count-fix.md",
+          "kind": "direct",
+          "line": 75
+        }
+      ],
+      "destination": "stories/9.1.3-ux-labels.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/9.1.3-ux-labels.md docs/stories/9.1.3-ux-labels.md --root . --aplicar",
+      "source": "docs/stories/9.1.3-ux-labels.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/4.3.1-bidirectional-references.md",
+          "kind": "direct",
+          "line": 411
+        },
+        {
+          "file": "docs/stories/4.3.2-external-links.md",
+          "kind": "direct",
+          "line": 500
+        },
+        {
+          "file": "docs/stories/4.3.4-display-order-persistence.md",
+          "kind": "direct",
+          "line": 423
+        }
+      ],
+      "destination": "stories/EPIC-4.3-enhanced-references.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-4.3-enhanced-references.md docs/stories/EPIC-4.3-enhanced-references.md --root . --aplicar",
+      "source": "docs/stories/EPIC-4.3-enhanced-references.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/sessions/2026-01/DAY-6-EPIC-5.1-COMPLETE.md",
+          "kind": "direct",
+          "line": 44
+        }
+      ],
+      "destination": "stories/EPIC-5.1-inline-comments.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-5.1-inline-comments.md docs/stories/EPIC-5.1-inline-comments.md --root . --aplicar",
+      "source": "docs/stories/EPIC-5.1-inline-comments.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-6.1-dashboard-parchment-redesign.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-6.1-dashboard-parchment-redesign.md docs/stories/EPIC-6.1-dashboard-parchment-redesign.md --root . --aplicar",
+      "source": "docs/stories/EPIC-6.1-dashboard-parchment-redesign.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-7.1-backlog-redesign-quadro-estudos.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-7.1-backlog-redesign-quadro-estudos.md docs/stories/EPIC-7.1-backlog-redesign-quadro-estudos.md --root . --aplicar",
+      "source": "docs/stories/EPIC-7.1-backlog-redesign-quadro-estudos.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8-grafo-redesign-overview.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8-grafo-redesign-overview.md docs/stories/EPIC-8-grafo-redesign-overview.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8-grafo-redesign-overview.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.1-type-safety.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.1-type-safety.md docs/stories/EPIC-8.1-type-safety.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.1-type-safety.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.2-parchment-theme.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.2-parchment-theme.md docs/stories/EPIC-8.2-parchment-theme.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.2-parchment-theme.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.3-tipografia.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.3-tipografia.md docs/stories/EPIC-8.3-tipografia.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.3-tipografia.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.4-legenda-controles.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.4-legenda-controles.md docs/stories/EPIC-8.4-legenda-controles.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.4-legenda-controles.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.5-gestao-links.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.5-gestao-links.md docs/stories/EPIC-8.5-gestao-links.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.5-gestao-links.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.6-busca-filtro.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.6-busca-filtro.md docs/stories/EPIC-8.6-busca-filtro.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.6-busca-filtro.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.7-mobile.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.7-mobile.md docs/stories/EPIC-8.7-mobile.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.7-mobile.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-9.1-chapter-count-fix.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-9.1-chapter-count-fix.md docs/stories/EPIC-9.1-chapter-count-fix.md --root . --aplicar",
+      "source": "docs/stories/EPIC-9.1-chapter-count-fix.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/epic-stabilization-for-friends.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/epic-stabilization-for-friends.md docs/stories/epic-stabilization-for-friends.md --root . --aplicar",
+      "source": "docs/stories/epic-stabilization-for-friends.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 778
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 799
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 807
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 994
+        },
+        {
+          "file": ".aios/AGENT-SYNC-GUIDE.md",
+          "kind": "direct",
+          "line": 195
+        }
+      ],
+      "destination": "stories/epic-technical-debt.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/epic-technical-debt.md docs/stories/epic-technical-debt.md --root . --aplicar",
+      "source": "docs/stories/epic-technical-debt.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-1.1-modal-system.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-1.1-modal-system.md docs/stories/story-1.1-modal-system.md --root . --aplicar",
+      "source": "docs/stories/story-1.1-modal-system.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-1.2-toast-system.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-1.2-toast-system.md docs/stories/story-1.2-toast-system.md --root . --aplicar",
+      "source": "docs/stories/story-1.2-toast-system.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-1.3-accessibility.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-1.3-accessibility.md docs/stories/story-1.3-accessibility.md --root . --aplicar",
+      "source": "docs/stories/story-1.3-accessibility.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-1.4-mobile-ux.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-1.4-mobile-ux.md docs/stories/story-1.4-mobile-ux.md --root . --aplicar",
+      "source": "docs/stories/story-1.4-mobile-ux.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-1.5-db-validation.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-1.5-db-validation.md docs/stories/story-1.5-db-validation.md --root . --aplicar",
+      "source": "docs/stories/story-1.5-db-validation.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-2.1-fulltext-search.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-2.1-fulltext-search.md docs/stories/story-2.1-fulltext-search.md --root . --aplicar",
+      "source": "docs/stories/story-2.1-fulltext-search.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-2.2-soft-delete.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-2.2-soft-delete.md docs/stories/story-2.2-soft-delete.md --root . --aplicar",
+      "source": "docs/stories/story-2.2-soft-delete.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-2.3-design-tokens.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-2.3-design-tokens.md docs/stories/story-2.3-design-tokens.md --root . --aplicar",
+      "source": "docs/stories/story-2.3-design-tokens.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-2.4-trigger-validation-links.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-2.4-trigger-validation-links.md docs/stories/story-2.4-trigger-validation-links.md --root . --aplicar",
+      "source": "docs/stories/story-2.4-trigger-validation-links.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.1-extend-tokens-components.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.1-extend-tokens-components.md docs/stories/story-3.1-extend-tokens-components.md --root . --aplicar",
+      "source": "docs/stories/story-3.1-extend-tokens-components.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.2-token-documentation.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.2-token-documentation.md docs/stories/story-3.2-token-documentation.md --root . --aplicar",
+      "source": "docs/stories/story-3.2-token-documentation.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.3-theme-variant-system.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.3-theme-variant-system.md docs/stories/story-3.3-theme-variant-system.md --root . --aplicar",
+      "source": "docs/stories/story-3.3-theme-variant-system.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.4-shadow-tokens-css-modules.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.4-shadow-tokens-css-modules.md docs/stories/story-3.4-shadow-tokens-css-modules.md --root . --aplicar",
+      "source": "docs/stories/story-3.4-shadow-tokens-css-modules.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.5-mobile-ux-enhancements.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.5-mobile-ux-enhancements.md docs/stories/story-3.5-mobile-ux-enhancements.md --root . --aplicar",
+      "source": "docs/stories/story-3.5-mobile-ux-enhancements.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.6-accessibility-wcag-aa.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.6-accessibility-wcag-aa.md docs/stories/story-3.6-accessibility-wcag-aa.md --root . --aplicar",
+      "source": "docs/stories/story-3.6-accessibility-wcag-aa.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.7-feedback-systems.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.7-feedback-systems.md docs/stories/story-3.7-feedback-systems.md --root . --aplicar",
+      "source": "docs/stories/story-3.7-feedback-systems.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.7-implementation-notes.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.7-implementation-notes.md docs/stories/story-3.7-implementation-notes.md --root . --aplicar",
+      "source": "docs/stories/story-3.7-implementation-notes.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.8-undo-redo-validation.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.8-undo-redo-validation.md docs/stories/story-3.8-undo-redo-validation.md --root . --aplicar",
+      "source": "docs/stories/story-3.8-undo-redo-validation.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-4.1-friend-onboarding-guide.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.1-friend-onboarding-guide.md docs/stories/story-4.1-friend-onboarding-guide.md --root . --aplicar",
+      "source": "docs/stories/story-4.1-friend-onboarding-guide.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-4.2-bug-bash-testing.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.2-bug-bash-testing.md docs/stories/story-4.2-bug-bash-testing.md --root . --aplicar",
+      "source": "docs/stories/story-4.2-bug-bash-testing.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/story-4.3-github-issues.md",
+          "kind": "direct",
+          "line": 44
+        }
+      ],
+      "destination": "stories/story-4.3-dev-kickoff.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.3-dev-kickoff.md docs/stories/story-4.3-dev-kickoff.md --root . --aplicar",
+      "source": "docs/stories/story-4.3-dev-kickoff.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-4.3-github-issues.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.3-github-issues.md docs/stories/story-4.3-github-issues.md --root . --aplicar",
+      "source": "docs/stories/story-4.3-github-issues.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/story-4.3-dev-kickoff.md",
+          "kind": "direct",
+          "line": 444
+        }
+      ],
+      "destination": "stories/story-4.3-implementation-plan.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.3-implementation-plan.md docs/stories/story-4.3-implementation-plan.md --root . --aplicar",
+      "source": "docs/stories/story-4.3-implementation-plan.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/notifications/MORGAN-PM-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 191
+        },
+        {
+          "file": "docs/notifications/QA-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 165
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 107
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 292
+        },
+        {
+          "file": "docs/stories/story-4.3-dev-kickoff.md",
+          "kind": "direct",
+          "line": 443
+        },
+        {
+          "file": "docs/stories/story-4.3-github-issues.md",
+          "kind": "direct",
+          "line": 43
+        }
+      ],
+      "destination": "stories/story-4.3-reference-links-ui.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.3-reference-links-ui.md docs/stories/story-4.3-reference-links-ui.md --root . --aplicar",
+      "source": "docs/stories/story-4.3-reference-links-ui.md",
+      "state": "READY"
+    }
+  ],
+  "command": "plan",
+  "config_hash": "f0460141d060644da4751f504f1fe9376159a7979dd08d2056c114e566dae981",
+  "exit_code": 4,
+  "head_sha": "b57974cb836962973edfb1bc4c4357cc6bc81b3b",
+  "repo": ".",
+  "schema_version": 1,
+  "tree_hash": "737b7acbe47eb8ed1bd7a04d7ce3e60014d251127072891116ca7b8e42fa615e",
+  "verdict": "AMBIGUOUS"
+}

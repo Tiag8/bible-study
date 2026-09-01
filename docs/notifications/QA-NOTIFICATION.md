@@ -162,7 +162,7 @@ When you complete testing, please provide:
 - **Code Review:** `docs/review/REVIEW-SUMMARY.md`
 - **Security Audit:** `docs/testing/story-4.3-security-review.md`
 - **Performance Report:** `docs/testing/story-4.3-performance-metrics.md`
-- **Developer Details:** `docs/stories/story-4.3-reference-links-ui.md`
+- **Developer Details:** `stories/story-4.3-reference-links-ui.md`
 
 ---
 

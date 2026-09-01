@@ -289,7 +289,7 @@ Co-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>
 ### For Questions About...
 
 **Implementation:**
-- See: `docs/stories/story-4.3-reference-links-ui.md`
+- See: `stories/story-4.3-reference-links-ui.md`
 - Files: Component code (inline comments in PT-BR)
 
 **Testing:**

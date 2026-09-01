@@ -1,0 +1,9 @@
+{
+  "applied": 57,
+  "campaign_id": "ep60-s6-0",
+  "command": "apply",
+  "exit_code": 0,
+  "repo": ".",
+  "schema_version": 1,
+  "verdict": "APPLIED"
+}

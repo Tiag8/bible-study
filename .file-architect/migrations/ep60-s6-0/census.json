@@ -1,0 +1,58 @@
+{
+  "command": "census",
+  "exit_code": 2,
+  "repositories": [
+    {
+      "by_rule": {
+        "FA-D1": 71,
+        "FA-D1-PLANNING": 57
+      },
+      "findings": 128,
+      "repo": ".",
+      "sample": [
+        {
+          "layer": "canonical-profile",
+          "message": "namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR",
+          "path": "docs/AGENTS_PATTERNS.md",
+          "rule": "FA-D1",
+          "severity": "BLOCKING"
+        },
+        {
+          "layer": "canonical-profile",
+          "message": "namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR",
+          "path": "docs/AIOS-INSTALLATION.md",
+          "rule": "FA-D1",
+          "severity": "BLOCKING"
+        },
+        {
+          "layer": "canonical-profile",
+          "message": "namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR",
+          "path": "docs/BRANCH-PROTECTION-SETUP.md",
+          "rule": "FA-D1",
+          "severity": "BLOCKING"
+        },
+        {
+          "layer": "canonical-profile",
+          "message": "namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR",
+          "path": "docs/COMPONENT_TOKENS_MAPPING.md",
+          "rule": "FA-D1",
+          "severity": "BLOCKING"
+        },
+        {
+          "layer": "canonical-profile",
+          "message": "namespace documental inválido; use tutorials, how-to, reference, explanation ou adr, ou declare overlay com ADR",
+          "path": "docs/DEVELOPMENT.md",
+          "rule": "FA-D1",
+          "severity": "BLOCKING"
+        }
+      ],
+      "tracked": 1130
+    }
+  ],
+  "schema_version": 1,
+  "totals_by_rule": {
+    "FA-D1": 71,
+    "FA-D1-PLANNING": 57
+  },
+  "verdict": "PASSIVE"
+}

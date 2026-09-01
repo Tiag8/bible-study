@@ -1,0 +1,1415 @@
+{
+  "applied": [
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "epics/EP01-mobile-tablet-ux/EP01-S1.0-fixes-p0-reportados.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move epics/EP01-mobile-tablet-ux/EP01-S1.0-fixes-p0-reportados.md docs/epics/EP01-mobile-tablet-ux/EP01-S1.0-fixes-p0-reportados.md --root . --aplicar",
+      "source": "docs/epics/EP01-mobile-tablet-ux/EP01-S1.0-fixes-p0-reportados.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "epics/EP01-mobile-tablet-ux/EP01-S2.0-audit-ux-mobile-tablet.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move epics/EP01-mobile-tablet-ux/EP01-S2.0-audit-ux-mobile-tablet.md docs/epics/EP01-mobile-tablet-ux/EP01-S2.0-audit-ux-mobile-tablet.md --root . --aplicar",
+      "source": "docs/epics/EP01-mobile-tablet-ux/EP01-S2.0-audit-ux-mobile-tablet.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "epics/EP01-mobile-tablet-ux/epic.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move epics/EP01-mobile-tablet-ux/epic.md docs/epics/EP01-mobile-tablet-ux/epic.md --root . --aplicar",
+      "source": "docs/epics/EP01-mobile-tablet-ux/epic.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/4.3.1-bidirectional-references.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/4.3.1-bidirectional-references.md docs/stories/4.3.1-bidirectional-references.md --root . --aplicar",
+      "source": "docs/stories/4.3.1-bidirectional-references.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/4.3.2-external-links.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/4.3.2-external-links.md docs/stories/4.3.2-external-links.md --root . --aplicar",
+      "source": "docs/stories/4.3.2-external-links.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/4.3.3-colorization-by-type.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/4.3.3-colorization-by-type.md docs/stories/4.3.3-colorization-by-type.md --root . --aplicar",
+      "source": "docs/stories/4.3.3-colorization-by-type.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/4.3.4-display-order-persistence.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/4.3.4-display-order-persistence.md docs/stories/4.3.4-display-order-persistence.md --root . --aplicar",
+      "source": "docs/stories/4.3.4-display-order-persistence.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/sessions/2026-01/DAY-6-EPIC-5.1-COMPLETE.md",
+          "kind": "direct",
+          "line": 45
+        }
+      ],
+      "destination": "stories/5.1.1-comment-mark-bubblemenu.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/5.1.1-comment-mark-bubblemenu.md docs/stories/5.1.1-comment-mark-bubblemenu.md --root . --aplicar",
+      "source": "docs/stories/5.1.1-comment-mark-bubblemenu.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/sessions/2026-01/DAY-6-EPIC-5.1-COMPLETE.md",
+          "kind": "direct",
+          "line": 46
+        }
+      ],
+      "destination": "stories/5.1.2-comment-tooltip-crud.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/5.1.2-comment-tooltip-crud.md docs/stories/5.1.2-comment-tooltip-crud.md --root . --aplicar",
+      "source": "docs/stories/5.1.2-comment-tooltip-crud.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/sessions/2026-01/DAY-6-EPIC-5.1-COMPLETE.md",
+          "kind": "direct",
+          "line": 47
+        }
+      ],
+      "destination": "stories/5.1.3-comment-margin-indicator.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/5.1.3-comment-margin-indicator.md docs/stories/5.1.3-comment-margin-indicator.md --root . --aplicar",
+      "source": "docs/stories/5.1.3-comment-margin-indicator.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/6.1.1-design-tokens-fonts.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/6.1.1-design-tokens-fonts.md docs/stories/6.1.1-design-tokens-fonts.md --root . --aplicar",
+      "source": "docs/stories/6.1.1-design-tokens-fonts.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/6.1.2-sidebar-redesign.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/6.1.2-sidebar-redesign.md docs/stories/6.1.2-sidebar-redesign.md --root . --aplicar",
+      "source": "docs/stories/6.1.2-sidebar-redesign.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/6.1.3-topbar-redesign.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/6.1.3-topbar-redesign.md docs/stories/6.1.3-topbar-redesign.md --root . --aplicar",
+      "source": "docs/stories/6.1.3-topbar-redesign.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/6.1.4-bookcard-redesign.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/6.1.4-bookcard-redesign.md docs/stories/6.1.4-bookcard-redesign.md --root . --aplicar",
+      "source": "docs/stories/6.1.4-bookcard-redesign.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/6.1.5-bookgrid-dashboard-layout.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/6.1.5-bookgrid-dashboard-layout.md docs/stories/6.1.5-bookgrid-dashboard-layout.md --root . --aplicar",
+      "source": "docs/stories/6.1.5-bookgrid-dashboard-layout.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/EPIC-9.1-chapter-count-fix.md",
+          "kind": "direct",
+          "line": 49
+        }
+      ],
+      "destination": "stories/9.1.1-fix-duplicate-count.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/9.1.1-fix-duplicate-count.md docs/stories/9.1.1-fix-duplicate-count.md --root . --aplicar",
+      "source": "docs/stories/9.1.1-fix-duplicate-count.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/EPIC-9.1-chapter-count-fix.md",
+          "kind": "direct",
+          "line": 62
+        }
+      ],
+      "destination": "stories/9.1.2-unit-tests.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/9.1.2-unit-tests.md docs/stories/9.1.2-unit-tests.md --root . --aplicar",
+      "source": "docs/stories/9.1.2-unit-tests.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/EPIC-9.1-chapter-count-fix.md",
+          "kind": "direct",
+          "line": 75
+        }
+      ],
+      "destination": "stories/9.1.3-ux-labels.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/9.1.3-ux-labels.md docs/stories/9.1.3-ux-labels.md --root . --aplicar",
+      "source": "docs/stories/9.1.3-ux-labels.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/4.3.1-bidirectional-references.md",
+          "kind": "direct",
+          "line": 411
+        },
+        {
+          "file": "docs/stories/4.3.2-external-links.md",
+          "kind": "direct",
+          "line": 500
+        },
+        {
+          "file": "docs/stories/4.3.4-display-order-persistence.md",
+          "kind": "direct",
+          "line": 423
+        }
+      ],
+      "destination": "stories/EPIC-4.3-enhanced-references.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-4.3-enhanced-references.md docs/stories/EPIC-4.3-enhanced-references.md --root . --aplicar",
+      "source": "docs/stories/EPIC-4.3-enhanced-references.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/sessions/2026-01/DAY-6-EPIC-5.1-COMPLETE.md",
+          "kind": "direct",
+          "line": 44
+        }
+      ],
+      "destination": "stories/EPIC-5.1-inline-comments.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-5.1-inline-comments.md docs/stories/EPIC-5.1-inline-comments.md --root . --aplicar",
+      "source": "docs/stories/EPIC-5.1-inline-comments.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-6.1-dashboard-parchment-redesign.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-6.1-dashboard-parchment-redesign.md docs/stories/EPIC-6.1-dashboard-parchment-redesign.md --root . --aplicar",
+      "source": "docs/stories/EPIC-6.1-dashboard-parchment-redesign.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-7.1-backlog-redesign-quadro-estudos.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-7.1-backlog-redesign-quadro-estudos.md docs/stories/EPIC-7.1-backlog-redesign-quadro-estudos.md --root . --aplicar",
+      "source": "docs/stories/EPIC-7.1-backlog-redesign-quadro-estudos.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8-grafo-redesign-overview.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8-grafo-redesign-overview.md docs/stories/EPIC-8-grafo-redesign-overview.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8-grafo-redesign-overview.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.1-type-safety.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.1-type-safety.md docs/stories/EPIC-8.1-type-safety.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.1-type-safety.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.2-parchment-theme.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.2-parchment-theme.md docs/stories/EPIC-8.2-parchment-theme.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.2-parchment-theme.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.3-tipografia.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.3-tipografia.md docs/stories/EPIC-8.3-tipografia.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.3-tipografia.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.4-legenda-controles.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.4-legenda-controles.md docs/stories/EPIC-8.4-legenda-controles.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.4-legenda-controles.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.5-gestao-links.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.5-gestao-links.md docs/stories/EPIC-8.5-gestao-links.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.5-gestao-links.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.6-busca-filtro.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.6-busca-filtro.md docs/stories/EPIC-8.6-busca-filtro.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.6-busca-filtro.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.7-mobile.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.7-mobile.md docs/stories/EPIC-8.7-mobile.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.7-mobile.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-9.1-chapter-count-fix.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-9.1-chapter-count-fix.md docs/stories/EPIC-9.1-chapter-count-fix.md --root . --aplicar",
+      "source": "docs/stories/EPIC-9.1-chapter-count-fix.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/epic-stabilization-for-friends.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/epic-stabilization-for-friends.md docs/stories/epic-stabilization-for-friends.md --root . --aplicar",
+      "source": "docs/stories/epic-stabilization-for-friends.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 778
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 799
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 807
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 994
+        },
+        {
+          "file": ".aios/AGENT-SYNC-GUIDE.md",
+          "kind": "direct",
+          "line": 195
+        }
+      ],
+      "destination": "stories/epic-technical-debt.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/epic-technical-debt.md docs/stories/epic-technical-debt.md --root . --aplicar",
+      "source": "docs/stories/epic-technical-debt.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-1.1-modal-system.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-1.1-modal-system.md docs/stories/story-1.1-modal-system.md --root . --aplicar",
+      "source": "docs/stories/story-1.1-modal-system.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-1.2-toast-system.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-1.2-toast-system.md docs/stories/story-1.2-toast-system.md --root . --aplicar",
+      "source": "docs/stories/story-1.2-toast-system.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-1.3-accessibility.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-1.3-accessibility.md docs/stories/story-1.3-accessibility.md --root . --aplicar",
+      "source": "docs/stories/story-1.3-accessibility.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-1.4-mobile-ux.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-1.4-mobile-ux.md docs/stories/story-1.4-mobile-ux.md --root . --aplicar",
+      "source": "docs/stories/story-1.4-mobile-ux.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-1.5-db-validation.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-1.5-db-validation.md docs/stories/story-1.5-db-validation.md --root . --aplicar",
+      "source": "docs/stories/story-1.5-db-validation.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-2.1-fulltext-search.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-2.1-fulltext-search.md docs/stories/story-2.1-fulltext-search.md --root . --aplicar",
+      "source": "docs/stories/story-2.1-fulltext-search.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-2.2-soft-delete.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-2.2-soft-delete.md docs/stories/story-2.2-soft-delete.md --root . --aplicar",
+      "source": "docs/stories/story-2.2-soft-delete.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-2.3-design-tokens.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-2.3-design-tokens.md docs/stories/story-2.3-design-tokens.md --root . --aplicar",
+      "source": "docs/stories/story-2.3-design-tokens.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-2.4-trigger-validation-links.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-2.4-trigger-validation-links.md docs/stories/story-2.4-trigger-validation-links.md --root . --aplicar",
+      "source": "docs/stories/story-2.4-trigger-validation-links.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.1-extend-tokens-components.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.1-extend-tokens-components.md docs/stories/story-3.1-extend-tokens-components.md --root . --aplicar",
+      "source": "docs/stories/story-3.1-extend-tokens-components.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.2-token-documentation.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.2-token-documentation.md docs/stories/story-3.2-token-documentation.md --root . --aplicar",
+      "source": "docs/stories/story-3.2-token-documentation.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.3-theme-variant-system.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.3-theme-variant-system.md docs/stories/story-3.3-theme-variant-system.md --root . --aplicar",
+      "source": "docs/stories/story-3.3-theme-variant-system.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.4-shadow-tokens-css-modules.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.4-shadow-tokens-css-modules.md docs/stories/story-3.4-shadow-tokens-css-modules.md --root . --aplicar",
+      "source": "docs/stories/story-3.4-shadow-tokens-css-modules.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.5-mobile-ux-enhancements.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.5-mobile-ux-enhancements.md docs/stories/story-3.5-mobile-ux-enhancements.md --root . --aplicar",
+      "source": "docs/stories/story-3.5-mobile-ux-enhancements.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.6-accessibility-wcag-aa.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.6-accessibility-wcag-aa.md docs/stories/story-3.6-accessibility-wcag-aa.md --root . --aplicar",
+      "source": "docs/stories/story-3.6-accessibility-wcag-aa.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.7-feedback-systems.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.7-feedback-systems.md docs/stories/story-3.7-feedback-systems.md --root . --aplicar",
+      "source": "docs/stories/story-3.7-feedback-systems.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.7-implementation-notes.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.7-implementation-notes.md docs/stories/story-3.7-implementation-notes.md --root . --aplicar",
+      "source": "docs/stories/story-3.7-implementation-notes.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.8-undo-redo-validation.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.8-undo-redo-validation.md docs/stories/story-3.8-undo-redo-validation.md --root . --aplicar",
+      "source": "docs/stories/story-3.8-undo-redo-validation.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-4.1-friend-onboarding-guide.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.1-friend-onboarding-guide.md docs/stories/story-4.1-friend-onboarding-guide.md --root . --aplicar",
+      "source": "docs/stories/story-4.1-friend-onboarding-guide.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-4.2-bug-bash-testing.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.2-bug-bash-testing.md docs/stories/story-4.2-bug-bash-testing.md --root . --aplicar",
+      "source": "docs/stories/story-4.2-bug-bash-testing.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/story-4.3-github-issues.md",
+          "kind": "direct",
+          "line": 44
+        }
+      ],
+      "destination": "stories/story-4.3-dev-kickoff.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.3-dev-kickoff.md docs/stories/story-4.3-dev-kickoff.md --root . --aplicar",
+      "source": "docs/stories/story-4.3-dev-kickoff.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-4.3-github-issues.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.3-github-issues.md docs/stories/story-4.3-github-issues.md --root . --aplicar",
+      "source": "docs/stories/story-4.3-github-issues.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/story-4.3-dev-kickoff.md",
+          "kind": "direct",
+          "line": 444
+        }
+      ],
+      "destination": "stories/story-4.3-implementation-plan.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.3-implementation-plan.md docs/stories/story-4.3-implementation-plan.md --root . --aplicar",
+      "source": "docs/stories/story-4.3-implementation-plan.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/notifications/MORGAN-PM-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 191
+        },
+        {
+          "file": "docs/notifications/QA-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 165
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 107
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 292
+        },
+        {
+          "file": "docs/stories/story-4.3-dev-kickoff.md",
+          "kind": "direct",
+          "line": 443
+        },
+        {
+          "file": "docs/stories/story-4.3-github-issues.md",
+          "kind": "direct",
+          "line": 43
+        }
+      ],
+      "destination": "stories/story-4.3-reference-links-ui.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.3-reference-links-ui.md docs/stories/story-4.3-reference-links-ui.md --root . --aplicar",
+      "source": "docs/stories/story-4.3-reference-links-ui.md",
+      "state": "READY"
+    }
+  ],
+  "batch_reference_edits": 22,
+  "campaign_id": "ep60-s6-0",
+  "last_batch": [
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "epics/EP01-mobile-tablet-ux/EP01-S1.0-fixes-p0-reportados.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move epics/EP01-mobile-tablet-ux/EP01-S1.0-fixes-p0-reportados.md docs/epics/EP01-mobile-tablet-ux/EP01-S1.0-fixes-p0-reportados.md --root . --aplicar",
+      "source": "docs/epics/EP01-mobile-tablet-ux/EP01-S1.0-fixes-p0-reportados.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "epics/EP01-mobile-tablet-ux/EP01-S2.0-audit-ux-mobile-tablet.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move epics/EP01-mobile-tablet-ux/EP01-S2.0-audit-ux-mobile-tablet.md docs/epics/EP01-mobile-tablet-ux/EP01-S2.0-audit-ux-mobile-tablet.md --root . --aplicar",
+      "source": "docs/epics/EP01-mobile-tablet-ux/EP01-S2.0-audit-ux-mobile-tablet.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "epics/EP01-mobile-tablet-ux/epic.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move epics/EP01-mobile-tablet-ux/epic.md docs/epics/EP01-mobile-tablet-ux/epic.md --root . --aplicar",
+      "source": "docs/epics/EP01-mobile-tablet-ux/epic.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/4.3.1-bidirectional-references.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/4.3.1-bidirectional-references.md docs/stories/4.3.1-bidirectional-references.md --root . --aplicar",
+      "source": "docs/stories/4.3.1-bidirectional-references.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/4.3.2-external-links.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/4.3.2-external-links.md docs/stories/4.3.2-external-links.md --root . --aplicar",
+      "source": "docs/stories/4.3.2-external-links.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/4.3.3-colorization-by-type.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/4.3.3-colorization-by-type.md docs/stories/4.3.3-colorization-by-type.md --root . --aplicar",
+      "source": "docs/stories/4.3.3-colorization-by-type.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/4.3.4-display-order-persistence.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/4.3.4-display-order-persistence.md docs/stories/4.3.4-display-order-persistence.md --root . --aplicar",
+      "source": "docs/stories/4.3.4-display-order-persistence.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/sessions/2026-01/DAY-6-EPIC-5.1-COMPLETE.md",
+          "kind": "direct",
+          "line": 45
+        }
+      ],
+      "destination": "stories/5.1.1-comment-mark-bubblemenu.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/5.1.1-comment-mark-bubblemenu.md docs/stories/5.1.1-comment-mark-bubblemenu.md --root . --aplicar",
+      "source": "docs/stories/5.1.1-comment-mark-bubblemenu.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/sessions/2026-01/DAY-6-EPIC-5.1-COMPLETE.md",
+          "kind": "direct",
+          "line": 46
+        }
+      ],
+      "destination": "stories/5.1.2-comment-tooltip-crud.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/5.1.2-comment-tooltip-crud.md docs/stories/5.1.2-comment-tooltip-crud.md --root . --aplicar",
+      "source": "docs/stories/5.1.2-comment-tooltip-crud.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/sessions/2026-01/DAY-6-EPIC-5.1-COMPLETE.md",
+          "kind": "direct",
+          "line": 47
+        }
+      ],
+      "destination": "stories/5.1.3-comment-margin-indicator.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/5.1.3-comment-margin-indicator.md docs/stories/5.1.3-comment-margin-indicator.md --root . --aplicar",
+      "source": "docs/stories/5.1.3-comment-margin-indicator.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/6.1.1-design-tokens-fonts.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/6.1.1-design-tokens-fonts.md docs/stories/6.1.1-design-tokens-fonts.md --root . --aplicar",
+      "source": "docs/stories/6.1.1-design-tokens-fonts.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/6.1.2-sidebar-redesign.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/6.1.2-sidebar-redesign.md docs/stories/6.1.2-sidebar-redesign.md --root . --aplicar",
+      "source": "docs/stories/6.1.2-sidebar-redesign.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/6.1.3-topbar-redesign.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/6.1.3-topbar-redesign.md docs/stories/6.1.3-topbar-redesign.md --root . --aplicar",
+      "source": "docs/stories/6.1.3-topbar-redesign.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/6.1.4-bookcard-redesign.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/6.1.4-bookcard-redesign.md docs/stories/6.1.4-bookcard-redesign.md --root . --aplicar",
+      "source": "docs/stories/6.1.4-bookcard-redesign.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/6.1.5-bookgrid-dashboard-layout.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/6.1.5-bookgrid-dashboard-layout.md docs/stories/6.1.5-bookgrid-dashboard-layout.md --root . --aplicar",
+      "source": "docs/stories/6.1.5-bookgrid-dashboard-layout.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/EPIC-9.1-chapter-count-fix.md",
+          "kind": "direct",
+          "line": 49
+        }
+      ],
+      "destination": "stories/9.1.1-fix-duplicate-count.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/9.1.1-fix-duplicate-count.md docs/stories/9.1.1-fix-duplicate-count.md --root . --aplicar",
+      "source": "docs/stories/9.1.1-fix-duplicate-count.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/EPIC-9.1-chapter-count-fix.md",
+          "kind": "direct",
+          "line": 62
+        }
+      ],
+      "destination": "stories/9.1.2-unit-tests.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/9.1.2-unit-tests.md docs/stories/9.1.2-unit-tests.md --root . --aplicar",
+      "source": "docs/stories/9.1.2-unit-tests.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/EPIC-9.1-chapter-count-fix.md",
+          "kind": "direct",
+          "line": 75
+        }
+      ],
+      "destination": "stories/9.1.3-ux-labels.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/9.1.3-ux-labels.md docs/stories/9.1.3-ux-labels.md --root . --aplicar",
+      "source": "docs/stories/9.1.3-ux-labels.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/4.3.1-bidirectional-references.md",
+          "kind": "direct",
+          "line": 411
+        },
+        {
+          "file": "docs/stories/4.3.2-external-links.md",
+          "kind": "direct",
+          "line": 500
+        },
+        {
+          "file": "docs/stories/4.3.4-display-order-persistence.md",
+          "kind": "direct",
+          "line": 423
+        }
+      ],
+      "destination": "stories/EPIC-4.3-enhanced-references.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-4.3-enhanced-references.md docs/stories/EPIC-4.3-enhanced-references.md --root . --aplicar",
+      "source": "docs/stories/EPIC-4.3-enhanced-references.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/sessions/2026-01/DAY-6-EPIC-5.1-COMPLETE.md",
+          "kind": "direct",
+          "line": 44
+        }
+      ],
+      "destination": "stories/EPIC-5.1-inline-comments.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-5.1-inline-comments.md docs/stories/EPIC-5.1-inline-comments.md --root . --aplicar",
+      "source": "docs/stories/EPIC-5.1-inline-comments.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-6.1-dashboard-parchment-redesign.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-6.1-dashboard-parchment-redesign.md docs/stories/EPIC-6.1-dashboard-parchment-redesign.md --root . --aplicar",
+      "source": "docs/stories/EPIC-6.1-dashboard-parchment-redesign.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-7.1-backlog-redesign-quadro-estudos.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-7.1-backlog-redesign-quadro-estudos.md docs/stories/EPIC-7.1-backlog-redesign-quadro-estudos.md --root . --aplicar",
+      "source": "docs/stories/EPIC-7.1-backlog-redesign-quadro-estudos.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8-grafo-redesign-overview.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8-grafo-redesign-overview.md docs/stories/EPIC-8-grafo-redesign-overview.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8-grafo-redesign-overview.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.1-type-safety.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.1-type-safety.md docs/stories/EPIC-8.1-type-safety.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.1-type-safety.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.2-parchment-theme.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.2-parchment-theme.md docs/stories/EPIC-8.2-parchment-theme.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.2-parchment-theme.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.3-tipografia.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.3-tipografia.md docs/stories/EPIC-8.3-tipografia.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.3-tipografia.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.4-legenda-controles.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.4-legenda-controles.md docs/stories/EPIC-8.4-legenda-controles.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.4-legenda-controles.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.5-gestao-links.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.5-gestao-links.md docs/stories/EPIC-8.5-gestao-links.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.5-gestao-links.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.6-busca-filtro.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.6-busca-filtro.md docs/stories/EPIC-8.6-busca-filtro.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.6-busca-filtro.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-8.7-mobile.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-8.7-mobile.md docs/stories/EPIC-8.7-mobile.md --root . --aplicar",
+      "source": "docs/stories/EPIC-8.7-mobile.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/EPIC-9.1-chapter-count-fix.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/EPIC-9.1-chapter-count-fix.md docs/stories/EPIC-9.1-chapter-count-fix.md --root . --aplicar",
+      "source": "docs/stories/EPIC-9.1-chapter-count-fix.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/epic-stabilization-for-friends.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/epic-stabilization-for-friends.md docs/stories/epic-stabilization-for-friends.md --root . --aplicar",
+      "source": "docs/stories/epic-stabilization-for-friends.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 778
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 799
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 807
+        },
+        {
+          "file": ".aios-core/development/workflows/brownfield-discovery.yaml",
+          "kind": "direct",
+          "line": 994
+        },
+        {
+          "file": ".aios/AGENT-SYNC-GUIDE.md",
+          "kind": "direct",
+          "line": 195
+        }
+      ],
+      "destination": "stories/epic-technical-debt.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/epic-technical-debt.md docs/stories/epic-technical-debt.md --root . --aplicar",
+      "source": "docs/stories/epic-technical-debt.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-1.1-modal-system.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-1.1-modal-system.md docs/stories/story-1.1-modal-system.md --root . --aplicar",
+      "source": "docs/stories/story-1.1-modal-system.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-1.2-toast-system.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-1.2-toast-system.md docs/stories/story-1.2-toast-system.md --root . --aplicar",
+      "source": "docs/stories/story-1.2-toast-system.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-1.3-accessibility.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-1.3-accessibility.md docs/stories/story-1.3-accessibility.md --root . --aplicar",
+      "source": "docs/stories/story-1.3-accessibility.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-1.4-mobile-ux.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-1.4-mobile-ux.md docs/stories/story-1.4-mobile-ux.md --root . --aplicar",
+      "source": "docs/stories/story-1.4-mobile-ux.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-1.5-db-validation.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-1.5-db-validation.md docs/stories/story-1.5-db-validation.md --root . --aplicar",
+      "source": "docs/stories/story-1.5-db-validation.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-2.1-fulltext-search.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-2.1-fulltext-search.md docs/stories/story-2.1-fulltext-search.md --root . --aplicar",
+      "source": "docs/stories/story-2.1-fulltext-search.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-2.2-soft-delete.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-2.2-soft-delete.md docs/stories/story-2.2-soft-delete.md --root . --aplicar",
+      "source": "docs/stories/story-2.2-soft-delete.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-2.3-design-tokens.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-2.3-design-tokens.md docs/stories/story-2.3-design-tokens.md --root . --aplicar",
+      "source": "docs/stories/story-2.3-design-tokens.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-2.4-trigger-validation-links.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-2.4-trigger-validation-links.md docs/stories/story-2.4-trigger-validation-links.md --root . --aplicar",
+      "source": "docs/stories/story-2.4-trigger-validation-links.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.1-extend-tokens-components.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.1-extend-tokens-components.md docs/stories/story-3.1-extend-tokens-components.md --root . --aplicar",
+      "source": "docs/stories/story-3.1-extend-tokens-components.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.2-token-documentation.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.2-token-documentation.md docs/stories/story-3.2-token-documentation.md --root . --aplicar",
+      "source": "docs/stories/story-3.2-token-documentation.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.3-theme-variant-system.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.3-theme-variant-system.md docs/stories/story-3.3-theme-variant-system.md --root . --aplicar",
+      "source": "docs/stories/story-3.3-theme-variant-system.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.4-shadow-tokens-css-modules.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.4-shadow-tokens-css-modules.md docs/stories/story-3.4-shadow-tokens-css-modules.md --root . --aplicar",
+      "source": "docs/stories/story-3.4-shadow-tokens-css-modules.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.5-mobile-ux-enhancements.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.5-mobile-ux-enhancements.md docs/stories/story-3.5-mobile-ux-enhancements.md --root . --aplicar",
+      "source": "docs/stories/story-3.5-mobile-ux-enhancements.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.6-accessibility-wcag-aa.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.6-accessibility-wcag-aa.md docs/stories/story-3.6-accessibility-wcag-aa.md --root . --aplicar",
+      "source": "docs/stories/story-3.6-accessibility-wcag-aa.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.7-feedback-systems.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.7-feedback-systems.md docs/stories/story-3.7-feedback-systems.md --root . --aplicar",
+      "source": "docs/stories/story-3.7-feedback-systems.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.7-implementation-notes.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.7-implementation-notes.md docs/stories/story-3.7-implementation-notes.md --root . --aplicar",
+      "source": "docs/stories/story-3.7-implementation-notes.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-3.8-undo-redo-validation.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-3.8-undo-redo-validation.md docs/stories/story-3.8-undo-redo-validation.md --root . --aplicar",
+      "source": "docs/stories/story-3.8-undo-redo-validation.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-4.1-friend-onboarding-guide.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.1-friend-onboarding-guide.md docs/stories/story-4.1-friend-onboarding-guide.md --root . --aplicar",
+      "source": "docs/stories/story-4.1-friend-onboarding-guide.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-4.2-bug-bash-testing.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.2-bug-bash-testing.md docs/stories/story-4.2-bug-bash-testing.md --root . --aplicar",
+      "source": "docs/stories/story-4.2-bug-bash-testing.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/story-4.3-github-issues.md",
+          "kind": "direct",
+          "line": 44
+        }
+      ],
+      "destination": "stories/story-4.3-dev-kickoff.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.3-dev-kickoff.md docs/stories/story-4.3-dev-kickoff.md --root . --aplicar",
+      "source": "docs/stories/story-4.3-dev-kickoff.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [],
+      "destination": "stories/story-4.3-github-issues.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.3-github-issues.md docs/stories/story-4.3-github-issues.md --root . --aplicar",
+      "source": "docs/stories/story-4.3-github-issues.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/stories/story-4.3-dev-kickoff.md",
+          "kind": "direct",
+          "line": 444
+        }
+      ],
+      "destination": "stories/story-4.3-implementation-plan.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.3-implementation-plan.md docs/stories/story-4.3-implementation-plan.md --root . --aplicar",
+      "source": "docs/stories/story-4.3-implementation-plan.md",
+      "state": "READY"
+    },
+    {
+      "confidence": "deterministic",
+      "consumers": [
+        {
+          "file": "docs/notifications/MORGAN-PM-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 191
+        },
+        {
+          "file": "docs/notifications/QA-NOTIFICATION.md",
+          "kind": "direct",
+          "line": 165
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 107
+        },
+        {
+          "file": "docs/review/MERGE-CHECKLIST.md",
+          "kind": "direct",
+          "line": 292
+        },
+        {
+          "file": "docs/stories/story-4.3-dev-kickoff.md",
+          "kind": "direct",
+          "line": 443
+        },
+        {
+          "file": "docs/stories/story-4.3-github-issues.md",
+          "kind": "direct",
+          "line": 43
+        }
+      ],
+      "destination": "stories/story-4.3-reference-links-ui.md",
+      "kind": "tracked-path",
+      "reason": "FA-D1-PLANNING: planning legado é somente leitura; use epics/ ou stories/ na raiz",
+      "reverse_command": "python3 $FA_REFERENCES move stories/story-4.3-reference-links-ui.md docs/stories/story-4.3-reference-links-ui.md --root . --aplicar",
+      "source": "docs/stories/story-4.3-reference-links-ui.md",
+      "state": "READY"
+    }
+  ],
+  "next_index": 57,
+  "schema_version": 1,
+  "status": "applied",
+  "tree_hash_after": "26d804fd6e0a6d33c9aa79cabcc5a0de1dc6018ba59e6396ab09ac20d3aca9d8",
+  "tree_hash_after_batch": "26d804fd6e0a6d33c9aa79cabcc5a0de1dc6018ba59e6396ab09ac20d3aca9d8",
+  "tree_hash_before": "737b7acbe47eb8ed1bd7a04d7ce3e60014d251127072891116ca7b8e42fa615e",
+  "verify": {
+    "blocking": [],
+    "broken_references": 119,
+    "new_broken_reference_signatures": [],
+    "references_exit": 1,
+    "references_output": "tory-1.2-interactive-wizard-foundation.md\n  .aios-core/docs/standards/AIOS-LIVRO-DE-OURO-V2.1-COMPLETE.md\n    linha  807  [link-md]  ../../architecture/multi-repo-strategy.md\n    linha  808  [link-md]  ../../architecture/module-system.md\n  .aios-core/docs/standards/OPEN-SOURCE-VS-SERVICE-DIFFERENCES.md\n    linha  496  [link-md]  ../../docs/architecture/multi-repo-strategy.md\n  .aios-core/docs/standards/QUALITY-GATES-SPECIFICATION.md\n    linha  549  [link-md]  ../../docs/architecture/coderabbit-integration-decisions.md\n  .aios-core/docs/standards/STANDARDS-INDEX.md\n    linha   20  [link-md]  ../../docs/architecture/ARCHITECTURE-INDEX.md\n    linha   54  [link-md]  ./AIOS-LIVRO-DE-OURO.md\n    linha   55  [link-md]  ./AIOS-LIVRO-DE-OURO-V2.1.md\n    linha   56  [link-md]  ./AIOS-LIVRO-DE-OURO-V2.1-SUMMARY.md\n    linha   58  [link-md]  ./AIOS-FRAMEWORK-MASTER.md\n    linha   59  [link-md]  ./V3-ARCHITECTURAL-DECISIONS.md\n    linha  138  [link-md]  ../../docs/architecture/ARCHITECTURE-INDEX.md\n    linha  139  [link-md]  ../../docs/architecture/high-level-architecture.md\n    linha  140  [link-md]  ../../docs/architecture/module-system.md\n    linha  141  [link-md]  ../../docs/architecture/multi-repo-strategy.md\n  .aios-core/index.esm.js\n    linha    2  [import]  ./utils/component-generator.js\n    linha    3  [import]  ./utils/batch-creator.js\n    linha    4  [import]  ./utils/elicitation-engine.js\n    linha    5  [import]  ./utils/template-engine.js\n    linha    6  [import]  ./utils/component-search.js\n    linha    7  [import]  ./utils/dependency-analyzer.js\n  .aios-core/infrastructure/README.md\n    linha  126  [link-md]  ../../docs/architecture/decisions/ADR-002-migration-map.md\n  .aios-core/infrastructure/scripts/component-metadata.js\n    linha   14  [import]  ../../memory\n  .aios-core/infrastructure/scripts/improvement-validator.js\n    linha    6  [import]  ./dependency-manager\n  .aios-core/infrastructure/templates/github-workflows/README.md\n    linha  107  [link-md]  ../../../docs/stories/v2.1/sprint-5/story-5.10-github-devops-user-projects.md\n    linha  108  [link-md]  ../../development/tasks/setup-github.md\n  .aios-core/infrastructure/tools/README.md\n    linha  215  [link-md]  ../utils/README.md\n    linha  216  [link-md]  ../../docs/agent-guide.md\n    linha  218  [link-md]  ../core-config.yaml\n  .aios-core/product/templates/changelog-template.md\n    linha   33  [link-md]  link\n    linha   47  [link-md]  link\n    linha   51  [link-md]  link\n  .aios-core/scripts/README.md\n    linha  110  [link-md]  ../development/scripts/README.md\n    linha  111  [link-md]  ../infrastructure/scripts/README.md\n  .aios-core/scripts/test-template-system.js\n    linha  527  [import]  ../../helpers/db-helper\n    linha  533  [import]  ../../helpers/e2e-helper\n  .aios-core/user-guide.md\n    linha  598  [backtick]  docs/tech-preferences.md\n    linha 1393  [link-md]  ../docs/getting-started.md\n    linha 1395  [link-md]  ../docs/Squads.md\n  .aios-core/working-in-the-brownfield.md\n    linha   89  [backtick]  docs/project-architecture.md\n    linha  210  [backtick]  docs/prd.md\n  .claude/CLAUDE.md\n    linha   97  [backtick]  ~/.claude/rules/00-read-before-edit.md\n  .claude/agents/TOOL_VALIDATION_PROTOCOL.md\n    linha  128  [import]  ./lib\n  .windsurf/workflows/add-feature-1-planning.md\n    linha  509  [backtick]  ~/.claude/rules/08-communication.md\n    linha  523  [backtick]  ~/.claude/rules/05-git-deploy.md\n  .windsurf/workflows/add-feature-11c1b-rca-rollback.md\n    linha    9  [link-md]  .windsurf/workflows/add-feature-11c1a-vps-monitoring.md\n  .windsurf/workflows/add-feature-12-merge-to-main.md\n    linha  590  [backtick]  ~/.claude/rules/08-communication.md\n  .windsurf/workflows/add-feature-13a-post-deploy.md\n    linha  381  [link-md]  .windsurf/workflows/add-feature-13b-rca-metrics.md\n  .windsurf/workflows/add-feature-13b-rca-metrics.md\n    linha   10  [link-md]  .windsurf/workflows/add-feature-13a-post-deploy.md\n  .windsurf/workflows/add-feature-2b-technical-design.md\n    linha    8  [link-md]  .windsurf/workflows/add-feature-2a-solutions.md\n    linha   16  [link-md]  .windsurf/workflows/add-feature-3-risk-analysis.md\n  .windsurf/workflows/add-feature-4.5d-edge-functions.md\n    linha   91  [backtick]  ~/.claude/memory/edge-functions.md\n  .windsurf/workflows/add-feature-5a-implementation.md\n    linha  417  [backtick]  ~/.claude/memory/debugging.md\n  .windsurf/workflows/add-feature-5b-refactoring-rca.md\n    linha    8  [link-md]  .windsurf/workflows/add-feature-5a-implementation.md\n  .windsurf/workflows/add-feature-6b-rca-edge-cases.md\n    linha   10  [link-md]  .windsurf/workflows/add-feature-6a-user-validation.md\n  .windsurf/workflows/add-feature-6c-visual-refinement.md\n    linha  267  [backtick]  ~/.claude/memory/tailwind-patterns.md\n    linha  356  [link-md]  .windsurf/workflows/add-feature-7a-quality-gates.md\n  .windsurf/workflows/add-feature-7a-quality-gates.md\n    linha  344  [link-md]  .windsurf/workflows/add-feature-7b-rca-security.md\n  .windsurf/workflows/add-feature-7b-rca-security.md\n    linha   10  [link-md]  .windsurf/workflows/add-feature-7a-quality-gates.md\n  .windsurf/workflows/add-feature-8a-meta-learning.md\n    linha  188  [backtick]  ~/.claude/memory/supabase.md\n    linha  364  [link-md]  .windsurf/workflows/add-feature-8b-pareto-analysis.md\n  .windsurf/workflows/add-feature-8b-pareto-analysis.md\n    linha   10  [link-md]  .windsurf/workflows/add-feature-8a-meta-learning.md\n  .windsurf/workflows/add-feature-9a-finalization.md\n    linha  479  [link-md]  .windsurf/workflows/add-feature-9b-retrospective.md\n  .windsurf/workflows/add-feature-9b-retrospective.md\n    linha    9  [link-md]  .windsurf/workflows/add-feature-9a-finalization.md\n  SIDEBAR_UPDATE_SUMMARY.md\n    linha    6  [backtick]  supabase/migrations/20250125_002_create_profiles_table.sql\n  docs/INDEX.md\n    linha   16  [link-md]  PLAN.md\n    linha   17  [link-md]  TASK.md\n    linha  177  [link-md]  PLAN.md\n    linha  181  [link-md]  TASK.md\n    linha  189  [link-md]  adr/001-decisao.md\n    linha  193  [link-md]  adr/002-decisao.md\n    linha  209  [link-md]  adr/003-decisao.md\n    linha  224  [link-md]  PLAN.md\n    linha  225  [link-md]  TASK.md\n    linha  241  [link-md]  integrations/README.md\n    linha  251  [link-md]  PLAN.md\n    linha  252  [link-md]  TASK.md\n    linha  254  [link-md]  integrations/README.md\n    linha  257  [link-md]  debugging/README.md\n    linha  258  [link-md]  padroes/README.md\n    linha  260  [link-md]  migrations/MIGRATION_HISTORY.md\n    linha  270  [link-md]  PLAN.md\n    linha  271  [link-md]  TASK.md\n    linha  276  [link-md]  TASK.md\n    linha  278  [link-md]  PLAN.md\n    linha  278  [link-md]  TASK.md\n    linha  284  [link-md]  debugging/README.md\n    linha  285  [link-md]  debugging/\n    linha  288  [link-md]  debugging/README.md\n    linha  300  [link-md]  ops/deploy-history.md\n    linha  307  [link-md]  integrations/\n    linha  310  [link-md]  TASK.md\n    linha  312  [link-md]  integrations/README.md\n    linha  320  [link-md]  analyses/\n    linha  411  [link-md]  PLAN.md\n    linha  411  [link-md]  TASK.md\n  docs/adr/009-workflow-optimization-12k-limit.md\n    linha  264  [link-md]  ./scripts/validate-workflow-size.sh\n  docs/adr/016-context-working-memory-system.md\n    linha  318  [link-md]  ../../.windsurf/workflows/workflow-0-setup.md\n  docs/adr/ADR-023-gemini-system-prompt-token-limit.md\n    linha  161  [backtick]  examples/ai-handler.ts\n  docs/features/TEMPLATE.md\n    linha  204  [link-md]  ../adr/XXX-titulo.md\n    linha  205  [link-md]  ../adr/YYY-titulo.md\n  docs/qa/INCIDENT-DATA-LOSS-20260128.md\n    linha   71  [link-md]  ../stories/story-3.0-remove-legacy-protocol.md\n    linha   72  [link-md]  ../../.claude/memory/_archived/rca-migration-data-loss.md\n  docs/qa/QA-REPORT-INTERNAL-LINKS-FEATURE.md\n    linha  585  [link-md]  ./TEST-PLAN-TEMPLATE.md\n\nPara cada uma: ou o alvo mudou de lugar (atualize a referência), ou ela é de um exemplo (tire da crase ou marque com <>).\n"
+  }
+}

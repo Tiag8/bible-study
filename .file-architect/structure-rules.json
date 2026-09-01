@@ -1,0 +1,11 @@
+{
+  "capability_roots": [
+    {
+      "adr": "docs/adr/0001-capacidades-locais-file-architect.md",
+      "capability": "tests",
+      "justification": "raiz de testes end-to-end (Playwright), convencao separada de tests/ unitario",
+      "path": "e2e"
+    }
+  ],
+  "schema_version": 1
+}

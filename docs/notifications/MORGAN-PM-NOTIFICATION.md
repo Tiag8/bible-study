@@ -188,7 +188,7 @@ All **15 acceptance criteria met**. Ready for your approval.
 📄 `docs/review/REVIEW-SUMMARY.md` (quick read, all info)
 
 **Complete Story Details:**
-📄 `docs/stories/story-4.3-reference-links-ui.md` (full context)
+📄 `stories/story-4.3-reference-links-ui.md` (full context)
 
 **Day-by-Day Breakdown:**
 📄 `docs/sessions/2026-01/DAY-5-SUMMARY.md` (detailed progress)

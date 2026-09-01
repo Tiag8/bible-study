@@ -41,10 +41,10 @@
 - `src/components/Editor/CommentMark.ts`
 - `src/components/Editor/CommentTooltip.tsx`
 - `src/components/Editor/BubbleMenu/BubbleMenuComment.tsx`
-- `docs/stories/EPIC-5.1-inline-comments.md`
-- `docs/stories/5.1.1-comment-mark-bubblemenu.md`
-- `docs/stories/5.1.2-comment-tooltip-crud.md`
-- `docs/stories/5.1.3-comment-margin-indicator.md`
+- `stories/EPIC-5.1-inline-comments.md`
+- `stories/5.1.1-comment-mark-bubblemenu.md`
+- `stories/5.1.2-comment-tooltip-crud.md`
+- `stories/5.1.3-comment-margin-indicator.md`
 
 ### Modificados:
 - `src/app/globals.css` (+25 linhas - comment highlight styles)

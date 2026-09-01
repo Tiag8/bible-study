@@ -192,7 +192,7 @@ O arquivo `agent-registry.json` mantém:
 ## 🔗 Referências
 
 - `.aios/agent-registry.json` - Agent registry atual
-- `docs/stories/epic-technical-debt.md` - Epic de sprint
+- `stories/epic-technical-debt.md` - Epic de sprint
 - `TaskList` - Tasks em progresso
 
 ---
