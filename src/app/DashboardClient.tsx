@@ -119,7 +119,7 @@ export function DashboardClient() {
   }
 
   return (
-    <div className="flex h-screen bg-parchment">
+    <div className="flex h-dvh bg-parchment">
       {/* Mobile Sidebar Overlay */}
       {mobileMenuOpen && (
         <div
@@ -137,8 +137,9 @@ export function DashboardClient() {
           : "hidden lg:block"
       )}>
         <Sidebar
-          collapsed={sidebarCollapsed}
+          collapsed={sidebarCollapsed && !mobileMenuOpen}
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onClose={() => setMobileMenuOpen(false)}
         />
       </div>
 
@@ -229,7 +230,7 @@ export function DashboardClient() {
           ? "fixed inset-y-0 right-0 z-50"
           : "hidden lg:block"
       )}>
-        <BacklogPanel />
+        <BacklogPanel onClose={() => setBacklogOpen(false)} />
       </div>
     </div>
   );

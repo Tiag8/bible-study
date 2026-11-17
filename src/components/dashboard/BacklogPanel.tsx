@@ -20,6 +20,7 @@ import {
   ArrowDown,
   Loader2,
   CalendarDays,
+  X,
 } from "lucide-react";
 
 const STATUS_OPTIONS: { value: StudyStatus | 'todos'; label: string }[] = [
@@ -30,7 +31,12 @@ const STATUS_OPTIONS: { value: StudyStatus | 'todos'; label: string }[] = [
   { value: 'concluído', label: 'Concluído' },
 ];
 
-export function BacklogPanel() {
+interface BacklogPanelProps {
+  /** Fecha o drawer mobile (abaixo de lg). Sem ele, não há botão de fechar. */
+  onClose?: () => void;
+}
+
+export function BacklogPanel({ onClose }: BacklogPanelProps = {}) {
   const router = useRouter();
   const [showAddStudyModal, setShowAddStudyModal] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StudyStatus | 'todos'>('todos');
@@ -75,9 +81,20 @@ export function BacklogPanel() {
               Quadro de Estudos
             </h2>
           </div>
-          <span className={cn("text-xs px-2 py-1 rounded-full bg-warm-white border border-linen", PARCHMENT.text.muted)}>
-            {filteredAndSorted.length}
-          </span>
+          <div className="flex items-center gap-1">
+            <span className={cn("text-xs px-2 py-1 rounded-full bg-warm-white border border-linen", PARCHMENT.text.muted)}>
+              {filteredAndSorted.length}
+            </span>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className={cn("lg:hidden -mr-2 p-2 rounded-lg hover:bg-cream min-h-[44px] min-w-[44px] flex items-center justify-center", PARCHMENT.text.muted)}
+                aria-label="Fechar quadro de estudos"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Filtros */}
