@@ -9,6 +9,7 @@ import {
   ChevronRight,
   BookOpen,
   LogOut,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +20,8 @@ import { PARCHMENT } from "@/lib/design-tokens";
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  /** Fecha o drawer mobile (abaixo de lg). Sem ele, não há botão de fechar. */
+  onClose?: () => void;
 }
 
 const menuItems = [
@@ -27,7 +30,7 @@ const menuItems = [
   { icon: Settings, label: "Configurações", href: "/settings" },
 ];
 
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export function Sidebar({ collapsed, onToggle, onClose }: SidebarProps) {
   const { user, profile, signOut } = useAuth();
   const router = useRouter();
 
@@ -42,7 +45,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "bg-ivory border-r flex flex-col transition-all duration-300",
+        "bg-ivory border-r flex flex-col h-full overflow-y-auto transition-all duration-300",
         PARCHMENT.border.default,
         collapsed ? "w-16" : "w-64"
       )}
@@ -58,6 +61,15 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           <Link href="/" className="mx-auto">
             <BookOpen className={cn("w-6 h-6", PARCHMENT.accent.text)} />
           </Link>
+        )}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className={cn("lg:hidden -mr-2 p-2 rounded-lg hover:bg-cream min-h-[44px] min-w-[44px] flex items-center justify-center", PARCHMENT.text.muted)}
+            aria-label="Fechar menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
         )}
       </div>
 
@@ -135,7 +147,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </div>
       )}
 
-      <div className={cn("p-3 border-t", PARCHMENT.border.default)}>
+      {/* Recolher só faz sentido no desktop; abaixo de lg a sidebar é drawer */}
+      <div className={cn("hidden lg:block p-3 border-t", PARCHMENT.border.default)}>
         <button
           onClick={onToggle}
           className={cn(

@@ -32,6 +32,7 @@ describe('useBubbleMenuHandlers', () => {
     mockEditor = {
       chain: vi.fn(() => chainMock),
       isActive: vi.fn(() => false),
+      getAttributes: vi.fn(() => ({})),
     };
 
     setMode = vi.fn();
@@ -90,7 +91,7 @@ describe('useBubbleMenuHandlers', () => {
   });
 
   // ✅ TEST 3: Remove link
-  it('should remove link from selection', () => {
+  it('should remove link from selection', async () => {
     const { result } = renderHook(() =>
       useBubbleMenuHandlers({
         editor: mockEditor as unknown as Editor,
@@ -100,10 +101,11 @@ describe('useBubbleMenuHandlers', () => {
       })
     );
 
-    act(() => {
-      result.current.removeLink();
+    await act(async () => {
+      await result.current.removeLink();
     });
 
+    expect(mockEditor.getAttributes).toHaveBeenCalledWith('link');
     expect(mockEditor.chain).toHaveBeenCalled();
     expect(chainMock.focus).toHaveBeenCalled();
     expect(chainMock.unsetLink).toHaveBeenCalled();

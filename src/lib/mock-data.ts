@@ -294,6 +294,15 @@ export function getBookById(id: string): BibleBook | undefined {
   return mockBibleBooks.find((book) => book.id === id);
 }
 
+/**
+ * Tags de um livro derivadas dos estudos do usuário daquele livro (sem repetição,
+ * na ordem em que aparecem). Os livros não têm tags fixas; é daqui que o filtro de
+ * tags do dashboard tira as tags de cada livro.
+ */
+export function getBookTagsFromStudies(studies: Array<{ tags?: string[] | null }>): string[] {
+  return [...new Set(studies.flatMap((s) => s.tags ?? []))];
+}
+
 export function getStudiesByBook(bookName: string): Study[] {
   return mockStudies.filter((study) => study.book === bookName);
 }

@@ -32,6 +32,7 @@ import {
   ExternalLink,
   Unlink,
   Search,
+  Menu,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -86,6 +87,7 @@ export function GrafoPageClient() {
 
   // Estado
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
   const [hoveredNode, setHoveredNode] = useState<ForceGraphNode | null>(null);
   const [fontsReady, setFontsReady] = useState(false);
@@ -114,6 +116,19 @@ export function GrafoPageClient() {
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, []);
+
+  // Canvas do tamanho do container (sem width/height o ForceGraph2D usa a janela inteira)
+  const graphContainerRef = useRef<HTMLDivElement>(null);
+  const [graphSize, setGraphSize] = useState<{ width: number; height: number } | null>(null);
+  useEffect(() => {
+    const el = graphContainerRef.current;
+    if (!el) return;
+    const update = () => setGraphSize({ width: el.clientWidth, height: el.clientHeight });
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loading]);
 
   // Aguardar fontes carregadas para Canvas rendering
   useEffect(() => {
@@ -309,11 +324,13 @@ export function GrafoPageClient() {
   // Estado de carregamento
   if (loading) {
     return (
-      <div className={cn("flex h-screen", PARCHMENT.bg.page)}>
-        <Sidebar
-          collapsed={sidebarCollapsed}
-          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-        />
+      <div className={cn("flex h-dvh", PARCHMENT.bg.page)}>
+        <div className="hidden lg:block">
+          <Sidebar
+            collapsed={sidebarCollapsed}
+            onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+          />
+        </div>
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className={cn("w-12 h-12 animate-spin", PARCHMENT.accent.text)} />
           <span className={cn("ml-4 text-xl", PARCHMENT.text.muted)}>Carregando grafo...</span>
@@ -323,21 +340,45 @@ export function GrafoPageClient() {
   }
 
   return (
-    <div className={cn("flex h-screen", PARCHMENT.bg.page)}>
-      {/* Sidebar */}
-      <Sidebar
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-      />
+    <div className={cn("flex h-dvh", PARCHMENT.bg.page)}>
+      {/* Mobile Sidebar Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-label="Fechar menu"
+        />
+      )}
+
+      {/* Sidebar - hidden on mobile, shown as drawer when mobileMenuOpen */}
+      <div className={cn(
+        "lg:relative lg:block",
+        mobileMenuOpen
+          ? "fixed inset-y-0 left-0 z-50"
+          : "hidden lg:block"
+      )}>
+        <Sidebar
+          collapsed={sidebarCollapsed && !mobileMenuOpen}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onClose={() => setMobileMenuOpen(false)}
+        />
+      </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 relative">
+      <div className="flex-1 flex flex-col min-w-0 relative overflow-hidden">
         {/* Header */}
         <header className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-parchment via-parchment/90 to-transparent">
           <div className="px-4 md:px-6 py-3 md:py-4">
             {/* Row 1: Title + Actions */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 md:gap-4">
+                <button
+                  onClick={() => setMobileMenuOpen(true)}
+                  className="lg:hidden p-2 rounded-lg hover:bg-warm-white min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  aria-label="Abrir menu"
+                >
+                  <Menu className={cn("w-5 h-5", PARCHMENT.text.heading)} />
+                </button>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -388,9 +429,9 @@ export function GrafoPageClient() {
             </div>
 
             {/* Row 2: Search + Filters */}
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex flex-wrap items-center gap-2 mt-2">
               {/* Search */}
-              <div className="relative flex-1 max-w-xs">
+              <div className="relative flex-1 min-w-[12rem] max-w-xs">
                 <div className={cn(
                   "flex items-center gap-2 px-3 py-1.5 rounded-lg border",
                   PARCHMENT.bg.input, PARCHMENT.border.default,
@@ -405,7 +446,7 @@ export function GrafoPageClient() {
                     placeholder="Buscar estudo..."
                     className={cn(
                       "bg-transparent outline-none w-full",
-                      TYPOGRAPHY.sizes.sm, PARCHMENT.text.heading,
+                      "text-base md:text-sm", PARCHMENT.text.heading,
                       "placeholder:text-sand"
                     )}
                   />
@@ -532,7 +573,8 @@ export function GrafoPageClient() {
               </h3>
               <button
                 onClick={() => setShowLegend(false)}
-                className={cn("w-7 h-7 flex items-center justify-center rounded", PARCHMENT.text.muted, "hover:text-espresso hover:bg-warm-white")}
+                className={cn("w-11 h-11 -my-2 -mr-2 md:w-7 md:h-7 md:my-0 md:mr-0 flex items-center justify-center rounded", PARCHMENT.text.muted, "hover:text-espresso hover:bg-warm-white")}
+                aria-label="Fechar legenda"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -734,7 +776,8 @@ export function GrafoPageClient() {
               </div>
               <button
                 onClick={() => setSelectedNode(null)}
-                className={cn("w-7 h-7 flex items-center justify-center rounded shrink-0", PARCHMENT.text.muted, "hover:text-espresso hover:bg-warm-white")}
+                className={cn("w-11 h-11 -my-2 -mr-2 md:w-7 md:h-7 md:my-0 md:mr-0 flex items-center justify-center rounded shrink-0", PARCHMENT.text.muted, "hover:text-espresso hover:bg-warm-white")}
+                aria-label="Fechar painel"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -807,9 +850,11 @@ export function GrafoPageClient() {
         )}
 
         {/* Graph */}
-        <div className="flex-1">
+        <div ref={graphContainerRef} className="flex-1 min-h-0 overflow-hidden">
           <ForceGraph2D
             ref={graphRef}
+            width={graphSize?.width}
+            height={graphSize?.height}
             graphData={filteredGraphData}
             nodeLabel=""
             nodeColor={(node: NodeObject) => (node as ForceGraphNode).color}

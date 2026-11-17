@@ -9,7 +9,7 @@ import { TopBar } from "@/components/dashboard/TopBar";
 import { BookGrid } from "@/components/dashboard/BookGrid";
 import { ChapterView } from "@/components/dashboard/ChapterView";
 import { BacklogPanel } from "@/components/dashboard/BacklogPanel";
-import { mockBibleBooks, BibleBook } from "@/lib/mock-data";
+import { mockBibleBooks, BibleBook, getBookTagsFromStudies } from "@/lib/mock-data";
 import { useStudies } from "@/hooks";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Menu, BookMarked } from "lucide-react";
@@ -57,6 +57,7 @@ export function DashboardClient() {
       return {
         ...book,
         studiedChapters,
+        tags: getBookTagsFromStudies(bookStudies),
         lastUpdate: lastUpdate ? new Date(lastUpdate).toISOString() : null,
       };
     });
@@ -119,7 +120,7 @@ export function DashboardClient() {
   }
 
   return (
-    <div className="flex h-screen bg-parchment">
+    <div className="flex h-dvh bg-parchment">
       {/* Mobile Sidebar Overlay */}
       {mobileMenuOpen && (
         <div
@@ -137,8 +138,9 @@ export function DashboardClient() {
           : "hidden lg:block"
       )}>
         <Sidebar
-          collapsed={sidebarCollapsed}
+          collapsed={sidebarCollapsed && !mobileMenuOpen}
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onClose={() => setMobileMenuOpen(false)}
         />
       </div>
 
@@ -229,7 +231,7 @@ export function DashboardClient() {
           ? "fixed inset-y-0 right-0 z-50"
           : "hidden lg:block"
       )}>
-        <BacklogPanel />
+        <BacklogPanel onClose={() => setBacklogOpen(false)} />
       </div>
     </div>
   );

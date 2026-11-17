@@ -7,10 +7,10 @@
  * Tests refs reversas são readonly (sem botão delete)
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 // Helper function para criar um novo estudo
-async function createStudy(page, title: string, book: string, chapter: number) {
+async function createStudy(page: Page, title: string, book: string, chapter: number) {
   // Navigate to new study
   await page.goto('/estudo/new?book=' + encodeURIComponent(book) + '&chapter=' + chapter);
 
@@ -38,7 +38,7 @@ async function createStudy(page, title: string, book: string, chapter: number) {
 }
 
 // Helper function para criar referência entre dois estudos
-async function createReference(page, targetStudyTitle: string) {
+async function createReference(page: Page, targetStudyTitle: string) {
   // Clica no botão "+" no ReferencesSidebar
   await page.locator('button:has-text("+")').click();
 

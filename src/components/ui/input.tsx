@@ -12,7 +12,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         type={type}
         ref={ref}
         className={cn(
-          `w-full px-3 py-2 text-sm ${COLORS.neutral.text.primary}`,
+          `w-full px-3 py-2 text-base md:text-sm ${COLORS.neutral.text.primary}`,
           `bg-white ${BORDERS.gray} rounded-md`,
           `placeholder:${COLORS.neutral.text.light}`,
           `focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`,

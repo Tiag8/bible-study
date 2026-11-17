@@ -19,10 +19,11 @@ export function BookCard({ book, onClick }: BookCardProps) {
   const hasStudies = book.studiedChapters.length > 0;
 
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
       className={cn(
-        "bg-cream rounded-xl p-5 border transition-all cursor-pointer",
+        "block w-full text-left bg-cream rounded-xl p-5 border transition-all cursor-pointer",
         PARCHMENT.border.default,
         SHADOW_WARM.sm,
         hasStudies
@@ -115,6 +116,6 @@ export function BookCard({ book, onClick }: BookCardProps) {
             : "Nenhum estudo ainda"}
         </span>
       </div>
-    </div>
+    </button>
   );
 }

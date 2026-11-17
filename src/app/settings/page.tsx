@@ -21,6 +21,7 @@ import {
   AlertTriangle,
   Loader2,
   CheckCircle,
+  Menu,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -28,6 +29,7 @@ export default function SettingsPage() {
   const { user, profile, refreshProfile, signOut } = useAuth();
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [fullName, setFullName] = useState("");
 
   // Inicializar fullName quando profile carregar
@@ -147,16 +149,46 @@ export default function SettingsPage() {
   const userRole = profile?.role === "admin" ? "Admin" : "Free";
 
   return (
-    <div className="flex h-screen bg-parchment">
-      <Sidebar
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-      />
+    <div className="flex h-dvh bg-parchment">
+      {/* Mobile Sidebar Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-label="Fechar menu"
+        />
+      )}
+
+      {/* Sidebar - hidden on mobile, shown as drawer when mobileMenuOpen */}
+      <div className={cn(
+        "lg:relative lg:block",
+        mobileMenuOpen
+          ? "fixed inset-y-0 left-0 z-50"
+          : "hidden lg:block"
+      )}>
+        <Sidebar
+          collapsed={sidebarCollapsed && !mobileMenuOpen}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onClose={() => setMobileMenuOpen(false)}
+        />
+      </div>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <div className="p-6 max-w-4xl mx-auto w-full">
+        {/* Mobile Header */}
+        <div className="sticky top-0 z-10 flex items-center gap-2 px-4 py-3 lg:hidden border-b border-linen bg-ivory">
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="p-2 rounded-lg hover:bg-cream min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label="Abrir menu"
+          >
+            <Menu className={cn("w-5 h-5", PARCHMENT.text.heading)} />
+          </button>
+          <span className={cn("font-lora font-bold flex-1", PARCHMENT.text.heading)}>Bible Study</span>
+        </div>
+
+        <div className="p-4 md:p-6 max-w-4xl mx-auto w-full">
           <div className="mb-8">
-            <h1 className={cn("text-3xl font-lora font-bold", PARCHMENT.text.heading)}>Configurações</h1>
+            <h1 className={cn("text-2xl md:text-3xl font-lora font-bold", PARCHMENT.text.heading)}>Configurações</h1>
             <p className={cn("mt-2", PARCHMENT.text.secondary)}>
               Gerencie suas preferências e informações da conta
             </p>
