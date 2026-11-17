@@ -16,7 +16,7 @@ export function BubbleMenuLink({
   onSetLink,
 }: BubbleMenuLinkProps) {
   return (
-    <div className="p-3 w-80">
+    <div className="p-3 w-80 max-w-full">
       {/* Input de URL */}
       <div className="flex items-center gap-2">
         <ExternalLink className={cn("w-4 h-4", COLORS.neutral.text.primary)} />
@@ -36,7 +36,7 @@ export function BubbleMenuLink({
             }
           }}
           className={cn(
-            "flex-1 px-2 py-1 text-sm rounded focus:outline-none focus:ring-2 focus:ring-blue-500",
+            "flex-1 min-w-0 px-2 py-1 text-base md:text-sm rounded focus:outline-none focus:ring-2 focus:ring-blue-500",
             BORDERS.gray
           )}
           autoFocus

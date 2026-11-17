@@ -256,9 +256,11 @@ export function CommentTooltip({ editor }: CommentTooltipProps) {
   // Calcular posicao do tooltip
   const tooltipStyle: React.CSSProperties = {
     position: "fixed",
-    left: `${comment.rect.left + comment.rect.width / 2}px`,
-    top: `${comment.rect.top - 8}px`,
-    transform: "translate(-50%, -100%)",
+    // Mantém o balão dentro da tela: o centro fica a pelo menos meia largura das bordas.
+    left: `clamp(10.5rem, ${comment.rect.left + comment.rect.width / 2}px, calc(100vw - 10.5rem))`,
+    // Perto do topo não há espaço acima do trecho: abre abaixo dele.
+    top: comment.rect.top < 180 ? `${comment.rect.bottom + 8}px` : `${comment.rect.top - 8}px`,
+    transform: comment.rect.top < 180 ? "translate(-50%, 0)" : "translate(-50%, -100%)",
     zIndex: 50,
   };
 
@@ -302,7 +304,7 @@ export function CommentTooltip({ editor }: CommentTooltipProps) {
                 }
               }}
               className={cn(
-                "w-full px-2 py-1.5 text-sm rounded resize-none focus:outline-none focus:ring-2 focus:ring-amber-500",
+                "w-full px-2 py-1.5 text-base md:text-sm rounded resize-none focus:outline-none focus:ring-2 focus:ring-amber-500",
                 BORDERS.gray
               )}
             />
@@ -336,21 +338,21 @@ export function CommentTooltip({ editor }: CommentTooltipProps) {
               <div className="flex items-center gap-1">
                 <button
                   onClick={handleEdit}
-                  className="p-1 rounded hover:bg-gray-100 transition-colors"
+                  className="p-1 max-md:p-2.5 rounded hover:bg-gray-100 transition-colors"
                   title="Editar comentario"
                 >
                   <Pencil className="w-3.5 h-3.5 text-gray-500" />
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="p-1 rounded hover:bg-red-50 transition-colors"
+                  className="p-1 max-md:p-2.5 rounded hover:bg-red-50 transition-colors"
                   title="Excluir comentario"
                 >
                   <Trash2 className="w-3.5 h-3.5 text-red-500" />
                 </button>
                 <button
                   onClick={() => setComment(null)}
-                  className="p-1 rounded hover:bg-gray-100 transition-colors"
+                  className="p-1 max-md:p-2.5 rounded hover:bg-gray-100 transition-colors"
                   title="Fechar"
                 >
                   <X className="w-3.5 h-3.5 text-gray-400" />

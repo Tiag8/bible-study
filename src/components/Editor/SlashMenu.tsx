@@ -267,7 +267,7 @@ function SlashMenuBase({
                 setQuery(e.target.value);
                 setSelectedIndex(0);
               }}
-              className="w-full px-2 py-1 text-sm border-0 focus:outline-none"
+              className="w-full px-2 py-1 text-base md:text-sm border-0 focus:outline-none"
               autoFocus
             />
           </div>

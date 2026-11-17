@@ -20,6 +20,8 @@ interface ReferencesSidebarProps {
   onDeleteReference: (referenceId: string) => Promise<boolean>;
   onReorder: (referenceId: string, direction: 'up' | 'down') => Promise<boolean>;
   onRetry?: () => void;
+  /** Estudo aberto: não aparece na lista de estudos a referenciar. */
+  currentStudyId?: string;
 }
 
 export function ReferencesSidebar({
@@ -31,6 +33,7 @@ export function ReferencesSidebar({
   onDeleteReference,
   onReorder,
   onRetry,
+  currentStudyId,
 }: ReferencesSidebarProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [showOnMobile, setShowOnMobile] = useState(false);
@@ -289,6 +292,10 @@ export function ReferencesSidebar({
             return success;
           } : undefined}
           onClose={() => setShowAddModal(false)}
+          currentStudyId={currentStudyId}
+          existingReferenceIds={references
+            .map((ref) => ref.target_study_id)
+            .filter((targetId): targetId is string => Boolean(targetId))}
         />
       )}
 
@@ -368,7 +375,9 @@ export function ReferencesSidebar({
       <button
         onClick={() => setShowOnMobile(true)}
         className={cn(
-          'fixed bottom-6 right-6 md:hidden z-40',
+          'fixed bottom-6 right-6 md:hidden z-30',
+          // Enquanto a barra de formatação do celular está aberta, o botão sai do caminho.
+          "[body[data-editing='true']_&]:hidden",
           'p-3 rounded-full text-white transition-all min-h-[48px] min-w-[48px] flex items-center justify-center',
           'bg-amber hover:bg-amber-dark',
           'hover:shadow-lg hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber',

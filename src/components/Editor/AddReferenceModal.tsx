@@ -128,7 +128,7 @@ export function AddReferenceModal({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div
-        className={cn('bg-white rounded-lg w-full max-w-md', SHADOW_CLASSES.lg)}
+        className={cn('bg-white rounded-lg w-full max-w-md mx-4 max-h-[90dvh] overflow-y-auto', SHADOW_CLASSES.lg)}
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-reference-title"
@@ -140,8 +140,8 @@ export function AddReferenceModal({
           </h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded transition-colors"
-            aria-label="Close dialog"
+            className="p-1 max-md:p-2.5 hover:bg-gray-100 rounded transition-colors"
+            aria-label="Fechar"
           >
             <X className="w-5 h-5" />
           </button>

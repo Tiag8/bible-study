@@ -37,7 +37,7 @@ export function BubbleMenuComment({
   };
 
   return (
-    <div className="p-3 w-80">
+    <div className="p-3 w-80 max-w-full">
       {/* Header */}
       <div className="flex items-center gap-2 mb-2">
         <MessageSquare className={cn("w-4 h-4", COLORS.neutral.text.primary)} />
@@ -63,7 +63,7 @@ export function BubbleMenuComment({
           }
         }}
         className={cn(
-          "w-full px-2 py-1.5 text-sm rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500",
+          "w-full px-2 py-1.5 text-base md:text-sm rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500",
           BORDERS.gray
         )}
       />

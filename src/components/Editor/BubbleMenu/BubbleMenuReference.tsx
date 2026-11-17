@@ -30,7 +30,7 @@ export function BubbleMenuReference({
   }, [studies, searchQuery]);
 
   return (
-    <div className="p-3 w-80">
+    <div className="p-3 w-80 max-w-full">
       {/* Input de busca */}
       <div className="flex items-center gap-2 mb-3">
         <BookOpen className={cn("w-4 h-4", COLORS.neutral.text.primary)} />
@@ -46,7 +46,7 @@ export function BubbleMenuReference({
             }
           }}
           className={cn(
-            "flex-1 px-2 py-1 text-sm rounded focus:outline-none focus:ring-2 focus:ring-blue-500",
+            "flex-1 min-w-0 px-2 py-1 text-base md:text-sm rounded focus:outline-none focus:ring-2 focus:ring-blue-500",
             BORDERS.gray
           )}
           autoFocus

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Lora, Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -45,6 +45,16 @@ export const metadata: Metadata = {
       "object-src 'none'",                 // Bloqueia Flash/plugins
     ].join('; '),
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // Com o teclado aberto, o Chrome do Android redimensiona a página (e não só a área
+  // visível), então a barra de formatação fixa no rodapé fica logo acima do teclado.
+  // O Safari do iOS ainda ignora esta chave; lá a barra se posiciona pelo visualViewport.
+  interactiveWidget: "resizes-content",
+  themeColor: "#e8e0d1",
 };
 
 export default function RootLayout({

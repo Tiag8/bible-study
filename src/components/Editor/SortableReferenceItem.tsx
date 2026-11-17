@@ -187,7 +187,7 @@ export const SortableReferenceItem = React.forwardRef<
               onClick={() => onReorder(reference.id, 'up')}
               className={cn(
                 'p-1.5 rounded transition-all duration-150 ease-out',
-                'opacity-0 group-hover:opacity-100', // fade in ao hover
+                'md:opacity-0 md:group-hover:opacity-100 max-md:p-2.5', // no toque fica sempre visível; fade in ao hover no desktop
                 'delay-0', // stagger: sem delay
                 isFirstItem || deleting
                   ? 'opacity-30 cursor-not-allowed'
@@ -206,7 +206,7 @@ export const SortableReferenceItem = React.forwardRef<
               onClick={() => onReorder(reference.id, 'down')}
               className={cn(
                 'p-1.5 rounded transition-all duration-150 ease-out',
-                'opacity-0 group-hover:opacity-100', // fade in ao hover
+                'md:opacity-0 md:group-hover:opacity-100 max-md:p-2.5', // no toque fica sempre visível; fade in ao hover no desktop
                 'delay-50', // stagger: 50ms delay
                 isLastItem || deleting
                   ? 'opacity-30 cursor-not-allowed'
@@ -227,7 +227,7 @@ export const SortableReferenceItem = React.forwardRef<
                 onClick={() => onDelete(reference.id)}
                 className={cn(
                   'p-1.5 rounded ml-1 transition-all duration-150 ease-out',
-                  'opacity-0 group-hover:opacity-100', // fade in ao hover
+                  'md:opacity-0 md:group-hover:opacity-100 max-md:p-2.5', // no toque fica sempre visível; fade in ao hover no desktop
                   'delay-100', // stagger: 100ms delay
                   'text-gray-500 hover:text-red-600 hover:bg-red-50',
                   'hover:scale-105 active:scale-95',
@@ -268,7 +268,7 @@ export const SortableReferenceItem = React.forwardRef<
               }}
               className={cn(
                 'p-1.5 rounded transition-all duration-150 ease-out',
-                'opacity-0 group-hover:opacity-100', // fade in ao hover
+                'md:opacity-0 md:group-hover:opacity-100 max-md:p-2.5', // no toque fica sempre visível; fade in ao hover no desktop
                 'delay-150', // stagger: 150ms delay (final)
                 'text-gray-500 hover:text-blue-600 hover:bg-blue-50',
                 'active:scale-95'

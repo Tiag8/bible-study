@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, forwardRef, useImperativeHandle, useMemo } from "react";
+import { useEffect, useRef, forwardRef, useImperativeHandle, useMemo, type ReactNode } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Placeholder } from "@tiptap/extensions";
@@ -16,9 +16,11 @@ import { ColoredBlockquote } from "./ColoredBlockquote";
 import { CommentMark } from "./CommentMark";
 import { CommentTooltip } from "./CommentTooltip";
 import { BubbleMenuComponent } from "./BubbleMenu"; // Agora aponta para BubbleMenu/index
+import { MobileToolbar } from "./MobileToolbar";
 import { SlashMenu } from "./SlashMenu";
 import { useSlashMenu } from "./useSlashMenu";
 import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
+import { isTouchLayout, useTouchLayout } from "@/hooks/useTouchLayout";
 import type { TiptapContent } from "@/types/database";
 
 interface EditorProps {
@@ -28,6 +30,14 @@ interface EditorProps {
   onAddReference?: (targetStudyId: string) => Promise<boolean>;
   onAddExternalLink?: (url: string) => Promise<boolean>;
   onDeleteReferenceByStudyId?: (targetStudyId: string) => Promise<boolean>;
+  /** Indicador curto (ex.: estado do salvamento) mostrado na barra do celular. */
+  toolbarStatus?: ReactNode;
+}
+
+export interface OutlineItem {
+  level: number;
+  text: string;
+  pos: number;
 }
 
 export interface EditorHandle {
@@ -36,6 +46,12 @@ export interface EditorHandle {
   canUndo: boolean;
   canRedo: boolean;
   removeLink: (url: string) => void;
+  /** Conteúdo atual em JSON, sem esperar o debounce do onChange. */
+  getContent: () => string | null;
+  /** Títulos do documento, na ordem, para o sumário. */
+  getOutline: () => OutlineItem[];
+  /** Rola até o bloco na posição dada, sem abrir o teclado. */
+  scrollToPos: (pos: number) => void;
 }
 
 /**
@@ -48,8 +64,9 @@ export interface EditorHandle {
  * - Links externos + referências internas (bible-graph://)
  * - Slash commands (/ para menu)
  * - Notion-style shortcuts (> para toggle, | para quote)
- * - Auto-save com debounce (300ms)
- * - Undo/Redo com histórico limitado a 5 passos
+ * - onChange com debounce (300ms); o salvamento em si fica na página do estudo
+ * - Undo/Redo
+ * - No celular: barra de formatação fixa acima do teclado (MobileToolbar)
  *
  * @param initialContent - Conteúdo inicial (JSON | HTML | objeto TiptapContent)
  * @param onChange - Callback quando conteúdo muda (formato: JSON string)
@@ -57,7 +74,7 @@ export interface EditorHandle {
  * @ref Editor - Expõe métodos undo() e redo() e status canUndo/canRedo
  */
 export const Editor = forwardRef<EditorHandle, EditorProps>(
-  function Editor({ initialContent = "", onChange, onUndoRedoChange, onAddReference, onAddExternalLink, onDeleteReferenceByStudyId }: EditorProps, ref) {
+  function Editor({ initialContent = "", onChange, onUndoRedoChange, onAddReference, onAddExternalLink, onDeleteReferenceByStudyId, toolbarStatus }: EditorProps, ref) {
   // Ref para prevenir sync loops (evita setContent quando conteúdo já é o mesmo)
   const lastSyncedContentRef = useRef<string | null>(null);
 
@@ -116,19 +133,31 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
     []
   );
 
+  // Telas de toque usam a barra fixa acima do teclado no lugar do menu flutuante.
+  const touchLayout = useTouchLayout();
+  // O editor só é criado no navegador, então a leitura síncrona vale para as opções dele.
+  const touchAtMount = useMemo(isTouchLayout, []);
+
   const editor = useEditor({
     extensions,
     content: parsedInitialContent,
     immediatelyRender: false, // Fix SSR hydration mismatch
     editorProps: {
       attributes: {
-        class: "tiptap prose prose-sm max-w-none p-4 focus:outline-none min-h-[300px]",
-        // EP01-S1.0 AC1: atributos declarativos pra reduzir popovers de correção do Chrome.
-        autocorrect: "off",
-        autocapitalize: "off",
-        spellcheck: "false",
+        // 16 px no celular (abaixo disso o iOS dá zoom ao focar); 14 px de md para cima.
+        // O espaço extra embaixo no celular deixa a última linha acima da barra.
+        class: "tiptap prose md:prose-sm max-w-none p-4 max-md:pb-20 focus:outline-none min-h-[300px]",
+        // Autocorreção, maiúscula automática e corretor ortográfico ficam no padrão do
+        // navegador (ligados): escrever prosa no celular sem eles era o pior da experiência.
         translate: "no",
       },
+      // Mantém o cursor visível acima da barra do celular ao digitar no fim da tela.
+      ...(touchAtMount
+        ? {
+            scrollThreshold: { top: 0, right: 0, bottom: 72, left: 0 },
+            scrollMargin: { top: 5, right: 5, bottom: 84, left: 5 },
+          }
+        : {}),
       // EP01-S1.0 AC1 (v2): interceptar formatação vinda do menu nativo do Chrome Android/iOS.
       // O menu nativo continua aparecendo (limitação do navegador, ver Gutenberg #35447 e
       // ProseMirror discuss "contenteditable on Android"), mas seus botões Bold/Italic/Underline
@@ -157,8 +186,7 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
               handled = true;
               break;
             case "formatUnderline":
-              // Sem extensão Underline configurada — converte em italic como fallback razoável.
-              ed.chain().focus().toggleItalic().run();
+              ed.chain().focus().toggleUnderline().run();
               handled = true;
               break;
             case "formatStrikeThrough":
@@ -191,6 +219,25 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
     redo: () => editor?.commands.redo(),
     canUndo: editor?.can().undo() ?? false,
     canRedo: editor?.can().redo() ?? false,
+    getContent: () => (editor ? JSON.stringify(editor.getJSON()) : null),
+    getOutline: () => {
+      const items: OutlineItem[] = [];
+      editor?.state.doc.descendants((node, pos) => {
+        if (node.type.name === "heading" && node.textContent.trim()) {
+          items.push({ level: node.attrs.level as number, text: node.textContent, pos });
+        }
+        // Títulos só existem no nível de bloco: não descer em parágrafos.
+        return node.type.name !== "paragraph";
+      });
+      return items;
+    },
+    scrollToPos: (pos: number) => {
+      if (!editor) return;
+      const dom = editor.view.nodeDOM(pos);
+      if (dom instanceof HTMLElement) {
+        dom.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    },
     removeLink: (url: string) => {
       if (!editor) return;
       const doc = editor.state.doc;
@@ -343,7 +390,11 @@ export const Editor = forwardRef<EditorHandle, EditorProps>(
         }
       `}</style>
 
-      <BubbleMenuComponent editor={editor} onAddReference={onAddReference} onAddExternalLink={onAddExternalLink} onDeleteReferenceByStudyId={onDeleteReferenceByStudyId} />
+      {touchLayout ? (
+        <MobileToolbar editor={editor} status={toolbarStatus} onAddReference={onAddReference} onAddExternalLink={onAddExternalLink} onDeleteReferenceByStudyId={onDeleteReferenceByStudyId} />
+      ) : (
+        <BubbleMenuComponent editor={editor} onAddReference={onAddReference} onAddExternalLink={onAddExternalLink} onDeleteReferenceByStudyId={onDeleteReferenceByStudyId} />
+      )}
       <CommentTooltip editor={editor} />
       <EditorContent editor={editor} />
       <SlashMenu

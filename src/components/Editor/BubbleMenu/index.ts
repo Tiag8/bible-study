@@ -12,6 +12,7 @@ export { BubbleMenuReference } from "./BubbleMenuReference";
 export { BubbleMenuHighlight } from "./BubbleMenuHighlight";
 export { BubbleMenuTextColor } from "./BubbleMenuTextColor";
 export { BubbleMenuQuote } from "./BubbleMenuQuote";
+export { FormatPanels } from "./FormatPanels";
 
 export { useBubbleMenuHandlers } from "./useBubbleMenuHandlers";
 

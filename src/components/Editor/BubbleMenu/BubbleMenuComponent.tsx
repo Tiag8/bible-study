@@ -7,7 +7,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import type { Editor } from "@tiptap/react";
 import { cn } from "@/lib/utils";
@@ -15,13 +15,7 @@ import { BORDERS, SHADOW_CLASSES } from "@/lib/design-tokens";
 
 import { useBubbleMenuHandlers } from "./useBubbleMenuHandlers";
 import { BubbleMenuToolbar } from "./BubbleMenuToolbar";
-import { BubbleMenuHeading } from "./BubbleMenuHeading";
-import { BubbleMenuLink } from "./BubbleMenuLink";
-import { BubbleMenuReference } from "./BubbleMenuReference";
-import { BubbleMenuHighlight } from "./BubbleMenuHighlight";
-import { BubbleMenuTextColor } from "./BubbleMenuTextColor";
-import { BubbleMenuQuote } from "./BubbleMenuQuote";
-import { BubbleMenuComment } from "./BubbleMenuComment";
+import { FormatPanels } from "./FormatPanels";
 import type { MenuMode } from "./types";
 
 interface BubbleMenuComponentProps {
@@ -56,6 +50,18 @@ function BubbleMenuComponentBase({ editor, onAddReference, onAddExternalLink, on
     onDeleteReferenceByStudyId,
   });
 
+  // Sem isto, sair de um painel (link, referência, comentário) tocando fora fazia a
+  // seleção seguinte reabrir o menu naquele painel em vez da barra principal.
+  useEffect(() => {
+    const resetWhenSelectionEmpties = () => {
+      if (editor.state.selection.empty) setMode("default");
+    };
+    editor.on("selectionUpdate", resetWhenSelectionEmpties);
+    return () => {
+      editor.off("selectionUpdate", resetWhenSelectionEmpties);
+    };
+  }, [editor]);
+
   return (
     <BubbleMenu
       editor={editor}
@@ -79,74 +85,17 @@ function BubbleMenuComponentBase({ editor, onAddReference, onAddExternalLink, on
         />
       )}
 
-      {/* Modo heading - Seleção de títulos */}
-      {mode === "heading" && (
-        <BubbleMenuHeading
-          editor={editor}
-          setMode={setMode}
-        />
-      )}
-
-      {/* Modo link - Input de URL externa */}
-      {mode === "link" && (
-        <BubbleMenuLink
-          editor={editor}
-          setMode={setMode}
-          linkUrl={linkUrl}
-          setLinkUrl={setLinkUrl}
-          onSetLink={() => handlers.setLink(linkUrl)}
-        />
-      )}
-
-      {/* Modo reference - Busca de estudos */}
-      {mode === "reference" && (
-        <BubbleMenuReference
-          editor={editor}
-          setMode={setMode}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          onSelectReference={handlers.setReference}
-        />
-      )}
-
-      {/* Modo highlight - Seleção de cor de marca-texto */}
-      {mode === "highlight" && (
-        <BubbleMenuHighlight
-          editor={editor}
-          setMode={setMode}
-          onSelectColor={handlers.setHighlight}
-          onRemoveColor={handlers.removeHighlight}
-        />
-      )}
-
-      {/* Modo textColor - Seleção de cor de texto */}
-      {mode === "textColor" && (
-        <BubbleMenuTextColor
-          editor={editor}
-          setMode={setMode}
-          onSelectColor={handlers.setTextColor}
-          onRemoveColor={handlers.removeTextColor}
-        />
-      )}
-
-      {/* Modo quote - Seleção de cor de citação */}
-      {mode === "quote" && (
-        <BubbleMenuQuote
-          editor={editor}
-          setMode={setMode}
-          onSelectColor={handlers.setBlockquote}
-          onRemoveColor={handlers.removeBlockquote}
-        />
-      )}
-
-      {/* Modo comment - Adicionar comentario inline */}
-      {mode === "comment" && (
-        <BubbleMenuComment
-          editor={editor}
-          setMode={setMode}
-          onSave={handlers.setComment}
-        />
-      )}
+      {/* Demais modos - painéis compartilhados com a barra do celular */}
+      <FormatPanels
+        editor={editor}
+        mode={mode}
+        setMode={setMode}
+        linkUrl={linkUrl}
+        setLinkUrl={setLinkUrl}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handlers={handlers}
+      />
     </BubbleMenu>
   );
 }
