@@ -63,6 +63,9 @@ const STATUS_RING_DOUBLE_GAP = 4;
 // do qual só o nó em foco (hover, selecionado ou achado pela busca) mostra o título
 const LABEL_MAX_WIDTH = { mobile: 72, desktop: 100 };
 const LABEL_MIN_SCALE = { mobile: 0.9, desktop: 0.4 };
+// Com poucos estudos na tela os nomes cabem sem se sobrepor: aparecem em qualquer zoom.
+// (Num iPhone o enquadramento inicial fica abaixo de 0,9x e o grafo abria sem nenhum nome.)
+const LABEL_ALWAYS_UP_TO_NODES = 15;
 // A segunda linha (livro e capítulo) só aparece com zoom alto ou no nó em foco
 const META_MIN_SCALE = 2;
 // Zoom máximo do enquadramento inicial (com poucos nós o fit aproximaria demais)
@@ -1019,7 +1022,8 @@ export function GrafoPageClient() {
               // Labels com escala dinâmica e hierarquia tipográfica. No celular, com zoom
               // baixo, só o nó em foco mostra o título (os rótulos se sobrepunham)
               const labelMinScale = isMobile ? LABEL_MIN_SCALE.mobile : LABEL_MIN_SCALE.desktop;
-              if (isFocus || globalScale > labelMinScale) {
+              const fewNodes = filteredGraphData.nodes.length <= LABEL_ALWAYS_UP_TO_NODES;
+              if (isFocus || fewNodes || globalScale > labelMinScale) {
                 // Titulo - Lora serif, escala com zoom mas com min/max
                 const titleSize = Math.min(Math.max(10 / globalScale, 8), 18);
                 ctx.font = fontsReady ? CANVAS_FONTS.title(titleSize) : `600 ${titleSize}px Georgia, serif`;

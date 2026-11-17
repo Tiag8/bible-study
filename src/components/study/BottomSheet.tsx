@@ -29,7 +29,12 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
+    if (open && !dialog.open) {
+      dialog.showModal();
+      // O foco vai para o painel em si, não para o primeiro botão: no Safari o X ganhava
+      // o anel de foco ao abrir por toque e parecia selecionado.
+      dialog.focus();
+    }
     if (!open && dialog.open) {
       closedByProp.current = true;
       dialog.close();
@@ -48,6 +53,7 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
+      tabIndex={-1}
       onClose={handleNativeClose}
       // O toque fora do painel cai no próprio <dialog> (a área escurecida é dele).
       onClick={(event) => {
@@ -55,13 +61,15 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
       }}
       // Gesto de voltar do Android fecha o painel, onde o navegador já suporta.
       {...{ closedby: 'any' }}
+      // Sem flex aqui de propósito: com o painel em coluna flex e o corpo em `flex-1`, o
+      // Safari do iPhone calculava a altura do corpo como zero (a base 0% numa altura
+      // indefinida) e o painel abria só com o título. O corpo tem altura máxima própria.
       className={cn(
         'fixed inset-x-0 bottom-0 top-auto m-0 w-full max-w-full rounded-t-2xl border-t border-linen bg-warm-white p-0',
-        'max-h-[80dvh] overflow-hidden shadow-[0_-10px_30px_rgba(60,36,21,0.2)] backdrop:bg-espresso/30',
-        'open:flex open:flex-col'
+        'overflow-hidden shadow-[0_-10px_30px_rgba(60,36,21,0.2)] backdrop:bg-espresso/30 focus:outline-none'
       )}
     >
-      <div className="flex shrink-0 flex-col items-center px-2 pt-2">
+      <div className="flex flex-col items-center px-2 pt-2">
         <span className="h-1 w-10 rounded-full bg-sand/50" aria-hidden="true" />
         <div className="flex w-full items-center justify-between pl-3">
           <h2 id={titleId} className={cn('font-lora text-base font-semibold', PARCHMENT.text.heading)}>
@@ -78,7 +86,7 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
         </div>
       </div>
       <div
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2"
+        className="sheet-body overflow-y-auto overscroll-contain px-2"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.75rem)' }}
       >
         {children}

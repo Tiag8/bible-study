@@ -40,6 +40,23 @@ body {
   }
 }
 
+/* Corpo dos painéis que sobem da base (BottomSheet): altura máxima própria, com `vh`
+   como reserva para navegadores sem `dvh`. O desconto é o cabeçalho do painel. */
+.sheet-body {
+  max-height: calc(80vh - 4.5rem);
+  max-height: calc(80dvh - 4.5rem);
+}
+
+/* No celular o topo do estudo é fixo: ao ir a um título pelo Sumário, ele para logo
+   abaixo do topo em vez de ficar escondido atrás dele. */
+@media (max-width: 767px) {
+  .tiptap h1,
+  .tiptap h2,
+  .tiptap h3 {
+    scroll-margin-top: 5.25rem;
+  }
+}
+
 /* Tiptap Editor Styles */
 .tiptap {
   outline: none;

@@ -290,7 +290,9 @@ export function StudyMobileChrome({
           items={outline}
           onSelect={(pos) => {
             close();
-            onSelectOutline(pos);
+            // Rola só depois de o painel fechar e o foco voltar ao botão: no Safari a
+            // devolução do foco interrompia a rolagem até o título.
+            window.setTimeout(() => onSelectOutline(pos), 80);
           }}
         />
       </BottomSheet>
