@@ -56,7 +56,7 @@ export function Sidebar({ collapsed, onToggle, onClose }: SidebarProps) {
         {!collapsed && (
           <Link href="/" className="flex items-center gap-2">
             <BookOpen className={cn("w-6 h-6", PARCHMENT.accent.text)} />
-            <span className={cn("font-lora font-bold", PARCHMENT.text.heading)}>Bible Graph</span>
+            <span className={cn("font-lora font-bold", PARCHMENT.text.heading)}>Bible Study</span>
           </Link>
         )}
         {collapsed && (

@@ -312,18 +312,22 @@ export function getStudiesByBook(bookName: string): Study[] {
   return mockStudies.filter((study) => study.book === bookName);
 }
 
-export function formatRelativeDate(dateString: string | null): string {
+/** "1 semana", "2 semanas": singular só para 1. */
+function pluralize(count: number, singular: string, plural: string): string {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+export function formatRelativeDate(dateString: string | null, now: Date = new Date()): string {
   if (!dateString) return "Nunca";
 
   const date = new Date(dateString);
-  const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffDays === 0) return "Hoje";
   if (diffDays === 1) return "Ontem";
-  if (diffDays < 7) return `${diffDays} dias atrás`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} semanas atrás`;
+  if (diffDays < 7) return `${pluralize(diffDays, "dia", "dias")} atrás`;
+  if (diffDays < 30) return `${pluralize(Math.floor(diffDays / 7), "semana", "semanas")} atrás`;
   return date.toLocaleDateString("pt-BR");
 }
 
