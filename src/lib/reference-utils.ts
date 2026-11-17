@@ -6,35 +6,21 @@
  */
 
 import { Reference } from '@/hooks/useReferences';
-import { REFERENCE_TYPE_COLORS } from './design-tokens';
+import type { REFERENCE_ACCENTS } from './theme-colors';
+
+export type ReferenceKind = keyof typeof REFERENCE_ACCENTS;
 
 /**
- * Determine the Tailwind color classes for a reference based on its type
+ * Tipo da referência, chave de REFERENCE_ACCENTS (faixa e nome do tipo no cartão):
  *
- * - Internal references (created by user): green-50
- * - Reversed references (created by trigger): red-50
- * - External links: blue-50
- *
- * @param ref - Reference object with link_type and is_bidirectional fields
- * @returns Tailwind class string with bg, border, and hover states
+ * - external: link para um site
+ * - referenced_by: referência interna criada pelo gatilho (is_bidirectional=false)
+ * - references: referência interna criada pelo usuário (e qualquer outro caso)
  */
-export function getReferenceTypeColor(ref: Reference): string {
-  if (ref.link_type === 'external') {
-    return REFERENCE_TYPE_COLORS.external;
-  }
-
-  // Internal references
-  if (ref.link_type === 'internal') {
-    // is_bidirectional=true means created by user (green)
-    // is_bidirectional=false means created by trigger (red)
-    if (ref.is_bidirectional === false) {
-      return REFERENCE_TYPE_COLORS.referenced_by;
-    }
-    return REFERENCE_TYPE_COLORS.references;
-  }
-
-  // Fallback to green for any other case
-  return REFERENCE_TYPE_COLORS.references;
+export function getReferenceKind(ref: Pick<Reference, 'link_type' | 'is_bidirectional'>): ReferenceKind {
+  if (ref.link_type === 'external') return 'external';
+  if (ref.link_type === 'internal' && ref.is_bidirectional === false) return 'referenced_by';
+  return 'references';
 }
 
 /**

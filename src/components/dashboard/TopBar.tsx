@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Network, Filter, X, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { TagChip } from "@/components/ui/tag-chip";
 import { useTags } from "@/hooks";
 import { cn } from "@/lib/utils";
-import { PARCHMENT, TAG_COLORS, SHADOW_WARM } from "@/lib/design-tokens";
+import { PARCHMENT, SHADOW_WARM } from "@/lib/design-tokens";
 
 interface TopBarProps {
   searchQuery: string;
@@ -26,6 +27,18 @@ export function TopBar({
 }: TopBarProps) {
   const [showTagDropdown, setShowTagDropdown] = useState(false);
   const { tags, loading: tagsLoading } = useTags();
+
+  // Placeholder curto no celular (o longo era cortado em 390 px), longo do md para cima
+  const [isWide, setIsWide] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () => setIsWide(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  const tagColorKey = (tagName: string) => tags.find((t) => t.name === tagName)?.color ?? null;
 
   const toggleTag = (tagName: string) => {
     if (selectedTags.includes(tagName)) {
@@ -46,7 +59,8 @@ export function TopBar({
         <div className="flex-1 relative max-w-lg">
           <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4", PARCHMENT.text.muted)} />
           <Input
-            placeholder="Buscar livros, capítulos ou tags..."
+            placeholder={isWide ? "Buscar livros, capítulos ou tags..." : "Buscar nos estudos"}
+            aria-label="Buscar livros, capítulos, tags e estudos"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className={cn(
@@ -81,7 +95,7 @@ export function TopBar({
             <Filter className="w-4 h-4 mr-2" />
             Tags
             {selectedTags.length > 0 && (
-              <Badge variant="default" className="ml-2 bg-amber text-white">
+              <Badge variant="default" className="ml-2">
                 {selectedTags.length}
               </Badge>
             )}
@@ -97,7 +111,7 @@ export function TopBar({
                 {selectedTags.length > 0 && (
                   <button
                     onClick={clearTags}
-                    className={cn("text-xs transition-colors", PARCHMENT.accent.text, "hover:text-amber-dark")}
+                    className={cn("text-xs font-medium transition-colors", PARCHMENT.accent.textDark, "hover:text-espresso")}
                   >
                     Limpar
                   </button>
@@ -113,23 +127,16 @@ export function TopBar({
                     <button
                       key={tag.id}
                       onClick={() => toggleTag(tag.name)}
+                      aria-pressed={selectedTags.includes(tag.name)}
                       className={cn(
                         "w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors",
                         "hover:bg-warm-white",
                         selectedTags.includes(tag.name) && "bg-warm-white"
                       )}
                     >
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="w-2 h-2 rounded-full"
-                          style={{
-                            backgroundColor: TAG_COLORS[tag.color] || TAG_COLORS.blue,
-                          }}
-                        />
-                        <span className={PARCHMENT.text.secondary}>{tag.name}</span>
-                      </div>
+                      <TagChip name={tag.name} colorKey={tag.color} />
                       {selectedTags.includes(tag.name) && (
-                        <Check className={cn("w-4 h-4", PARCHMENT.accent.text)} />
+                        <Check className={cn("w-4 h-4 shrink-0", PARCHMENT.accent.textDark)} aria-hidden="true" />
                       )}
                     </button>
                   ))
@@ -144,7 +151,7 @@ export function TopBar({
           variant="default"
           onClick={onGraphClick}
           aria-label="Abrir visualização do grafo"
-          className="bg-amber hover:bg-amber-dark text-white hidden sm:inline-flex"
+          className="hidden sm:inline-flex"
         >
           <Network className="w-4 h-4 mr-2" />
           <span className="hidden md:inline">Visão do Grafo</span>
@@ -157,20 +164,16 @@ export function TopBar({
         <div className="flex flex-wrap items-center gap-2 mt-3">
           <span className={cn("text-sm", PARCHMENT.text.muted)}>Filtros ativos:</span>
           {selectedTags.map((tag) => (
-            <Badge
-              key={tag}
-              variant="secondary"
-              className="flex items-center gap-1 bg-warm-white border-linen text-walnut"
-            >
-              {tag}
+            <span key={tag} className="inline-flex items-center">
+              <TagChip name={tag} colorKey={tagColorKey(tag)} />
               <button
                 onClick={() => toggleTag(tag)}
-                className="ml-1 hover:text-espresso p-0.5 -my-3 -mr-2.5 min-h-[44px] min-w-[44px] md:my-0 md:mr-0 md:min-h-0 md:min-w-0 flex items-center justify-center"
+                className="text-walnut hover:text-espresso p-0.5 -my-3 -ml-1 min-h-[44px] min-w-[44px] md:my-0 md:ml-0.5 md:min-h-0 md:min-w-0 rounded flex items-center justify-center"
                 aria-label={`Remover filtro ${tag}`}
               >
                 <X className="w-3 h-3" />
               </button>
-            </Badge>
+            </span>
           ))}
         </div>
       )}

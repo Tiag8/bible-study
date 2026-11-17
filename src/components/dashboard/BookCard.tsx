@@ -2,6 +2,7 @@
 
 import { BibleBook, formatRelativeDate } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
+import { TagChip } from "@/components/ui/tag-chip";
 import { BookOpen, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PARCHMENT, SHADOW_WARM } from "@/lib/design-tokens";
@@ -9,9 +10,11 @@ import { PARCHMENT, SHADOW_WARM } from "@/lib/design-tokens";
 interface BookCardProps {
   book: BibleBook;
   onClick: () => void;
+  /** Nome da tag para a chave de cor (useTags); sem ela, o chip fica neutro. */
+  tagColors?: Record<string, string>;
 }
 
-export function BookCard({ book, onClick }: BookCardProps) {
+export function BookCard({ book, onClick, tagColors }: BookCardProps) {
   const progress =
     book.totalChapters > 0
       ? (book.studiedChapters.length / book.totalChapters) * 100
@@ -59,7 +62,7 @@ export function BookCard({ book, onClick }: BookCardProps) {
           variant="outline"
           className={cn(
             "text-xs border-linen",
-            book.testament === "NT" ? PARCHMENT.status.studying.text : PARCHMENT.text.secondary
+            book.testament === "NT" ? PARCHMENT.accent.textDark : PARCHMENT.text.subheading
           )}
         >
           {book.testament}
@@ -95,14 +98,12 @@ export function BookCard({ book, onClick }: BookCardProps) {
       {book.tags.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-3">
           {book.tags.slice(0, 3).map((tag) => (
-            <Badge key={tag} variant="outline" className={cn("text-xs border-linen", PARCHMENT.text.secondary)}>
-              #{tag}
-            </Badge>
+            <TagChip key={tag} name={tag} colorKey={tagColors?.[tag]} />
           ))}
           {book.tags.length > 3 && (
-            <Badge variant="outline" className={cn("text-xs border-linen", PARCHMENT.text.muted)}>
+            <span className={cn("inline-flex items-center px-1 text-xs", PARCHMENT.text.subheading)}>
               +{book.tags.length - 3}
-            </Badge>
+            </span>
           )}
         </div>
       )}

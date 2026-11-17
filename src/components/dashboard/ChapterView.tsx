@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BibleBook, formatRelativeDate } from "@/lib/mock-data";
 import { useStudies, useTags } from "@/hooks";
@@ -8,7 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { TAG_COLORS, PARCHMENT } from "@/lib/design-tokens";
+import { TagChip } from "@/components/ui/tag-chip";
+import { PARCHMENT } from "@/lib/design-tokens";
+import { STATUS_ORDER, STATUS_THEME } from "@/lib/theme-colors";
 import { getAggregatedChapterStatus } from "@/lib/utils";
 import { StudySelectionModal } from "./StudySelectionModal";
 import { ScheduleReviewButton } from "./ScheduleReviewButton";
@@ -57,14 +60,9 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
   // Get studies for this book
   const bookStudies = getStudiesByBook(book.name);
 
-  // Helper para buscar cor da tag
-  const getTagColor = (tagName: string): string => {
-    const tag = availableTags.find((t) => t.name === tagName);
-    if (!tag) return "#6b7280"; // gray-500 default
-
-    // Use centralized TAG_COLORS from design tokens
-    return TAG_COLORS[tag.color] || "#6b7280";
-  };
+  // Chave de cor da tag (useTags); sem a tag, o chip fica neutro
+  const getTagColorKey = (tagName: string): string | null =>
+    availableTags.find((t) => t.name === tagName)?.color ?? null;
 
   // Calcular capítulos estudados dinamicamente (usando Set para remover duplicatas)
   const studiedChapters = [...new Set(bookStudies.map(s => s.chapter_number))];
@@ -138,9 +136,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
         <div className="flex flex-wrap items-center gap-2">
           <span className={cn("text-sm", PARCHMENT.text.muted)}>Tags:</span>
           {book.tags.map((tag) => (
-            <Badge key={tag} variant="outline">
-              #{tag}
-            </Badge>
+            <TagChip key={tag} name={tag} colorKey={getTagColorKey(tag)} />
           ))}
         </div>
       )}
@@ -151,7 +147,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
           <span className={cn("text-sm font-medium", PARCHMENT.text.secondary)}>
             Progresso Geral
           </span>
-          <span className={cn("text-sm font-bold", PARCHMENT.accent.text)}>
+          <span className={cn("text-sm font-bold", PARCHMENT.accent.textDark)}>
             {Math.round(
               (studiedChapters.length / book.totalChapters) * 100
             )}
@@ -191,39 +187,48 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
               }
             };
 
-            // Determinar cor baseado no percentual de conclusão
-            let tooltipText = `Capítulo ${chapter}`;
+            // Status do capítulo: getAggregatedChapterStatus escolhe o mais urgente entre os estudos
+            const aggregated = studyCount > 0 ? getAggregatedChapterStatus(chapterStudies) : null;
+            const theme = aggregated && aggregated.status !== "vazio" ? STATUS_THEME[aggregated.status] : null;
+            const StatusIcon = theme?.icon;
 
-            // Classes base
-            const baseClasses = "relative aspect-square rounded-lg flex items-center justify-center text-sm font-medium transition-all cursor-pointer hover:scale-105 hover:shadow-md";
-
-            // Determinar classes de cor
-            let colorClasses = cn(
-              'bg-cream border border-linen',
-              'text-stone',
-              'hover:border-amber-light'
-            );
-
-            if (studyCount > 0) {
-              const aggregated = getAggregatedChapterStatus(chapterStudies);
-              colorClasses = cn(aggregated.color, aggregated.textColor);
-
-              // Melhorar tooltip com percentual de conclusão
-              tooltipText = `${studyCount} estudo${studyCount !== 1 ? 's' : ''} (${aggregated.completionPercentage}%)`;
-            }
+            const tooltipText = aggregated
+              ? `${studyCount} estudo${studyCount !== 1 ? "s" : ""} (${aggregated.completionPercentage}% concluído${studyCount !== 1 ? "s" : ""})`
+              : `Capítulo ${chapter}: criar estudo`;
+            const ariaLabel = theme
+              ? `Capítulo ${chapter}: ${theme.label}${hasMultiple ? `, ${studyCount} estudos` : ""}`
+              : `Capítulo ${chapter}: sem estudo`;
 
             return (
               <button
                 type="button"
                 key={chapter}
                 onClick={handleChapterClick}
-                className={cn(baseClasses, colorClasses)}
+                className={cn(
+                  "relative aspect-square min-h-[44px] min-w-[44px] rounded-lg border flex flex-col items-center justify-center gap-0.5 text-sm font-medium transition-all cursor-pointer hover:scale-105 hover:shadow-md",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-dark focus-visible:ring-offset-2 focus-visible:ring-offset-parchment",
+                  !theme && "bg-cream border-linen text-walnut hover:border-amber-dark"
+                )}
+                style={
+                  theme
+                    ? {
+                        backgroundColor: theme.fill,
+                        color: theme.ink,
+                        borderColor: theme.border,
+                        borderStyle: theme.borderStyle,
+                      }
+                    : undefined
+                }
                 title={tooltipText}
-                aria-label={studyCount > 0 ? `Capítulo ${chapter}: ${tooltipText}` : tooltipText}
+                aria-label={ariaLabel}
               >
-                {chapter}
+                <span>{chapter}</span>
+                {StatusIcon && <StatusIcon className="w-3 h-3" aria-hidden="true" />}
                 {hasMultiple && (
-                  <span className="absolute -top-1 -right-1 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center bg-amber-dark">
+                  <span
+                    className="absolute -top-1 -right-1 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center bg-amber-dark"
+                    aria-hidden="true"
+                  >
                     {studyCount}
                   </span>
                 )}
@@ -231,6 +236,31 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
             );
           })}
         </div>
+
+        {/* Legenda dos status (a cor nunca é a única pista: ícone e nome) */}
+        <ul className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2" aria-label="Legenda dos status">
+          {STATUS_ORDER.map((status) => {
+            const legend = STATUS_THEME[status];
+            const LegendIcon = legend.icon;
+            return (
+              <li key={status} className="flex items-center gap-1.5 text-xs text-walnut">
+                <span
+                  className="inline-flex h-5 w-5 items-center justify-center rounded border"
+                  style={{
+                    backgroundColor: legend.fill,
+                    color: legend.ink,
+                    borderColor: legend.border,
+                    borderStyle: legend.borderStyle,
+                  }}
+                  aria-hidden="true"
+                >
+                  <LegendIcon className="h-3 w-3" />
+                </span>
+                {legend.label}
+              </li>
+            );
+          })}
+        </ul>
       </div>
 
       {/* Recent Studies */}
@@ -239,77 +269,64 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
           <h2 className={cn("text-lg font-lora font-semibold mb-4", PARCHMENT.text.heading)}>
             Estudos Recentes
           </h2>
-          <div className="space-y-3">
+          <ul className="space-y-3">
             {bookStudies.slice(0, 5).map((study) => (
-              <div
+              <li
                 key={study.id}
-                className="relative group"
+                className={cn(
+                  "group relative rounded-lg border bg-cream p-4 transition-colors",
+                  PARCHMENT.border.default,
+                  "hover:border-amber-dark focus-within:border-amber-dark"
+                )}
               >
-                {/* Linha amber do lado esquerdo (aparece no hover) */}
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber opacity-0 group-hover:opacity-100 transition-opacity rounded-l-lg" />
-
-                <div
-                  onClick={() => router.push(`/estudo/${study.id}`)}
-                  className={cn("block bg-cream rounded-lg p-4 transition-colors cursor-pointer border", PARCHMENT.border.default, "hover:border-amber-light")}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className={cn("font-medium", PARCHMENT.text.heading)}>
-                          {study.title}
-                        </h3>
-                        <span className={cn("text-xs", PARCHMENT.text.muted)}>
-                          • Capítulo {study.chapter_number}
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2 mt-1">
-                        {study.tags.slice(0, 3).map((tagName) => {
-                          const tagColor = getTagColor(tagName);
-                          return (
-                            <span
-                              key={tagName}
-                              className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
-                              style={{
-                                borderWidth: '1px',
-                                borderStyle: 'solid',
-                                borderColor: tagColor,
-                                color: tagColor,
-                                backgroundColor: 'transparent',
-                              }}
-                            >
-                              #{tagName}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <div className={cn("flex items-center gap-1 text-xs", PARCHMENT.text.muted)}>
-                        <Clock className="w-3 h-3" />
-                        <span>{formatRelativeDate(study.updated_at)}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
+                <div className="flex items-start gap-2 md:items-center md:gap-4">
+                  {/* Celular: título, depois status/capítulo/data, depois tags. Do md para cima: uma linha só */}
+                  <div className="min-w-0 flex-1 md:flex md:items-center md:gap-3">
+                    <h3 className={cn("font-medium line-clamp-2 md:line-clamp-1 md:min-w-0 md:flex-1", PARCHMENT.text.heading)}>
+                      {/* O link cobre a linha inteira (after:inset-0); os botões ficam por cima com z-10 */}
+                      <Link
+                        href={`/estudo/${study.id}`}
+                        className="rounded-lg outline-none after:absolute after:inset-0 after:rounded-lg after:content-[''] focus-visible:after:ring-2 focus-visible:after:ring-amber-dark"
+                      >
+                        {study.title}
+                      </Link>
+                    </h3>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-walnut md:mt-0 md:shrink-0 md:flex-nowrap">
+                      <StatusBadge status={study.status} />
+                      <span>Capítulo {study.chapter_number}</span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" aria-hidden="true" />
+                        {formatRelativeDate(study.updated_at)}
+                      </span>
+                      <span className="relative z-10 empty:hidden">
                         <ScheduleReviewButton study={study} />
-                        <StatusBadge status={study.status} />
-                        <button
-                          onClick={(e) => handleDeleteClick(study.id, study.title, e)}
-                          disabled={deletingId === study.id}
-                          className="p-1.5 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 rounded-md bg-red-50 text-red-600 hover:bg-red-100 md:opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center flex-shrink-0"
-                          aria-label="Deletar estudo"
-                        >
-                          {deletingId === study.id ? (
-                            <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
-                          ) : (
-                            <Trash2 className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
+                      </span>
                     </div>
+                    {study.tags.length > 0 && (
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5 md:mt-0 md:max-w-[40%] md:shrink-0">
+                        {study.tags.slice(0, 3).map((tagName) => (
+                          <TagChip key={tagName} name={tagName} colorKey={getTagColorKey(tagName)} />
+                        ))}
+                      </div>
+                    )}
                   </div>
+                  <button
+                    type="button"
+                    onClick={(e) => handleDeleteClick(study.id, study.title, e)}
+                    disabled={deletingId === study.id}
+                    className="relative z-10 -mr-2 -mt-2 md:m-0 p-1.5 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 rounded-md bg-red-50 text-red-700 hover:bg-red-100 md:opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center flex-shrink-0"
+                    aria-label={`Deletar estudo ${study.title}`}
+                  >
+                    {deletingId === study.id ? (
+                      <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                  </button>
                 </div>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       )}
 

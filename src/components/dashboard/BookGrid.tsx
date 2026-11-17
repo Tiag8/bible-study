@@ -11,6 +11,8 @@ interface BookGridProps {
   searchQuery: string;
   selectedTags: string[];
   onBookClick: (bookId: string) => void;
+  /** Nome da tag para a chave de cor (useTags), repassado aos cartões. */
+  tagColors?: Record<string, string>;
 }
 
 export function BookGrid({
@@ -18,6 +20,7 @@ export function BookGrid({
   searchQuery,
   selectedTags,
   onBookClick,
+  tagColors,
 }: BookGridProps) {
   const filteredBooks = useMemo(() => {
     return books.filter((book) => {
@@ -86,6 +89,7 @@ export function BookGrid({
                 key={book.id}
                 book={book}
                 onClick={() => onBookClick(book.id)}
+                tagColors={tagColors}
               />
             ))}
           </div>
@@ -108,6 +112,7 @@ export function BookGrid({
                 key={book.id}
                 book={book}
                 onClick={() => onBookClick(book.id)}
+                tagColors={tagColors}
               />
             ))}
           </div>

@@ -184,12 +184,12 @@ export function BacklogPanel({ onClose }: BacklogPanelProps = {}) {
                     <span>{formatRelativeDate(study.created_at)}</span>
                   </div>
                   {study.status === 'concluído' && study.completed_at ? (
-                    <div className={cn("flex items-center gap-1 text-xs", PARCHMENT.status.done.text)}>
+                    <div className="flex items-center gap-1 text-xs text-walnut">
                       <CalendarDays className="w-3 h-3" />
                       <span>{formatRelativeDate(study.completed_at)}</span>
                     </div>
                   ) : study.updated_at !== study.created_at ? (
-                    <div className={cn("flex items-center gap-1 text-xs", PARCHMENT.accent.text)}>
+                    <div className={cn("flex items-center gap-1 text-xs", PARCHMENT.accent.textDark)}>
                       <CalendarDays className="w-3 h-3" />
                       <span>{formatRelativeDate(study.updated_at)}</span>
                     </div>
