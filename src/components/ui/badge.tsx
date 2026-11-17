@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { COLORS, BORDERS } from "@/lib/design-tokens";
 
 interface BadgeProps {
   children: React.ReactNode;
@@ -7,11 +6,11 @@ interface BadgeProps {
   className?: string;
 }
 
-/* TOKENS: COLORS.primary, COLORS.neutral, BORDERS */
+/* Tema pergaminho: âmbar escuro com branco (5,30:1), linho com espresso, contorno linho */
 const variantStyles = {
-  default: `${COLORS.primary.default} text-white`,
-  secondary: `${COLORS.neutral[100]} text-gray-800`,
-  outline: `${BORDERS.gray} text-gray-700 bg-transparent`,
+  default: "bg-amber-dark text-white",
+  secondary: "bg-linen text-espresso",
+  outline: "border border-linen text-walnut bg-transparent",
 };
 
 export function Badge({ children, variant = "default", className }: BadgeProps) {

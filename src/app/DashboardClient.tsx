@@ -10,7 +10,7 @@ import { BookGrid } from "@/components/dashboard/BookGrid";
 import { ChapterView } from "@/components/dashboard/ChapterView";
 import { BacklogPanel } from "@/components/dashboard/BacklogPanel";
 import { mockBibleBooks, BibleBook, getBookTagsFromStudies } from "@/lib/mock-data";
-import { useStudies } from "@/hooks";
+import { useStudies, useTags } from "@/hooks";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Menu, BookMarked } from "lucide-react";
 import { WelcomeGuide } from "@/components/dashboard/WelcomeGuide";
@@ -33,6 +33,11 @@ export function DashboardClient() {
 
   // Supabase hook
   const { studies, loading: studiesLoading } = useStudies();
+  const { tags } = useTags();
+  const tagColors = useMemo(
+    () => Object.fromEntries(tags.map((t) => [t.name, t.color])),
+    [tags]
+  );
 
   // Navigation state
   const [selectedBook, setSelectedBook] = useState<BibleBook | null>(null);
@@ -215,6 +220,7 @@ export function DashboardClient() {
                   searchQuery={searchQuery}
                   selectedTags={selectedTags}
                   onBookClick={handleBookClick}
+                  tagColors={tagColors}
                 />
               )}
             </div>

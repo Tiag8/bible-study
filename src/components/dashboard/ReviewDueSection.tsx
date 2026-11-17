@@ -40,7 +40,7 @@ export function ReviewDueSection() {
   return (
     <section className="mb-8">
       <h2 className={cn("text-lg font-lora font-semibold mb-3 flex items-center gap-2", PARCHMENT.text.heading)}>
-        <CalendarCheck className={cn("w-4 h-4", PARCHMENT.accent.text)} />
+        <CalendarCheck className={cn("w-4 h-4", PARCHMENT.accent.textDark)} />
         Para revisar
         <span className={cn("text-sm font-inter font-normal", PARCHMENT.text.muted)}>({due.length})</span>
       </h2>
@@ -65,7 +65,7 @@ export function ReviewDueSection() {
                 variant="outline"
                 size="sm"
                 onClick={() => router.push(`/estudo/${study.id}`)}
-                className="min-h-[44px] bg-warm-white border-linen text-walnut hover:bg-cream hover:text-espresso"
+                className="min-h-[44px]"
               >
                 Abrir
               </Button>
@@ -73,7 +73,7 @@ export function ReviewDueSection() {
                 size="sm"
                 onClick={() => handleReviewed(study.id)}
                 disabled={savingId === study.id}
-                className="gap-2 min-h-[44px] bg-amber hover:bg-amber-dark text-white"
+                className="gap-2 min-h-[44px]"
               >
                 {savingId === study.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 Revisei

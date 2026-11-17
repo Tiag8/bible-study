@@ -54,17 +54,22 @@ export type BookCategory =
   | "cartas_gerais"   // Hebreus - Judas
   | "apocaliptico";   // Apocalipse
 
+/**
+ * Cores das categorias no grafo: tons terrosos do tema pergaminho (os mesmos de
+ * TAG_ACCENTS onde dá, mais quatro), todos com 3,39:1 ou mais sobre o pergaminho
+ * #e8e0d1 e distância de cor (ΔE76) de 18 ou mais entre si.
+ */
 export const bookCategoryColors: Record<BookCategory, string> = {
-  pentateuco: "#10b981",      // Verde esmeralda
-  historicos: "#f59e0b",      // Âmbar
-  poeticos: "#8b5cf6",        // Roxo
-  profetas_maiores: "#ef4444", // Vermelho
-  profetas_menores: "#f97316", // Laranja
-  evangelhos: "#3b82f6",      // Azul
-  historico_nt: "#06b6d4",    // Ciano
-  cartas_paulinas: "#ec4899", // Rosa
-  cartas_gerais: "#6366f1",   // Índigo
-  apocaliptico: "#a855f7",    // Violeta
+  pentateuco: "#4F6B3A",       // Oliva
+  historicos: "#8B6508",       // Âmbar escuro
+  poeticos: "#6B4C7A",         // Ameixa
+  profetas_maiores: "#8F3B34", // Tijolo
+  profetas_menores: "#B0643A", // Terracota
+  evangelhos: "#4F6D8A",       // Azul ardósia
+  historico_nt: "#3F7A7A",     // Verde-azulado
+  cartas_paulinas: "#A65873",  // Rosa antigo
+  cartas_gerais: "#7D7A3A",    // Musgo
+  apocaliptico: "#3E3550",     // Berinjela
 };
 
 export function getBookCategory(bookName: string): BookCategory {
@@ -307,18 +312,22 @@ export function getStudiesByBook(bookName: string): Study[] {
   return mockStudies.filter((study) => study.book === bookName);
 }
 
-export function formatRelativeDate(dateString: string | null): string {
+/** "1 semana", "2 semanas": singular só para 1. */
+function pluralize(count: number, singular: string, plural: string): string {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+export function formatRelativeDate(dateString: string | null, now: Date = new Date()): string {
   if (!dateString) return "Nunca";
 
   const date = new Date(dateString);
-  const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffDays === 0) return "Hoje";
   if (diffDays === 1) return "Ontem";
-  if (diffDays < 7) return `${diffDays} dias atrás`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} semanas atrás`;
+  if (diffDays < 7) return `${pluralize(diffDays, "dia", "dias")} atrás`;
+  if (diffDays < 30) return `${pluralize(Math.floor(diffDays / 7), "semana", "semanas")} atrás`;
   return date.toLocaleDateString("pt-BR");
 }
 

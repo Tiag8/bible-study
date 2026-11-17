@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { TagChip } from '@/components/ui/tag-chip';
 import { Plus, Clock, FileText, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
@@ -49,25 +50,9 @@ export function StudySelectionModal({
     studyTitle: string;
   }>({ isOpen: false, studyId: "", studyTitle: "" });
 
-  // Helper para buscar cor da tag
-  const getTagColor = (tagName: string): string => {
-    const tag = availableTags.find((t) => t.name === tagName);
-    if (!tag) return '#6b7280'; // gray-500 default
-
-    const colorMap: Record<string, string> = {
-      blue: '#3b82f6',
-      purple: '#8b5cf6',
-      green: '#22c55e',
-      orange: '#f97316',
-      pink: '#ec4899',
-      cyan: '#06b6d4',
-      red: '#ef4444',
-      yellow: '#eab308',
-      'dark-green': '#15803d',
-    };
-
-    return colorMap[tag.color] || '#6b7280';
-  };
+  // Chave de cor da tag (useTags); sem a tag, o chip fica neutro
+  const getTagColorKey = (tagName: string): string | null =>
+    availableTags.find((t) => t.name === tagName)?.color ?? null;
 
   const handleSelectStudy = (studyId: string) => {
     router.push(`/estudo/${studyId}`);
@@ -146,8 +131,8 @@ export function StudySelectionModal({
                 key={study.id}
                 className="relative group"
               >
-                {/* Linha vermelha do lado esquerdo (aparece no hover) */}
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity rounded-l-md" />
+                {/* Linha âmbar do lado esquerdo (aparece no hover) */}
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-dark opacity-0 group-hover:opacity-100 transition-opacity rounded-l-md" />
 
                 <Button
                   onClick={() => handleSelectStudy(study.id)}
@@ -167,24 +152,9 @@ export function StudySelectionModal({
                     {/* Tags */}
                     {study.tags.length > 0 && (
                       <div className="flex items-center gap-1 flex-wrap mb-1">
-                        {study.tags.slice(0, 3).map((tag) => {
-                          const tagColor = getTagColor(tag);
-                          return (
-                            <span
-                              key={tag}
-                              className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
-                              style={{
-                                borderWidth: '1px',
-                                borderStyle: 'solid',
-                                borderColor: tagColor,
-                                color: tagColor,
-                                backgroundColor: 'transparent',
-                              }}
-                            >
-                              #{tag}
-                            </span>
-                          );
-                        })}
+                        {study.tags.slice(0, 3).map((tag) => (
+                          <TagChip key={tag} name={tag} colorKey={getTagColorKey(tag)} />
+                        ))}
                         {study.tags.length > 3 && (
                           <span className={cn("text-xs", PARCHMENT.text.muted)}>
                             +{study.tags.length - 3}

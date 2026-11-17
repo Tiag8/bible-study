@@ -5,7 +5,8 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { COLORS, BORDERS, SHADOW_CLASSES } from '@/lib/design-tokens';
+import { SHADOW_CLASSES } from '@/lib/design-tokens';
+import { tagAccent } from '@/lib/theme-colors';
 
 interface CreateTagModalProps {
   isOpen: boolean;
@@ -15,16 +16,17 @@ interface CreateTagModalProps {
 
 const TAG_TYPES: Array<'Versículos' | 'Temas' | 'Princípios'> = ['Versículos', 'Temas', 'Princípios'];
 
+// A chave (name) é gravada no banco; a cor exibida vem de tagAccent (tons terrosos)
 const TAG_COLORS = [
-  { name: 'blue', hex: '#3b82f6', label: 'Azul' },
-  { name: 'purple', hex: '#8b5cf6', label: 'Roxo' },
-  { name: 'green', hex: '#22c55e', label: 'Verde' },
-  { name: 'orange', hex: '#f97316', label: 'Laranja' },
-  { name: 'pink', hex: '#ec4899', label: 'Rosa' },
-  { name: 'cyan', hex: '#06b6d4', label: 'Azul Claro' },
-  { name: 'red', hex: '#ef4444', label: 'Vermelho' },
-  { name: 'yellow', hex: '#eab308', label: 'Amarelo' },
-  { name: 'dark-green', hex: '#15803d', label: 'Verde Escuro' },
+  { name: 'blue', label: 'Azul' },
+  { name: 'purple', label: 'Roxo' },
+  { name: 'green', label: 'Verde' },
+  { name: 'orange', label: 'Laranja' },
+  { name: 'pink', label: 'Rosa' },
+  { name: 'cyan', label: 'Azul Claro' },
+  { name: 'red', label: 'Vermelho' },
+  { name: 'yellow', label: 'Amarelo' },
+  { name: 'dark-green', label: 'Verde Escuro' },
 ];
 
 export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalProps) {
@@ -83,14 +85,14 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
 
       {/* Modal */}
       <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[calc(100%-2rem)] max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto">
-        <div className={cn("bg-white rounded-lg p-6", SHADOW_CLASSES.lg, BORDERS.gray)}>
-          {/* TOKENS: COLORS.primary, COLORS.danger, COLORS.neutral */}
+        <div className={cn("bg-cream rounded-lg p-6 border border-linen", SHADOW_CLASSES.lg)}>
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
-            <h2 className={cn("text-lg font-semibold", COLORS.neutral.text.primary)}>Nova Tag</h2>
+            <h2 className="text-lg font-lora font-semibold text-espresso">Nova Tag</h2>
             <button
               onClick={handleCancel}
-              className={cn("transition-colors", COLORS.neutral.text.light, `hover:${COLORS.neutral.text.secondary}`)}
+              className="transition-colors text-stone hover:text-espresso"
+              aria-label="Fechar"
             >
               <X className="w-5 h-5" />
             </button>
@@ -100,7 +102,7 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
           <div className="space-y-4">
             {/* Nome da tag */}
             <div>
-              <label htmlFor="tag-name" className={cn("block text-sm font-medium mb-1", COLORS.neutral.text.secondary)}>
+              <label htmlFor="tag-name" className="block text-sm font-medium mb-1 text-walnut">
                 Nome da Tag
               </label>
               <Input
@@ -116,7 +118,7 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
 
             {/* Tipo */}
             <div>
-              <label className={cn("block text-sm font-medium mb-2", COLORS.neutral.text.secondary)}>
+              <label className="block text-sm font-medium mb-2 text-walnut">
                 Tipo
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -128,8 +130,8 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
                     className={cn(
                       "px-3 py-2 rounded-md text-sm font-medium transition-colors border",
                       selectedType === type
-                        ? `${COLORS.primary.light} border-blue-500 ${COLORS.primary.text}`
-                        : `bg-white ${COLORS.neutral.text.secondary} hover:${COLORS.neutral[50]} ${BORDERS.gray.replace('border', 'border')}`
+                        ? "bg-amber-light border-amber-dark text-espresso"
+                        : "bg-warm-white border-linen text-walnut hover:bg-linen"
                     )}
                   >
                     {type}
@@ -140,7 +142,7 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
 
             {/* Cor */}
             <div>
-              <label className={cn("block text-sm font-medium mb-2", COLORS.neutral.text.secondary)}>
+              <label className="block text-sm font-medium mb-2 text-walnut">
                 Cor
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -152,16 +154,16 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
                     className={cn(
                       "flex items-center justify-center gap-2 px-3 py-2 rounded-md transition-all border-2",
                       selectedColor === color.name
-                        ? `border-gray-900 ring-2 ring-gray-900 ring-offset-2`
-                        : `border-transparent hover:border-gray-300`
+                        ? "border-espresso ring-2 ring-espresso ring-offset-2 ring-offset-cream"
+                        : "border-transparent hover:border-linen"
                     )}
                     title={color.label}
                   >
                     <span
                       className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: color.hex }}
+                      style={{ backgroundColor: tagAccent(color.name) }}
                     />
-                    <span className={cn("text-xs", COLORS.neutral.text.primary)}>{color.label}</span>
+                    <span className="text-xs text-espresso">{color.label}</span>
                   </button>
                 ))}
               </div>
@@ -169,7 +171,7 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
 
             {/* Error */}
             {error && (
-              <div className={cn("text-sm px-3 py-2 rounded-md", COLORS.danger.text, `bg-red-50`)}>
+              <div className="text-sm px-3 py-2 rounded-md text-red-700 bg-red-50">
                 {error}
               </div>
             )}

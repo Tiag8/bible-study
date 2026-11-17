@@ -1,4 +1,3 @@
-import { Circle, RefreshCw, CheckCircle, BookOpen, LucideIcon } from 'lucide-react'
 import shadows from '@/styles/shadows.module.css'
 
 /**
@@ -84,22 +83,6 @@ export const COLORS = {
     dark: 'bg-cyan-700',
     text: 'text-cyan-600',
   }
-}
-
-// ============================================
-// TAG COLORS (Direct hex values for tag styling)
-// ============================================
-
-export const TAG_COLORS: Record<string, string> = {
-  blue: '#C5D5E4',
-  purple: '#D1C4E0',
-  green: '#C5D9C0',
-  orange: '#E8D0B3',
-  pink: '#E0C8CF',
-  cyan: '#BDD8D6',
-  red: '#DEC0B8',
-  yellow: '#E0D8B0',
-  'dark-green': '#A8C5A0',
 }
 
 // ============================================
@@ -230,74 +213,17 @@ export const PARCHMENT = {
     default: 'border-linen',
     hover: 'border-amber-light',
   },
-  status: {
-    studying: { bg: 'bg-[#FFF8E7]', text: 'text-[#92742B]' },
-    reviewing: { bg: 'bg-[#F3EEF8]', text: 'text-[#6B5B7B]' },
-    done: { bg: 'bg-[#EEF5EC]', text: 'text-[#4A6741]' },
-    todo: { bg: 'bg-[#FEF0E7]', text: 'text-[#8B5E3C]' },
-  },
 } as const
 
 // ============================================
-// STATUS CONFIG (Study status indicators)
-// ============================================
-
-export type StudyStatus = 'estudar' | 'estudando' | 'revisando' | 'concluído'
-
-export interface StatusConfig {
-  icon: LucideIcon
-  color: string
-  bg: string
-  label: string
-}
-
-export const STATUS_CONFIG: Record<StudyStatus, StatusConfig> = {
-  estudar: {
-    icon: BookOpen,
-    color: COLORS.warning.text,
-    bg: COLORS.warning.light,
-    label: 'Estudar'
-  },
-  estudando: {
-    icon: Circle,
-    color: COLORS.primary.text,
-    bg: COLORS.primary.lighter,
-    label: 'Estudando'
-  },
-  revisando: {
-    icon: RefreshCw,
-    color: COLORS.secondary.text,
-    bg: COLORS.secondary.lighter,
-    label: 'Revisando'
-  },
-  concluído: {
-    icon: CheckCircle,
-    color: COLORS.success.text,
-    bg: COLORS.success.lighter,
-    label: 'Concluído'
-  },
-} as const
-
-// ============================================
-// REFERENCE TYPE COLORS (Story 4.3.3)
+// STUDY STATUS
 // ============================================
 
 /**
- * Colors for different reference types
- * - references: Internal references created by user (green)
- * - referenced_by: Reversed references created by trigger (red)
- * - external: External links to websites (blue)
- *
- * All colors validated for WCAG AA contrast (4.5:1)
- * Uses light tones (50) with darker borders (200) for clarity
+ * Status de um estudo. Ícone, nome e cores de cada status ficam em
+ * STATUS_THEME (src/lib/theme-colors.ts).
  */
-export const REFERENCE_TYPE_COLORS = {
-  references: 'bg-green-50 border-green-200 hover:bg-green-100',
-  referenced_by: 'bg-red-50 border-red-200 hover:bg-red-100',
-  external: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
-} as const
-
-export type ReferenceTypeColor = keyof typeof REFERENCE_TYPE_COLORS
+export type StudyStatus = 'estudar' | 'estudando' | 'revisando' | 'concluído'
 
 // ============================================
 // PARCHMENT HEX VALUES (for Canvas/non-Tailwind contexts)

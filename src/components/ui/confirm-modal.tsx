@@ -11,7 +11,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
-import { COLORS } from "@/lib/design-tokens"
 
 interface ConfirmModalProps {
   open: boolean
@@ -47,12 +46,12 @@ export function ConfirmModal({
           <AlertDialogCancel onClick={onCancel} disabled={isLoading}>
             {cancelText}
           </AlertDialogCancel>
-          {/* TOKENS: COLORS.primary, COLORS.danger */}
+          {/* Destrutivo: vermelho #B42318 com branco (6,57:1), hover #912018 (8,66:1) */}
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isLoading}
             className={cn(
-              variant === "destructive" && `${COLORS.danger.default} hover:${COLORS.danger.dark} focus:ring-red-500`
+              variant === "destructive" && "bg-[#B42318] hover:bg-[#912018] focus:ring-[#B42318]"
             )}
           >
             {isLoading ? (

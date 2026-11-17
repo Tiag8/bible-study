@@ -97,7 +97,7 @@ export default function LoginPage() {
                 "flex-1 py-2 px-4 text-sm font-medium transition-all",
                 BORDER_RADIUS.md,
                 mode === 'login'
-                  ? cn(PARCHMENT.accent.default, "text-white")
+                  ? cn(PARCHMENT.accent.dark, "text-white")
                   : cn("text-stone hover:text-espresso")
               )}
             >
@@ -109,7 +109,7 @@ export default function LoginPage() {
                 "flex-1 py-2 px-4 text-sm font-medium transition-all",
                 BORDER_RADIUS.md,
                 mode === 'signup'
-                  ? cn(PARCHMENT.accent.default, "text-white")
+                  ? cn(PARCHMENT.accent.dark, "text-white")
                   : cn("text-stone hover:text-espresso")
               )}
             >
@@ -244,9 +244,7 @@ export default function LoginPage() {
               type="submit"
               disabled={loading}
               className={cn(
-                "w-full font-medium py-2.5 text-white transition-all",
-                PARCHMENT.accent.default,
-                "hover:bg-amber-dark",
+                "w-full font-medium py-2.5 transition-all",
                 SHADOW_WARM.sm
               )}
             >
@@ -270,8 +268,8 @@ export default function LoginPage() {
                   onClick={() => { setMode('signup'); setFullName(''); setError(''); }}
                   className={cn(
                     TYPOGRAPHY.weights.medium,
-                    PARCHMENT.accent.text,
-                    "hover:text-amber-dark transition-colors"
+                    PARCHMENT.accent.textDark,
+                    "underline-offset-2 hover:underline transition-colors"
                   )}
                 >
                   Cadastre-se
@@ -284,8 +282,8 @@ export default function LoginPage() {
                   onClick={() => { setMode('login'); setFullName(''); setError(''); }}
                   className={cn(
                     TYPOGRAPHY.weights.medium,
-                    PARCHMENT.accent.text,
-                    "hover:text-amber-dark transition-colors"
+                    PARCHMENT.accent.textDark,
+                    "underline-offset-2 hover:underline transition-colors"
                   )}
                 >
                   Entrar
@@ -295,11 +293,11 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Subtle branding */}
+        {/* Subtle branding (walnut sobre o pergaminho: 7,16:1) */}
         <p className={cn(
           "text-center mt-4",
           TYPOGRAPHY.sizes.xs,
-          PARCHMENT.text.muted
+          PARCHMENT.text.subheading
         )}>
           Seu segundo cérebro bíblico
         </p>

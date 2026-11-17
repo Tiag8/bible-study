@@ -229,7 +229,6 @@ export default function SettingsPage() {
                   <Button
                     type="submit"
                     disabled={isUpdatingProfile}
-                    className="bg-amber hover:bg-amber-dark text-white"
                   >
                     {isUpdatingProfile ? (
                       <>
@@ -248,7 +247,7 @@ export default function SettingsPage() {
                   <div
                     className={cn("flex items-center gap-2 mt-2 p-2 rounded-md",
                       profileMessage.includes("sucesso")
-                        ? "bg-green-50 text-green-700"
+                        ? "bg-amber-light text-espresso"
                         : "bg-red-50 text-red-700"
                     )}
                   >
@@ -320,8 +319,8 @@ export default function SettingsPage() {
                 <p
                   className={cn("text-sm",
                     passwordMessage.includes("enviado")
-                      ? "text-green-600"
-                      : "text-red-600"
+                      ? "text-walnut"
+                      : "text-red-700"
                   )}
                 >
                   {passwordMessage}

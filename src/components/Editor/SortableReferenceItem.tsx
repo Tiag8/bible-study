@@ -5,9 +5,10 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ChevronUp, ChevronDown, Trash2, ArrowRight, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { BORDERS, TAG_COLORS } from '@/lib/design-tokens';
+import { REFERENCE_ACCENTS } from '@/lib/theme-colors';
+import { TagChip } from '@/components/ui/tag-chip';
 import { Reference, TagWithColor } from '@/hooks/useReferences';
-import { getReferenceTypeColor, getShortHostname } from '@/lib/reference-utils';
+import { getReferenceKind, getShortHostname } from '@/lib/reference-utils';
 
 interface SortableReferenceItemProps {
   reference: Reference;
@@ -18,25 +19,12 @@ interface SortableReferenceItemProps {
   deleting?: boolean;
 }
 
-// Mapeamento de categorias bíblicas para cores gradient
-const CATEGORY_COLORS: Record<string, { from: string; to: string }> = {
-  'Pentateuco': { from: 'from-green-500', to: 'to-green-600' },
-  'Históricos': { from: 'from-amber-500', to: 'to-amber-600' },
-  'Poéticos': { from: 'from-purple-500', to: 'to-purple-600' },
-  'Profetas Maiores': { from: 'from-red-500', to: 'to-red-600' },
-  'Profetas Menores': { from: 'from-pink-500', to: 'to-pink-600' },
-  'Evangelhos': { from: 'from-blue-500', to: 'to-blue-600' },
-  'Histórico NT': { from: 'from-cyan-500', to: 'to-cyan-600' },
-  'Cartas Paulinas': { from: 'from-indigo-500', to: 'to-indigo-600' },
-  'Cartas Gerais': { from: 'from-teal-500', to: 'to-teal-600' },
-  'Apocalíptico': { from: 'from-orange-500', to: 'to-orange-600' },
-};
-
 /**
  * SortableReferenceItem Component - Opção 3 Refinada
  *
- * Design minimalista Apple-style com:
- * - Barra colorida lateral por categoria bíblica
+ * Design minimalista no tema pergaminho com:
+ * - Superfície creme, borda linho e faixa de 3 px na cor do tipo de referência
+ * - Nome do tipo ("Referência", "Citado por", "Link externo") antes da descrição
  * - Título + tags em 2 linhas
  * - Ações aparecem ao hover com stagger animation
  * - Refinement 1: Hover elevation + scale + translateY
@@ -74,13 +62,8 @@ export const SortableReferenceItem = React.forwardRef<
     const isFirstItem = index === 0;
     const isLastItem = index === total - 1;
 
-    // Story 4.3.3: Get reference type color (replaces category gradient)
-    const referenceTypeColor = getReferenceTypeColor(reference);
-
-    // Get category colors (fallback para Evangelhos se não encontrar) - usado apenas para internal refs
-    const colors = reference.link_type === 'internal' && reference.target_book_name
-      ? CATEGORY_COLORS[reference.target_book_name] || CATEGORY_COLORS['Evangelhos']
-      : { from: 'from-blue-500', to: 'to-blue-600' }; // fallback para external
+    // Tipo da referência: cor da faixa e nome do tipo (REFERENCE_ACCENTS)
+    const referenceAccent = REFERENCE_ACCENTS[getReferenceKind(reference)];
 
     // Parse título: extrai "Livro Capítulo" (antes do "-") e descrição (depois do "-")
     // Para links externos, usar URL como título
@@ -109,9 +92,8 @@ export const SortableReferenceItem = React.forwardRef<
         className={cn(
           // Base container
           'group relative overflow-hidden',
-          'px-3 py-6 rounded-lg border',
-          // Story 4.3.3: Use reference type color instead of hardcoded BORDERS.gray
-          referenceTypeColor,
+          'pl-4 pr-3 py-6 rounded-lg border',
+          'bg-cream border-linen hover:bg-warm-white',
           // Refinement 1: Hover elevation + scale + translateY
           'transition-all duration-200 ease-out',
           'hover:shadow-sm hover:scale-[1.01] hover:-translate-y-0.5',
@@ -121,13 +103,10 @@ export const SortableReferenceItem = React.forwardRef<
         role="article"
         aria-label={`Referência para ${reference.target_title || reference.external_url}, posição ${index + 1} de ${total}`}
       >
-        {/* Refinement 2: Status bar com gradient à esquerda */}
+        {/* Faixa de 3 px na cor do tipo de referência */}
         <div
-          className={cn(
-            'absolute left-0 top-0 bottom-0 w-1',
-            `bg-gradient-to-b ${colors.from} ${colors.to}`,
-            'transition-all duration-300 group-hover:w-1.5'
-          )}
+          className="absolute left-0 top-0 bottom-0 w-[3px]"
+          style={{ backgroundColor: referenceAccent.accent }}
           aria-hidden="true"
         />
 
@@ -137,8 +116,8 @@ export const SortableReferenceItem = React.forwardRef<
           {...listeners}
           className={cn(
             'absolute -left-12 top-2 p-2 rounded transition-colors',
-            'opacity-0 hover:opacity-100 text-gray-400',
-            isDragging && 'opacity-100 text-blue-600'
+            'opacity-0 hover:opacity-100 text-stone',
+            isDragging && 'opacity-100 text-amber-dark'
           )}
           title="Arraste para reordenar"
           aria-label="Alça para reordenar"
@@ -159,7 +138,7 @@ export const SortableReferenceItem = React.forwardRef<
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                  'flex-1 min-w-0 text-sm font-semibold text-gray-900 leading-tight hover:text-blue-600 transition-colors',
+                  'flex-1 min-w-0 text-sm font-semibold text-espresso leading-tight hover:text-amber-dark transition-colors',
                   'flex items-center gap-1',
                   deleting && 'opacity-50 pointer-events-none'
                 )}
@@ -172,7 +151,7 @@ export const SortableReferenceItem = React.forwardRef<
                 href={`/estudo/${reference.target_study_id}`}
                 data-href={`/estudo/${reference.target_study_id}`}
                 className={cn(
-                  'flex-1 min-w-0 text-sm font-semibold text-gray-900 leading-tight hover:text-blue-600 transition-colors',
+                  'flex-1 min-w-0 text-sm font-semibold text-espresso leading-tight hover:text-amber-dark transition-colors',
                   deleting && 'opacity-50 pointer-events-none'
                 )}
               >
@@ -191,7 +170,7 @@ export const SortableReferenceItem = React.forwardRef<
                 'delay-0', // stagger: sem delay
                 isFirstItem || deleting
                   ? 'opacity-30 cursor-not-allowed'
-                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800 active:scale-95'
+                  : 'text-stone hover:bg-linen hover:text-espresso active:scale-95'
               )}
               disabled={isFirstItem || deleting}
               title="Mover acima"
@@ -210,7 +189,7 @@ export const SortableReferenceItem = React.forwardRef<
                 'delay-50', // stagger: 50ms delay
                 isLastItem || deleting
                   ? 'opacity-30 cursor-not-allowed'
-                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800 active:scale-95'
+                  : 'text-stone hover:bg-linen hover:text-espresso active:scale-95'
               )}
               disabled={isLastItem || deleting}
               title="Mover abaixo"
@@ -229,7 +208,7 @@ export const SortableReferenceItem = React.forwardRef<
                   'p-1.5 rounded ml-1 transition-all duration-150 ease-out',
                   'md:opacity-0 md:group-hover:opacity-100 max-md:p-2.5', // no toque fica sempre visível; fade in ao hover no desktop
                   'delay-100', // stagger: 100ms delay
-                  'text-gray-500 hover:text-red-600 hover:bg-red-50',
+                  'text-stone hover:text-red-700 hover:bg-red-50',
                   'hover:scale-105 active:scale-95',
                   deleting && 'opacity-50 cursor-not-allowed'
                 )}
@@ -245,7 +224,7 @@ export const SortableReferenceItem = React.forwardRef<
             {/* Tooltip para refs reversas */}
             {isReversedReference && (
               <div
-                className="p-1.5 rounded text-gray-400"
+                className="p-1.5 rounded text-stone"
                 title="Esta referência foi criada automaticamente"
                 aria-label="Esta referência foi criada automaticamente"
               >
@@ -270,7 +249,7 @@ export const SortableReferenceItem = React.forwardRef<
                 'p-1.5 rounded transition-all duration-150 ease-out',
                 'md:opacity-0 md:group-hover:opacity-100 max-md:p-2.5', // no toque fica sempre visível; fade in ao hover no desktop
                 'delay-150', // stagger: 150ms delay (final)
-                'text-gray-500 hover:text-blue-600 hover:bg-blue-50',
+                'text-stone hover:text-amber-dark hover:bg-linen',
                 'active:scale-95'
               )}
               title={reference.link_type === 'external' ? 'Abrir link externo' : 'Ir para estudo'}
@@ -281,58 +260,53 @@ export const SortableReferenceItem = React.forwardRef<
             </div>
           </div>
 
-          {/* Linha 2: Descrição (quebra em múltiplas linhas) */}
-          {descriptionPart && (
-            reference.link_type === 'external' && reference.external_url ? (
-              <a
-                href={reference.external_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(
-                  'text-sm font-normal text-gray-500 leading-snug hover:text-blue-600 transition-colors truncate',
-                  deleting && 'opacity-50 pointer-events-none'
-                )}
-                title={reference.external_url}
-              >
-                {descriptionPart}
-              </a>
-            ) : (
-              <a
-                href={`/estudo/${reference.target_study_id}`}
-                data-href={`/estudo/${reference.target_study_id}`}
-                className={cn(
-                  'text-sm font-normal text-gray-900 leading-snug hover:text-blue-600 transition-colors',
-                  deleting && 'opacity-50 pointer-events-none'
-                )}
-              >
-                {descriptionPart}
-              </a>
-            )
-          )}
+          {/* Linha 2: nome do tipo na cor da faixa, depois a descrição (quebra em múltiplas linhas) */}
+          <p
+            className={cn(
+              'text-sm leading-snug',
+              reference.link_type === 'external' && 'truncate'
+            )}
+          >
+            <span className="mr-1.5 text-xs font-semibold" style={{ color: referenceAccent.accent }}>
+              {referenceAccent.label}
+            </span>
+            {descriptionPart && (
+              reference.link_type === 'external' && reference.external_url ? (
+                <a
+                  href={reference.external_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    'font-normal text-walnut hover:text-amber-dark transition-colors',
+                    deleting && 'opacity-50 pointer-events-none'
+                  )}
+                  title={reference.external_url}
+                >
+                  {descriptionPart}
+                </a>
+              ) : (
+                <a
+                  href={`/estudo/${reference.target_study_id}`}
+                  data-href={`/estudo/${reference.target_study_id}`}
+                  className={cn(
+                    'font-normal text-espresso hover:text-amber-dark transition-colors',
+                    deleting && 'opacity-50 pointer-events-none'
+                  )}
+                >
+                  {descriptionPart}
+                </a>
+              )
+            )}
+          </p>
 
           {/* Linha 3: Tags coloridas (quebra em múltiplas linhas) */}
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-2 pt-1">
-              {tags.map((tag: TagWithColor, idx: number) => {
-                // Converter nome da cor para HEX usando TAG_COLORS
-                const tagColor = TAG_COLORS[tag.color] || '#6b7280';
-                return (
-                  <span
-                    key={idx}
-                    className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium transition-all duration-150 ease-out"
-                    style={{
-                      borderWidth: '1px',
-                      borderStyle: 'solid',
-                      borderColor: tagColor,
-                      color: tagColor,
-                      backgroundColor: 'transparent',
-                    }}
-                    title={`${tag.type}`}
-                  >
-                    #{tag.name}
-                  </span>
-                );
-              })}
+              {tags.map((tag: TagWithColor, idx: number) => (
+                <span key={idx} title={`${tag.type}`}>
+                  <TagChip name={tag.name} colorKey={tag.color} />
+                </span>
+              ))}
             </div>
           )}
         </div>

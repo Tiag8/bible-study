@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
+import { ArrowLeft, Loader2, Menu, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { PARCHMENT } from "@/lib/design-tokens";
@@ -29,6 +29,7 @@ export default function LixeiraPage() {
   const { deletedStudies, loading, error, fetchDeletedStudies, restore, purge } = useSoftDelete();
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [toPurge, setToPurge] = useState<DeletedStudy | null>(null);
   const [purging, setPurging] = useState(false);
 
@@ -70,25 +71,55 @@ export default function LixeiraPage() {
   }
 
   return (
-    <div className="flex h-screen bg-parchment">
-      <div className="hidden lg:block">
+    <div className="flex h-dvh bg-parchment">
+      {/* Mobile Sidebar Overlay (mesmo shell das Configurações) */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-label="Fechar menu"
+        />
+      )}
+
+      {/* Sidebar - hidden on mobile, shown as drawer when mobileMenuOpen */}
+      <div className={cn(
+        "lg:relative lg:block",
+        mobileMenuOpen
+          ? "fixed inset-y-0 left-0 z-50"
+          : "hidden lg:block"
+      )}>
         <Sidebar
-          collapsed={sidebarCollapsed}
+          collapsed={sidebarCollapsed && !mobileMenuOpen}
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onClose={() => setMobileMenuOpen(false)}
         />
       </div>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        {/* Mobile Header */}
+        <div className="sticky top-0 z-10 flex items-center gap-2 px-4 py-3 lg:hidden border-b border-linen bg-ivory">
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="p-2 rounded-lg hover:bg-cream min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label="Abrir menu"
+          >
+            <Menu className={cn("w-5 h-5", PARCHMENT.text.heading)} />
+          </button>
+          <span className={cn("font-lora font-bold flex-1", PARCHMENT.text.heading)}>Bible Study</span>
+        </div>
+
         <div className="p-4 md:p-6 max-w-4xl mx-auto w-full">
           <Link
             href="/"
+            aria-label="Voltar ao painel"
             className={cn(
-              "lg:hidden inline-flex items-center gap-2 mb-4 min-h-[44px] text-sm font-medium",
-              PARCHMENT.text.secondary,
-              "hover:text-walnut"
+              "-ml-2 px-2 rounded-md inline-flex items-center gap-2 mb-2 min-h-[44px] text-sm font-medium",
+              PARCHMENT.text.subheading,
+              "hover:text-espresso hover:bg-warm-white",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-dark"
             )}
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" />
             Voltar
           </Link>
 
@@ -140,18 +171,19 @@ export default function LixeiraPage() {
                       Apagado em {formatDeletedAt(study.deleted_at)}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  {/* Celular: botões empilhados na largura toda; nenhum rótulo quebra linha */}
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center flex-shrink-0">
                     <RestoreButton
                       studyId={study.id}
                       studyTitle={study.title}
                       onRestore={handleRestore}
-                      className="min-h-[44px]"
+                      className="min-h-[44px] w-full sm:w-auto whitespace-nowrap"
                     />
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setToPurge(study)}
-                      className="gap-2 min-h-[44px] bg-warm-white border-linen text-red-700 hover:bg-red-50"
+                      className="gap-2 min-h-[44px] w-full sm:w-auto whitespace-nowrap bg-warm-white border-linen text-red-700 hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4" />
                       Apagar definitivamente
