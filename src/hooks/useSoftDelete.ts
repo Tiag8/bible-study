@@ -1,6 +1,9 @@
+'use client';
+
 import { useCallback, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { removeStudyAttachments } from './useAttachments';
 
 export interface DeletedStudy {
   id: string;
@@ -10,120 +13,68 @@ export interface DeletedStudy {
   deleted_at: string;
 }
 
+/**
+ * Lixeira: lista, restaura e apaga definitivamente os estudos do usuário logado.
+ * As RPCs usam auth.uid() no banco; nenhuma recebe o id do usuário.
+ * Mover para a lixeira é useStudies().deleteStudy.
+ */
 export function useSoftDelete() {
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
   const [deletedStudies, setDeletedStudies] = useState<DeletedStudy[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Soft delete a study
-  const softDelete = useCallback(
-    async (studyId: string) => {
-      if (authLoading || !user?.id) return false;
+  const userId = user?.id ?? null;
 
-      try {
-        setLoading(true);
-        setError(null);
-
-        const { data, error: rpcError } = await supabase.rpc(
-          'bible_soft_delete_study',
-          {
-            p_study_id: studyId,
-            p_user_id: user.id,
-          }
-        );
-
-        if (rpcError) {
-          console.error('Soft delete error:', rpcError);
-          setError(rpcError.message);
-          return false;
-        }
-
-        return data === true;
-      } catch (err) {
-        console.error('Soft delete error:', err);
-        setError(err instanceof Error ? err.message : 'Soft delete failed');
-        return false;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [user?.id, authLoading]
-  );
-
-  // Restore a deleted study
-  const restore = useCallback(
-    async (studyId: string) => {
-      if (authLoading || !user?.id) return false;
-
-      try {
-        setLoading(true);
-        setError(null);
-
-        const { data, error: rpcError } = await supabase.rpc(
-          'bible_restore_study',
-          {
-            p_study_id: studyId,
-            p_user_id: user.id,
-          }
-        );
-
-        if (rpcError) {
-          console.error('Restore error:', rpcError);
-          setError(rpcError.message);
-          return false;
-        }
-
-        return data === true;
-      } catch (err) {
-        console.error('Restore error:', err);
-        setError(err instanceof Error ? err.message : 'Restore failed');
-        return false;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [user?.id, authLoading]
-  );
-
-  // Fetch deleted studies
   const fetchDeletedStudies = useCallback(async () => {
-    if (authLoading || !user?.id) return;
+    if (!userId) return;
 
     try {
       setLoading(true);
       setError(null);
-
-      const { data, error: rpcError } = await supabase.rpc(
-        'bible_get_deleted_studies',
-        {
-          p_user_id: user.id,
-        }
-      );
-
-      if (rpcError) {
-        console.error('Fetch deleted studies error:', rpcError);
-        setError(rpcError.message);
-        setDeletedStudies([]);
-        return;
-      }
-
-      setDeletedStudies(data || []);
+      const { data, error: rpcError } = await supabase.rpc('bible_get_deleted_studies');
+      if (rpcError) throw rpcError;
+      setDeletedStudies((data as DeletedStudy[]) || []);
     } catch (err) {
-      console.error('Fetch deleted studies error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch deleted studies');
-      setDeletedStudies([]);
+      console.error('[TRASH] fetchDeletedStudies ERROR:', err);
+      setError('Não foi possível carregar a lixeira.');
     } finally {
       setLoading(false);
     }
-  }, [user?.id, authLoading]);
+  }, [userId]);
+
+  const restore = useCallback(async (studyId: string): Promise<boolean> => {
+    if (!userId) return false;
+
+    const { data, error: rpcError } = await supabase.rpc('bible_restore_study', { p_study_id: studyId });
+    if (rpcError || data !== true) {
+      console.error('[TRASH] restore ERROR:', rpcError ?? 'estudo não está na lixeira');
+      return false;
+    }
+    setDeletedStudies((prev) => prev.filter((s) => s.id !== studyId));
+    return true;
+  }, [userId]);
+
+  // Apaga a linha e, só depois, os anexos do estudo no Storage.
+  const purge = useCallback(async (studyId: string): Promise<boolean> => {
+    if (!userId) return false;
+
+    const { data, error: rpcError } = await supabase.rpc('bible_purge_study', { p_study_id: studyId });
+    if (rpcError || data !== true) {
+      console.error('[TRASH] purge ERROR:', rpcError ?? 'estudo não está na lixeira');
+      return false;
+    }
+    await removeStudyAttachments(userId, studyId);
+    setDeletedStudies((prev) => prev.filter((s) => s.id !== studyId));
+    return true;
+  }, [userId]);
 
   return {
-    softDelete,
-    restore,
-    fetchDeletedStudies,
     deletedStudies,
     loading,
     error,
+    fetchDeletedStudies,
+    restore,
+    purge,
   };
 }

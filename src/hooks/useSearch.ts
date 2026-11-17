@@ -1,4 +1,6 @@
-import { useCallback, useState } from 'react';
+'use client';
+
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -8,75 +10,57 @@ export interface SearchResult {
   book_name: string;
   chapter_number: number;
   status: string;
-  similarity: number;
+  /** Trecho do conteúdo em volta do termo encontrado (null se o estudo não tem texto). */
+  excerpt: string | null;
 }
 
-export function useSearch() {
-  const { user, loading: authLoading } = useAuth();
+export const MIN_SEARCH_LENGTH = 2;
+const DEBOUNCE_MS = 300;
+
+/**
+ * Busca no título, livro e conteúdo dos estudos do usuário logado (sem acento,
+ * sem diferença de maiúsculas). Espera o usuário parar de digitar e ignora
+ * respostas de buscas anteriores. Estudos na lixeira não aparecem.
+ */
+export function useSearch(query: string) {
+  const { user } = useAuth();
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const search = useCallback(
-    async (query: string) => {
-      // Guard: auth loading
-      if (authLoading) return;
+  const term = query.trim();
+  const active = term.length >= MIN_SEARCH_LENGTH;
+  const userId = user?.id ?? null;
 
-      // Guard: no user
-      if (!user?.id) {
+  useEffect(() => {
+    if (!userId || !active) {
+      setResults([]);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+    const timer = setTimeout(async () => {
+      const { data, error: rpcError } = await supabase.rpc('bible_search_studies', { p_query: term });
+      if (cancelled) return;
+      if (rpcError) {
+        console.error('[SEARCH] bible_search_studies ERROR:', rpcError);
+        setError('Não foi possível buscar agora. Tente novamente.');
         setResults([]);
-        setLoading(false);
-        return;
-      }
-
-      // Guard: empty query
-      if (!query.trim()) {
-        setResults([]);
-        return;
-      }
-
-      try {
-        setLoading(true);
+      } else {
         setError(null);
-
-        // Call RPC function with user_id for security
-        const { data, error: rpcError } = await supabase.rpc(
-          'bible_search_studies',
-          {
-            query_text: query.trim(),
-            p_user_id: user.id,
-          }
-        );
-
-        if (rpcError) {
-          console.error('Search RPC error:', rpcError);
-          setError(rpcError.message);
-          setResults([]);
-          return;
-        }
-
-        setResults(data || []);
-      } catch (err) {
-        console.error('Search error:', err);
-        setError(err instanceof Error ? err.message : 'Search failed');
-        setResults([]);
-      } finally {
-        setLoading(false);
+        setResults((data as SearchResult[]) || []);
       }
-    },
-    [user?.id, authLoading]
-  );
+      setLoading(false);
+    }, DEBOUNCE_MS);
 
-  const clearResults = useCallback(() => {
-    setResults([]);
-    setError(null);
-  }, []);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [term, active, userId]);
 
-  return {
-    search,
-    results,
-    loading,
-    error,
-    clearResults,
-  };
+  return { results, loading, error, active };
 }

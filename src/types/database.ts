@@ -35,6 +35,9 @@ export interface Database {
           created_at: string;
           updated_at: string;
           completed_at: string | null;
+          deleted_at: string | null;
+          review_stage: number | null;
+          next_review_at: string | null;
         };
         Insert: {
           id?: string;
@@ -48,6 +51,9 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           completed_at?: string | null;
+          deleted_at?: string | null;
+          review_stage?: number | null;
+          next_review_at?: string | null;
         };
         Update: {
           id?: string;
@@ -61,6 +67,9 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           completed_at?: string | null;
+          deleted_at?: string | null;
+          review_stage?: number | null;
+          next_review_at?: string | null;
         };
       };
       bible_study_links: {

@@ -55,6 +55,7 @@ export function useGraph() {
           .from('bible_studies')
           .select('*')
           .eq('user_id', user.id)
+          .is('deleted_at', null)
           .order('created_at', { ascending: false }),
         supabase
           .from('bible_study_links')
@@ -83,16 +84,17 @@ export function useGraph() {
         };
       });
 
-      // Filtrar apenas links internos (com target) para o grafo
+      // Filtrar apenas links internos entre estudos que não estão na lixeira
+      const nodeIds = new Set(nodes.map((node) => node.id));
       const graphLinks: GraphLink[] = studyLinks
-        .filter((link: StudyLink) => link.target_study_id !== null)
+        .filter((link: StudyLink) => link.target_study_id !== null && nodeIds.has(link.source_study_id) && nodeIds.has(link.target_study_id))
         .map((link: StudyLink) => ({
           source: link.source_study_id,
           target: link.target_study_id as string,
         }));
 
       setGraphData({ nodes, links: graphLinks });
-      setLinks(studyLinks);
+      setLinks(studyLinks.filter((l: StudyLink) => nodeIds.has(l.source_study_id) && (l.target_study_id === null || nodeIds.has(l.target_study_id))));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao buscar dados do grafo');
     } finally {

@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { TAG_COLORS, PARCHMENT } from "@/lib/design-tokens";
 import { getAggregatedChapterStatus } from "@/lib/utils";
 import { StudySelectionModal } from "./StudySelectionModal";
+import { ScheduleReviewButton } from "./ScheduleReviewButton";
 import {
   ArrowLeft,
   BookOpen,
@@ -288,6 +289,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                         <span>{formatRelativeDate(study.updated_at)}</span>
                       </div>
                       <div className="flex items-center gap-2">
+                        <ScheduleReviewButton study={study} />
                         <StatusBadge status={study.status} />
                         <button
                           onClick={(e) => handleDeleteClick(study.id, study.title, e)}

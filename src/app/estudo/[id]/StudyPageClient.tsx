@@ -686,9 +686,9 @@ export function StudyPageClient({ params }: StudyPageProps) {
         open={showDeleteConfirm}
         onConfirm={handleDeleteStudy}
         onCancel={() => setShowDeleteConfirm(false)}
-        title="Deletar estudo?"
-        description={`Tem certeza que deseja deletar "${study?.title || 'este estudo'}"? Esta ação não pode ser desfeita.`}
-        confirmText="Deletar"
+        title="Mover para a lixeira?"
+        description={`"${study?.title || 'Este estudo'}" vai para a Lixeira, no menu lateral. Lá você pode restaurá-lo ou apagá-lo definitivamente.`}
+        confirmText="Mover para a lixeira"
         cancelText="Cancelar"
         variant="destructive"
         isLoading={isDeleting}

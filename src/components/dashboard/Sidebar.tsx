@@ -10,6 +10,7 @@ import {
   BookOpen,
   LogOut,
   X,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,6 +29,7 @@ const menuItems = [
   { icon: Home, label: "Início", href: "/" },
   { icon: Network, label: "Grafo", href: "/grafo" },
   { icon: Settings, label: "Configurações", href: "/settings" },
+  { icon: Trash2, label: "Lixeira", href: "/lixeira" },
 ];
 
 export function Sidebar({ collapsed, onToggle, onClose }: SidebarProps) {

@@ -2,18 +2,17 @@
 
 import { useState } from 'react';
 import { RotateCcw, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { COLORS } from '@/lib/design-tokens';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 export interface RestoreButtonProps {
   studyId: string;
   studyTitle: string;
-  onRestore?: (studyId: string) => void | Promise<void>;
+  /** Deve devolver true quando o estudo foi restaurado. */
+  onRestore: (studyId: string) => Promise<boolean>;
   disabled?: boolean;
   className?: string;
-  variant?: 'default' | 'ghost' | 'outline';
-  size?: 'sm' | 'md' | 'lg';
 }
 
 export function RestoreButton({
@@ -22,67 +21,38 @@ export function RestoreButton({
   onRestore,
   disabled = false,
   className,
-  variant = 'outline',
-  size = 'md',
 }: RestoreButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const handleRestore = async () => {
+    setLoading(true);
+    const toastId = toast.loading(`Restaurando "${studyTitle}"...`);
     try {
-      setLoading(true);
-      toast.loading(`Restaurando "${studyTitle}"...`);
-
-      if (onRestore) {
-        await onRestore(studyId);
+      const ok = await onRestore(studyId);
+      if (ok) {
+        toast.success(`"${studyTitle}" foi restaurado`, { id: toastId });
+      } else {
+        toast.error(`Não foi possível restaurar "${studyTitle}". Tente novamente.`, { id: toastId });
       }
-
-      toast.dismiss();
-      toast.success(`"${studyTitle}" restaurado com sucesso`);
     } catch (err) {
-      toast.dismiss();
-      toast.error(`Erro ao restaurar "${studyTitle}"`);
-      console.error('Restore error:', err);
+      console.error('[TRASH] restore ERROR:', err);
+      toast.error(`Não foi possível restaurar "${studyTitle}". Tente novamente.`, { id: toastId });
     } finally {
       setLoading(false);
     }
   };
 
-  const sizeClasses = {
-    sm: 'px-2 py-1 text-xs',
-    md: 'px-3 py-2 text-sm',
-    lg: 'px-4 py-3 text-base',
-  };
-
-  const variantClasses = {
-    default:
-      `${COLORS.primary.default} text-white hover:${COLORS.primary.dark} focus:ring-blue-500`,
-    ghost:
-      `${COLORS.neutral.text.secondary} ${COLORS.neutral[100]} focus:ring-gray-300`,
-    outline:
-      `border ${COLORS.neutral.text.secondary} hover:${COLORS.neutral[50]} focus:ring-gray-300`,
-  };
-
   return (
-    <button
+    <Button
+      variant="outline"
+      size="sm"
       onClick={handleRestore}
       disabled={disabled || loading}
-      className={cn(
-        'inline-flex items-center gap-2',
-        'rounded-lg font-medium',
-        'transition-all focus:ring-2 focus:ring-offset-2',
-        'disabled:opacity-50 disabled:cursor-not-allowed',
-        sizeClasses[size],
-        variantClasses[variant],
-        className
-      )}
+      className={cn('gap-2 bg-warm-white border-linen text-walnut hover:bg-cream hover:text-espresso', className)}
       aria-label={`Restaurar ${studyTitle}`}
     >
-      {loading ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
-      ) : (
-        <RotateCcw className="w-4 h-4" />
-      )}
+      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
       <span>Restaurar</span>
-    </button>
+    </Button>
   );
 }
