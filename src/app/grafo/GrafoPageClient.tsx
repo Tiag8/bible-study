@@ -10,7 +10,9 @@ import {
   PARCHMENT_HEX,
   SHADOW_WARM,
   TYPOGRAPHY,
+  type StudyStatus,
 } from "@/lib/design-tokens";
+import { STATUS_ORDER, STATUS_THEME } from "@/lib/theme-colors";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +25,7 @@ import {
   ZoomIn,
   ZoomOut,
   Maximize2,
-  Home,
+  ArrowLeft,
   Info,
   X,
   Loader2,
@@ -45,13 +47,50 @@ const CANVAS_FONTS = {
   meta: (size: number) => `${size}px Inter, system-ui, sans-serif`,
 };
 
-// Status visual config para nodes
-const NODE_STATUS_STYLE: Record<string, { borderWidth: number; dash: number[]; borderAlpha: string }> = {
-  estudar:    { borderWidth: 2, dash: [3, 3], borderAlpha: '60' },
-  estudando:  { borderWidth: 1.5, dash: [], borderAlpha: '50' },
-  revisando:  { borderWidth: 2, dash: [6, 3], borderAlpha: '70' },
-  concluído:  { borderWidth: 2.5, dash: [], borderAlpha: '90' },
+// Status no anel em volta do nó, em nogueira sobre o pergaminho (7,16:1): a espessura,
+// o tracejado e o anel duplo distinguem o status sem depender da cor. A legenda desenha
+// os mesmos anéis (StatusRingSwatch). Medidas em pixels de tela.
+const NODE_STATUS_STYLE: Record<StudyStatus, { width: number; dash: number[]; double: boolean }> = {
+  estudar:    { width: 1.5, dash: [2, 2], double: false },
+  estudando:  { width: 1, dash: [], double: false },
+  revisando:  { width: 1.5, dash: [5, 2], double: false },
+  concluído:  { width: 2, dash: [], double: true },
 };
+const STATUS_RING_GAP = 1.5;
+const STATUS_RING_DOUBLE_GAP = 4;
+
+// Rótulos no canvas: largura máxima do título em pixels de tela e limite de zoom abaixo
+// do qual só o nó em foco (hover, selecionado ou achado pela busca) mostra o título
+const LABEL_MAX_WIDTH = { mobile: 72, desktop: 100 };
+const LABEL_MIN_SCALE = { mobile: 0.9, desktop: 0.4 };
+// A segunda linha (livro e capítulo) só aparece com zoom alto ou no nó em foco
+const META_MIN_SCALE = 2;
+// Zoom máximo do enquadramento inicial (com poucos nós o fit aproximaria demais)
+const FIT_MAX_ZOOM = 3;
+const FIT_MARGIN = 40;
+
+/** Anel de status desenhado igual ao do canvas, para a legenda. */
+function StatusRingSwatch({ status }: { status: StudyStatus }) {
+  const style = NODE_STATUS_STYLE[status];
+  const r = 4;
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" className="shrink-0">
+      <circle cx="10" cy="10" r={r} fill={PARCHMENT_HEX.sand} />
+      <circle
+        cx="10"
+        cy="10"
+        r={r + STATUS_RING_GAP}
+        fill="none"
+        stroke={PARCHMENT_HEX.walnut}
+        strokeWidth={style.width}
+        strokeDasharray={style.dash.length ? style.dash.join(" ") : undefined}
+      />
+      {style.double && (
+        <circle cx="10" cy="10" r={r + STATUS_RING_DOUBLE_GAP} fill="none" stroke={PARCHMENT_HEX.walnut} strokeWidth={1} />
+      )}
+    </svg>
+  );
+}
 
 // Dynamic import para evitar SSR issues com canvas
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
@@ -119,6 +158,10 @@ export function GrafoPageClient() {
 
   // Canvas do tamanho do container (sem width/height o ForceGraph2D usa a janela inteira)
   const graphContainerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const zoomControlsRef = useRef<HTMLDivElement>(null);
+  const didInitialFit = useRef(false);
+  const lastFitWidth = useRef<number | null>(null);
   const [graphSize, setGraphSize] = useState<{ width: number; height: number } | null>(null);
   useEffect(() => {
     const el = graphContainerRef.current;
@@ -266,21 +309,65 @@ export function GrafoPageClient() {
     }
   };
 
-  const handleCenter = () => {
-    if (graphRef.current) {
-      graphRef.current.zoomToFit(400, 50);
-    }
-  };
+  // Enquadra todos os nós na área livre do canvas: abaixo do cabeçalho e fora da coluna
+  // dos botões de zoom (à direita dela ou acima dela, o que deixar o grafo maior).
+  // zoomToFit só aceita a mesma margem nos quatro lados, que no celular sobraria pouco.
+  const fitGraph = useCallback((durationMs: number) => {
+    const fg = graphRef.current;
+    const container = graphContainerRef.current;
+    if (!fg || !container) return;
+    const bbox = fg.getGraphBbox();
+    if (!bbox || !bbox.x.every(Number.isFinite) || !bbox.y.every(Number.isFinite)) return;
 
-  // Centralizar no início
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (graphRef.current) {
-        graphRef.current.zoomToFit(400, 50);
-      }
-    }, 500);
-    return () => clearTimeout(timer);
+    const box = container.getBoundingClientRect();
+    if (box.width === 0 || box.height === 0) return;
+    const header = headerRef.current?.getBoundingClientRect();
+    const controls = zoomControlsRef.current?.getBoundingClientRect();
+    const top = Math.max((header ? header.bottom - box.top : 0), 0) + FIT_MARGIN / 2;
+    const bottom = FIT_MARGIN;
+    const side = FIT_MARGIN;
+    const controlsRight = controls ? controls.right - box.left : 0;
+    const controlsTop = controls ? controls.top - box.top : box.height;
+
+    const graphW = Math.max(bbox.x[1] - bbox.x[0], 1);
+    const graphH = Math.max(bbox.y[1] - bbox.y[0], 1);
+    // Opção A: área à direita dos botões. Opção B: área acima dos botões.
+    const areas = [
+      { left: controlsRight + side / 2, top, width: box.width - controlsRight - side * 1.5, height: box.height - top - bottom },
+      { left: side, top, width: box.width - side * 2, height: controlsTop - top - side / 2 },
+    ].filter((a) => a.width > 0 && a.height > 0);
+    if (areas.length === 0) return;
+    const scaled = areas.map((a) => ({ ...a, k: Math.min(a.width / graphW, a.height / graphH) }));
+    const best = scaled.reduce((a, b) => (b.k > a.k ? b : a));
+    const k = Math.min(best.k, FIT_MAX_ZOOM);
+
+    // centerAt(x, y) põe (x, y) no centro do canvas; o centro da área livre fica deslocado
+    const cx = (bbox.x[0] + bbox.x[1]) / 2;
+    const cy = (bbox.y[0] + bbox.y[1]) / 2;
+    const dx = best.left + best.width / 2 - box.width / 2;
+    const dy = best.top + best.height / 2 - box.height / 2;
+    fg.zoom(k, durationMs);
+    fg.centerAt(cx - dx / k, cy - dy / k, durationMs);
+    lastFitWidth.current = box.width;
   }, []);
+
+  const handleCenter = () => fitGraph(400);
+
+  // Primeiro enquadramento quando a simulação para (antes disso as posições ainda mudam)
+  const handleEngineStop = useCallback(() => {
+    if (didInitialFit.current) return;
+    didInitialFit.current = true;
+    fitGraph(400);
+  }, [fitGraph]);
+
+  // Reenquadra quando a largura do container muda (girar o celular, redimensionar a janela).
+  // Só a altura mudando (teclado abrindo na busca) não reenquadra, para não desfazer o foco.
+  useEffect(() => {
+    if (!graphSize || !didInitialFit.current) return;
+    if (lastFitWidth.current === graphSize.width) return;
+    const timer = setTimeout(() => fitGraph(300), 150);
+    return () => clearTimeout(timer);
+  }, [graphSize, fitGraph]);
 
   // Toggle visibilidade de categoria
   const toggleCategory = useCallback((category: BookCategory) => {
@@ -367,7 +454,7 @@ export function GrafoPageClient() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 relative overflow-hidden">
         {/* Header */}
-        <header className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-parchment via-parchment/90 to-transparent">
+        <header ref={headerRef} className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-parchment via-parchment/90 to-transparent">
           <div className="px-4 md:px-6 py-3 md:py-4">
             {/* Row 1: Title + Actions */}
             <div className="flex items-center justify-between">
@@ -383,10 +470,11 @@ export function GrafoPageClient() {
                   variant="ghost"
                   size="sm"
                   onClick={() => router.push("/")}
-                  className={cn(PARCHMENT.text.secondary, "hover:text-espresso hover:bg-warm-white")}
+                  aria-label="Voltar ao painel"
+                  className={cn(PARCHMENT.text.subheading, "hover:text-espresso hover:bg-warm-white")}
                 >
-                  <Home className="w-4 h-4 md:mr-2" />
-                  <span className="hidden md:inline">Dashboard</span>
+                  <ArrowLeft className="w-4 h-4 md:mr-2" aria-hidden="true" />
+                  <span className="hidden md:inline">Voltar</span>
                 </Button>
                 <div>
                   <h1 className={cn("text-lg md:text-xl", TYPOGRAPHY.weights.bold, TYPOGRAPHY.families.serif, PARCHMENT.text.heading)}>
@@ -518,11 +606,12 @@ export function GrafoPageClient() {
         </header>
 
         {/* Zoom Controls - 44px desktop, 48px mobile */}
-        <div className="absolute bottom-4 md:bottom-6 left-4 md:left-6 z-20 flex flex-col gap-2">
+        <div ref={zoomControlsRef} className="absolute bottom-4 md:bottom-6 left-4 md:left-6 z-20 flex flex-col gap-2">
           <Button
             variant="outline"
             size="icon"
             onClick={handleZoomIn}
+            aria-label="Aproximar"
             className={cn(
               "w-12 h-12 md:w-11 md:h-11",
               PARCHMENT.bg.card, PARCHMENT.border.default, PARCHMENT.text.subheading,
@@ -535,6 +624,7 @@ export function GrafoPageClient() {
             variant="outline"
             size="icon"
             onClick={handleZoomOut}
+            aria-label="Afastar"
             className={cn(
               "w-12 h-12 md:w-11 md:h-11",
               PARCHMENT.bg.card, PARCHMENT.border.default, PARCHMENT.text.subheading,
@@ -547,6 +637,7 @@ export function GrafoPageClient() {
             variant="outline"
             size="icon"
             onClick={handleCenter}
+            aria-label="Enquadrar todos os estudos"
             className={cn(
               "w-12 h-12 md:w-11 md:h-11",
               PARCHMENT.bg.card, PARCHMENT.border.default, PARCHMENT.text.subheading,
@@ -630,24 +721,14 @@ export function GrafoPageClient() {
               <h4 className={cn(TYPOGRAPHY.sizes.xs, TYPOGRAPHY.weights.semibold, PARCHMENT.text.heading, "mb-2")}>
                 Status
               </h4>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full border-2 border-dashed" style={{ borderColor: PARCHMENT_HEX.walnut }} />
-                  <span className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.secondary)}>Estudar</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full border" style={{ borderColor: PARCHMENT_HEX.walnut }} />
-                  <span className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.secondary)}>Estudando</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full border-2" style={{ borderColor: PARCHMENT_HEX.walnut, borderStyle: 'dashed' }} />
-                  <span className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.secondary)}>Revisando</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3.5 h-3.5 rounded-full border-2 ring-2 ring-sand ring-offset-1" style={{ borderColor: PARCHMENT_HEX.walnut }} />
-                  <span className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.secondary)}>Concluído</span>
-                </div>
-              </div>
+              <ul className="space-y-1.5">
+                {STATUS_ORDER.map((status) => (
+                  <li key={status} className="flex items-center gap-2">
+                    <StatusRingSwatch status={status} />
+                    <span className={cn(TYPOGRAPHY.sizes.xs, PARCHMENT.text.subheading)}>{STATUS_THEME[status].label}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
 
             {/* Estatísticas */}
@@ -876,6 +957,8 @@ export function GrafoPageClient() {
               const y = node.y ?? 0;
               const nodeSize = n.val;
               const statusStyle = NODE_STATUS_STYLE[n.status] || NODE_STATUS_STYLE.estudando;
+              const isFocus =
+                hoveredNode?.id === n.id || selectedNode?.id === n.id || highlightedNodeId === n.id;
 
               // Desenhar nó
               ctx.beginPath();
@@ -883,22 +966,31 @@ export function GrafoPageClient() {
               ctx.fillStyle = n.color;
               ctx.fill();
 
-              // Borda diferenciada por status
-              ctx.strokeStyle = `${PARCHMENT_HEX.walnut}${statusStyle.borderAlpha}`;
-              ctx.lineWidth = statusStyle.borderWidth / globalScale;
+              // Anel de status por fora do nó (espessura, tracejado e anel duplo)
+              ctx.beginPath();
+              ctx.arc(x, y, nodeSize + STATUS_RING_GAP / globalScale, 0, 2 * Math.PI);
+              ctx.strokeStyle = PARCHMENT_HEX.walnut;
+              ctx.lineWidth = statusStyle.width / globalScale;
               ctx.setLineDash(statusStyle.dash.map(d => d / globalScale));
               ctx.stroke();
               ctx.setLineDash([]);
+              if (statusStyle.double) {
+                ctx.beginPath();
+                ctx.arc(x, y, nodeSize + STATUS_RING_DOUBLE_GAP / globalScale, 0, 2 * Math.PI);
+                ctx.strokeStyle = PARCHMENT_HEX.walnut;
+                ctx.lineWidth = 1 / globalScale;
+                ctx.stroke();
+              }
 
               // Highlight do node encontrado pela busca (glow pulsante)
               if (highlightedNodeId === n.id) {
                 ctx.beginPath();
-                ctx.arc(x, y, nodeSize + 5 / globalScale, 0, 2 * Math.PI);
+                ctx.arc(x, y, nodeSize + 6 / globalScale, 0, 2 * Math.PI);
                 ctx.strokeStyle = PARCHMENT_HEX.amber;
                 ctx.lineWidth = 3 / globalScale;
                 ctx.stroke();
                 ctx.beginPath();
-                ctx.arc(x, y, nodeSize + 8 / globalScale, 0, 2 * Math.PI);
+                ctx.arc(x, y, nodeSize + 9 / globalScale, 0, 2 * Math.PI);
                 ctx.strokeStyle = `${PARCHMENT_HEX.amber}40`;
                 ctx.lineWidth = 2 / globalScale;
                 ctx.stroke();
@@ -907,7 +999,7 @@ export function GrafoPageClient() {
               // Destaque do node source durante link creation
               if (linkingSource && linkingSource.id === n.id) {
                 ctx.beginPath();
-                ctx.arc(x, y, nodeSize + 3 / globalScale, 0, 2 * Math.PI);
+                ctx.arc(x, y, nodeSize + 6 / globalScale, 0, 2 * Math.PI);
                 ctx.strokeStyle = PARCHMENT_HEX.amber;
                 ctx.lineWidth = 2 / globalScale;
                 ctx.setLineDash([4 / globalScale, 4 / globalScale]);
@@ -918,23 +1010,16 @@ export function GrafoPageClient() {
               // Destaque do node selecionado
               if (selectedNode && selectedNode.id === n.id && !linkingSource) {
                 ctx.beginPath();
-                ctx.arc(x, y, nodeSize + 3 / globalScale, 0, 2 * Math.PI);
-                ctx.strokeStyle = `${PARCHMENT_HEX.walnut}80`;
+                ctx.arc(x, y, nodeSize + 6 / globalScale, 0, 2 * Math.PI);
+                ctx.strokeStyle = PARCHMENT_HEX.amberDark;
                 ctx.lineWidth = 2 / globalScale;
                 ctx.stroke();
               }
 
-              // Anel externo para concluídos (destaque visual)
-              if (n.status === 'concluído') {
-                ctx.beginPath();
-                ctx.arc(x, y, nodeSize + 2 / globalScale, 0, 2 * Math.PI);
-                ctx.strokeStyle = `${n.color}50`;
-                ctx.lineWidth = 1.5 / globalScale;
-                ctx.stroke();
-              }
-
-              // Labels com escala dinâmica e hierarquia tipográfica
-              if (globalScale > 0.4) {
+              // Labels com escala dinâmica e hierarquia tipográfica. No celular, com zoom
+              // baixo, só o nó em foco mostra o título (os rótulos se sobrepunham)
+              const labelMinScale = isMobile ? LABEL_MIN_SCALE.mobile : LABEL_MIN_SCALE.desktop;
+              if (isFocus || globalScale > labelMinScale) {
                 // Titulo - Lora serif, escala com zoom mas com min/max
                 const titleSize = Math.min(Math.max(10 / globalScale, 8), 18);
                 ctx.font = fontsReady ? CANVAS_FONTS.title(titleSize) : `600 ${titleSize}px Georgia, serif`;
@@ -942,8 +1027,10 @@ export function GrafoPageClient() {
                 ctx.textBaseline = "top";
                 ctx.fillStyle = PARCHMENT_HEX.espresso;
 
-                // Truncar label se muito longo
-                const maxLabelWidth = 100 / globalScale;
+                // Truncar label se muito longo (o nó em foco mostra o título inteiro)
+                const maxLabelWidth = isFocus
+                  ? Infinity
+                  : (isMobile ? LABEL_MAX_WIDTH.mobile : LABEL_MAX_WIDTH.desktop) / globalScale;
                 let displayLabel = n.name;
                 if (ctx.measureText(displayLabel).width > maxLabelWidth) {
                   while (ctx.measureText(displayLabel + '…').width > maxLabelWidth && displayLabel.length > 3) {
@@ -952,14 +1039,15 @@ export function GrafoPageClient() {
                   displayLabel += '…';
                 }
 
-                ctx.fillText(displayLabel, x, y + nodeSize + 3 / globalScale);
+                const labelTop = y + nodeSize + (STATUS_RING_DOUBLE_GAP + 2) / globalScale;
+                ctx.fillText(displayLabel, x, labelTop);
 
-                // Metadados - Inter sans, menor e mais suave (só em zoom > 0.8)
-                if (globalScale > 0.8) {
+                // Metadados - Inter sans, menor: só com zoom alto ou no nó em foco
+                if (isFocus || globalScale > META_MIN_SCALE) {
                   const metaSize = Math.min(Math.max(8 / globalScale, 6), 12);
                   ctx.font = fontsReady ? CANVAS_FONTS.meta(metaSize) : `${metaSize}px system-ui, sans-serif`;
-                  ctx.fillStyle = PARCHMENT_HEX.stone;
-                  ctx.fillText(`${n.book} ${n.chapter}`, x, y + nodeSize + 3 / globalScale + titleSize + 2 / globalScale);
+                  ctx.fillStyle = PARCHMENT_HEX.walnut;
+                  ctx.fillText(`${n.book} ${n.chapter}`, x, labelTop + titleSize + 2 / globalScale);
                 }
               }
             }}
@@ -975,6 +1063,7 @@ export function GrafoPageClient() {
               ctx.fillStyle = color;
               ctx.fill();
             }}
+            onEngineStop={handleEngineStop}
             d3AlphaDecay={0.02}
             d3VelocityDecay={0.3}
             warmupTicks={100}
