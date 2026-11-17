@@ -813,7 +813,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
                   onClick={() => setShowStatusDropdown(!showStatusDropdown)}
                   disabled={!study?.id}
                   className={cn(
-                    "px-3 py-1.5 text-sm rounded-md font-medium transition-colors",
+                    "px-3 py-1.5 text-sm rounded-md font-medium transition-colors max-md:min-h-[44px]",
                     "focus:outline-none focus:ring-2 focus:ring-offset-2",
                     "text-white",
                     !study?.id && "bg-sand cursor-not-allowed",

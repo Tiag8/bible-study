@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, Plus, AlertTriangle, X, RotateCw } from 'lucide-react';
+import { ChevronDown, Link2, Plus, AlertTriangle, X, RotateCw } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { cn } from '@/lib/utils';
@@ -386,7 +386,7 @@ export function ReferencesSidebar({
         title="Abrir painel de referências"
         aria-label={`Abrir painel de referências (${references.length} ${references.length === 1 ? 'referência' : 'referências'})`}
       >
-        <ChevronDown className="w-6 h-6" aria-hidden="true" />
+        <Link2 className="w-6 h-6" aria-hidden="true" />
       </button>
     </>
   );
