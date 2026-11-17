@@ -108,8 +108,8 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2 md:gap-4 min-w-0">
           <Button variant="ghost" size="sm" onClick={onBack}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar
@@ -119,7 +119,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
               <BookOpen className={cn("w-6 h-6", PARCHMENT.accent.text)} />
             </div>
             <div>
-              <h1 className={cn("text-2xl font-lora font-bold", PARCHMENT.text.heading)}>{book.name}</h1>
+              <h1 className={cn("text-xl md:text-2xl font-lora font-bold", PARCHMENT.text.heading)}>{book.name}</h1>
               <p className={cn("text-sm", PARCHMENT.text.muted)}>
                 {studiedChapters.length} de {book.totalChapters} capítulos
                 estudados
@@ -134,7 +134,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
 
       {/* Tags */}
       {book.tags.length > 0 && (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span className={cn("text-sm", PARCHMENT.text.muted)}>Tags:</span>
           {book.tags.map((tag) => (
             <Badge key={tag} variant="outline">
@@ -212,11 +212,13 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
             }
 
             return (
-              <div
+              <button
+                type="button"
                 key={chapter}
                 onClick={handleChapterClick}
                 className={cn(baseClasses, colorClasses)}
                 title={tooltipText}
+                aria-label={studyCount > 0 ? `Capítulo ${chapter}: ${tooltipText}` : tooltipText}
               >
                 {chapter}
                 {hasMultiple && (
@@ -224,7 +226,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                     {studyCount}
                   </span>
                 )}
-              </div>
+              </button>
             );
           })}
         </div>
@@ -259,7 +261,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                           • Capítulo {study.chapter_number}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
                         {study.tags.slice(0, 3).map((tagName) => {
                           const tagColor = getTagColor(tagName);
                           return (
@@ -290,7 +292,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                         <button
                           onClick={(e) => handleDeleteClick(study.id, study.title, e)}
                           disabled={deletingId === study.id}
-                          className="p-1.5 rounded-md bg-red-50 text-red-600 hover:bg-red-100 opacity-40 group-hover:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center flex-shrink-0"
+                          className="p-1.5 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 rounded-md bg-red-50 text-red-600 hover:bg-red-100 md:opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center flex-shrink-0"
                           aria-label="Deletar estudo"
                         >
                           {deletingId === study.id ? (
