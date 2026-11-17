@@ -6,6 +6,7 @@ import type { Study, StudyInsert, StudyUpdate, TiptapContent } from '@/types/dat
 import { useAuth } from '@/contexts/AuthContext';
 import { isValidUUID } from '@/lib/utils';
 import type { StudyStatus } from '@/lib/design-tokens';
+import { scheduleAfterReview, scheduleForStatusChange, startSchedule, type ReviewSchedule } from '@/lib/review-schedule';
 
 // Tipo para estudo com conteúdo
 export interface StudyWithContent extends Study {
@@ -31,6 +32,8 @@ interface StudiesContextValue {
   updateStudyStatus: (id: string, status: 'estudar' | 'estudando' | 'revisando' | 'concluído') => Promise<boolean>;
   completeStudy: (id: string) => Promise<boolean>;
   deleteStudy: (id: string) => Promise<boolean>;
+  markReviewed: (id: string) => Promise<ReviewSchedule | null>;
+  startReviewSchedule: (id: string) => Promise<boolean>;
   getStudiesByBook: (bookName: string) => StudySummary[];
   filterByStatus: (status: StudyStatus | 'todos') => StudySummary[];
   filterByBook: (bookName: string | 'todos') => StudySummary[];
@@ -85,7 +88,7 @@ function useStudiesInternal(): StudiesContextValue {
 
       const queryPromise = supabase
         .from('bible_studies')
-        .select('id, user_id, title, book_name, chapter_number, status, tags, created_at, updated_at, completed_at')
+        .select('id, user_id, title, book_name, chapter_number, status, tags, created_at, updated_at, completed_at, review_stage, next_review_at')
         .eq('user_id', user.id)
         .is('deleted_at', null)
         .order('updated_at', { ascending: false });
@@ -340,14 +343,22 @@ function useStudiesInternal(): StudiesContextValue {
     }
 
     try {
+      const now = new Date();
       const updateData: Partial<StudyUpdate> = {
         status,
-        updated_at: new Date().toISOString(),
+        updated_at: now.toISOString(),
       };
 
       // Se mudando para concluído, setar completed_at
       if (status === 'concluído') {
-        updateData.completed_at = new Date().toISOString();
+        updateData.completed_at = now.toISOString();
+      }
+
+      // Revisão espaçada: concluir agenda a 1ª revisão; sair de concluído limpa.
+      const previous = studies.find(s => s.id === id)?.status;
+      const schedule = scheduleForStatusChange(previous, status, now);
+      if (schedule) {
+        Object.assign(updateData, schedule);
       }
 
       const { error } = await supabase
@@ -364,7 +375,7 @@ function useStudiesInternal(): StudiesContextValue {
       console.error('[STUDIES] updateStudyStatus ERROR:', err);
       return false;
     }
-  }, [user?.id, fetchStudies]);
+  }, [user?.id, fetchStudies, studies]);
 
   // Marcar como completo (wrapper para updateStudyStatus)
   const completeStudy = useCallback(async (id: string): Promise<boolean> => {
@@ -390,6 +401,37 @@ function useStudiesInternal(): StudiesContextValue {
       return false;
     }
   }, [user?.id]);
+
+  // Gravar o agendamento de revisão de um estudo
+  const saveReviewSchedule = useCallback(async (id: string, schedule: ReviewSchedule): Promise<boolean> => {
+    if (!user?.id) return false;
+
+    const { error } = await supabase
+      .from('bible_studies')
+      .update(schedule)
+      .eq('id', id)
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('[STUDIES] saveReviewSchedule ERROR:', error);
+      return false;
+    }
+    setStudies(prev => prev.map(s => (s.id === id ? { ...s, ...schedule } : s)));
+    return true;
+  }, [user?.id]);
+
+  // "Revisei": registra a revisão e agenda a próxima (ou encerra após a 4ª)
+  const markReviewed = useCallback(async (id: string): Promise<ReviewSchedule | null> => {
+    const study = studies.find(s => s.id === id);
+    if (!study || study.review_stage === null) return null;
+    const schedule = scheduleAfterReview(study.review_stage, new Date());
+    return (await saveReviewSchedule(id, schedule)) ? schedule : null;
+  }, [studies, saveReviewSchedule]);
+
+  // Iniciar o agendamento de um estudo concluído antes da revisão espaçada existir
+  const startReviewSchedule = useCallback(async (id: string): Promise<boolean> => {
+    return saveReviewSchedule(id, startSchedule(new Date()));
+  }, [saveReviewSchedule]);
 
   // Buscar estudos por livro
   const getStudiesByBook = useCallback((bookName: string): StudySummary[] => {
@@ -473,6 +515,8 @@ function useStudiesInternal(): StudiesContextValue {
     updateStudyStatus,
     completeStudy,
     deleteStudy,
+    markReviewed,
+    startReviewSchedule,
     getStudiesByBook,
     filterByStatus,
     filterByBook,

@@ -15,6 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Menu, BookMarked } from "lucide-react";
 import { WelcomeGuide } from "@/components/dashboard/WelcomeGuide";
 import { StudySearchResults } from "@/components/dashboard/StudySearchResults";
+import { ReviewDueSection } from "@/components/dashboard/ReviewDueSection";
 
 export function DashboardClient() {
   const router = useRouter();
@@ -192,6 +193,8 @@ export function DashboardClient() {
                   Navegue pelos livros e gerencie seus estudos
                 </p>
               </div>
+
+              <ReviewDueSection />
 
               {/* Welcome Guide for new users */}
               {!studiesLoading && studies.length === 0 && (
