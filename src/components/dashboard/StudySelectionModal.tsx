@@ -175,11 +175,11 @@ export function StudySelectionModal({
                 <button
                   onClick={(e) => handleDeleteClick(study.id, study.title, e)}
                   disabled={deletingId === study.id}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] p-2 rounded-md opacity-40 hover:opacity-100 focus:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center bg-red-50 text-red-600 hover:bg-red-100"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] p-2 rounded-md opacity-40 hover:opacity-100 focus:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center text-[#b42318] hover:bg-[#b42318]/10"
                   aria-label="Deletar estudo"
                 >
                   {deletingId === study.id ? (
-                    <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-[#b42318] border-t-transparent rounded-full animate-spin" />
                   ) : (
                     <Trash2 className="w-4 h-4" />
                   )}

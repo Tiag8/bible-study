@@ -862,7 +862,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
                         onClick={() => setShowStatusDropdown(!showStatusDropdown)}
                         aria-haspopup="menu"
                         aria-expanded={showStatusDropdown}
-                        className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-dark focus:ring-offset-2"
+                        className="ink-inherit inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-dark focus:ring-offset-2"
                         style={{
                           backgroundColor: theme.fill,
                           color: theme.ink,
@@ -898,7 +898,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
                           )}
                         >
                           <span
-                            className="flex h-5 w-5 items-center justify-center rounded-full border"
+                            className="ink-inherit flex h-5 w-5 items-center justify-center rounded-full border"
                             style={{
                               backgroundColor: theme.fill,
                               color: theme.ink,

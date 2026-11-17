@@ -75,7 +75,7 @@ function BarButton({
     <button
       type="button"
       onClick={onClick}
-      className="relative flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium text-walnut active:bg-linen focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-dark"
+      className="ink-inherit relative flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium text-walnut active:bg-linen focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-dark"
     >
       <span className="relative">
         {children}
@@ -214,7 +214,7 @@ export function StudyMobileChrome({
                 className="-my-1 flex min-h-[36px] items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-dark rounded-full"
               >
                 <span
-                  className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium"
+                  className="ink-inherit inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium"
                   style={{
                     backgroundColor: theme.fill,
                     color: theme.ink,
@@ -341,7 +341,7 @@ export function StudyMobileChrome({
               }}
               icon={
                 <span
-                  className="flex h-6 w-6 items-center justify-center rounded-full border"
+                  className="ink-inherit flex h-6 w-6 items-center justify-center rounded-full border"
                   style={{
                     backgroundColor: optionTheme.fill,
                     color: optionTheme.ink,

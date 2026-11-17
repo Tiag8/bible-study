@@ -183,7 +183,7 @@ export default function LixeiraPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => setToPurge(study)}
-                      className="gap-2 min-h-[44px] w-full sm:w-auto whitespace-nowrap bg-warm-white border-linen text-red-700 hover:bg-red-50"
+                      className="gap-2 min-h-[44px] w-full sm:w-auto whitespace-nowrap bg-warm-white border-linen text-[#b42318] hover:bg-[#b42318]/10"
                     >
                       <Trash2 className="w-4 h-4" />
                       Apagar definitivamente

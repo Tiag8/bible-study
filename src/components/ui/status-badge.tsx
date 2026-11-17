@@ -39,7 +39,7 @@ export function StatusBadge({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-full border font-medium whitespace-nowrap',
+        'ink-inherit inline-flex items-center gap-1 rounded-full border font-medium whitespace-nowrap',
         sizeClasses[size],
         className
       )}

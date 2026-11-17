@@ -5,6 +5,8 @@
 :root {
   --background: #e8e0d1;
   --foreground: #272626;
+  /* O app só tem tema claro: controles e barras de rolagem do navegador seguem o claro. */
+  color-scheme: light;
 
   /* Shadow tokens (from shadows.module.css) */
   --shadow-none: none;
@@ -18,13 +20,6 @@
   --shadow-warm-lg: 0 8px 24px rgba(60, 36, 21, 0.10);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   color: var(--foreground);
   background: var(--background);
@@ -34,6 +29,14 @@ body {
 @layer base {
   * {
     @apply text-[#272626];
+  }
+
+  /* A regra acima dá cor própria a todo elemento, então filhos não herdam a cor do pai.
+     Onde a cor vem de um estilo calculado ou da variante (selo de status, quadro de
+     capítulo, botão cheio), esta classe devolve a herança aos filhos (ícones, números).
+     Fica na camada base: qualquer classe de cor no filho continua valendo. */
+  .ink-inherit * {
+    color: inherit;
   }
 }
 

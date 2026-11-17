@@ -205,7 +205,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                 key={chapter}
                 onClick={handleChapterClick}
                 className={cn(
-                  "relative aspect-square min-h-[44px] min-w-[44px] rounded-lg border flex flex-col items-center justify-center gap-0.5 text-sm font-medium transition-all cursor-pointer hover:scale-105 hover:shadow-md",
+                  "ink-inherit relative aspect-square min-h-[44px] min-w-[44px] rounded-lg border flex flex-col items-center justify-center gap-0.5 text-sm font-medium transition-all cursor-pointer hover:scale-105 hover:shadow-md",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-dark focus-visible:ring-offset-2 focus-visible:ring-offset-parchment",
                   !theme && "bg-cream border-linen text-walnut hover:border-amber-dark"
                 )}
@@ -245,7 +245,7 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
             return (
               <li key={status} className="flex items-center gap-1.5 text-xs text-walnut">
                 <span
-                  className="inline-flex h-5 w-5 items-center justify-center rounded border"
+                  className="ink-inherit inline-flex h-5 w-5 items-center justify-center rounded border"
                   style={{
                     backgroundColor: legend.fill,
                     color: legend.ink,
@@ -314,11 +314,11 @@ export function ChapterView({ book, onBack }: ChapterViewProps) {
                     type="button"
                     onClick={(e) => handleDeleteClick(study.id, study.title, e)}
                     disabled={deletingId === study.id}
-                    className="relative z-10 -mr-2 -mt-2 md:m-0 p-1.5 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 rounded-md bg-red-50 text-red-700 hover:bg-red-100 md:opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center flex-shrink-0"
+                    className="relative z-10 -mr-2 -mt-2 md:m-0 p-1.5 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 rounded-md text-[#b42318] hover:bg-[#b42318]/10 md:opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity disabled:opacity-50 flex items-center justify-center flex-shrink-0"
                     aria-label={`Deletar estudo ${study.title}`}
                   >
                     {deletingId === study.id ? (
-                      <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-[#b42318] border-t-transparent rounded-full animate-spin" />
                     ) : (
                       <Trash2 className="w-4 h-4" />
                     )}
