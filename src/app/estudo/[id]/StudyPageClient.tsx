@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import { CreateTagModal } from "@/components/CreateTagModal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { ReferencesSidebar } from "@/components/Editor/ReferencesSidebar";
+import { StudyAttachments } from "@/components/StudyAttachments";
 
 interface StudyPageProps {
   params: Promise<{ id: string }>;
@@ -962,6 +963,9 @@ export function StudyPageClient({ params }: StudyPageProps) {
                 onDeleteReferenceByStudyId={deleteReferenceByStudyId}
               />
             </div>
+
+            {/* Anexos do estudo */}
+            {study?.id && <StudyAttachments studyId={study.id} />}
 
             {/* Dicas */}
             <div className={cn("mt-4 text-sm", PARCHMENT.text.muted)}>

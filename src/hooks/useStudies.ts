@@ -6,6 +6,7 @@ import type { Study, StudyInsert, StudyUpdate, TiptapContent } from '@/types/dat
 import { useAuth } from '@/contexts/AuthContext';
 import { isValidUUID } from '@/lib/utils';
 import type { StudyStatus } from '@/lib/design-tokens';
+import { removeStudyAttachments } from './useAttachments';
 
 // Tipo para estudo com conteúdo
 export interface StudyWithContent extends Study {
@@ -382,6 +383,8 @@ function useStudiesInternal(): StudiesContextValue {
         .eq('user_id', user.id);
 
       if (error) throw error;
+      // Os arquivos anexados não têm mais dono depois que o estudo some.
+      await removeStudyAttachments(user.id, id);
       setStudies(prev => prev.filter(s => s.id !== id));
       return true;
     } catch (err) {

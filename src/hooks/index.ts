@@ -3,3 +3,4 @@ export { useStudies, StudiesProvider, type StudyWithContent, type StudySummary, 
 export { useGraph, type GraphNode, type GraphLink, type GraphData } from './useGraph';
 export { useTags } from './useTags';
 export { useReferences, type Reference } from './useReferences';
+export { useAttachments } from './useAttachments';
