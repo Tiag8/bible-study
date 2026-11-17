@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { getBookById } from "@/lib/mock-data";
 import { useStudies, useTags, useReferences, StudyWithContent } from "@/hooks";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Save,
   CheckCircle,
@@ -37,6 +38,7 @@ interface StudyPageProps {
 export function StudyPageClient({ params }: StudyPageProps) {
   const { id } = use(params);
   const router = useRouter();
+  const { loading: authLoading } = useAuth();
 
   // Hooks Supabase
   const { getStudyById, createStudy, saveStudy, updateStudyStatus, deleteStudy } = useStudies();
@@ -102,8 +104,13 @@ export function StudyPageClient({ params }: StudyPageProps) {
 
   // Carregar estudo
   useEffect(() => {
+    // Esperar a sessão: sem usuário, getStudyById devolve null e a página ficava presa em
+    // "Estudo não encontrado" ao abrir ou recarregar o link direto de um estudo.
+    if (authLoading) return;
+
     async function loadStudy() {
       setIsLoading(true);
+      setLoadError(null);
 
       try {
         let studyData: StudyWithContent | null = null;
@@ -194,7 +201,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
       }
     }
     loadStudy();
-  }, [id, router, getStudyById, createStudy, searchParams]);
+  }, [id, router, getStudyById, createStudy, searchParams, authLoading]);
 
   // Resetar isInitialLoad quando editor estiver pronto (após carregar estudo OU novo estudo)
   useEffect(() => {
