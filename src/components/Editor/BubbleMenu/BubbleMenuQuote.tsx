@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { COLORS } from "@/lib/design-tokens";
 import { QUOTE_COLORS } from "@/lib/editor-constants";
 import type { BubbleMenuColorProps } from "./types";
+import { QUOTE_DISPLAY } from "@/lib/theme-colors";
 
 export function BubbleMenuQuote({
   editor,
@@ -32,13 +33,14 @@ export function BubbleMenuQuote({
             onClick={() => onSelectColor(qc.color)}
             className="w-full aspect-square rounded-md border-2 border-gray-200 hover:border-gray-400 transition-colors flex items-center justify-center"
             style={{
-              backgroundColor: '#f3f4f6',
+              backgroundColor: QUOTE_DISPLAY[qc.color]?.fill,
               borderLeftWidth: '4px',
-              borderLeftColor: qc.color
+              borderLeftColor: QUOTE_DISPLAY[qc.color]?.border
             }}
-            title={qc.name}
+            title={QUOTE_DISPLAY[qc.color]?.name ?? qc.name}
+            aria-label={`Citação: ${QUOTE_DISPLAY[qc.color]?.name ?? qc.name}`}
           >
-            <Quote className="w-4 h-4" style={{ color: qc.color }} />
+            <Quote className="w-4 h-4" style={{ color: QUOTE_DISPLAY[qc.color]?.border }} />
           </button>
         ))}
       </div>
@@ -61,7 +63,7 @@ export function BubbleMenuQuote({
       <button
         onClick={() => setMode("default")}
         className={cn(
-          "mt-3 text-xs transition-colors",
+          "mt-3 text-xs max-md:text-sm max-md:py-2 max-md:pr-4 transition-colors",
           COLORS.neutral.text.muted,
           `hover:${COLORS.neutral.text.secondary}`
         )}

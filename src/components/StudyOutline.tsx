@@ -14,6 +14,37 @@ interface StudyOutlineProps {
   onSelect: (pos: number) => void;
 }
 
+/** Lista dos títulos do estudo, recuada por nível. Usada no popover e no painel do celular. */
+export function OutlineList({ items, onSelect }: { items: OutlineItem[]; onSelect: (pos: number) => void }) {
+  if (items.length === 0) {
+    return (
+      <p className={cn('px-2 py-3 text-sm', PARCHMENT.text.secondary)}>
+        Este estudo ainda não tem títulos. Use Título 1, 2 ou 3 no texto para montar o sumário.
+      </p>
+    );
+  }
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={item.pos}>
+          <button
+            type="button"
+            onClick={() => onSelect(item.pos)}
+            className={cn(
+              'w-full min-h-[44px] rounded px-2 py-2 text-left text-sm hover:bg-warm-white active:bg-linen focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-dark',
+              item.level === 1 ? cn('font-semibold', PARCHMENT.text.heading) : PARCHMENT.text.subheading,
+              item.level === 2 && 'pl-5',
+              item.level >= 3 && 'pl-8'
+            )}
+          >
+            {item.text}
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /** Sumário do estudo: lista os títulos e leva até cada um. Útil em notas longas. */
 export function StudyOutline({ getOutline, onSelect }: StudyOutlineProps) {
   const [open, setOpen] = useState(false);
@@ -49,33 +80,13 @@ export function StudyOutline({ getOutline, onSelect }: StudyOutlineProps) {
             'sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 sm:max-h-[60vh]'
           )}
         >
-          {items.length === 0 ? (
-            <p className={cn('px-2 py-3 text-sm', PARCHMENT.text.secondary)}>
-              Este estudo ainda não tem títulos. Use Título 1, 2 ou 3 no texto para montar o sumário.
-            </p>
-          ) : (
-            <ul>
-              {items.map((item) => (
-                <li key={item.pos}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onSelect(item.pos);
-                      setOpen(false);
-                    }}
-                    className={cn(
-                      'w-full min-h-[44px] rounded px-2 py-2 text-left text-sm hover:bg-warm-white focus:outline-none focus:ring-2 focus:ring-amber',
-                      item.level === 1 ? cn('font-semibold', PARCHMENT.text.heading) : PARCHMENT.text.subheading,
-                      item.level === 2 && 'pl-5',
-                      item.level >= 3 && 'pl-8'
-                    )}
-                  >
-                    {item.text}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+          <OutlineList
+            items={items}
+            onSelect={(pos) => {
+              onSelect(pos);
+              setOpen(false);
+            }}
+          />
         </nav>
       )}
     </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, Link2, Plus, AlertTriangle, X, RotateCw } from 'lucide-react';
+import { ChevronDown, Plus, AlertTriangle, X, RotateCw } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { cn } from '@/lib/utils';
@@ -22,6 +22,9 @@ interface ReferencesSidebarProps {
   onRetry?: () => void;
   /** Estudo aberto: não aparece na lista de estudos a referenciar. */
   currentStudyId?: string;
+  /** No celular o painel é uma gaveta aberta pela barra inferior da página. */
+  mobileOpen: boolean;
+  onMobileOpenChange: (open: boolean) => void;
 }
 
 export function ReferencesSidebar({
@@ -34,9 +37,10 @@ export function ReferencesSidebar({
   onReorder,
   onRetry,
   currentStudyId,
+  mobileOpen: showOnMobile,
+  onMobileOpenChange: setShowOnMobile,
 }: ReferencesSidebarProps) {
   const [isOpen, setIsOpen] = useState(true);
-  const [showOnMobile, setShowOnMobile] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -370,24 +374,6 @@ export function ReferencesSidebar({
         </div>
       )}
       </div>
-
-      {/* Floating Action Button on mobile to open references - Touch target 48x48px */}
-      <button
-        onClick={() => setShowOnMobile(true)}
-        className={cn(
-          'fixed bottom-6 right-6 md:hidden z-30',
-          // Enquanto a barra de formatação do celular está aberta, o botão sai do caminho.
-          "[body[data-editing='true']_&]:hidden",
-          'p-3 rounded-full text-white transition-all min-h-[48px] min-w-[48px] flex items-center justify-center',
-          'bg-amber hover:bg-amber-dark',
-          'hover:shadow-lg hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber',
-          'shadow-lg'
-        )}
-        title="Abrir painel de referências"
-        aria-label={`Abrir painel de referências (${references.length} ${references.length === 1 ? 'referência' : 'referências'})`}
-      >
-        <Link2 className="w-6 h-6" aria-hidden="true" />
-      </button>
     </>
   );
 }

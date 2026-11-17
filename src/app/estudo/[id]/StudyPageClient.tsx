@@ -26,13 +26,18 @@ import {
   Trash2,
   Undo2,
   Redo2,
+  ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 import { CreateTagModal } from "@/components/CreateTagModal";
-import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { ReferencesSidebar } from "@/components/Editor/ReferencesSidebar";
 import { clearDraft, readRestorableDraft, writeDraft } from "@/lib/study-draft";
 import { StudyOutline } from "@/components/StudyOutline";
+import { StudyMobileChrome, type SaveState } from "@/components/study/StudyMobileChrome";
+import { TagChip } from "@/components/ui/tag-chip";
+import { STATUS_ORDER, STATUS_THEME, tagAccent } from "@/lib/theme-colors";
+import type { StudyStatus } from "@/lib/design-tokens";
+import { supabase } from "@/lib/supabase";
 import { useDismiss } from "@/hooks/useDismiss";
 import { StudyAttachments } from "@/components/StudyAttachments";
 
@@ -46,7 +51,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
   const { loading: authLoading } = useAuth();
 
   // Hooks Supabase
-  const { getStudyById, createStudy, saveStudy, updateStudyStatus, deleteStudy } = useStudies();
+  const { getStudyById, createStudy, saveStudy, updateStudyStatus, deleteStudy, fetchStudies } = useStudies();
   const { tags: availableTags, loading: tagsLoading, createTag } = useTags();
 
   // Remover links do editor quando deleta referência no sidebar
@@ -92,9 +97,11 @@ export function StudyPageClient({ params }: StudyPageProps) {
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
-  // Confirmação de delete
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  // Mover para a lixeira (sem diálogo: é reversível e o aviso traz "Desfazer")
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Painel de referências no celular (aberto pela barra inferior)
+  const [showReferences, setShowReferences] = useState(false);
 
   // Undo/Redo state
   const editorRef = useRef<EditorHandle>(null);
@@ -514,35 +521,59 @@ export function StudyPageClient({ params }: StudyPageProps) {
     setPendingNavigation(null);
   };
 
-  // Deletar estudo
+  // Mover o estudo para a lixeira. Sem diálogo de confirmação: a ação é reversível e
+  // o aviso oferece "Desfazer" (NN/g: confirmação só para o que não tem volta).
   const handleDeleteStudy = useCallback(async () => {
     if (!study?.id) return;
+    const trashedId = study.id;
+    const trashedTitle = title || study.title || "Estudo";
 
     setIsDeleting(true);
-    const toastId = toast.loading("Movendo para a lixeira...");
-
     try {
-      const success = await deleteStudy(study.id);
+      const success = await deleteStudy(trashedId);
       if (success) {
         // O estudo saiu de cena: nada mais a gravar nem rascunho a guardar.
         deletedRef.current = true;
-        clearDraft(window.localStorage, study.id);
-        toast.success("Estudo movido para a lixeira.", { id: toastId });
-        setShowDeleteConfirm(false);
+        clearDraft(window.localStorage, trashedId);
+        toast.success(`"${trashedTitle}" foi para a lixeira.`, {
+          duration: 8000,
+          action: {
+            label: "Desfazer",
+            onClick: async () => {
+              const { data, error } = await supabase.rpc("bible_restore_study", { p_study_id: trashedId });
+              if (error || data !== true) {
+                toast.error("Não foi possível restaurar. O estudo continua na Lixeira.");
+                return;
+              }
+              await fetchStudies();
+              toast.success("Estudo restaurado.");
+              router.push(`/estudo/${trashedId}`);
+            },
+          },
+        });
         // Redirecionar para o livro ou dashboard
         router.push(bookId ? `/?book=${bookId}` : "/");
       } else {
-        toast.error("Erro ao deletar estudo. Tente novamente.", { id: toastId });
+        toast.error("Erro ao mover para a lixeira. Tente novamente.");
       }
     } catch (error) {
       console.error("[ESTUDO] deleteStudy ERROR:", error);
-      toast.error("Erro ao deletar estudo. Tente novamente.", { id: toastId });
+      toast.error("Erro ao mover para a lixeira. Tente novamente.");
     } finally {
       setIsDeleting(false);
     }
-  }, [study?.id, deleteStudy, router, bookId]);
+  }, [study?.id, study?.title, title, deleteStudy, fetchStudies, router, bookId]);
 
-  // Undo ação
+  // Mudar o status do estudo (cabeçalho do computador e painel do celular)
+  const changeStatus = async (next: StudyStatus) => {
+    if (!study) return;
+    const ok = await updateStudyStatus(study.id, next);
+    if (ok) setStudy({ ...study, status: next });
+    else toast.error("Não foi possível mudar o status.");
+    setShowStatusDropdown(false);
+  };
+
+    // Undo ação
   const handleUndo = useCallback(() => {
     editorRef.current?.undo();
   }, []);
@@ -574,27 +605,14 @@ export function StudyPageClient({ params }: StudyPageProps) {
     }
   };
 
-  // Helper para buscar cor da tag
-  const getTagColor = (tagName: string): string => {
-    const tag = availableTags.find((t) => t.name === tagName);
-    if (!tag) return "#6b7280"; // gray-500 default
+  // Chave de cor da tag (a cor de exibição vem do tema)
+  const tagColorKey = (tagName: string): string | undefined =>
+    availableTags.find((t) => t.name === tagName)?.color;
 
-    const colorMap: Record<string, string> = {
-      blue: "#3b82f6",
-      purple: "#8b5cf6",
-      green: "#22c55e",
-      orange: "#f97316",
-      pink: "#ec4899",
-      cyan: "#06b6d4",
-      red: "#ef4444",
-      yellow: "#ca8a04", // amber-600 (mais escuro para melhor contraste)
-      "dark-green": "#15803d",
-    };
+  // Estado do salvamento mostrado nos cabeçalhos
+  const saveState: SaveState = isSaving ? "saving" : hasUnsavedChanges ? "unsaved" : lastSaved ? "saved" : null;
 
-    return colorMap[tag.color] || "#6b7280";
-  };
-
-  // Edição de título
+    // Edição de título
   const startEditingTitle = () => {
     setTempTitle(title);
     setIsEditingTitle(true);
@@ -685,23 +703,36 @@ export function StudyPageClient({ params }: StudyPageProps) {
         </div>
       )}
 
-      {/* Modal de confirmação de delete */}
-      <ConfirmModal
-        open={showDeleteConfirm}
-        onConfirm={handleDeleteStudy}
-        onCancel={() => setShowDeleteConfirm(false)}
-        title="Mover para a lixeira?"
-        description={`"${study?.title || 'Este estudo'}" vai para a Lixeira, no menu lateral. Lá você pode restaurá-lo ou apagá-lo definitivamente.`}
-        confirmText="Mover para a lixeira"
-        cancelText="Cancelar"
-        variant="destructive"
-        isLoading={isDeleting}
-      />
-
       {/* Header + Editor + Sidebar Container */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="bg-cream border-b border-linen">
+        {/* Celular: topo mínimo, barra inferior e painéis (modelo C) */}
+        <StudyMobileChrome
+          title={title}
+          status={study?.status ?? null}
+          saveState={saveState}
+          onSave={() => handleSave()}
+          onBack={handleBackToBook}
+          onRename={(nextTitle) => {
+            setTitle(nextTitle);
+            setHasUnsavedChanges(true);
+          }}
+          onStatusChange={changeStatus}
+          availableTags={availableTags}
+          selectedTags={selectedTags}
+          onToggleTag={toggleTag}
+          onCreateTag={() => setShowCreateTagModal(true)}
+          getOutline={() => editorRef.current?.getOutline() ?? []}
+          onSelectOutline={(pos) => editorRef.current?.scrollToPos(pos)}
+          referencesCount={references.length}
+          onOpenReferences={() => setShowReferences(true)}
+          onShowAttachments={() =>
+            document.getElementById("attachments-title")?.scrollIntoView({ behavior: "smooth", block: "center" })
+          }
+          onTrash={handleDeleteStudy}
+        />
+
+        {/* Computador: cabeçalho em uma linha */}
+        <header className="hidden md:block bg-cream border-b border-linen">
           <div className="px-4 py-3">
           {/* Breadcrumbs */}
           <div className="mb-3">
@@ -712,6 +743,15 @@ export function StudyPageClient({ params }: StudyPageProps) {
           {/* AC2 (EP01-S1.0): flex-wrap em < md para evitar pan horizontal em mobile/tablet */}
           <div className="flex items-center justify-between gap-2 flex-wrap md:flex-nowrap">
             <div className="flex items-center gap-2 flex-1 min-w-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBackToBook}
+                aria-label="Voltar para o livro"
+                className="flex-shrink-0"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
               {/* Título - modo display ou edição */}
               {isEditingTitle ? (
                 <>
@@ -726,7 +766,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
                     size="sm"
                     variant="ghost"
                     onClick={saveTitle}
-                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                    className="text-[#4A6741] hover:bg-[#4A6741]/10"
                   >
                     <Check className="w-4 h-4" />
                   </Button>
@@ -734,7 +774,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
                     size="sm"
                     variant="ghost"
                     onClick={cancelEditingTitle}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    className="text-[#b42318] hover:bg-[#b42318]/10"
                   >
                     <X className="w-4 h-4" />
                   </Button>
@@ -813,94 +853,66 @@ export function StudyPageClient({ params }: StudyPageProps) {
 
               {/* Dropdown de status */}
               <div className="relative" ref={statusMenuRef}>
-                <button
-                  onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                  disabled={!study?.id}
-                  className={cn(
-                    "px-3 py-1.5 text-sm rounded-md font-medium transition-colors max-md:min-h-[44px]",
-                    "focus:outline-none focus:ring-2 focus:ring-offset-2",
-                    "text-white",
-                    !study?.id && "bg-sand cursor-not-allowed",
-                    study?.status === 'estudar' && "bg-[#8B5E3C] hover:bg-[#7A5033] focus:ring-[#8B5E3C]",
-                    study?.status === 'estudando' && "bg-[#92742B] hover:bg-[#7D6324] focus:ring-[#92742B]",
-                    study?.status === 'revisando' && "bg-[#6B5B7B] hover:bg-[#5A4D69] focus:ring-[#6B5B7B]",
-                    study?.status === 'concluído' && "bg-[#4A6741] hover:bg-[#3D5636] focus:ring-[#4A6741]"
-                  )}
-                >
-                  {!study?.id && 'Novo'}
-                  {study?.status === 'estudar' && 'Estudar'}
-                  {study?.status === 'estudando' && 'Estudando'}
-                  {study?.status === 'revisando' && 'Revisando'}
-                  {study?.status === 'concluído' && 'Concluído'}
-                </button>
+                {study ? (
+                  (() => {
+                    const theme = STATUS_THEME[study.status];
+                    const StatusIcon = theme.icon;
+                    return (
+                      <button
+                        onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                        aria-haspopup="menu"
+                        aria-expanded={showStatusDropdown}
+                        className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-dark focus:ring-offset-2"
+                        style={{
+                          backgroundColor: theme.fill,
+                          color: theme.ink,
+                          borderColor: theme.border,
+                          borderStyle: theme.borderStyle,
+                        }}
+                      >
+                        <StatusIcon className="w-4 h-4" aria-hidden="true" />
+                        {theme.label}
+                      </button>
+                    );
+                  })()
+                ) : (
+                  <span className={cn("px-3 py-1.5 text-sm", PARCHMENT.text.secondary)}>Estudo novo</span>
+                )}
 
                 {showStatusDropdown && study && (
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-cream rounded-lg shadow-lg border border-linen z-50">
-                    <div className="p-2">
-                      <button
-                        onClick={async () => {
-                          await updateStudyStatus(study.id, 'estudar');
-                          setStudy({ ...study, status: 'estudar' });
-                          setShowStatusDropdown(false);
-                        }}
-                        className={cn(
-                          "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm",
-                          "hover:bg-warm-white transition-colors text-left",
-                          study.status === 'estudar' && "bg-[#FEF0E7]"
-                        )}
-                      >
-                        <span className="w-3 h-3 rounded-full bg-orange-500" />
-                        <span className={PARCHMENT.text.heading}>Estudar</span>
-                      </button>
-
-                      <button
-                        onClick={async () => {
-                          await updateStudyStatus(study.id, 'estudando');
-                          setStudy({ ...study, status: 'estudando' });
-                          setShowStatusDropdown(false);
-                        }}
-                        className={cn(
-                          "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm",
-                          "hover:bg-warm-white transition-colors text-left",
-                          study.status === 'estudando' && "bg-[#FFF8E7]"
-                        )}
-                      >
-                        <span className="w-3 h-3 rounded-full bg-[#92742B]" />
-                        <span className={PARCHMENT.text.heading}>Estudando</span>
-                      </button>
-
-                      <button
-                        onClick={async () => {
-                          await updateStudyStatus(study.id, 'revisando');
-                          setStudy({ ...study, status: 'revisando' });
-                          setShowStatusDropdown(false);
-                        }}
-                        className={cn(
-                          "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm",
-                          "hover:bg-warm-white transition-colors text-left",
-                          study.status === 'revisando' && "bg-[#F3EEF8]"
-                        )}
-                      >
-                        <span className="w-3 h-3 rounded-full bg-[#6B5B7B]" />
-                        <span className={PARCHMENT.text.heading}>Revisando</span>
-                      </button>
-
-                      <button
-                        onClick={async () => {
-                          await updateStudyStatus(study.id, 'concluído');
-                          setStudy({ ...study, status: 'concluído' });
-                          setShowStatusDropdown(false);
-                        }}
-                        className={cn(
-                          "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm",
-                          "hover:bg-warm-white transition-colors text-left",
-                          study.status === 'concluído' && "bg-[#EEF5EC]"
-                        )}
-                      >
-                        <span className="w-3 h-3 rounded-full bg-[#4A6741]" />
-                        <span className={PARCHMENT.text.heading}>Concluído</span>
-                      </button>
-                    </div>
+                  <div role="menu" className="absolute top-full right-0 mt-2 w-48 bg-cream rounded-lg shadow-lg border border-linen z-50 p-2">
+                    {STATUS_ORDER.map((option) => {
+                      const theme = STATUS_THEME[option];
+                      const OptionIcon = theme.icon;
+                      const current = study.status === option;
+                      return (
+                        <button
+                          key={option}
+                          role="menuitemradio"
+                          aria-checked={current}
+                          onClick={() => changeStatus(option)}
+                          className={cn(
+                            "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm text-left",
+                            "hover:bg-warm-white transition-colors",
+                            current && "bg-amber-light"
+                          )}
+                        >
+                          <span
+                            className="flex h-5 w-5 items-center justify-center rounded-full border"
+                            style={{
+                              backgroundColor: theme.fill,
+                              color: theme.ink,
+                              borderColor: theme.border,
+                              borderStyle: theme.borderStyle,
+                            }}
+                          >
+                            <OptionIcon className="w-3 h-3" aria-hidden="true" />
+                          </span>
+                          <span className={PARCHMENT.text.heading}>{theme.label}</span>
+                          {current && <Check className="w-4 h-4 ml-auto text-[#6B4E0A]" aria-hidden="true" />}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -910,10 +922,11 @@ export function StudyPageClient({ params }: StudyPageProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={handleDeleteStudy}
+                  className="text-[#b42318] hover:text-[#912018] hover:bg-[#b42318]/10"
                   disabled={isDeleting}
-                  aria-label={`Deletar estudo "${study.title || 'sem título'}"`}
+                  aria-label={`Mover para a lixeira o estudo "${study.title || 'sem título'}"`}
+                  title="Mover para a lixeira"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -962,32 +975,11 @@ export function StudyPageClient({ params }: StudyPageProps) {
                           >
                             <span
                               className="w-2 h-2 rounded-full"
-                              style={{
-                                backgroundColor:
-                                  tag.color === "blue"
-                                    ? "#3b82f6"
-                                    : tag.color === "purple"
-                                    ? "#8b5cf6"
-                                    : tag.color === "green"
-                                    ? "#22c55e"
-                                    : tag.color === "orange"
-                                    ? "#f97316"
-                                    : tag.color === "pink"
-                                    ? "#ec4899"
-                                    : tag.color === "cyan"
-                                    ? "#06b6d4"
-                                    : tag.color === "red"
-                                    ? "#ef4444"
-                                    : tag.color === "yellow"
-                                    ? "#eab308"
-                                    : tag.color === "dark-green"
-                                    ? "#15803d"
-                                    : "#22c55e",
-                              }}
+                              style={{ backgroundColor: tagAccent(tag.color) }}
                             />
                             <span className={PARCHMENT.text.heading}>{tag.name}</span>
                             {selectedTags.includes(tag.name) && (
-                              <CheckCircle className="w-4 h-4 text-amber ml-auto" />
+                              <Check className="w-4 h-4 text-[#6B4E0A] ml-auto" aria-hidden="true" />
                             )}
                           </button>
                         ))
@@ -1010,38 +1002,15 @@ export function StudyPageClient({ params }: StudyPageProps) {
                 )}
               </div>
 
-              {/* Botão voltar */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleBackToBook}
-              >
-                Voltar
-              </Button>
             </div>
           </div>
 
           {/* Tags selecionadas */}
           {selectedTags.length > 0 && (
             <div className="flex flex-wrap items-center gap-2 mt-3">
-              {selectedTags.map((tag) => {
-                const tagColor = getTagColor(tag);
-                return (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
-                    style={{
-                      borderWidth: '1px',
-                      borderStyle: 'solid',
-                      borderColor: tagColor,
-                      color: tagColor,
-                      backgroundColor: 'transparent',
-                    }}
-                  >
-                    #{tag}
-                  </span>
-                );
-              })}
+              {selectedTags.map((tag) => (
+                <TagChip key={tag} name={tag} colorKey={tagColorKey(tag)} />
+              ))}
             </div>
           )}
         </div>
@@ -1051,7 +1020,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
         <div className="flex-1 flex overflow-hidden">
         {/* Editor - Left Column */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="max-w-4xl mx-auto px-4 pt-4 pb-24 md:py-6">
             <div className="bg-cream rounded-lg shadow-sm border border-linen">
               <Editor
                 ref={editorRef}
@@ -1102,6 +1071,8 @@ export function StudyPageClient({ params }: StudyPageProps) {
           onReorder={reorderReference}
           onRetry={refetchReferences}
           currentStudyId={study?.id}
+          mobileOpen={showReferences}
+          onMobileOpenChange={setShowReferences}
         />
       </div>
     </main>

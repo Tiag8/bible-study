@@ -202,7 +202,7 @@ export function MobileToolbar({
       }}
     >
       {mode === "insert" && (
-        <div className="max-h-[45vh] overflow-y-auto border-b border-linen bg-white p-2">
+        <div className="max-h-[45vh] overflow-y-auto border-b border-linen bg-warm-white p-2">
           <div className="grid grid-cols-2 gap-1">
             {insertItems.map((item) => (
               <button
@@ -221,7 +221,7 @@ export function MobileToolbar({
 
       {mode !== "default" && mode !== "insert" && (
         // Campos em 16 px: abaixo disso o iOS dá zoom ao focar.
-        <div className="flex max-h-[45vh] justify-center overflow-y-auto border-b border-linen bg-white [&_input]:text-base [&_textarea]:text-base [&_button]:min-h-[36px]">
+        <div className="flex max-h-[45vh] justify-center overflow-y-auto border-b border-linen bg-warm-white [&_input]:text-base [&_textarea]:text-base [&_button]:min-h-[36px]">
           <FormatPanels
             editor={editor}
             mode={mode}

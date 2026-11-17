@@ -72,7 +72,7 @@ export function BubbleMenuComment({
       <div className="flex items-center justify-between mt-2">
         <button
           onClick={() => setMode("default")}
-          className="text-xs text-gray-500 hover:text-gray-700"
+          className="text-xs max-md:text-sm max-md:py-2 max-md:pr-4 text-walnut hover:text-espresso"
         >
           Cancelar
         </button>

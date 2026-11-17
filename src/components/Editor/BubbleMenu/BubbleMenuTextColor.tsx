@@ -52,7 +52,7 @@ export function BubbleMenuTextColor({
       <button
         onClick={() => setMode("default")}
         className={cn(
-          "mt-3 text-xs transition-colors",
+          "mt-3 text-xs max-md:text-sm max-md:py-2 max-md:pr-4 transition-colors",
           COLORS.neutral.text.muted,
           `hover:${COLORS.neutral.text.secondary}`
         )}

@@ -97,14 +97,24 @@ body {
   color: #2563eb;
 }
 
+/* Citações coloridas: tom terroso e fundo quente vêm do tema (ColoredBlockquote).
+   Texto reto e sem aspas automáticas: itálico em trechos longos cansa a leitura e as
+   aspas se somavam às que o autor já tinha escrito. */
 .tiptap blockquote {
-  border-left: 4px solid #3b82f6;
-  background-color: #f3f4f6;
+  border-left: 4px solid #3F5F7A;
+  background-color: #E3E6E2;
   padding: 0.75rem 1rem;
   margin: 0.75rem 0;
-  color: #374151;
-  font-style: italic;
+  color: #3C2415;
+  font-style: normal;
+  font-weight: 400;
+  quotes: none;
   border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.tiptap blockquote p::before,
+.tiptap blockquote p::after {
+  content: none;
 }
 
 .tiptap code {
