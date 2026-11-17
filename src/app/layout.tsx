@@ -30,6 +30,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Bible Study - Segundo Cérebro Bíblico",
   description: "Sistema de organização de estudos bíblicos com interconexões e revisão inteligente",
+  // Instalação na tela inicial (o manifest vem de src/app/manifest.ts)
+  appleWebApp: { capable: true, title: "Bible Study", statusBarStyle: "default" },
+  icons: { apple: "/icons/apple-touch-icon.png" },
   // ✅ SECURITY: Content Security Policy (previne XSS e clickjacking)
   other: {
     'Content-Security-Policy': [
@@ -54,7 +57,7 @@ export const viewport: Viewport = {
   // visível), então a barra de formatação fixa no rodapé fica logo acima do teclado.
   // O Safari do iOS ainda ignora esta chave; lá a barra se posiciona pelo visualViewport.
   interactiveWidget: "resizes-content",
-  themeColor: "#e8e0d1",
+  themeColor: "#f5f0e8",
 };
 
 export default function RootLayout({

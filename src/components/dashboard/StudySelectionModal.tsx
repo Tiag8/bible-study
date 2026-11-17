@@ -225,7 +225,7 @@ export function StudySelectionModal({
           onConfirm={handleConfirmDelete}
           onCancel={handleCancelDelete}
           title="Deletar Estudo"
-          description={`Tem certeza que deseja deletar "${confirmModal.studyTitle}"? Esta ação não pode ser desfeita.`}
+          description={`"${confirmModal.studyTitle}" vai para a lixeira. Você pode restaurar depois.`}
           confirmText="Deletar"
           cancelText="Cancelar"
           variant="destructive"

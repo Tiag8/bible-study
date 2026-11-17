@@ -105,6 +105,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
   const savingRef = useRef(false);
   const baseUpdatedAtRef = useRef<string | null>(null);
   const flushRef = useRef<() => void>(() => {});
+  const deletedRef = useRef(false);
 
   // Menus do cabeçalho fecham ao tocar fora ou com Esc
   const statusMenuRef = useRef<HTMLDivElement>(null);
@@ -452,7 +453,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
   // de app, o fechamento da aba e a saída da página gravam o que estiver pendente.
   useEffect(() => {
     flushRef.current = () => {
-      if (!hasUnsavedChanges || !study?.id) return;
+      if (!hasUnsavedChanges || !study?.id || deletedRef.current) return;
       handleSave({ silent: true, content: editorRef.current?.getContent() ?? undefined });
     };
   });
@@ -518,12 +519,15 @@ export function StudyPageClient({ params }: StudyPageProps) {
     if (!study?.id) return;
 
     setIsDeleting(true);
-    const toastId = toast.loading("Deletando estudo...");
+    const toastId = toast.loading("Movendo para a lixeira...");
 
     try {
       const success = await deleteStudy(study.id);
       if (success) {
-        toast.success("Estudo deletado com sucesso!", { id: toastId });
+        // O estudo saiu de cena: nada mais a gravar nem rascunho a guardar.
+        deletedRef.current = true;
+        clearDraft(window.localStorage, study.id);
+        toast.success("Estudo movido para a lixeira.", { id: toastId });
         setShowDeleteConfirm(false);
         // Redirecionar para o livro ou dashboard
         router.push(bookId ? `/?book=${bookId}` : "/");
