@@ -84,14 +84,22 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
       />
 
       {/* Modal */}
-      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[calc(100%-2rem)] max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Nova tag"
+        onKeyDown={(event) => {
+          if (event.key === "Escape") handleCancel();
+        }}
+        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[calc(100%-2rem)] max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto"
+      >
         <div className={cn("bg-cream rounded-lg p-6 border border-linen", SHADOW_CLASSES.lg)}>
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-lora font-semibold text-espresso">Nova Tag</h2>
             <button
               onClick={handleCancel}
-              className="transition-colors text-stone hover:text-espresso"
+              className="flex h-11 w-11 -mr-2 items-center justify-center rounded-lg transition-colors text-stone hover:text-espresso focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-dark"
               aria-label="Fechar"
             >
               <X className="w-5 h-5" />
@@ -160,7 +168,7 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
                     title={color.label}
                   >
                     <span
-                      className="w-4 h-4 rounded-full"
+                      className="w-4 h-4 shrink-0 rounded-full"
                       style={{ backgroundColor: tagAccent(color.name) }}
                     />
                     <span className="text-xs text-espresso">{color.label}</span>

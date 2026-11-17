@@ -115,8 +115,8 @@ export function StudySelectionModal({
             className="w-full justify-start gap-2 h-auto py-4"
             variant="outline"
           >
-            <Plus className="w-5 h-5" />
-            <div className="flex-1 text-left">
+            <Plus className="w-5 h-5 flex-shrink-0" />
+            <div className="flex-1 text-left min-w-0">
               <div className="font-semibold">Criar Novo Estudo</div>
               <div className="text-xs text-muted-foreground">
                 Adicionar mais um estudo para este capítulo
@@ -142,11 +142,12 @@ export function StudySelectionModal({
                 >
                   <FileText className={cn("w-5 h-5 flex-shrink-0", PARCHMENT.accent.text)} />
                   <div className="flex-1 text-left min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className={cn("font-medium truncate", PARCHMENT.text.heading)}>
-                        {study.title}
-                      </h3>
-                      <StatusBadge status={study.status} className="flex-shrink-0" />
+                    {/* Título em linha própria (até 2 linhas): no celular ele não cabe ao lado do selo */}
+                    <h3 className={cn("font-medium line-clamp-2 break-words mb-1", PARCHMENT.text.heading)}>
+                      {study.title}
+                    </h3>
+                    <div className="mb-1">
+                      <StatusBadge status={study.status} />
                     </div>
 
                     {/* Tags */}
