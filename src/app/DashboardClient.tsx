@@ -14,6 +14,7 @@ import { useStudies } from "@/hooks";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Menu, BookMarked } from "lucide-react";
 import { WelcomeGuide } from "@/components/dashboard/WelcomeGuide";
+import { StudySearchResults } from "@/components/dashboard/StudySearchResults";
 
 export function DashboardClient() {
   const router = useRouter();
@@ -174,6 +175,7 @@ export function DashboardClient() {
 
         {/* Content */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
+          <StudySearchResults query={searchQuery} />
           {selectedBook ? (
             <ChapterView
               book={selectedBook}
