@@ -50,7 +50,7 @@ export function TopBar({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className={cn(
-              "pl-10 bg-parchment border-linen",
+              "pl-10 pr-11 md:pr-3 bg-parchment border-linen",
               "placeholder:text-sand",
               "focus:border-amber-light focus:ring-amber-light/20"
             )}
@@ -58,7 +58,7 @@ export function TopBar({
           {searchQuery && (
             <button
               onClick={() => onSearchChange("")}
-              className={cn("absolute right-3 top-1/2 -translate-y-1/2 transition-colors p-1", PARCHMENT.text.muted, "hover:text-walnut")}
+              className={cn("absolute right-0 md:right-3 top-1/2 -translate-y-1/2 transition-colors p-1 min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 flex items-center justify-center", PARCHMENT.text.muted, "hover:text-walnut")}
               aria-label="Limpar busca"
             >
               <X className="w-4 h-4" />
@@ -154,7 +154,7 @@ export function TopBar({
 
       {/* Active Tag Filters */}
       {selectedTags.length > 0 && (
-        <div className="flex items-center gap-2 mt-3">
+        <div className="flex flex-wrap items-center gap-2 mt-3">
           <span className={cn("text-sm", PARCHMENT.text.muted)}>Filtros ativos:</span>
           {selectedTags.map((tag) => (
             <Badge
@@ -165,7 +165,7 @@ export function TopBar({
               {tag}
               <button
                 onClick={() => toggleTag(tag)}
-                className="ml-1 hover:text-espresso p-0.5"
+                className="ml-1 hover:text-espresso p-0.5 -my-3 -mr-2.5 min-h-[44px] min-w-[44px] md:my-0 md:mr-0 md:min-h-0 md:min-w-0 flex items-center justify-center"
                 aria-label={`Remover filtro ${tag}`}
               >
                 <X className="w-3 h-3" />

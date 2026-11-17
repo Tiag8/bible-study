@@ -103,7 +103,7 @@ export function BacklogPanel({ onClose }: BacklogPanelProps = {}) {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StudyStatus | 'todos')}
             className={cn(
-              "w-full px-3 py-2.5 text-sm rounded-md border bg-warm-white min-h-[44px]",
+              "w-full px-3 py-2.5 text-base md:text-sm rounded-md border bg-warm-white min-h-[44px]",
               PARCHMENT.border.default,
               PARCHMENT.text.primary
             )}
@@ -117,7 +117,7 @@ export function BacklogPanel({ onClose }: BacklogPanelProps = {}) {
             value={bookFilter}
             onChange={(e) => setBookFilter(e.target.value)}
             className={cn(
-              "w-full px-3 py-2.5 text-sm rounded-md border bg-warm-white min-h-[44px]",
+              "w-full px-3 py-2.5 text-base md:text-sm rounded-md border bg-warm-white min-h-[44px]",
               PARCHMENT.border.default,
               PARCHMENT.text.primary
             )}

@@ -82,7 +82,7 @@ export function CreateTagModal({ isOpen, onClose, onCreateTag }: CreateTagModalP
       />
 
       {/* Modal */}
-      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md">
+      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[calc(100%-2rem)] max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto">
         <div className={cn("bg-white rounded-lg p-6", SHADOW_CLASSES.lg, BORDERS.gray)}>
           {/* TOKENS: COLORS.primary, COLORS.danger, COLORS.neutral */}
           {/* Header */}

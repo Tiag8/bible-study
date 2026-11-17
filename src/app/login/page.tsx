@@ -53,7 +53,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className={cn("min-h-screen flex items-center justify-center p-4", PARCHMENT.bg.page)}>
+    <div className={cn("min-h-dvh flex items-center justify-center p-4", PARCHMENT.bg.page)}>
       <div className="w-full max-w-md">
         <div className={cn(
           "p-8 border",
@@ -134,6 +134,7 @@ export default function LoginPage() {
                   <Input
                     id="fullName"
                     type="text"
+                    autoComplete="name"
                     placeholder="Seu nome completo"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
@@ -166,6 +167,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   placeholder="seu@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -197,6 +199,7 @@ export default function LoginPage() {
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
