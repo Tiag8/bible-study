@@ -9,7 +9,7 @@ import { TopBar } from "@/components/dashboard/TopBar";
 import { BookGrid } from "@/components/dashboard/BookGrid";
 import { ChapterView } from "@/components/dashboard/ChapterView";
 import { BacklogPanel } from "@/components/dashboard/BacklogPanel";
-import { mockBibleBooks, BibleBook } from "@/lib/mock-data";
+import { mockBibleBooks, BibleBook, getBookTagsFromStudies } from "@/lib/mock-data";
 import { useStudies } from "@/hooks";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Menu, BookMarked } from "lucide-react";
@@ -57,6 +57,7 @@ export function DashboardClient() {
       return {
         ...book,
         studiedChapters,
+        tags: getBookTagsFromStudies(bookStudies),
         lastUpdate: lastUpdate ? new Date(lastUpdate).toISOString() : null,
       };
     });
