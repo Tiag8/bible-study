@@ -134,7 +134,7 @@ export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddS
                     className={cn(
                       'w-full text-left px-4 py-3 border-b border-linen transition-colors',
                       selectedBook === book.id
-                        ? 'bg-amber text-white'
+                        ? 'bg-amber-dark text-white'
                         : 'hover:bg-warm-white'
                     )}
                   >
@@ -190,7 +190,7 @@ export function BacklogAddStudyModal({ isOpen, onClose, onSuccess }: BacklogAddS
                     className={cn(
                       'aspect-square rounded text-sm font-medium transition-all',
                       selectedChapter === String(chapter)
-                        ? 'bg-amber text-white'
+                        ? 'bg-amber-dark text-white'
                         : 'bg-warm-white border border-linen hover:border-amber-light'
                     )}
                   >

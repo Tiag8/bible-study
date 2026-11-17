@@ -102,7 +102,7 @@ export function Sidebar({ collapsed, onToggle, onClose }: SidebarProps) {
           {!collapsed && (
             <div className="px-3 py-2 mb-2">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-amber text-white flex items-center justify-center font-semibold text-sm">
+                <div className="w-8 h-8 rounded-full bg-amber-dark text-white flex items-center justify-center font-semibold text-sm">
                   {firstLetter}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -125,7 +125,7 @@ export function Sidebar({ collapsed, onToggle, onClose }: SidebarProps) {
           {collapsed && (
             <div className="flex justify-center mb-2">
               <div
-                className="w-8 h-8 rounded-full bg-amber text-white flex items-center justify-center font-semibold text-sm"
+                className="w-8 h-8 rounded-full bg-amber-dark text-white flex items-center justify-center font-semibold text-sm"
                 title={`${firstName} (${profile?.role || 'free'})`}
               >
                 {firstLetter}

@@ -1,18 +1,20 @@
 import { cn } from "@/lib/utils";
 import { forwardRef } from "react";
-import { COLORS, BORDERS } from "@/lib/design-tokens";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "default" | "secondary" | "outline" | "ghost";
   size?: "sm" | "md" | "lg" | "icon";
 }
 
-/* TOKENS: COLORS.primary, COLORS.neutral, BORDERS */
+/*
+ * Tema pergaminho. Primário: âmbar escuro #8B6508 com texto branco (5,30:1) e hover
+ * #6B4E0A (7,72:1). Os demais em superfícies creme/linho com texto espresso/nogueira.
+ */
 const variantStyles = {
-  default: `${COLORS.primary.default} text-white hover:${COLORS.primary.dark}`,
-  secondary: `${COLORS.neutral[100]} text-gray-800 hover:${COLORS.neutral[200]}`,
-  outline: `border ${BORDERS.gray} bg-white text-gray-700 hover:${COLORS.neutral[50]}`,
-  ghost: `text-gray-700 hover:${COLORS.neutral[100]}`,
+  default: "bg-amber-dark text-white hover:bg-[#6B4E0A]",
+  secondary: "bg-linen text-espresso hover:bg-parchment",
+  outline: "border border-linen bg-warm-white text-walnut hover:bg-linen hover:text-espresso",
+  ghost: "text-walnut hover:bg-warm-white hover:text-espresso",
 };
 
 const sizeStyles = {
@@ -29,7 +31,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={cn(
           "inline-flex items-center justify-center rounded-md font-medium transition-colors",
-          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed",
+          "focus:outline-none focus:ring-2 focus:ring-amber-dark focus:ring-offset-2 focus:ring-offset-cream disabled:opacity-50 disabled:cursor-not-allowed",
           variantStyles[variant],
           sizeStyles[size],
           className
