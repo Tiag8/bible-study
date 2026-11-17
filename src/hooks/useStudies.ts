@@ -6,14 +6,13 @@ import type { Study, StudyInsert, StudyUpdate, TiptapContent } from '@/types/dat
 import { useAuth } from '@/contexts/AuthContext';
 import { isValidUUID } from '@/lib/utils';
 import type { StudyStatus } from '@/lib/design-tokens';
-import { removeStudyAttachments } from './useAttachments';
 
 // Tipo para estudo com conteúdo
 export interface StudyWithContent extends Study {
   content: TiptapContent;
 }
 
-export type StudySummary = Omit<Study, 'content'>;
+export type StudySummary = Omit<Study, 'content' | 'deleted_at'>;
 
 export type SortField = 'created_at' | 'updated_at';
 export type SortDirection = 'asc' | 'desc';
@@ -88,6 +87,7 @@ function useStudiesInternal(): StudiesContextValue {
         .from('bible_studies')
         .select('id, user_id, title, book_name, chapter_number, status, tags, created_at, updated_at, completed_at')
         .eq('user_id', user.id)
+        .is('deleted_at', null)
         .order('updated_at', { ascending: false });
 
       const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
@@ -124,6 +124,7 @@ function useStudiesInternal(): StudiesContextValue {
         .select('*')
         .eq('id', id)
         .eq('user_id', user.id)
+        .is('deleted_at', null)
         .single();
 
       if (error && error.code !== 'PGRST116') {
@@ -150,6 +151,7 @@ function useStudiesInternal(): StudiesContextValue {
         .eq('user_id', user.id)
         .eq('book_name', bookName)
         .eq('chapter_number', chapter)
+        .is('deleted_at', null)
         .single();
 
       if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows returned
@@ -369,22 +371,18 @@ function useStudiesInternal(): StudiesContextValue {
     return updateStudyStatus(id, 'concluído');
   }, [updateStudyStatus]);
 
-  // Deletar estudo
+  // Mover estudo para a lixeira (soft delete). Os anexos ficam: o estudo pode ser
+  // restaurado. Apagar definitivamente (e remover os anexos) é feito na lixeira.
   const deleteStudy = useCallback(async (id: string): Promise<boolean> => {
     if (!user?.id) {
       return false;
     }
-    
+
     try {
-      const { error } = await supabase
-        .from('bible_studies')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
+      const { data, error } = await supabase.rpc('bible_soft_delete_study', { p_study_id: id });
 
       if (error) throw error;
-      // Os arquivos anexados não têm mais dono depois que o estudo some.
-      await removeStudyAttachments(user.id, id);
+      if (data !== true) throw new Error('Estudo não encontrado');
       setStudies(prev => prev.filter(s => s.id !== id));
       return true;
     } catch (err) {

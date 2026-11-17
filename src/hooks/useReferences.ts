@@ -129,7 +129,8 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
             .from('bible_studies')
             .select('id, title, book_name, chapter_number, tags')
             .in('id', targetIds)
-            .eq('user_id', user.id);
+            .eq('user_id', user.id)
+            .is('deleted_at', null);
 
           if (targetErr) throw targetErr;
           targets = targetsData || [];
@@ -150,7 +151,8 @@ export function useReferences(studyId: string | null, onRemoveLink?: (targetStud
 
         // Merge com dados de target e enriquecer tags com cores
         const targetsMap = new Map(targets?.map((t) => [t.id, t]) || []);
-        const enrichedRefs = data.map((ref) => {
+        // Referência para estudo na lixeira não aparece (volta se ele for restaurado)
+        const enrichedRefs = data.filter((ref) => ref.link_type === 'external' || targetsMap.has(ref.target_study_id)).map((ref) => {
           // Para links externos, extrair hostname da URL como título
           if (ref.link_type === 'external') {
             let displayTitle = 'Link Externo';
