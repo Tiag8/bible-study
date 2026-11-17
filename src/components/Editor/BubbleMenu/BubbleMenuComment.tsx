@@ -63,7 +63,7 @@ export function BubbleMenuComment({
           }
         }}
         className={cn(
-          "w-full px-2 py-1.5 text-base md:text-sm rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500",
+          "w-full px-2 py-1.5 text-base md:text-sm rounded resize-none focus:outline-none focus:ring-2 focus:ring-amber-dark",
           BORDERS.gray
         )}
       />

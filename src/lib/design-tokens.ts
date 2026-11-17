@@ -11,12 +11,14 @@ import shadows from '@/styles/shadows.module.css'
 
 export const COLORS = {
   // Primary (Action/Focus)
+  // Primária no tema pergaminho (era azul). Texto branco sobre o tom padrão: 5,30:1;
+  // o tom de texto sobre o claro: 5,9:1.
   primary: {
-    light: 'bg-blue-50',
-    lighter: 'bg-blue-100',
-    default: 'bg-blue-600',
-    dark: 'bg-blue-700',
-    text: 'text-blue-600',
+    light: 'bg-amber-light',
+    lighter: 'bg-amber-light',
+    default: 'bg-amber-dark',
+    dark: 'bg-[#6B4E0A]',
+    text: 'text-[#6B4E0A]',
   },
 
   // Success

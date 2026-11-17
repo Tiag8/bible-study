@@ -70,7 +70,7 @@ function BubbleMenuComponentBase({ editor, onAddReference, onAddExternalLink, on
         offset: 8,
       }}
       className={cn(
-        "bg-white rounded-lg",
+        "bg-warm-white rounded-lg",
         SHADOW_CLASSES.lg,
         BORDERS.gray,
         "max-w-[min(calc(100vw-2rem),40rem)]"

@@ -249,7 +249,7 @@ function SlashMenuBase({
   return (
     <div
       ref={menuRef}
-      className={cn("fixed z-50 bg-white rounded-lg overflow-hidden w-[min(18rem,calc(100vw-2rem))]", SHADOW_CLASSES.lg, BORDERS.gray)}
+      className={cn("fixed z-50 bg-warm-white rounded-lg overflow-hidden w-[min(18rem,calc(100vw-2rem))]", SHADOW_CLASSES.lg, BORDERS.gray)}
       style={{
         top: position.top,
         left: Math.min(position.left, typeof window !== 'undefined' ? window.innerWidth - 300 : position.left)
@@ -331,7 +331,7 @@ function SlashMenuBase({
                 setBacklogReference("");
               }
             }}
-            className={cn("w-full px-3 py-2 text-sm rounded-md focus:outline-none focus:ring-2", BORDERS.gray, "focus:ring-blue-500")}
+            className={cn("w-full px-3 py-2 text-sm rounded-md focus:outline-none focus:ring-2", BORDERS.gray, "focus:ring-amber-dark")}
             autoFocus
           />
 

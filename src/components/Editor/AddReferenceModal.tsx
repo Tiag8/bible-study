@@ -128,7 +128,7 @@ export function AddReferenceModal({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div
-        className={cn('bg-white rounded-lg w-full max-w-md mx-4 max-h-[90dvh] overflow-y-auto', SHADOW_CLASSES.lg)}
+        className={cn('bg-cream rounded-lg w-full max-w-md mx-4 max-h-[90dvh] overflow-y-auto', SHADOW_CLASSES.lg)}
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-reference-title"
@@ -154,7 +154,7 @@ export function AddReferenceModal({
             className={cn(
               'flex-1 py-3 px-4 text-sm font-medium transition-colors flex items-center justify-center gap-2',
               activeTab === 'internal'
-                ? 'border-b-2 border-blue-500 text-blue-600'
+                ? 'border-b-2 border-amber-dark text-[#6B4E0A]'
                 : 'text-gray-500 hover:text-gray-700'
             )}
             aria-selected={activeTab === 'internal'}
@@ -168,7 +168,7 @@ export function AddReferenceModal({
             className={cn(
               'flex-1 py-3 px-4 text-sm font-medium transition-colors flex items-center justify-center gap-2',
               activeTab === 'external'
-                ? 'border-b-2 border-blue-500 text-blue-600'
+                ? 'border-b-2 border-amber-dark text-[#6B4E0A]'
                 : 'text-gray-500 hover:text-gray-700',
               !onAddExternalLink && 'opacity-50 cursor-not-allowed'
             )}
@@ -195,7 +195,7 @@ export function AddReferenceModal({
                   value={rawSearchQuery}
                   onChange={(e) => setRawSearchQuery(e.target.value)}
                   className={cn(
-                    'w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+                    'w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-dark',
                     BORDERS.gray
                   )}
                   autoFocus
@@ -221,7 +221,7 @@ export function AddReferenceModal({
                       className={cn(
                         'w-full text-left p-2 rounded transition-colors border-2',
                         selectedId === study.id
-                          ? cn(COLORS.primary.light, 'border-blue-500')
+                          ? cn(COLORS.primary.light, 'border-amber-dark')
                           : 'hover:bg-gray-100 border-transparent'
                       )}
                       aria-pressed={selectedId === study.id}
@@ -255,7 +255,7 @@ export function AddReferenceModal({
                       'w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2',
                       urlError
                         ? 'border-red-300 focus:ring-red-500'
-                        : cn(BORDERS.gray, 'focus:ring-blue-500')
+                        : cn(BORDERS.gray, 'focus:ring-amber-dark')
                     )}
                     autoFocus
                     aria-label="External URL"
@@ -273,11 +273,11 @@ export function AddReferenceModal({
 
               {/* Preview */}
               {externalUrl && isValidUrl(externalUrl) && (
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="p-3 bg-amber-light border border-amber-dark rounded-lg">
                   <div className="flex items-start gap-2">
-                    <ExternalLink className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <ExternalLink className="w-4 h-4 text-[#6B4E0A] mt-0.5 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium text-blue-900 truncate">
+                      <div className="text-sm font-medium text-[#6B4E0A] truncate">
                         {(() => {
                           try {
                             return new URL(externalUrl).hostname;
@@ -286,7 +286,7 @@ export function AddReferenceModal({
                           }
                         })()}
                       </div>
-                      <div className="text-xs text-blue-700 truncate">{externalUrl}</div>
+                      <div className="text-xs text-[#6B4E0A] truncate">{externalUrl}</div>
                     </div>
                   </div>
                 </div>

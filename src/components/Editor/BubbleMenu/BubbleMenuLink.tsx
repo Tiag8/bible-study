@@ -36,7 +36,7 @@ export function BubbleMenuLink({
             }
           }}
           className={cn(
-            "flex-1 min-w-0 px-2 py-1 text-base md:text-sm rounded focus:outline-none focus:ring-2 focus:ring-blue-500",
+            "flex-1 min-w-0 px-2 py-1 text-base md:text-sm rounded focus:outline-none focus:ring-2 focus:ring-amber-dark",
             BORDERS.gray
           )}
           autoFocus
