@@ -25,11 +25,15 @@ import {
   X,
   Trash2,
   Undo2,
+  Redo2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { CreateTagModal } from "@/components/CreateTagModal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { ReferencesSidebar } from "@/components/Editor/ReferencesSidebar";
+import { clearDraft, readRestorableDraft, writeDraft } from "@/lib/study-draft";
+import { StudyOutline } from "@/components/StudyOutline";
+import { useDismiss } from "@/hooks/useDismiss";
 import { StudyAttachments } from "@/components/StudyAttachments";
 
 interface StudyPageProps {
@@ -75,6 +79,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
   const [isLoading, setIsLoading] = useState(true);
   // Sempre string JSON para consistência
   const [currentContent, setCurrentContent] = useState<string>("");
+  const latestContent = currentContent;
 
   // Estado de edição
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -94,6 +99,20 @@ export function StudyPageClient({ params }: StudyPageProps) {
   // Undo/Redo state
   const editorRef = useRef<EditorHandle>(null);
   const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  // Salvamento: evita gravações simultâneas e guarda a base do rascunho local
+  const savingRef = useRef(false);
+  const baseUpdatedAtRef = useRef<string | null>(null);
+  const flushRef = useRef<() => void>(() => {});
+
+  // Menus do cabeçalho fecham ao tocar fora ou com Esc
+  const statusMenuRef = useRef<HTMLDivElement>(null);
+  const tagMenuRef = useRef<HTMLDivElement>(null);
+  const closeStatusMenu = useCallback(() => setShowStatusDropdown(false), []);
+  const closeTagMenu = useCallback(() => setShowTagDropdown(false), []);
+  useDismiss(statusMenuRef, showStatusDropdown, closeStatusMenu);
+  useDismiss(tagMenuRef, showTagDropdown && !showCreateTagModal, closeTagMenu);
 
   // Estado para guardar o bookId
   const [bookId, setBookId] = useState<string>("");
@@ -182,9 +201,6 @@ export function StudyPageClient({ params }: StudyPageProps) {
         }
 
         console.log("[ESTUDO] Study loaded:", studyData.id);
-        setStudy(studyData);
-        setTitle(studyData.title);
-        setSelectedTags(studyData.tags || []);
 
         // Normalizar content para sempre ser string JSON
         const contentStr = studyData.content
@@ -192,7 +208,28 @@ export function StudyPageClient({ params }: StudyPageProps) {
               ? studyData.content
               : JSON.stringify(studyData.content))
           : "";
-        setCurrentContent(contentStr);
+
+        // Rascunho local: texto digitado que não chegou a ser gravado (aba descartada,
+        // queda de rede). Só volta se a cópia do servidor ainda for a mesma em que ele foi escrito.
+        baseUpdatedAtRef.current = studyData.updated_at;
+        const draft = readRestorableDraft(window.localStorage, studyData.id, studyData.updated_at, contentStr);
+        let restored: StudyWithContent["content"] | null = null;
+        if (draft) {
+          try {
+            restored = JSON.parse(draft) as StudyWithContent["content"];
+          } catch {
+            clearDraft(window.localStorage, studyData.id);
+          }
+        }
+
+        setStudy(restored ? { ...studyData, content: restored } : studyData);
+        setTitle(studyData.title);
+        setSelectedTags(studyData.tags || []);
+        setCurrentContent(restored && draft ? draft : contentStr);
+        setHasUnsavedChanges(restored !== null);
+        if (restored) {
+          toast.info("Recuperamos um rascunho deste estudo que não tinha sido salvo.");
+        }
         setIsInitialLoad(true);
       } catch (error) {
         console.error("[ESTUDO] loadStudy ERROR:", error);
@@ -231,7 +268,14 @@ export function StudyPageClient({ params }: StudyPageProps) {
     console.log("[ESTUDO] handleContentChange - marking unsaved");
     setCurrentContent(content);
     setHasUnsavedChanges(true);
-  }, [isInitialLoad]);
+    if (study?.id && baseUpdatedAtRef.current) {
+      writeDraft(window.localStorage, study.id, {
+        content,
+        baseUpdatedAt: baseUpdatedAtRef.current,
+        savedAt: new Date().toISOString(),
+      });
+    }
+  }, [isInitialLoad, study?.id]);
 
   // Interceptar cliques em links internos (/estudo/) + remover href para evitar navegação padrão
   useEffect(() => {
@@ -304,10 +348,16 @@ export function StudyPageClient({ params }: StudyPageProps) {
     };
   }, [router]);
 
-  // Função de salvamento
-  const handleSave = useCallback(async () => {
+  // Função de salvamento. `silent` (salvamento automático) não mostra avisos de sucesso;
+  // `content` permite gravar o texto mais recente do editor sem esperar o debounce.
+  const handleSave = useCallback(async (options: { silent?: boolean; content?: string } = {}) => {
+    const silent = options.silent === true;
+    const currentContent = options.content ?? latestContent;
+    if (savingRef.current) return;
+    savingRef.current = true;
+    const editorAtStart = editorRef.current?.getContent() ?? null;
     setIsSaving(true);
-    const toastId = toast.loading("Salvando...");
+    const toastId = silent ? undefined : toast.loading("Salvando...");
 
     try {
       // Verificar se o conteúdo está vazio (Story 3.8 validation)
@@ -317,17 +367,9 @@ export function StudyPageClient({ params }: StudyPageProps) {
                      currentContent.trim() === '' ||
                      currentContent === '{"type":"doc","content":[]}';
 
-      // Se for novo estudo (study === null) e não tem conteúdo, avisar usuário
-      if (!study?.id && isEmpty) {
-        toast.error("Estudo não pode estar vazio", { id: toastId });
-        setIsSaving(false);
-        return;
-      }
-
-      // Se for estudo existente e fica vazio após edição, rejeitar
-      if (study?.id && isEmpty) {
-        toast.error("Estudo não pode estar vazio", { id: toastId });
-        setIsSaving(false);
+      // Estudo novo ou existente não pode ser gravado vazio
+      if (isEmpty) {
+        if (!silent) toast.error("Estudo não pode estar vazio", { id: toastId });
         return;
       }
 
@@ -359,7 +401,8 @@ export function StudyPageClient({ params }: StudyPageProps) {
             tags: selectedTags,
           });
 
-          toast.success("Estudo criado com sucesso!", { id: toastId });
+          if (silent) toast.success("Estudo criado com sucesso!");
+          else toast.success("Estudo criado com sucesso!", { id: toastId });
           console.log("[ESTUDO] Estudo criado e salvo. Redirecionando para:", newStudy.id);
           // Redirecionar para o estudo criado
           router.replace(`/estudo/${newStudy.id}`);
@@ -369,33 +412,64 @@ export function StudyPageClient({ params }: StudyPageProps) {
         }
       } else if (study?.id) {
         // Estudo já existe - save normal
-        await saveStudy(study.id, {
+        baseUpdatedAtRef.current = await saveStudy(study.id, {
           title,
           ...(contentToSave ? { content: contentToSave } : {}),
           tags: selectedTags,
         });
-        setHasUnsavedChanges(false);
+        clearDraft(window.localStorage, study.id);
+        // Se o texto mudou enquanto a gravação estava em curso, ainda há o que salvar.
+        const editorNow = editorRef.current?.getContent() ?? null;
+        setHasUnsavedChanges(editorNow !== null && editorAtStart !== null && editorNow !== editorAtStart);
         setLastSaved(new Date());
-        toast.success("Salvo com sucesso!", { id: toastId });
+        if (!silent) toast.success("Salvo com sucesso!", { id: toastId });
       }
     } catch (error) {
       console.error("Erro ao salvar estudo:", error);
-      toast.error("Erro ao salvar. Tente novamente.", { id: toastId });
+      // No salvamento automático o aviso não se repete a cada tentativa: o indicador
+      // "Não salvo" continua visível e o rascunho local guarda o texto.
+      if (silent) toast.error("Não foi possível salvar. O texto fica guardado neste aparelho.", { id: "autosave-error" });
+      else toast.error("Erro ao salvar. Tente novamente.", { id: toastId });
     } finally {
+      savingRef.current = false;
       setIsSaving(false);
     }
-  }, [study, title, currentContent, selectedTags, saveStudy, newStudyInfo, createStudy, router]);
+  }, [study, title, latestContent, selectedTags, saveStudy, newStudyInfo, createStudy, router]);
 
-  // Auto-save a cada 30 segundos se houver alterações
+  // Salvamento automático 3 segundos depois da última alteração (antes eram 30 s, e o
+  // contador reiniciava a cada tecla). Estudo novo só nasce no salvar manual.
   useEffect(() => {
-    if (!hasUnsavedChanges) return;
+    if (!hasUnsavedChanges || !study?.id) return;
 
     const timer = setTimeout(() => {
-      handleSave();
-    }, 30000);
+      handleSave({ silent: true });
+    }, 3000);
 
     return () => clearTimeout(timer);
-  }, [hasUnsavedChanges, handleSave]);
+  }, [hasUnsavedChanges, study?.id, handleSave]);
+
+  // Gravar ao sair: o celular descarta abas em segundo plano sem avisar, então a troca
+  // de app, o fechamento da aba e a saída da página gravam o que estiver pendente.
+  useEffect(() => {
+    flushRef.current = () => {
+      if (!hasUnsavedChanges || !study?.id) return;
+      handleSave({ silent: true, content: editorRef.current?.getContent() ?? undefined });
+    };
+  });
+
+  useEffect(() => {
+    const flush = () => flushRef.current();
+    const flushWhenHidden = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
+    document.addEventListener("visibilitychange", flushWhenHidden);
+    window.addEventListener("pagehide", flush);
+    return () => {
+      document.removeEventListener("visibilitychange", flushWhenHidden);
+      window.removeEventListener("pagehide", flush);
+      flush();
+    };
+  }, []);
 
   // Interceptar navegação se houver mudanças não salvas
   const handleNavigate = useCallback(
@@ -467,6 +541,10 @@ export function StudyPageClient({ params }: StudyPageProps) {
   // Undo ação
   const handleUndo = useCallback(() => {
     editorRef.current?.undo();
+  }, []);
+
+  const handleRedo = useCallback(() => {
+    editorRef.current?.redo();
   }, []);
 
   // Toggle tag
@@ -590,7 +668,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
               Você tem alterações não salvas neste estudo. Deseja salvar antes
               de sair?
             </p>
-            <div className="flex gap-3 justify-end">
+            <div className="flex flex-wrap gap-3 justify-end">
               <Button variant="ghost" onClick={cancelExit}>
                 Cancelar
               </Button>
@@ -706,9 +784,21 @@ export function StudyPageClient({ params }: StudyPageProps) {
                 <Undo2 className="w-4 h-4" />
               </Button>
 
+              {/* Botão de refazer */}
+              <Button
+                onClick={handleRedo}
+                disabled={!canRedo}
+                variant="ghost"
+                size="sm"
+                title="Refazer (Ctrl+Shift+Z)"
+                aria-label="Refazer"
+              >
+                <Redo2 className="w-4 h-4" />
+              </Button>
+
               {/* Botão de salvar — label só em ≥ sm */}
               <Button
-                onClick={handleSave}
+                onClick={() => handleSave()}
                 disabled={!hasUnsavedChanges || isSaving}
                 size="sm"
                 aria-label="Salvar estudo"
@@ -718,7 +808,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
               </Button>
 
               {/* Dropdown de status */}
-              <div className="relative">
+              <div className="relative" ref={statusMenuRef}>
                 <button
                   onClick={() => setShowStatusDropdown(!showStatusDropdown)}
                   disabled={!study?.id}
@@ -826,7 +916,13 @@ export function StudyPageClient({ params }: StudyPageProps) {
               )}
 
               {/* Botão de tags */}
-              <div className="relative">
+              {/* Sumário do estudo */}
+              <StudyOutline
+                getOutline={() => editorRef.current?.getOutline() ?? []}
+                onSelect={(pos) => editorRef.current?.scrollToPos(pos)}
+              />
+
+              <div className="relative" ref={tagMenuRef}>
                 <Button
                   variant="outline"
                   size="sm"
@@ -923,7 +1019,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
 
           {/* Tags selecionadas */}
           {selectedTags.length > 0 && (
-            <div className="flex items-center gap-2 mt-3">
+            <div className="flex flex-wrap items-center gap-2 mt-3">
               {selectedTags.map((tag) => {
                 const tagColor = getTagColor(tag);
                 return (
@@ -957,7 +1053,19 @@ export function StudyPageClient({ params }: StudyPageProps) {
                 ref={editorRef}
                 initialContent={study?.content || ""}
                 onChange={handleContentChange}
-                onUndoRedoChange={(canUndo) => setCanUndo(canUndo)}
+                onUndoRedoChange={(undoAvailable, redoAvailable) => {
+                  setCanUndo(undoAvailable);
+                  setCanRedo(redoAvailable);
+                }}
+                toolbarStatus={
+                  isSaving ? (
+                    <div className="w-4 h-4 border-2 border-amber border-t-transparent rounded-full animate-spin" aria-label="Salvando" />
+                  ) : hasUnsavedChanges ? (
+                    <Clock className="w-4 h-4 text-amber-500" aria-label="Não salvo" />
+                  ) : lastSaved ? (
+                    <CheckCircle className="w-4 h-4 text-green-500" aria-label="Salvo" />
+                  ) : null
+                }
                 onAddReference={addReference}
                 onAddExternalLink={addExternalLink}
                 onDeleteReferenceByStudyId={deleteReferenceByStudyId}
@@ -967,8 +1075,8 @@ export function StudyPageClient({ params }: StudyPageProps) {
             {/* Anexos do estudo */}
             {study?.id && <StudyAttachments studyId={study.id} />}
 
-            {/* Dicas */}
-            <div className={cn("mt-4 text-sm", PARCHMENT.text.muted)}>
+            {/* Dicas (atalhos de teclado físico: só em telas maiores) */}
+            <div className={cn("mt-4 text-sm hidden md:block", PARCHMENT.text.muted)}>
               <p>
                 <strong>Dicas:</strong> Use{" "}
                 <kbd className="px-1.5 py-0.5 bg-warm-white rounded text-xs border border-linen">/</kbd>{" "}
@@ -989,6 +1097,7 @@ export function StudyPageClient({ params }: StudyPageProps) {
           onDeleteReference={deleteReference}
           onReorder={reorderReference}
           onRetry={refetchReferences}
+          currentStudyId={study?.id}
         />
       </div>
     </main>

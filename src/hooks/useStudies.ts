@@ -28,7 +28,8 @@ interface StudiesContextValue {
   getStudiesByChapter: (bookName: string, chapter: number) => StudySummary[];
   getOrCreateStudy: (bookName: string, chapter: number, title?: string) => Promise<StudyWithContent>;
   createStudy: (bookName: string, chapter: number, title?: string) => Promise<StudyWithContent>;
-  saveStudy: (id: string, updates: Partial<StudyUpdate>) => Promise<Study | null>;
+  /** Devolve o `updated_at` gravado. Lança erro se a gravação falhar. */
+  saveStudy: (id: string, updates: Partial<StudyUpdate>) => Promise<string>;
   updateStudyStatus: (id: string, status: 'estudar' | 'estudando' | 'revisando' | 'concluído') => Promise<boolean>;
   completeStudy: (id: string) => Promise<boolean>;
   deleteStudy: (id: string) => Promise<boolean>;
@@ -263,17 +264,18 @@ function useStudiesInternal(): StudiesContextValue {
   const saveStudy = useCallback(async (
     id: string,
     updates: Partial<StudyUpdate>
-  ): Promise<Study | null> => {
+  ): Promise<string> => {
     if (!user?.id) {
-      return null;
+      throw new Error('Você precisa estar autenticado para salvar');
     }
 
     const timeoutMs = 10000;
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
     try {
-      // PATTERN: Seguir exatamente o padrão de completeStudy() que funciona
-      // Apenas UPDATE, sem SELECT (evita hang com RLS + JSONB)
+      // UPDATE devolvendo só `updated_at` (nunca o `content`, que é pesado): o banco
+      // regrava essa data por trigger, e a página precisa do valor real para o rascunho
+      // local. `.single()` também acusa erro quando nenhuma linha foi atualizada.
       const timeoutPromise = new Promise<never>((_, reject) => {
         timeoutId = setTimeout(() => {
           reject(new Error('[STUDIES] saveStudy timeout'));
@@ -288,11 +290,14 @@ function useStudiesInternal(): StudiesContextValue {
           updated_at: now,
         })
         .eq('id', id)
-        .eq('user_id', user.id); // Explícito para RLS
+        .eq('user_id', user.id) // Explícito para RLS
+        .select('updated_at')
+        .single();
 
-      const { error } = await Promise.race([queryPromise, timeoutPromise]);
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
 
       if (error) throw error;
+      const savedAt = (data as { updated_at: string }).updated_at;
 
       // Atualizar state local (sem incluir 'content' que é pesado)
       setStudies(prev => prev.map(study => {
@@ -303,7 +308,7 @@ function useStudiesInternal(): StudiesContextValue {
           return {
             ...study,
             ...updateWithoutContent,
-            updated_at: now,
+            updated_at: savedAt,
           };
         }
         return study;
@@ -311,16 +316,16 @@ function useStudiesInternal(): StudiesContextValue {
 
       // NÃO fazer SELECT separado (pode travar com JSONB grande)
       // UI já tem o estado atualizado via currentContent
-      return null; // Retornar null OK (página não usa retorno)
+      return savedAt;
     } catch (err) {
       // ✅ ERROR HANDLING: Log detalhado + mensagem user-friendly
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
       console.error('[STUDIES] saveStudy ERROR:', { id, error: errorMessage, err });
 
-      // ✅ ERROR HANDLING: Não crashar UI - retornar null gracefully
-      // A página deve checar se retorno é null e mostrar toast de erro
+      // Propagar a falha: devolver null aqui fazia a página mostrar "Salvo com sucesso"
+      // mesmo sem ter gravado (sem rede, timeout), e o texto se perdia em silêncio.
       setError(`Erro ao salvar estudo: ${errorMessage}`);
-      return null;
+      throw err;
     } finally {
       if (timeoutId) {
         clearTimeout(timeoutId);
